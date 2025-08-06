@@ -2,7 +2,7 @@
 
 <%= form_with url: products_path, method: :get, local: true, class: "mb-4 flex" do |form| %>
   <%= form.text_field :query, value: params[:query], placeholder: "Buscar productos", class: "flex-grow mr-2 border rounded px-3 py-2" %>
-  <%= form.submit "Buscar", class: "rounded bg-indigo-600 px-4 py-2 text-white hover:bg-indigo-700" %>
+  <%= render Ui::FormButtonComponent.new(form: form, label: 'Buscar') %>
 <% end %>
 
 <table class="mb-4 min-w-full divide-y divide-gray-200">
@@ -27,7 +27,7 @@
         <td class="px-4 py-2"><%= link_to 'Show', product, class: 'text-indigo-600 hover:underline' %></td>
         <td class="px-4 py-2"><%= link_to 'Edit', edit_product_path(product), class: 'text-indigo-600 hover:underline' %></td>
         <td class="px-4 py-2"><%= link_to 'Destroy', product, data: { turbo_method: :delete, turbo_confirm: 'Are you sure?' }, class: 'text-red-600 hover:underline' %></td>
-        <td class="px-4 py-2"><%= button_to 'Add to Cart', add_item_cart_path(product_id: product.id), method: :post, class: 'rounded bg-green-600 px-3 py-1 text-white hover:bg-green-700' %></td>
+        <td class="px-4 py-2"><%= render Ui::ButtonComponent.new(label: 'Add to Cart', path: add_item_cart_path(product_id: product.id), method: :post) %></td>
       </tr>
     <% end %>
   </tbody>
@@ -35,4 +35,4 @@
 
 <p class="mb-4"><%= link_to 'View Cart', cart_path, class: 'text-indigo-600 hover:underline' %></p>
 
-<p><%= link_to 'New Product', new_product_path, class: 'inline-block rounded bg-indigo-600 px-4 py-2 text-white hover:bg-indigo-700' %></p>
+<p><%= render Ui::ButtonComponent.new(label: 'New Product', path: new_product_path) %></p>
