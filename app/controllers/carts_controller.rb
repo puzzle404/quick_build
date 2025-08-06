@@ -9,7 +9,6 @@ class CartsController < ApplicationController
     cart = current_cart
     cart[product_id] = (cart[product_id] || 0) + 1
     session[:cart] = cart
-    redirect_to cart_path
   end
 
   def remove
