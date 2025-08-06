@@ -20,5 +20,6 @@ end
   Product.find_or_create_by!(name: attrs[:name], company: company) do |product|
     product.price_cents = attrs[:price_cents]
     product.description = attrs[:description]
+    product.category = Category.all.sample
   end
 end
