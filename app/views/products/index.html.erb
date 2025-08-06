@@ -1,0 +1,10 @@
+<h1>Products</h1>
+<% @products.each do |product| %>
+  <div>
+    <%= product.name %> - <%= product.price_cents %> cents
+    <%= button_to 'Add to Cart', add_item_cart_path(product_id: product.id), method: :post %>
+  </div>
+<% end %>
+<p>
+  <%= link_to 'View Cart', cart_path %>
+</p>

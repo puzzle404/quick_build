@@ -1,0 +1,13 @@
+<h1>Confirm Order</h1>
+<% if @cart.empty? %>
+  <p>Your cart is empty.</p>
+<% else %>
+  <ul>
+    <% @products.each do |product| %>
+      <li>
+        <%= product.name %> (<%= @cart[product.id.to_s] %>)
+      </li>
+    <% end %>
+  </ul>
+  <%= button_to 'Place Order', orders_path, method: :post %>
+<% end %>
