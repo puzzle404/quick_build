@@ -1,0 +1,19 @@
+<p>
+  <strong>Name:</strong>
+  <%= @product.name %>
+</p>
+<p>
+  <strong>Price:</strong>
+  <%= @product.price_cents %>
+</p>
+<p>
+  <strong>Category:</strong>
+  <%= @product.category.name if @product.category %>
+</p>
+<p>
+  <strong>Description:</strong>
+  <%= @product.description %>
+</p>
+
+<%= link_to 'Edit', edit_product_path(@product) %> |
+<%= link_to 'Back', products_path %>
