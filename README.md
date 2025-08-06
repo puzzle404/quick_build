@@ -1,24 +1,31 @@
-# README
+# QuickBuild
 
-This README would normally document whatever steps are necessary to get the
-application up and running.
+Aplicación de ejemplo construida con Rails 8.
 
-Things you may want to cover:
+## Requisitos
 
-* Ruby version
+- Ruby 3.2 o superior
+- PostgreSQL
+- Bundler
 
-* System dependencies
+## Instalación
 
-* Configuration
+1. Clonar el repositorio.
+2. Instalar dependencias:
+   ```bash
+   bundle install
+   ```
+3. Preparar la base de datos:
+   ```bash
+   bin/rails db:setup
+   ```
+4. Cargar datos de ejemplo:
+   ```bash
+   bin/rails db:seed
+   ```
 
-* Database creation
+## Comandos básicos
 
-* Database initialization
-
-* How to run the test suite
-
-* Services (job queues, cache servers, search engines, etc.)
-
-* Deployment instructions
-
-* ...
+- Iniciar el servidor de desarrollo: `bin/dev`
+- Ejecutar pruebas: `bundle exec rspec`
+- Revisar estilo de código: `bundle exec rubocop`
