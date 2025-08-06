@@ -1,4 +1,4 @@
-class CartController < ApplicationController
+class CartsController < ApplicationController
   def show
     @cart = current_cart
     @products = Product.where(id: @cart.keys)
