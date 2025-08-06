@@ -1,7 +1,9 @@
-<h1>Order <%= @order.id %></h1>
-<p>State: <%= @order.state %></p>
-<ul>
-  <% @order.line_items.each do |item| %>
-    <li><%= item.product.name %> (<%= item.quantity %>)</li>
-  <% end %>
-</ul>
+<div class="mx-auto max-w-md rounded bg-white p-6 shadow">
+  <h1 class="mb-4 text-2xl font-bold">Order <%= @order.id %></h1>
+  <p class="mb-4">State: <%= @order.state %></p>
+  <ul class="space-y-2">
+    <% @order.line_items.each do |item| %>
+      <li class="rounded bg-gray-50 p-2"><%= item.product.name %> (<%= item.quantity %>)</li>
+    <% end %>
+  </ul>
+</div>

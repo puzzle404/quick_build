@@ -1,14 +1,16 @@
-<h1>Your Cart</h1>
-<% if @cart.empty? %>
-  <p>Your cart is empty.</p>
-<% else %>
-  <ul>
-    <% @products.each do |product| %>
-      <li>
-        <%= product.name %> (<%= @cart[product.id.to_s] %>)
-        <%= render Ui::ButtonComponent.new(label: 'Remove', path: remove_item_cart_path(product_id: product.id), method: :delete, variant: :danger) %>
-      </li>
-    <% end %>
-  </ul>
-  <%= render Ui::ButtonComponent.new(label: 'Checkout', path: new_order_path) %>
-<% end %>
+<h1 class="mb-6 text-2xl font-bold">Your Cart</h1>
+<div class="mx-auto max-w-md">
+  <% if @cart.empty? %>
+    <p>Your cart is empty.</p>
+  <% else %>
+    <ul class="mb-4 space-y-2">
+      <% @products.each do |product| %>
+        <li class="flex items-center justify-between rounded bg-white p-4 shadow">
+          <span><%= product.name %> (<%= @cart[product.id.to_s] %>)</span>
+          <%= render Ui::ButtonComponent.new(label: 'Remove', path: remove_item_cart_path(product_id: product.id), method: :delete, variant: :danger) %>
+        </li>
+      <% end %>
+    </ul>
+    <%= render Ui::ButtonComponent.new(label: 'Checkout', path: new_order_path) %>
+  <% end %>
+</div>

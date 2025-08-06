@@ -1,10 +1,10 @@
 <nav class="bg-white shadow">
-  <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-    <div class="flex justify-between h-16">
-      <div class="flex-shrink-0 flex items-center">
+  <div class="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
+    <div class="flex flex-col items-center justify-between py-4 sm:h-16 sm:flex-row">
+      <div class="flex items-center">
         <%= link_to "Quick Build", root_path, class: "text-xl font-semibold text-indigo-600" %>
       </div>
-      <div class="flex space-x-4 items-center">
+      <div class="mt-4 flex flex-col items-center space-y-2 sm:mt-0 sm:flex-row sm:space-y-0 sm:space-x-4">
         <%= link_to 'Usuarios', new_user_session_path, class: 'text-gray-700 hover:text-indigo-600' %>
         <%= link_to 'Empresas', new_company_session_path, class: 'text-gray-700 hover:text-indigo-600' %>
         <%= link_to 'Productos', products_path, class: 'text-gray-700 hover:text-indigo-600' %>

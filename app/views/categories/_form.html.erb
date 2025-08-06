@@ -1,9 +1,9 @@
-<%= form_with(model: category) do |form| %>
+<%= form_with(model: category, html: { class: 'space-y-4' }) do |form| %>
   <% if category.errors.any? %>
-    <div id="error_explanation">
-      <h2><%= pluralize(category.errors.count, "error") %> prohibited this category from being saved:</h2>
+    <div class="mb-4 rounded bg-red-100 p-4 text-red-800">
+      <h2 class="mb-2 font-semibold"><%= pluralize(category.errors.count, "error") %> prohibited this category from being saved:</h2>
 
-      <ul>
+      <ul class="list-disc pl-5">
         <% category.errors.full_messages.each do |message| %>
           <li><%= message %></li>
         <% end %>
@@ -12,11 +12,11 @@
   <% end %>
 
   <div>
-    <%= form.label :name %>
-    <%= form.text_field :name %>
+    <%= form.label :name, class: 'block text-sm font-medium text-gray-700' %>
+    <%= form.text_field :name, class: 'mt-1 w-full rounded border-gray-300 focus:border-indigo-500 focus:ring-indigo-500' %>
   </div>
 
   <div>
-    <%= render Ui::FormButtonComponent.new(form: form) %>
+    <%= render Ui::FormButtonComponent.new(form: form, label: category.persisted? ? 'Update Category' : 'Create Category') %>
   </div>
 <% end %>

@@ -1,13 +1,15 @@
-<h1>Confirm Order</h1>
-<% if @cart.empty? %>
-  <p>Your cart is empty.</p>
-<% else %>
-  <ul>
-    <% @products.each do |product| %>
-      <li>
-        <%= product.name %> (<%= @cart[product.id.to_s] %>)
-      </li>
-    <% end %>
-  </ul>
-  <%= render Ui::ButtonComponent.new(label: 'Place Order', path: orders_path, method: :post) %>
-<% end %>
+<h1 class="mb-6 text-2xl font-bold">Confirm Order</h1>
+<div class="mx-auto max-w-md">
+  <% if @cart.empty? %>
+    <p>Your cart is empty.</p>
+  <% else %>
+    <ul class="mb-4 space-y-2">
+      <% @products.each do |product| %>
+        <li class="rounded bg-white p-4 shadow">
+          <%= product.name %> (<%= @cart[product.id.to_s] %>)
+        </li>
+      <% end %>
+    </ul>
+    <%= render Ui::ButtonComponent.new(label: 'Place Order', path: orders_path, method: :post) %>
+  <% end %>
+</div>
