@@ -19,10 +19,4 @@ class CartsController < ApplicationController
     session[:cart] = cart
     redirect_to cart_path
   end
-
-  private
-
-  def current_cart
-    session[:cart] ||= {}
-  end
 end
