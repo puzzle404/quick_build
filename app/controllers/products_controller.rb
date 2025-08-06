@@ -1,7 +1,6 @@
 class ProductsController < ApplicationController
-  before_action :set_company, only: %i[new edit update destroy]
-  before_action :set_product_companies, only: %i[edit update destroy]
-  before_action :set_product, only: %i[show]
+  before_action :set_company, only: %i[index show new edit update destroy]
+  before_action :set_product, except: %i[index new create all_products]
 
   # GET /companies/:company_id/products
   def index
@@ -10,6 +9,11 @@ class ProductsController < ApplicationController
                 else
                   @company.products
                 end
+  end
+
+  def all_products
+    @products = Product.all
+    @products = @products.search_by_name(params[:query]) if params[:query].present?
   end
 
   # GET /companies/:company_id/products/:id
@@ -60,7 +64,7 @@ class ProductsController < ApplicationController
     @product = Product.find(params[:id])
   end
 
-  def set_product_companies
+  def set_products_company
     @product = @company.products.find(params[:id])
   end
 
