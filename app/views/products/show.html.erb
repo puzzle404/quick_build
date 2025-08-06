@@ -1,10 +1,21 @@
 <div class="mx-auto max-w-md rounded bg-white p-6 shadow">
+  <% if @product.images.attached? %>
+    <div class="max-w-xs">
+      <% @product.images.each do |img| %>
+        <%= image_tag img.variant(resize_to_limit: [200,200]) %>
+      <% end %>
+    </div>
+  <% else %>
+    <p>Sin imagen disponible</p>
+  <% end %>
   <p class="mb-2"><span class="font-semibold">Name:</span> <%= @product.name %></p>
   <p class="mb-2"><span class="font-semibold">Price:</span> <%= number_to_currency(@product.price_cents / 100.0) %></p>
   <p class="mb-2"><span class="font-semibold">Category:</span> <%= @product.category.name if @product.category %></p>
   <p class="mb-4"><span class="font-semibold">Description:</span> <%= @product.description %></p>
-  <div class="flex space-x-4">
-    <%= link_to 'Edit', edit_product_path(@product), class: 'text-indigo-600 hover:underline' %>
-    <%= link_to 'Back', products_path, class: 'text-gray-600 hover:underline' %>
-  </div>
+  <% if user_signed_in? && current_user.company == product.company %>
+    <div class="flex space-x-4">
+      <%= link_to 'Edit', edit_company_product_path(@product), class: 'text-indigo-600 hover:underline' %>
+      <%= link_to 'Back', company_products_path(@product.company), class: 'text-gray-600 hover:underline' %>
+    </div>
+  <% end %>
 </div>

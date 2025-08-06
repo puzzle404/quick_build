@@ -1,8 +1,9 @@
-<%= form_with(model: product, html: { class: 'space-y-4' }) do |form| %>
+<%= form_with(model: [@company, product], html: { class: 'space-y-4' }) do |form| %>
   <% if product.errors.any? %>
     <div class="mb-4 rounded bg-red-100 p-4 text-red-800">
-      <h2 class="mb-2 font-semibold"><%= pluralize(product.errors.count, "error") %> prohibited this product from being saved:</h2>
-
+      <h2 class="mb-2 font-semibold">
+        <%= pluralize(product.errors.count, "error") %> prohibited this product from being saved:
+      </h2>
       <ul class="list-disc pl-5">
         <% product.errors.full_messages.each do |message| %>
           <li><%= message %></li>
@@ -28,10 +29,22 @@
 
   <div>
     <%= form.label :category_id, 'Category', class: 'block text-sm font-medium text-gray-700' %>
-    <%= form.collection_select :category_id, Category.all, :id, :name, {}, class: 'mt-1 w-full rounded border-gray-300 focus:border-indigo-500 focus:ring-indigo-500' %>
+    <%= form.collection_select :category_id,
+          Category.all,
+          :id, :name,
+          { prompt: "Selecciona una categoría" },
+          class: 'mt-1 w-full rounded border-gray-300 focus:border-indigo-500 focus:ring-indigo-500' %>
   </div>
 
   <div>
-    <%= render Ui::FormButtonComponent.new(form: form, label: product.persisted? ? 'Update Product' : 'Create Product') %>
+    <%= form.label :images, "Imágenes del producto", class: 'block text-sm font-medium text-gray-700' %>
+    <%= form.file_field :images, multiple: true,direct_upload: true, class: 'mt-1' %>
+  </div>
+
+  <div>
+    <%= render Ui::FormButtonComponent.new(
+          form: form,
+          label: product.persisted? ? 'Update Product' : 'Create Product'
+        ) %>
   </div>
 <% end %>

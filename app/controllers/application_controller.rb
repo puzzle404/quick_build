@@ -4,7 +4,8 @@ class ApplicationController < ActionController::Base
 
   before_action :configure_permitted_parameters, if: :devise_controller?
 
-  helper_method :current_cart, :cart_items_count
+  helper_method :current_cart
+  helper_method :cart_items_count
 
   protected
 
