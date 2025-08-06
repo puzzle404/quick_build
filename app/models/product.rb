@@ -3,6 +3,7 @@ class Product < ApplicationRecord
 
   acts_as_tenant(:company)
   belongs_to :company
+  belongs_to :category
   has_many_attached :images
 
   pg_search_scope :search_by_name, against: :name, using: { tsearch: { prefix: true } }
