@@ -1,7 +1,10 @@
-<p>
-  <strong>Name:</strong>
-  <%= @category.name %>
-</p>
-
-<%= link_to 'Edit', edit_category_path(@category) %> |
-<%= link_to 'Back', categories_path %>
+<div class="mx-auto max-w-md rounded bg-white p-6 shadow">
+  <p class="mb-4">
+    <span class="font-semibold">Name:</span>
+    <%= @category.name %>
+  </p>
+  <div class="flex space-x-4">
+    <%= link_to 'Edit', edit_category_path(@category), class: 'text-indigo-600 hover:underline' %>
+    <%= link_to 'Back', categories_path, class: 'text-gray-600 hover:underline' %>
+  </div>
+</div>

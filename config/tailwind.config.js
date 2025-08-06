@@ -28,6 +28,14 @@ module.exports = {
           900: "var(--color-gray-900)",
         },
         red: { ...defaultTheme.colors.red },
+        green: {
+          600: "var(--color-green-600)",
+          700: "var(--color-green-700)",
+        },
+        yellow: {
+          500: "var(--color-yellow-500)",
+          600: "var(--color-yellow-600)",
+        },
       }
     }
   },

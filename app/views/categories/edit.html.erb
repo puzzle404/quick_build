@@ -1,3 +1,5 @@
-<h1>Edit Category</h1>
-<%= render 'form', category: @category %>
-<%= link_to 'Back', categories_path %>
+<h1 class="mb-6 text-2xl font-bold">Edit Category</h1>
+<div class="mx-auto max-w-md rounded bg-white p-6 shadow">
+  <%= render 'form', category: @category %>
+</div>
+<p class="mt-4"><%= link_to 'Back', categories_path, class: 'text-indigo-600 hover:underline' %></p>
