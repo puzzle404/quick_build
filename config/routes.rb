@@ -1,6 +1,5 @@
 Rails.application.routes.draw do
   devise_for :users
-  devise_for :companies
   # Define your application routes per the DSL in https://guides.rubyonrails.org/routing.html
   get 'up' => 'rails/health#show', as: :rails_health_check
 
@@ -12,4 +11,8 @@ Rails.application.routes.draw do
   resources :orders, only: [:index, :show, :new, :create]
   resources :products, only: :index
   root 'products#index'
+  resources :categories
+
+  get "up" => "rails/health#show", as: :rails_health_check
+  root "products#index"
 end
