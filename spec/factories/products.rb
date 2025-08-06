@@ -4,5 +4,6 @@ FactoryBot.define do
     price_cents { 1 }
     description { "MyText" }
     association :company
+    association :category
   end
 end
