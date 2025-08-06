@@ -1,0 +1,12 @@
+<h1>Products</h1>
+
+<%= form_with url: products_path, method: :get, local: true do |form| %>
+  <%= form.text_field :query, value: params[:query], placeholder: "Search products" %>
+  <%= form.submit "Search" %>
+<% end %>
+
+<ul>
+  <% @products.each do |product| %>
+    <li><%= product.name %></li>
+  <% end %>
+</ul>
