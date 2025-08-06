@@ -9,5 +9,5 @@
       </li>
     <% end %>
   </ul>
-  <%= button_to 'Place Order', orders_path, method: :post %>
+  <%= render Ui::ButtonComponent.new(label: 'Place Order', path: orders_path, method: :post) %>
 <% end %>

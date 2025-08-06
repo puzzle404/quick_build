@@ -6,9 +6,9 @@
     <% @products.each do |product| %>
       <li>
         <%= product.name %> (<%= @cart[product.id.to_s] %>)
-        <%= button_to 'Remove', remove_item_cart_path(product_id: product.id), method: :delete %>
+        <%= render Ui::ButtonComponent.new(label: 'Remove', path: remove_item_cart_path(product_id: product.id), method: :delete, variant: :danger) %>
       </li>
     <% end %>
   </ul>
-  <%= link_to 'Checkout', new_order_path %>
+  <%= render Ui::ButtonComponent.new(label: 'Checkout', path: new_order_path) %>
 <% end %>
