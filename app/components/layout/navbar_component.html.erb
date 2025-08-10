@@ -5,9 +5,12 @@
         <%= link_to "Quick Build", root_path, class: "text-xl font-semibold text-indigo-600" %>
       </div>
       <div class="mt-4 flex flex-col items-center space-y-2 sm:mt-0 sm:flex-row sm:space-y-0 sm:space-x-4">
-        <%= link_to 'Usuarios', new_user_session_path, class: 'text-gray-700 hover:text-indigo-600' %>
-        <%= link_to 'Empresas', new_company_session_path, class: 'text-gray-700 hover:text-indigo-600' %>
         <%= link_to 'Productos', products_path, class: 'text-gray-700 hover:text-indigo-600' %>
+        <% if current_user %>
+          <%= link_to 'Logout', destroy_user_session_path, method: :delete, class: 'text-gray-700 hover:text-indigo-600' %>
+        <% else %>
+          <%= link_to 'Login', new_user_session_path, class: 'text-gray-700 hover:text-indigo-600' %>
+        <% end %>
         <%= link_to cart_path, class: 'relative inline-block text-gray-700 hover:text-indigo-600' do %>
           <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 3h2l.4 2M7 13h10l4-8H5.4M7 13L5.4 5M7 13l-1.35 2.7a1 1 0 00.9 1.3h12.2M16 16a2 2 0 11-4 0m6 0a2 2 0 11-4 0" />

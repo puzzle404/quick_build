@@ -3,6 +3,7 @@ class ApplicationController < ActionController::Base
   allow_browser versions: :modern
 
   before_action :configure_permitted_parameters, if: :devise_controller?
+  layout :layout_by_role
 
   helper_method :current_cart
   helper_method :cart_items_count
@@ -23,5 +24,9 @@ class ApplicationController < ActionController::Base
 
   def cart_items_count
     current_cart.values.sum
+  end
+
+  def layout_by_role
+    current_user&.seller? ? 'company' : 'application'
   end
 end
