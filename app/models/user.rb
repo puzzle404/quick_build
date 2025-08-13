@@ -7,7 +7,8 @@ class User < ApplicationRecord
   belongs_to :company, optional: true
   has_many :orders, dependent: :destroy
 
-  enum role: { buyer: 0, seller: 1, constructor: 2, admin: 3 }
-
+  # enum role: { buyer: 0, seller: 1, constructor: 2, admin: 3 }
+  # enum :role, { buyer: "buyer", admin: "admin", seller: "seller" }
+  enum :role, [ :buyer, :client, :admin, :seller ]
   validates :company, presence: true, if: :seller?
 end

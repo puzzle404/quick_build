@@ -12,7 +12,7 @@
   <p class="mb-2"><span class="font-semibold">Price:</span> <%= number_to_currency(@product.price_cents / 100.0) %></p>
   <p class="mb-2"><span class="font-semibold">Category:</span> <%= @product.category.name if @product.category %></p>
   <p class="mb-4"><span class="font-semibold">Description:</span> <%= @product.description %></p>
-  <% if user_signed_in? && current_user.company == product.company %>
+  <% if user_signed_in? && current_user.company == @product.company %>
     <div class="flex space-x-4">
       <%= link_to 'Edit', edit_company_product_path(@product), class: 'text-indigo-600 hover:underline' %>
       <%= link_to 'Back', company_products_path(@product.company), class: 'text-gray-600 hover:underline' %>

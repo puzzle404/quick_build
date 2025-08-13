@@ -25,7 +25,6 @@ companies_data = [
 companies = companies_data.map do |attrs|
   Company.find_or_create_by!(email: attrs[:email]) do |company|
     company.name     = attrs[:name]
-    company.password = attrs[:password]
   end
 end
 
