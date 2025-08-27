@@ -51,10 +51,13 @@ product_samples.each do |attrs|
 end
 
 # --- Optional: Create an admin user ---
-if defined?(User)
   User.find_or_create_by!(email: 'admin@example.com') do |user|
     user.email     = Faker::Internet.unique.email(domain: 'example.com')
     user.password = 'adminpass'
-    user.role     = 'admin' if user.respond_to?(:role=)
+    user.role     = 'admin' if
+  User.find_or_create_by!(email: 'constructor@example.com') do |user|
+    user.email     = 'constructor@example.com'
+    user.password = 123456
+    user.role     = 'constructor'
   end
 end

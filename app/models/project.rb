@@ -1,7 +1,7 @@
 class Project < ApplicationRecord
   belongs_to :constructor, class_name: 'User'
 
-  enum status: { planned: 0, in_progress: 1, completed: 2 }
+  enum :status, [ :planned, :in_progress, :completed]
 
   validates :name, presence: true
 end
