@@ -2,10 +2,13 @@ class ApplicationController < ActionController::Base
   # Only allow modern browsers supporting webp images, web push, badges, import maps, CSS nesting, and CSS :has.
   allow_browser versions: :modern
 
+  include Pundit::Authorization
+
   before_action :configure_permitted_parameters, if: :devise_controller?
 
   helper_method :current_cart
   helper_method :cart_items_count
+  rescue_from Pundit::NotAuthorizedError, with: :user_not_authorized
 
   protected
 
@@ -23,5 +26,9 @@ class ApplicationController < ActionController::Base
 
   def cart_items_count
     current_cart.values.sum
+  end
+
+  def user_not_authorized
+    redirect_to root_path, alert: 'Not authorized'
   end
 end

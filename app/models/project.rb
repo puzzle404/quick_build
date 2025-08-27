@@ -1,7 +1,10 @@
 class Project < ApplicationRecord
-  belongs_to :constructor, class_name: 'User'
-
   enum :status, [ :planned, :in_progress, :completed]
+  
+  belongs_to :constructor, class_name: 'User'
+  belongs_to :owner, class_name: 'User'
+  has_many :project_memberships, dependent: :destroy
+  has_many :members, through: :project_memberships, source: :user
 
   validates :name, presence: true
 end

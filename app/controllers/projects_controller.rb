@@ -1,6 +1,7 @@
 class ProjectsController < ApplicationController
   before_action :authenticate_user!
   before_action :require_constructor!
+  before_action :set_project, only: :show
 
   def index
     @projects = current_user.projects
@@ -23,6 +24,10 @@ class ProjectsController < ApplicationController
     end
   end
 
+  def show
+    authorize @project
+  end
+
   private
 
   def require_constructor!
@@ -31,5 +36,9 @@ class ProjectsController < ApplicationController
 
   def project_params
     params.require(:project).permit(:name, :location, :start_date, :end_date, :status)
+  end
+
+  def set_project
+    @project = Project.find(params[:id])
   end
 end
