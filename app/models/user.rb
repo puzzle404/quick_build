@@ -7,6 +7,7 @@ class User < ApplicationRecord
   belongs_to :company, optional: true
   has_many :orders, dependent: :destroy
 
-  enum :role, [ :buyer, :client, :admin, :seller ]
-  validates :company, presence: true, if: :seller?
+  enum :role, [ :buyer, :client, :admin, :seller, :constructor ]
+  validates :company, presence: true, if: -> { seller? }
+  has_many :projects, foreign_key: :constructor_id, inverse_of: :constructor, dependent: :destroy
 end

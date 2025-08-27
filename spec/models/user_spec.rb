@@ -12,6 +12,11 @@ RSpec.describe User, type: :model do
     expect(user.errors[:company]).to include("can't be blank")
   end
 
+  it 'allows a constructor without a company' do
+    user = build(:user, :constructor, company: nil)
+    expect(user).to be_valid
+  end
+
   it 'allows an admin without a company' do
     admin = build(:user, :admin, company: nil)
     expect(admin).to be_valid

@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.0].define(version: 2025_08_06_050000) do
+ActiveRecord::Schema[8.0].define(version: 2025_08_06_060000) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
 
@@ -93,6 +93,20 @@ ActiveRecord::Schema[8.0].define(version: 2025_08_06_050000) do
     t.index ["company_id"], name: "index_products_on_company_id"
   end
 
+  create_table "projects", force: :cascade do |t|
+    t.string "name", null: false
+    t.string "location"
+    t.date "start_date"
+    t.date "end_date"
+    t.integer "status", default: 0, null: false
+    t.bigint "constructor_id", null: false
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["constructor_id"], name: "index_projects_on_constructor_id"
+    t.index ["start_date"], name: "index_projects_on_start_date"
+    t.index ["status"], name: "index_projects_on_status"
+  end
+
   create_table "users", force: :cascade do |t|
     t.string "email", default: "", null: false
     t.string "encrypted_password", default: "", null: false
@@ -117,5 +131,6 @@ ActiveRecord::Schema[8.0].define(version: 2025_08_06_050000) do
   add_foreign_key "orders", "users"
   add_foreign_key "products", "categories"
   add_foreign_key "products", "companies"
+  add_foreign_key "projects", "users", column: "constructor_id"
   add_foreign_key "users", "companies"
 end

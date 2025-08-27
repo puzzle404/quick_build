@@ -14,6 +14,7 @@ Rails.application.routes.draw do
 
   get 'all_products', to: 'products#all_products', as: :products
   resources :categories
+  resources :projects
 
   get "up" => "rails/health#show", as: :rails_health_check
   root "home#index"
