@@ -12,6 +12,10 @@ Rails.application.routes.draw do
     resources :products, only: [:index, :show, :new, :create, :edit, :update, :destroy]
   end
 
+  resources :projects, only: :show do
+    resources :project_memberships, only: [:create, :destroy]
+  end
+
   get 'all_products', to: 'products#all_products', as: :products
   resources :categories
 
