@@ -93,22 +93,6 @@ ActiveRecord::Schema[8.0].define(version: 2025_08_06_060100) do
     t.index ["company_id"], name: "index_products_on_company_id"
   end
 
-  create_table "projects", force: :cascade do |t|
-    t.string "name", null: false
-    t.string "location"
-    t.date "start_date"
-    t.date "end_date"
-    t.integer "status", default: 0, null: false
-    t.bigint "constructor_id", null: false
-    t.datetime "created_at", null: false
-    t.datetime "updated_at", null: false
-    t.index ["constructor_id"], name: "index_projects_on_constructor_id"
-    t.index ["start_date"], name: "index_projects_on_start_date"
-    t.index ["status"], name: "index_projects_on_status"
-    t.bigint "owner_id", null: false
-    t.index ["owner_id"], name: "index_projects_on_owner_id"
-  end
-
   create_table "project_memberships", force: :cascade do |t|
     t.bigint "user_id", null: false
     t.bigint "project_id", null: false
@@ -118,6 +102,20 @@ ActiveRecord::Schema[8.0].define(version: 2025_08_06_060100) do
     t.index ["project_id"], name: "index_project_memberships_on_project_id"
     t.index ["user_id", "project_id"], name: "index_project_memberships_on_user_id_and_project_id", unique: true
     t.index ["user_id"], name: "index_project_memberships_on_user_id"
+  end
+
+  create_table "projects", force: :cascade do |t|
+    t.string "name", null: false
+    t.string "location"
+    t.date "start_date"
+    t.date "end_date"
+    t.integer "status", default: 0, null: false
+    t.bigint "owner_id", null: false
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["owner_id"], name: "index_projects_on_owner_id"
+    t.index ["start_date"], name: "index_projects_on_start_date"
+    t.index ["status"], name: "index_projects_on_status"
   end
 
   create_table "users", force: :cascade do |t|
@@ -132,9 +130,9 @@ ActiveRecord::Schema[8.0].define(version: 2025_08_06_060100) do
     t.string "phone"
     t.integer "role", default: 0, null: false
     t.bigint "company_id"
+    t.index ["company_id"], name: "index_users_on_company_id"
     t.index ["email"], name: "index_users_on_email", unique: true
     t.index ["reset_password_token"], name: "index_users_on_reset_password_token", unique: true
-    t.index ["company_id"], name: "index_users_on_company_id"
   end
 
   add_foreign_key "active_storage_attachments", "active_storage_blobs", column: "blob_id"
@@ -144,9 +142,8 @@ ActiveRecord::Schema[8.0].define(version: 2025_08_06_060100) do
   add_foreign_key "orders", "users"
   add_foreign_key "products", "categories"
   add_foreign_key "products", "companies"
-  add_foreign_key "projects", "users", column: "constructor_id"
-  add_foreign_key "projects", "users", column: "owner_id"
-  add_foreign_key "project_memberships", "users"
   add_foreign_key "project_memberships", "projects"
+  add_foreign_key "project_memberships", "users"
+  add_foreign_key "projects", "users", column: "owner_id"
   add_foreign_key "users", "companies"
 end

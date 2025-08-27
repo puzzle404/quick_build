@@ -4,7 +4,7 @@ class ProjectsController < ApplicationController
   before_action :set_project, only: :show
 
   def index
-    @projects = current_user.projects
+    @projects = current_user.owned_projects
   end
 
   def new
@@ -12,14 +12,12 @@ class ProjectsController < ApplicationController
   end
 
   def create
-    @project = current_user.projects.build(project_params)
+    @project = current_user.owned_projects.build(project_params)
     respond_to do |format|
       if @project.save
-        format.turbo_stream
         format.html { redirect_to projects_path, notice: 'Project created successfully.' }
       else
-        format.turbo_stream { render :new, status: :unprocessable_entity }
-        format.html { render :new, status: :unprocessable_entity }
+        format.html { redirect_to new_project_path, alert: 'Error creating project.' }
       end
     end
   end
@@ -35,7 +33,7 @@ class ProjectsController < ApplicationController
   end
 
   def project_params
-    params.require(:project).permit(:name, :location, :start_date, :end_date, :status)
+    params.require(:project).permit(:name, :location, :start_date, :end_date, :status, :owner_id)
   end
 
   def set_project
