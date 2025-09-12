@@ -6,4 +6,9 @@ class Project < ApplicationRecord
   has_many :members, through: :project_memberships, source: :user
 
   validates :name, presence: true
+
+   # Helper para saber si el proyecto tiene ubicación
+  def located?
+    latitude.present? && longitude.present?
+  end
 end

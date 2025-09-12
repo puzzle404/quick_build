@@ -1,4 +1,4 @@
-<%= form_with model: project, class: 'space-y-4' do |f| %>
+<%= form_with model: [:constructors, @project], class: 'space-y-4' do |f| %>
   <div>
     <%= f.label :name, class: 'block text-sm font-medium' %>
     <%= f.text_field :name, class: 'mt-1 block w-full border rounded' %>
@@ -6,6 +6,16 @@
   <div>
     <%= f.label :location, class: 'block text-sm font-medium' %>
     <%= f.text_field :location, class: 'mt-1 block w-full border rounded' %>
+  </div>
+
+  <!-- Contenedor del mapa -->
+  <div id="project-map"
+     data-controller="project-map"
+     data-project-map-target="map"
+     style="height: 400px; border: 1px solid #ccc;">
+    <!-- Campos ocultos para guardar coordenadas -->
+    <%= f.hidden_field :latitude, data: { project_map_target: "latitude" } %>
+    <%= f.hidden_field :longitude, data: { project_map_target: "longitude" } %>
   </div>
   <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
     <div>
