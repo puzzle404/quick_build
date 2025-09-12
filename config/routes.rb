@@ -1,25 +1,31 @@
 Rails.application.routes.draw do
   devise_for :users
-  # Define your application routes per the DSL in https://guides.rubyonrails.org/routing.html
 
+  # Carrito
   resource :cart, only: :show do
     post 'add/:product_id', to: 'carts#add', as: :add_item
     delete 'remove/:product_id', to: 'carts#remove', as: :remove_item
   end
 
+  # Órdenes
   resources :orders, only: [:index, :show, :new, :create]
+
+  # Empresas y productos
   resources :companies, only: [:show, :new, :create] do
     resources :products, only: [:index, :show, :new, :create, :edit, :update, :destroy]
   end
-
-  resources :projects, only: [:show, :create, :destroy, :new, :update, :edit] do
-    resources :project_memberships, only: [:create, :destroy]
-  end
-
   get 'all_products', to: 'products#all_products', as: :products
   resources :categories
-  resources :projects
 
+  # Namespace para constructores
+  namespace :constructors do
+    root to: "projects#index"  # /constructors => dashboard de proyectos
+    resources :projects do
+      resources :project_memberships, only: [:create, :destroy]
+    end
+  end
+
+  # Health check y root
   get "up" => "rails/health#show", as: :rails_health_check
   root "home#index"
 end

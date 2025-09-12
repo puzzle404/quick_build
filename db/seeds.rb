@@ -60,4 +60,20 @@ end
     user.password = 123456
     user.role     = 'constructor'
   end
+
+  constructor = User.find_or_create_by!(email: 'constructor@example.com') do |user|
+    user.password = '123456'
+    user.role     = 'constructor'
+  end
+
+  50.times do
+    Project.create!(
+      name: "#{Faker::Construction.material}-#{SecureRandom.hex(2)}",
+      location: Faker::Address.city,
+      start_date: Faker::Date.backward(days: 100),
+      end_date: Faker::Date.forward(days: 200),
+      status: Project.statuses.keys.sample,
+      owner: constructor
+    )
+  end
 end

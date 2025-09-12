@@ -1,4 +1,4 @@
-class ProjectsController < ApplicationController
+class Constructors::ProjectsController < Constructors::BaseController
   before_action :authenticate_user!
   before_action :require_constructor!
   before_action :set_project, only: :show
