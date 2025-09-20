@@ -1,7 +1,8 @@
 class Constructors::BaseController < ApplicationController
-  layout "constructor"
   before_action :authenticate_user!
   before_action :ensure_constructor!, if: -> { current_user.present? }
+  
+  layout "constructor"
 
   private
 

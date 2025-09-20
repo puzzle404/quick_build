@@ -5,14 +5,14 @@
   <% @project.project_memberships.includes(:user).each do |membership| %>
     <li>
       <%= membership.user.email %> (<%= membership.role %>)
-      <%= button_to 'Remove', project_project_membership_path(@project, membership), method: :delete %>
+      <%= button_to 'Remove', constructors_project_project_membership_path(@project, membership), method: :delete %>
     </li>
   <% end %>
 </ul>
 
 <h2>Add Member</h2>
-<%= form_with model: [@project, ProjectMembership.new], local: true do |form| %>
+<%= form_with model: [:constructors, @project, ProjectMembership.new], local: true do |form| %>
   <%= form.collection_select :user_id, User.all, :id, :email %>
-  <%= form.text_field :role, placeholder: 'role' %>
-  <%= form.submit 'Add Member' %>
+ <%= form.select :role, ProjectMembership.roles.keys.map { |r| [r.titleize, r] }, prompt: "Select role" %>
+  <%= render Ui::FormButtonComponent.new(form: form, label: 'Crear miembro') %>
 <% end %>

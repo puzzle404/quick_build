@@ -10,16 +10,10 @@
         <% else %>
           <%= link_to "Iniciar sesión", new_user_session_path %>
         <% end %>
-
-        <%= link_to 'Productos', products_path, class: 'text-gray-700 hover:text-indigo-600' %>
-        <%= link_to cart_path, class: 'relative inline-block text-gray-700 hover:text-indigo-600' do %>
-          <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 3h2l.4 2M7 13h10l4-8H5.4M7 13L5.4 5M7 13l-1.35 2.7a1 1 0 00.9 1.3h12.2M16 16a2 2 0 11-4 0m6 0a2 2 0 11-4 0" />
-          </svg>
-          <% if helpers.cart_items_count.positive? || helpers.cart_items_count.zero? %>
-            <span id="cart-count-span" class="absolute -top-2 -right-2 rounded-full bg-indigo-600 px-1.5 text-xs text-white"><div id="cart-count"><%= helpers.cart_items_count %></div></span>
-          <% end %>
+        <% if helpers.constructor? %>
+          <%= link_to 'Proyectos', constructors_projects_path, class: 'text-gray-700 hover:text-indigo-600' %>
         <% end %>
+        <%= render 'carts/cart' if helpers.buyer? %>
       </div>
     </div>
   </div>

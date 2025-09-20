@@ -1,4 +1,6 @@
 class ProjectMembership < ApplicationRecord
+  enum :role, [ :viewer, :editor, :admin]
+
   belongs_to :user
   belongs_to :project
 

@@ -1,13 +1,14 @@
-class ProjectMembershipsController < ApplicationController
+class  Constructors::ProjectMembershipsController < ApplicationController
   before_action :set_project
 
   def create
     @membership = @project.project_memberships.new(project_membership_params)
     authorize @membership
+    
     if @membership.save
-      redirect_to @project, notice: 'Member added.'
+      redirect_to constructors_project_path(@project), notice: 'Member added.'
     else
-      redirect_to @project, alert: 'Unable to add member.'
+      redirect_to constructors_project_path(@project), alert: 'Unable to add member.'
     end
   end
 
@@ -15,7 +16,7 @@ class ProjectMembershipsController < ApplicationController
     @membership = @project.project_memberships.find(params[:id])
     authorize @membership
     @membership.destroy
-    redirect_to @project, notice: 'Member removed.'
+    redirect_to constructors_project_path(@project), notice: 'Member removed.'
   end
 
   private

@@ -1,6 +1,12 @@
-
-<div class="p-4 border rounded bg-white">
-  <h2 class="font-semibold"><%= project.name %></h2>
-  <p class="text-sm text-gray-600"><%= project.location %></p>
-  <p class="text-xs text-gray-400 mt-2">Constructor: <%= project.owner&.email || 'N/A' %></p>
-</div>
+<%= link_to constructors_project_path(project), class: 'text-blue-500 hover:underline' do %>
+  <div class="p-4 border rounded bg-white">
+    <h2 class="font-semibold"><%= project.name %></h2>
+    <p class="text-sm text-gray-600"><%= project.location %></p>
+    <p class="text-xs text-gray-400 mt-2">Constructor: <%= project.owner&.email || 'N/A' %></p>
+    <% if project.images.attached? %>
+      <div class="max-w-xs">
+        <%= image_tag project.images.last.variant(resize_to_limit: [200,200]) %>
+      </div>
+    <% end %>
+  </div>
+<% end %>

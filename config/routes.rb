@@ -21,7 +21,7 @@ Rails.application.routes.draw do
   namespace :constructors do
     root to: "projects#index"  # /constructors => dashboard de proyectos
     resources :projects do
-      resources :project_memberships, only: [:create, :destroy]
+      resources :project_memberships, only: [:create, :destroy, :new]
     end
   end
 
