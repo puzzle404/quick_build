@@ -17,15 +17,4 @@ module Constructors::ProjectsHelper
 
     l(date, format: :long)
   end
-
-  def project_duration_label(project)
-    return unless project.start_date && project.end_date
-
-    days = (project.end_date - project.start_date).to_i + 1
-    "#{days} días"
-  end
-
-  def project_location_label(project)
-    project.location.presence || 'Ubicación no indicada'
-  end
 end

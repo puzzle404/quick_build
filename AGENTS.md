@@ -43,6 +43,8 @@ Son mejores que partials cuando el bloque tiene lógica propia y puede tener pro
 - Partials → Para extraer repetición en vistas, sin necesidad de tanta lógica como un componente.
 Ejemplo: formularios (_form.html.erb), pedazos de layout repetidos. Extracción simple de vistas repetidas.
 
+Tratar de siempre al crear vistas usar un estilo acorde al que ya hay en la app.
+
 ## Resumen de Roles
 - **Constructores (activo)**: acceso completo a gestión de proyectos, documentación, pagos, colaboración e inventario descritos arriba.
 - **Compradores y vendedores (en espera)**: los flujos comerciales, la gestión de catálogos y el descubrimiento de proveedores siguen planificados pero inactivos en el hito actual.

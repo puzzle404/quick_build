@@ -1,13 +1,13 @@
 class Constructors::ProjectsController < Constructors::BaseController
   before_action :authenticate_user!
   before_action :set_project, only: :show
+  before_action :set_activity_entries, only: :show
 
 
   def show
     authorize @project
     @members = @project.members.order(created_at: :desc)
-    @member= @project.members.build
-    @available_members = User.order(:email)
+    @membership = @project.project_memberships.build
   end
 
   def index
@@ -35,6 +35,10 @@ class Constructors::ProjectsController < Constructors::BaseController
   end
 
   def set_project
-    @project = current_user.owned_projects.find(params[:id])
+    @project = current_user.owned_projects.find(params[:id]).decorate
+  end
+
+  def set_activity_entries
+    @activity_entries ||= Projects::ActivitiesService.perform(@project)
   end
 end
