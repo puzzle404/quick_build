@@ -19,7 +19,7 @@ Rails.application.routes.draw do
 
   # Namespace para constructores
   namespace :constructors do
-    root to: "projects#index"  # /constructors => dashboard de proyectos
+    root to: "projects#index"
     resources :projects do
       resources :project_memberships, only: [:create, :destroy, :new]
     end
@@ -27,5 +27,6 @@ Rails.application.routes.draw do
 
   # Health check y root
   get "up" => "rails/health#show", as: :rails_health_check
-  root "home#index"
+
+  root to: "dashboards#show"
 end

@@ -5,6 +5,9 @@ class Constructors::ProjectsController < Constructors::BaseController
 
   def show
     authorize @project
+    @members = @project.members.order(created_at: :desc)
+    @member= @project.members.build
+    @available_members = User.order(:email)
   end
 
   def index
