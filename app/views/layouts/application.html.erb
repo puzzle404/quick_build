@@ -22,7 +22,7 @@
     <%= javascript_importmap_tags %>
   </head>
 
-  <body class="bg-gray-50 text-gray-900">
+  <body <%= "data-hotwire-native" if hotwire_native_app? %> class="bg-gray-50 text-gray-900">
     <%= render Layout::NavbarComponent.new %>
     <main class="max-w-7xl mx-auto mt-6 px-4">
       <% if notice %>

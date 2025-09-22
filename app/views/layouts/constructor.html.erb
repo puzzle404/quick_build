@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html>
   <head>
-    <title>Constructor | Quick Build</title>
+    <title><%= content_for(:title) || "Quick Build" %></title>
     <meta name="viewport" content="width=device-width,initial-scale=1">
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="mobile-web-app-capable" content="yes">
@@ -23,7 +23,7 @@
     <%= stylesheet_link_tag "https://unpkg.com/leaflet/dist/leaflet.css" %>
   </head>
 
-  <body class="bg-blue-50 text-gray-900">
+  <body <%= "data-hotwire-native" if hotwire_native_app? %> class="bg-blue-50 text-gray-900">
     <%= render Layout::NavbarComponent.new(role: :constructor) %>
     <main class="max-w-7xl mx-auto mt-6 px-4">
       <% if notice %>

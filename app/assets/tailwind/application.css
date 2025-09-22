@@ -20,3 +20,16 @@
     --color-yellow-600: #ca8a04;
   }
 }
+
+
+@custom-variant hotwire-native {
+  body[data-hotwire-native] & {
+    @slot;
+  }
+}
+
+@custom-variant not-hotwire-native {
+  body:not([data-hotwire-native]) & {
+    @slot;
+  }
+}
