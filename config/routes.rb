@@ -1,5 +1,8 @@
 Rails.application.routes.draw do
-  devise_for :users
+  root to: "dashboards#show"
+
+  resource :registration, only: %i[new create]
+  resource :session, only: %i[new create destroy]
 
   # Carrito
   resource :cart, only: :show do
@@ -27,6 +30,4 @@ Rails.application.routes.draw do
 
   # Health check y root
   get "up" => "rails/health#show", as: :rails_health_check
-
-  root to: "dashboards#show"
 end

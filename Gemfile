@@ -24,7 +24,7 @@ gem "draper"
 gem "interactor"
 
 # Use Active Model has_secure_password [https://guides.rubyonrails.org/active_model_basics.html#securepassword]
-# gem "bcrypt", "~> 3.1.7"
+gem "bcrypt", "~> 3.1.7"
 
 # Windows does not include zoneinfo files, so bundle the tzinfo-data gem
 gem "tzinfo-data", platforms: %i[ windows jruby ]
@@ -70,7 +70,6 @@ group :test do
 end
 
 
-gem 'devise'             # autenticación de Company
 gem 'acts_as_tenant'     # multi-tenancy row-based
 gem 'pg_search'          # búsquedas Full-Text
 gem 'rspec-rails', group: [:development, :test]

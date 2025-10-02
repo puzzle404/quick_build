@@ -5,10 +5,10 @@
         <%= link_to "Quick Build", root_path, class: "text-xl font-semibold text-indigo-600" %>
       </div>
       <div class="mt-4 flex flex-col items-center space-y-2 sm:mt-0 sm:flex-row sm:space-y-0 sm:space-x-4">
-        <% if helpers.user_signed_in? %>
-          <%= button_to "Cerrar sesión", destroy_user_session_path, method: :delete, class: 'text-gray-700 hover:text-indigo-600' %>
+        <% if helpers.authenticated? %>
+          <%= button_to "Cerrar sesión", destroy_session_path, method: :delete, class: 'text-gray-700 hover:text-indigo-600' %>
         <% else %>
-          <%= link_to "Iniciar sesión", new_user_session_path %>
+          <%= link_to "Iniciar sesión", new_session_path %>
         <% end %>
         <% if helpers.constructor? %>
           <%= link_to 'Proyectos', constructors_projects_path, class: 'text-gray-700 hover:text-indigo-600' %>

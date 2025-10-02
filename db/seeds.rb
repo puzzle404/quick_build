@@ -50,30 +50,28 @@ product_samples.each do |attrs|
   end
 end
 
-# --- Optional: Create an admin user ---
-  User.find_or_create_by!(email: 'admin@example.com') do |user|
-    user.email     = Faker::Internet.unique.email(domain: 'example.com')
-    user.password = 'adminpass'
-    user.role     = 'admin' if
-  User.find_or_create_by!(email: 'constructor@example.com') do |user|
-    user.email     = 'constructor@example.com'
-    user.password = 123456
-    user.role     = 'constructor'
-  end
+# --- Users ---
+# With has_secure_password, assign plain-text passwords as strings
+admin = User.find_or_create_by!(email: 'admin@example.com') do |user|
+  user.password = 'adminpass'
+  user.role     = 'admin'
+end
 
-  constructor = User.find_or_create_by!(email: 'constructor@example.com') do |user|
-    user.password = '123456'
-    user.role     = 'constructor'
-  end
+constructor = User.find_or_create_by!(email: 'constructor@example.com') do |user|
+  user.password = '123456'
+  user.role     = 'constructor'
+end
 
-  50.times do
-    Project.create!(
-      name: "#{Faker::Construction.material}-#{SecureRandom.hex(2)}",
-      location: Faker::Address.city,
-      start_date: Faker::Date.backward(days: 100),
-      end_date: Faker::Date.forward(days: 200),
-      status: Project.statuses.keys.sample,
-      owner: constructor
-    )
-  end
+constructor ||= User.find_by!(email: 'constructor@example.com')
+
+# --- Sample projects owned by constructor ---
+50.times do
+  Project.create!(
+    name: "#{Faker::Construction.material}-#{SecureRandom.hex(2)}",
+    location: Faker::Address.city,
+    start_date: Faker::Date.backward(days: 100),
+    end_date: Faker::Date.forward(days: 200),
+    status: Project.statuses.keys.sample,
+    owner: constructor
+  )
 end
