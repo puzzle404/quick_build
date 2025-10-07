@@ -62,7 +62,7 @@ module Authenticable
   end
 
   def start_new_session_for(user)
-    Session.create!(
+    Session.find_or_create_by(
       user: user,
       user_agent: request.user_agent,
       ip_address: request.remote_ip

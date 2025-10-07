@@ -1,9 +1,9 @@
 <% content_for :title, "Sign In" %>
 
-<div class="min-h-screen bg-gray-50 flex items-center justify-center py-12 px-4">
-  <div class="max-w-md w-full bg-white shadow-lg rounded-2xl p-8">
+<div class="fixed inset-0 flex items-center justify-center bg-white px-4 md:static md:min-h-screen md:bg-gray-50 md:py-12">
+  <div class="w-full p-6 md:max-w-md md:w-full md:bg-white md:shadow-lg md:rounded-2xl md:p-8">
     <h2 class="text-center text-3xl font-extrabold text-indigo-600 mb-6">Iniciar Sesión</h2>
-    <%= form_with url: new_session_path, scope: :session, method: :post, html: { class: "space-y-6" }, data: { turbo_action: "replace" } do |f| %>
+    <%= form_with url: session_path, scope: :session, method: :post, html: { class: "space-y-6" }, data: { turbo_action: "replace" } do |f| %>
       <div class="rounded-md shadow-sm -space-y-px">
         <div>
           <%= f.label :email, class: "sr-only" %>

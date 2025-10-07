@@ -51,6 +51,21 @@ class ConfigurationsController < ApplicationController
         {
           patterns: [ refresh_app_path ],
           properties: {presentation: "refresh", view_controller: "refresh_app"}
+        },
+        {
+          patterns: "/projects$",
+          properties: {context: "default",
+                       pull_to_refresh_enabled: false}
+        },
+        {
+          patterns: [
+            "/constructors$"
+          ],
+          properties: {
+            context: "default",
+            pull_to_refresh_enabled: true
+          },
+          comment: "Present session and custom path as default."
         }
       ]
     }

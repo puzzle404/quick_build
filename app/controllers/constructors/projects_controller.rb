@@ -1,5 +1,4 @@
 class Constructors::ProjectsController < Constructors::BaseController
-  before_action :authenticate_user!
   before_action :set_project, only: :show
   before_action :set_activity_entries, only: :show
 

@@ -16,7 +16,7 @@ class SessionsController < ApplicationController
 
   def destroy
     terminate_session
-    redirect_to  new_session_path
+    redirect_to new_session_path
   end
 
   def protected
@@ -25,7 +25,6 @@ class SessionsController < ApplicationController
   private
 
   def authenticate_user
-    raise
     credentials = session_params
     return unless credentials[:email].present? && credentials[:password].present?
 

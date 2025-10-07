@@ -28,6 +28,13 @@ Rails.application.routes.draw do
     end
   end
 
+  resources :configurations, only: [] do
+    get "ios_v1", on: :collection
+    get "android_v1", on: :collection
+  end
+
+  get "refresh_app" => "hotwire#refresh", as: :refresh_app
+
   # Health check y root
   get "up" => "rails/health#show", as: :rails_health_check
 end

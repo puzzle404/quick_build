@@ -6,7 +6,7 @@
       </div>
       <div class="mt-4 flex flex-col items-center space-y-2 sm:mt-0 sm:flex-row sm:space-y-0 sm:space-x-4">
         <% if helpers.authenticated? %>
-          <%= button_to "Cerrar sesión", destroy_session_path, method: :delete, class: 'text-gray-700 hover:text-indigo-600' %>
+          <%= button_to "Cerrar sesión", session_path, method: :delete, class: 'text-gray-700 hover:text-indigo-600' %>
         <% else %>
           <%= link_to "Iniciar sesión", new_session_path %>
         <% end %>
