@@ -42,9 +42,9 @@
   </div>
 
   <div>
-    <%= render Ui::FormButtonComponent.new(
-          form: form,
-          label: product.persisted? ? 'Update Product' : 'Create Product'
+    <%= render Ui::ButtonComponent.new(
+          label: product.persisted? ? "Update Product" : "Create Product",
+          type: :submit
         ) %>
   </div>
 <% end %>

@@ -1,0 +1,24 @@
+<div class="rounded-3xl border border-slate-200 bg-white p-6 shadow-sm">
+  <div class="flex items-center justify-between gap-4">
+    <h2 class="text-lg font-semibold text-slate-900">Documentos y evidencias</h2>
+    <%= render Ui::ButtonComponent.new(
+          label: "Gestionar archivos",
+          path: edit_constructors_project_path(project),
+          variant: :link,
+          size: :sm,
+          class_name: "rounded-none border-none px-0 py-0 font-semibold"
+        ) %>
+  </div>
+  <% if project_images.attached? %>
+    <div class="mt-5 flex gap-4 overflow-x-auto pb-2">
+      <% project_images.each do |image| %>
+        <% preview = image.variable? ? image.variant(resize_to_fill: [320, 200]) : image %>
+        <div class="relative h-32 w-48 flex-shrink-0 overflow-hidden rounded-2xl border border-slate-200 bg-slate-100">
+          <%= image_tag(preview, class: "h-full w-full object-cover", alt: image.filename.to_s) %>
+        </div>
+      <% end %>
+    </div>
+  <% else %>
+    <p class="mt-5 text-sm text-slate-500">Todavía no se cargaron planos, fotos ni documentos para esta obra. Puedes hacerlo desde la edición del proyecto.</p>
+  <% end %>
+</div>

@@ -1,0 +1,19 @@
+current directory: /Users/manuelferrer/code/puzzle404/mis_proyectos/quick_build/quick_build/vendor/bundle/ruby/3.3.0/gems/stringio-3.1.7/ext/stringio
+/Users/manuelferrer/.rbenv/versions/3.3.6/bin/ruby extconf.rb
+checking for rb_io_mode_t in ruby/io.h... no
+creating Makefile
+
+current directory: /Users/manuelferrer/code/puzzle404/mis_proyectos/quick_build/quick_build/vendor/bundle/ruby/3.3.0/gems/stringio-3.1.7/ext/stringio
+make DESTDIR\= sitearchdir\=./.gem.20251018-59178-wz0z83 sitelibdir\=./.gem.20251018-59178-wz0z83 clean
+
+current directory: /Users/manuelferrer/code/puzzle404/mis_proyectos/quick_build/quick_build/vendor/bundle/ruby/3.3.0/gems/stringio-3.1.7/ext/stringio
+make DESTDIR\= sitearchdir\=./.gem.20251018-59178-wz0z83 sitelibdir\=./.gem.20251018-59178-wz0z83
+compiling stringio.c
+linking shared-object stringio.bundle
+
+current directory: /Users/manuelferrer/code/puzzle404/mis_proyectos/quick_build/quick_build/vendor/bundle/ruby/3.3.0/gems/stringio-3.1.7/ext/stringio
+make DESTDIR\= sitearchdir\=./.gem.20251018-59178-wz0z83 sitelibdir\=./.gem.20251018-59178-wz0z83 install
+/usr/bin/install -c -m 0755 stringio.bundle ./.gem.20251018-59178-wz0z83
+
+current directory: /Users/manuelferrer/code/puzzle404/mis_proyectos/quick_build/quick_build/vendor/bundle/ruby/3.3.0/gems/stringio-3.1.7/ext/stringio
+make DESTDIR\= sitearchdir\=./.gem.20251018-59178-wz0z83 sitelibdir\=./.gem.20251018-59178-wz0z83 clean

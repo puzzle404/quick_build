@@ -1,0 +1,22 @@
+current directory: /Users/manuelferrer/code/puzzle404/mis_proyectos/quick_build/quick_build/vendor/bundle/ruby/3.3.0/gems/bootsnap-1.18.6/ext/bootsnap
+/Users/manuelferrer/.rbenv/versions/3.3.6/bin/ruby extconf.rb
+checking for fdatasync() in unistd.h... yes
+checking for whether -D_GNU_SOURCE is accepted as CPPFLAGS... yes
+checking for whether -O3 is accepted as CFLAGS... yes
+checking for whether -std=c99 is accepted as CFLAGS... yes
+creating Makefile
+
+current directory: /Users/manuelferrer/code/puzzle404/mis_proyectos/quick_build/quick_build/vendor/bundle/ruby/3.3.0/gems/bootsnap-1.18.6/ext/bootsnap
+make DESTDIR\= sitearchdir\=./.gem.20251018-59178-pjbse7 sitelibdir\=./.gem.20251018-59178-pjbse7 clean
+
+current directory: /Users/manuelferrer/code/puzzle404/mis_proyectos/quick_build/quick_build/vendor/bundle/ruby/3.3.0/gems/bootsnap-1.18.6/ext/bootsnap
+make DESTDIR\= sitearchdir\=./.gem.20251018-59178-pjbse7 sitelibdir\=./.gem.20251018-59178-pjbse7
+compiling bootsnap.c
+linking shared-object bootsnap/bootsnap.bundle
+
+current directory: /Users/manuelferrer/code/puzzle404/mis_proyectos/quick_build/quick_build/vendor/bundle/ruby/3.3.0/gems/bootsnap-1.18.6/ext/bootsnap
+make DESTDIR\= sitearchdir\=./.gem.20251018-59178-pjbse7 sitelibdir\=./.gem.20251018-59178-pjbse7 install
+/usr/bin/install -c -m 0755 bootsnap.bundle ./.gem.20251018-59178-pjbse7/bootsnap
+
+current directory: /Users/manuelferrer/code/puzzle404/mis_proyectos/quick_build/quick_build/vendor/bundle/ruby/3.3.0/gems/bootsnap-1.18.6/ext/bootsnap
+make DESTDIR\= sitearchdir\=./.gem.20251018-59178-pjbse7 sitelibdir\=./.gem.20251018-59178-pjbse7 clean

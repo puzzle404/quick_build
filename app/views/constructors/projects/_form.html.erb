@@ -36,9 +36,9 @@
     <%= f.file_field :images, multiple: true,direct_upload: true, class: 'mt-1' %>
   </div>
   <div>
-    <%= render Ui::FormButtonComponent.new(
-          form: f,
-          label: @project.persisted? ? 'Update Project' : 'Create Project'
+    <%= render Ui::ButtonComponent.new(
+          label: @project.persisted? ? "Update Project" : "Create Project",
+          type: :submit
         ) %>
   </div>
 <% end %>
