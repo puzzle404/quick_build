@@ -23,9 +23,9 @@
     <%= stylesheet_link_tag "https://unpkg.com/leaflet/dist/leaflet.css" %>
   </head>
 
-  <body <%= "data-hotwire-native" if hotwire_native_app? %> class="bg-blue-50 text-gray-900">
+  <body <%= "data-hotwire-native" if hotwire_native_app? %> class="min-h-screen bg-blue-50 text-gray-900 overflow-x-hidden">
     <%= render Layout::NavbarComponent.new(role: :constructor) %>
-    <main class="max-w-7xl mx-auto mt-6 px-4">
+    <main class="w-full max-w-7xl mx-auto mt-6 px-4 sm:px-6 lg:px-8 overflow-x-hidden">
       <% if notice %>
         <p class="mb-4 rounded bg-green-100 p-4 text-green-800"><%= notice %></p>
       <% end %>

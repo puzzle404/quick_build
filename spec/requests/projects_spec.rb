@@ -22,4 +22,22 @@ RSpec.describe "Projects", type: :request do
       expect(response).to redirect_to(constructors_project_path(Project.last))
     end
   end
+
+  describe "PATCH /projects/:id" do
+    it "updates a project" do
+      project = create(:project, owner: constructor, name: "Obra Sur", status: :planned)
+      params = {
+        name: "Obra Sur Actualizada",
+        status: "in_progress"
+      }
+
+      patch constructors_project_path(project), params: { project: params }
+
+      expect(response).to redirect_to(constructors_project_path(project))
+      expect(project.reload).to have_attributes(
+        name: "Obra Sur Actualizada",
+        status: "in_progress"
+      )
+    end
+  end
 end

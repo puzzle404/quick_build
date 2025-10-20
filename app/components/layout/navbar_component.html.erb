@@ -1,10 +1,14 @@
 <nav class="bg-white shadow hotwire-native:hidden">
   <div class="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
-    <div class="flex flex-col items-center justify-between py-4 sm:h-16 sm:flex-row">
-      <div class="flex items-center">
+    <div class="flex items-center justify-between py-4 sm:h-16">
+      <div class="flex items-center gap-3">
         <%= link_to "Quick Build", root_path, class: "text-xl font-semibold text-indigo-600" %>
+        <span class="rounded-full bg-indigo-50 px-3 py-1 text-xs font-medium text-indigo-600 sm:hidden">
+          Plataforma Constructora
+        </span>
       </div>
-      <div class="mt-4 flex flex-col items-center space-y-2 sm:mt-0 sm:flex-row sm:space-y-0 sm:space-x-4">
+
+      <div class="hidden items-center space-x-4 sm:flex">
         <% if helpers.authenticated? %>
           <%= render Ui::ButtonComponent.new(
                 label: "Cerrar sesión",
@@ -15,12 +19,64 @@
                 class_name: "rounded-none border-none px-0 py-0 text-sm text-gray-700 hover:text-indigo-600"
               ) %>
         <% else %>
-          <%= link_to "Iniciar sesión", new_session_path %>
+          <%= link_to "Iniciar sesión", new_session_path, class: "text-sm text-gray-700 hover:text-indigo-600" %>
         <% end %>
         <% if helpers.constructor? %>
-          <%= link_to 'Proyectos', constructors_projects_path, class: 'text-gray-700 hover:text-indigo-600' %>
+          <%= link_to "Proyectos", constructors_projects_path, class: "text-sm text-gray-700 hover:text-indigo-600" %>
         <% end %>
-        <%= render 'carts/cart' if helpers.buyer? %>
+        <%= render "carts/cart" if helpers.buyer? %>
+      </div>
+
+      <div class="flex items-center gap-3 sm:hidden">
+        <%= render "carts/cart" if helpers.buyer? %>
+        <details class="relative w-full max-w-[min(18rem,calc(100vw-2rem))] shrink-0 sm:w-auto sm:max-w-none">
+          <summary class="flex w-full items-center justify-between gap-2 rounded-full border border-slate-200 bg-white px-3 py-2 text-sm font-medium text-slate-600 shadow-sm transition hover:border-indigo-200 hover:text-indigo-600 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-indigo-500 [&::-webkit-details-marker]:hidden list-none sm:w-auto sm:justify-normal">
+            <span>Menú</span>
+            <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M4 7h16M4 12h16M4 17h16" />
+            </svg>
+          </summary>
+          <div class="absolute left-1/2 z-20 mt-3 w-[min(18rem,calc(100vw-2rem))] max-w-[calc(100vw-2rem)] -translate-x-1/2 rounded-2xl border border-slate-200 bg-white p-4 shadow-xl sm:left-auto sm:right-0 sm:w-72 sm:translate-x-0">
+            <div class="flex flex-col gap-3 text-sm">
+              <% if helpers.authenticated? %>
+                <%= render Ui::ButtonComponent.new(
+                      label: "Cerrar sesión",
+                      path: session_path,
+                      method: :delete,
+                      variant: :secondary,
+                      size: :sm
+                    ) %>
+              <% else %>
+                <%= link_to "Iniciar sesión", new_session_path, class: "inline-flex items-center justify-center rounded-full border border-slate-200 px-4 py-2 font-medium text-slate-700 transition hover:border-indigo-200 hover:text-indigo-600" %>
+              <% end %>
+
+              <% if helpers.constructor? %>
+                <%= link_to constructors_projects_path, class: "flex items-center justify-between rounded-2xl bg-indigo-50 px-4 py-3 text-sm font-semibold text-indigo-700 hover:bg-indigo-100" do %>
+                  <span>Mis proyectos</span>
+                  <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="m9 5 7 7-7 7" />
+                  </svg>
+                <% end %>
+              <% end %>
+
+              <% if helpers.buyer? %>
+                <%= link_to products_path, class: "flex items-center justify-between rounded-2xl border border-slate-200 px-4 py-3 text-sm font-medium text-slate-600 hover:border-indigo-200 hover:text-indigo-600" do %>
+                  <span>Catálogo completo</span>
+                  <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M4.5 6h15l-1.2 9.5a2 2 0 0 1-2 1.5H7.7a2 2 0 0 1-2-1.5L4.5 6zm3 12a1.5 1.5 0 1 0 0 3 1.5 1.5 0 0 0 0-3zm9 0a1.5 1.5 0 1 0 0 3 1.5 1.5 0 0 0 0-3z" />
+                  </svg>
+                <% end %>
+              <% end %>
+
+              <div class="rounded-2xl bg-slate-50 p-3 text-xs text-slate-500">
+                <p class="font-semibold text-slate-700">¿Necesitas ayuda?</p>
+                <p class="mt-1 leading-relaxed">
+                  Escríbenos a soporte@quickbuild.app y te asistimos con tus proyectos.
+                </p>
+              </div>
+            </div>
+          </div>
+        </details>
       </div>
     </div>
   </div>

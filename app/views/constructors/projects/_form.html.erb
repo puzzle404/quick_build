@@ -1,43 +1,81 @@
-<%= form_with model: [:constructors, @project], class: 'space-y-4', data: {turbo_frame: "_top"} do |f| %>
-  <div>
-    <%= f.label :name, class: 'block text-sm font-medium' %>
-    <%= f.text_field :name, class: 'mt-1 block w-full border rounded' %>
-  </div>
-  <div>
-    <%= f.label :location, class: 'block text-sm font-medium' %>
-    <%= f.text_field :location, class: 'mt-1 block w-full border rounded' %>
-  </div>
+<%= form_with model: [:constructors, project], class: "space-y-8", data: { turbo_frame: "_top" } do |f| %>
+  <section class="rounded-2xl border border-slate-200 bg-slate-50/60 p-5">
+    <h3 class="text-sm font-semibold text-slate-900">Información general</h3>
+    <p class="mt-1 text-xs text-slate-500">Estos datos aparecen en los tableros y reportes compartidos con tu equipo.</p>
+    <div class="mt-4 grid gap-4 md:grid-cols-2">
+      <div>
+        <%= f.label :name, class: "block text-sm font-medium text-slate-700" %>
+        <%= f.text_field :name, class: "mt-2 block w-full rounded-xl border border-slate-200 px-3 py-2 text-sm shadow-sm focus:border-indigo-500 focus:outline-none focus:ring-2 focus:ring-indigo-200" %>
+      </div>
+      <div>
+        <%= f.label :location, class: "block text-sm font-medium text-slate-700" %>
+        <%= f.text_field :location, class: "mt-2 block w-full rounded-xl border border-slate-200 px-3 py-2 text-sm shadow-sm focus:border-indigo-500 focus:outline-none focus:ring-2 focus:ring-indigo-200" %>
+      </div>
+    </div>
+  </section>
 
-  <!-- Contenedor del mapa -->
-  <div id="project-map"
-     data-controller="project-map"
-     data-project-map-target="map"
-     style="height: 400px; border: 1px solid #ccc;">
-    <!-- Campos ocultos para guardar coordenadas -->
-    <%= f.hidden_field :latitude, data: { project_map_target: "latitude" } %>
-    <%= f.hidden_field :longitude, data: { project_map_target: "longitude" } %>
-  </div>
-  <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
-    <div>
-      <%= f.label :start_date, class: 'block text-sm font-medium' %>
-      <%= f.date_field :start_date, class: 'mt-1 block w-full border rounded' %>
+  <section class="rounded-2xl border border-slate-200 bg-white p-5 shadow-inner">
+    <div class="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
+      <div>
+        <h3 class="text-sm font-semibold text-slate-900">Ubicación georreferenciada</h3>
+        <p class="text-xs text-slate-500">Posiciona la obra con precisión para habilitar seguimiento logístico.</p>
+      </div>
+      <span class="text-xs text-slate-400">Arrastra el marcador sobre el plano</span>
     </div>
-    <div>
-      <%= f.label :end_date, class: 'block text-sm font-medium' %>
-      <%= f.date_field :end_date, class: 'mt-1 block w-full border rounded' %>
+    <div id="project-map"
+         class="mt-4 w-full overflow-hidden rounded-xl border border-slate-200"
+         data-controller="project-map"
+         data-project-map-target="map"
+         style="height: 320px;">
+      <%= f.hidden_field :latitude, data: { project_map_target: "latitude" } %>
+      <%= f.hidden_field :longitude, data: { project_map_target: "longitude" } %>
     </div>
-  </div>
-  <div>
-    <%= f.label :status, class: 'block text-sm font-medium' %>
-    <%= f.select :status, Project.statuses.keys.map { |s| [s.humanize, s] }, {}, class: 'mt-1 block w-full border rounded' %>
-  </div>
-  <div>
-    <%= f.label :images, "Imágenes del producto", class: 'block text-sm font-medium text-gray-700' %>
-    <%= f.file_field :images, multiple: true,direct_upload: true, class: 'mt-1' %>
-  </div>
-  <div>
+  </section>
+
+  <section class="rounded-2xl border border-slate-200 bg-slate-50/60 p-5">
+    <h3 class="text-sm font-semibold text-slate-900">Planificación temporal</h3>
+    <p class="mt-1 text-xs text-slate-500">Estos valores alimentan la curva S y el tablero de hitos.</p>
+    <div class="mt-4 grid gap-4 sm:grid-cols-2">
+      <div>
+        <%= f.label :start_date, class: "block text-sm font-medium text-slate-700" %>
+        <%= f.date_field :start_date, class: "mt-2 block w-full rounded-xl border border-slate-200 px-3 py-2 text-sm shadow-sm focus:border-indigo-500 focus:outline-none focus:ring-2 focus:ring-indigo-200" %>
+      </div>
+      <div>
+        <%= f.label :end_date, class: "block text-sm font-medium text-slate-700" %>
+        <%= f.date_field :end_date, class: "mt-2 block w-full rounded-xl border border-slate-200 px-3 py-2 text-sm shadow-sm focus:border-indigo-500 focus:outline-none focus:ring-2 focus:ring-indigo-200" %>
+      </div>
+      <div class="sm:col-span-2">
+        <%= f.label :status, class: "block text-sm font-medium text-slate-700" %>
+        <%= f.select :status,
+                     Project.statuses.keys.map { |s| [s.humanize, s] },
+                     {},
+                     class: "mt-2 block w-full rounded-xl border border-slate-200 px-3 py-2 text-sm shadow-sm focus:border-indigo-500 focus:outline-none focus:ring-2 focus:ring-indigo-200" %>
+      </div>
+    </div>
+  </section>
+
+  <section class="rounded-2xl border border-slate-200 bg-white p-5 shadow-inner">
+    <h3 class="text-sm font-semibold text-slate-900">Documentación de soporte</h3>
+    <p class="mt-1 text-xs text-slate-500">
+      Adjunta planos, fotos o reportes relevantes. Puedes seleccionar múltiples archivos a la vez.
+    </p>
+    <div class="mt-4 flex flex-col gap-4 rounded-xl border border-dashed border-slate-300 bg-slate-50 px-4 py-6 sm:flex-row sm:items-center sm:justify-between">
+      <div class="space-y-1">
+        <p class="text-sm font-medium text-slate-700">Imágenes del proyecto</p>
+        <p class="text-xs text-slate-500">Formatos recomendados: JPG, PNG o PDF (máx. 25 MB c/u)</p>
+      </div>
+      <div class="w-full sm:w-auto">
+        <%= f.file_field :images,
+                         multiple: true,
+                         direct_upload: true,
+                         class: "w-full text-sm text-indigo-600 file:mr-4 file:rounded-full file:border-0 file:bg-indigo-600 file:px-4 file:py-2 file:text-sm file:font-semibold file:text-white hover:file:bg-indigo-700 sm:w-auto" %>
+      </div>
+    </div>
+  </section>
+
+  <div class="flex items-center justify-end gap-3 pt-2">
     <%= render Ui::ButtonComponent.new(
-          label: @project.persisted? ? "Update Project" : "Create Project",
+          label: project.persisted? ? "Actualizar obra" : "Crear obra",
           type: :submit
         ) %>
   </div>
