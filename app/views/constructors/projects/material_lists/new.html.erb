@@ -1,0 +1,10 @@
+<%= render Constructors::Projects::SectionsNavComponent.new(project: @project, current_section: :materials) %>
+
+<div class="mt-6 max-w-4xl space-y-6">
+  <div>
+    <h1 class="text-2xl font-semibold text-slate-900">Nueva lista de materiales</h1>
+    <p class="mt-2 text-sm text-slate-500">Cargá manualmente tus ítems o adjuntá archivos que quieras mantener junto a la obra.</p>
+  </div>
+
+  <%= render "form" %>
+</div>

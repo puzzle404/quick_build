@@ -1,5 +1,6 @@
 <div class="space-y-8 pb-12">
   <%= render Constructors::Projects::ProjectHeaderComponent.new(project: @project) %>
+  <%= render Constructors::Projects::SectionsNavComponent.new(project: @project, current_section: :overview) %>
   <%= render Constructors::Projects::ProjectMetricsComponent.new(project: @project) %>
 
   <section class="grid gap-6 lg:grid-cols-3">

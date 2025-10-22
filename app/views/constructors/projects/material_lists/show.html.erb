@@ -1,0 +1,113 @@
+<%= render Constructors::Projects::SectionsNavComponent.new(project: @project, current_section: :materials) %>
+
+<div class="space-y-6">
+  <div class="flex flex-col justify-between gap-4 sm:flex-row sm:items-center">
+    <div>
+      <%= link_to "← Volver a las listas", constructors_project_material_lists_path(@project),
+                  class: "text-sm font-medium text-emerald-700 hover:text-emerald-600" %>
+      <h1 class="mt-2 text-2xl font-semibold text-slate-900"><%= @material_list.name %></h1>
+      <p class="mt-1 text-sm text-slate-500">
+        Actualizada <%= time_ago_in_words(@material_list.updated_at) %> atrás ·
+        <%= turbo_frame_tag dom_id(@material_list, :items_counter) do %>
+          <%= pluralize(@material_items.size, "ítem") %>
+        <% end %>
+      </p>
+    </div>
+
+    <div class="flex flex-wrap gap-3">
+      <% if policy(@material_list).toggle_publication? %>
+        <%= button_to "Alternar presupuesto",
+                      toggle_publication_constructors_project_material_list_path(@project, @material_list),
+                      method: :patch,
+                      class: "inline-flex items-center rounded-lg border border-emerald-600 px-4 py-2 text-sm font-semibold text-emerald-700 hover:bg-emerald-50" %>
+      <% end %>
+      <% if policy(@material_list).update? %>
+        <%= link_to "Editar", edit_constructors_project_material_list_path(@project, @material_list),
+                    class: "inline-flex items-center rounded-lg bg-slate-900 px-4 py-2 text-sm font-semibold text-white hover:bg-slate-800" %>
+      <% end %>
+    </div>
+  </div>
+
+  <div class="grid gap-6 lg:grid-cols-3">
+    <div class="lg:col-span-2 space-y-6">
+      <% if policy(@material_list).update? %>
+        <div class="rounded-2xl border border-slate-200 bg-white p-4 shadow-sm"
+             data-controller="toggle-form"
+             data-toggle-form-open-value="<%= @material_item.errors.any? %>">
+          <div class="flex flex-wrap items-center justify-between gap-3">
+            <div>
+              <p class="text-sm font-semibold text-slate-700">Cargar materiales</p>
+              <p class="text-xs text-slate-500">Sumá insumos de a uno para construir la lista.</p>
+            </div>
+            <button type="button"
+                    class="inline-flex items-center rounded-full border border-emerald-200 px-3 py-1.5 text-xs font-semibold uppercase tracking-wide text-emerald-700 transition hover:border-emerald-300 hover:bg-emerald-50"
+                    data-action="toggle-form#toggle"
+                    data-toggle-form-target="button"
+                    aria-expanded="false">
+              <span data-toggle-form-target="buttonLabel">Agregar material</span>
+            </button>
+          </div>
+          <div class="mt-4 hidden" data-toggle-form-target="content">
+            <%= turbo_frame_tag dom_id(@material_list, :new_item_frame) do %>
+              <%= render "item_form",
+                         project: @project,
+                         material_list: @material_list,
+                         material_item: @material_item %>
+            <% end %>
+          </div>
+        </div>
+      <% end %>
+
+      <%= turbo_frame_tag dom_id(@material_list, :items_list) do %>
+        <%= render "items_table",
+                   project: @project,
+                   material_list: @material_list,
+                   material_items: @material_items,
+                   editable: policy(@material_list).update? %>
+      <% end %>
+    </div>
+
+    <div class="space-y-4">
+      <div class="rounded-2xl border border-slate-200 bg-white p-4 shadow-sm">
+        <p class="text-sm font-medium text-slate-600 uppercase tracking-wide">Estado</p>
+        <p class="mt-2 text-lg font-semibold text-slate-900"><%= @material_list.status.humanize %></p>
+        <% if @material_list.approved_at.present? %>
+          <p class="mt-2 text-sm text-slate-500">Aprobada el <%= l(@material_list.approved_at, format: :long) %>.</p>
+        <% else %>
+          <p class="mt-2 text-sm text-slate-500">Actualizá el estado cuando la lista esté validada por tu equipo.</p>
+        <% end %>
+      </div>
+
+      <div class="rounded-2xl border border-slate-200 bg-white p-4 shadow-sm">
+        <p class="text-sm font-medium text-slate-600 uppercase tracking-wide">Visibilidad</p>
+        <% publication = @material_list.material_list_publication %>
+        <p class="mt-2 text-lg font-semibold text-slate-900">
+          <%= publication&.visibility_public? ? "Permitido presupuestar" : "Uso interno" %>
+        </p>
+        <p class="mt-2 text-sm text-slate-500">
+          <% if publication&.visibility_public? %>
+            Publicada el <%= l(publication.published_at || @material_list.updated_at, format: :long) %>.
+          <% else %>
+            La lista no está visible para proveedores. Activala cuando quieras solicitar presupuestos.
+          <% end %>
+        </p>
+      </div>
+
+      <div class="rounded-2xl border border-slate-200 bg-white p-4 shadow-sm">
+        <p class="text-sm font-medium text-slate-600 uppercase tracking-wide">Notas</p>
+        <p class="mt-2 text-sm text-slate-700 whitespace-pre-line">
+          <%= @material_list.notes.presence || "Sin notas por el momento." %>
+        </p>
+      </div>
+
+      <% if @material_list.source_file.attached? %>
+        <div class="rounded-2xl border border-slate-200 bg-white p-4 shadow-sm">
+          <p class="text-sm font-medium text-slate-600 uppercase tracking-wide">Archivo adjunto</p>
+          <%= link_to @material_list.source_file.filename,
+                      rails_blob_path(@material_list.source_file, disposition: :attachment),
+                      class: "mt-2 inline-flex items-center text-sm font-semibold text-emerald-700 hover:text-emerald-600" %>
+        </div>
+      <% end %>
+    </div>
+  </div>
+</div>

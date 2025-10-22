@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.0].define(version: 2025_09_12_130000) do
+ActiveRecord::Schema[8.0].define(version: 2025_09_14_000000) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
 
@@ -71,6 +71,45 @@ ActiveRecord::Schema[8.0].define(version: 2025_09_12_130000) do
     t.datetime "updated_at", null: false
     t.index ["order_id"], name: "index_line_items_on_order_id"
     t.index ["product_id"], name: "index_line_items_on_product_id"
+  end
+
+  create_table "material_items", force: :cascade do |t|
+    t.bigint "material_list_id", null: false
+    t.string "name", null: false
+    t.text "description"
+    t.decimal "quantity", precision: 12, scale: 2, default: "0.0", null: false
+    t.string "unit", default: "unidad", null: false
+    t.integer "estimated_cost_cents"
+    t.string "confidence_label"
+    t.text "notes"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["material_list_id"], name: "index_material_items_on_material_list_id"
+  end
+
+  create_table "material_list_publications", force: :cascade do |t|
+    t.bigint "material_list_id", null: false
+    t.integer "visibility", default: 0, null: false
+    t.datetime "published_at"
+    t.datetime "unpublished_at"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["material_list_id"], name: "index_material_list_publications_on_material_list_id", unique: true
+  end
+
+  create_table "material_lists", force: :cascade do |t|
+    t.bigint "project_id", null: false
+    t.bigint "author_id", null: false
+    t.string "name", null: false
+    t.integer "status", default: 0, null: false
+    t.integer "source_type", default: 0, null: false
+    t.text "notes"
+    t.datetime "approved_at"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["author_id"], name: "index_material_lists_on_author_id"
+    t.index ["project_id", "status"], name: "index_material_lists_on_project_id_and_status"
+    t.index ["project_id"], name: "index_material_lists_on_project_id"
   end
 
   create_table "orders", force: :cascade do |t|
@@ -146,6 +185,10 @@ ActiveRecord::Schema[8.0].define(version: 2025_09_12_130000) do
   add_foreign_key "active_storage_variant_records", "active_storage_blobs", column: "blob_id"
   add_foreign_key "line_items", "orders"
   add_foreign_key "line_items", "products"
+  add_foreign_key "material_items", "material_lists"
+  add_foreign_key "material_list_publications", "material_lists"
+  add_foreign_key "material_lists", "projects"
+  add_foreign_key "material_lists", "users", column: "author_id"
   add_foreign_key "orders", "users"
   add_foreign_key "products", "categories"
   add_foreign_key "products", "companies"

@@ -1,0 +1,57 @@
+<%= form_with(model: [:constructors, project, material_list, material_item],
+              class: "space-y-4",
+              data: { turbo_frame: dom_id(material_list, :new_item_frame) }) do |form| %>
+  <% if material_item.errors.any? %>
+    <div class="rounded-lg border border-red-200 bg-red-50 p-3 text-sm text-red-700">
+      <p class="font-semibold">No pudimos guardar el material:</p>
+      <ul class="mt-1 list-disc pl-4">
+        <% material_item.errors.full_messages.each do |message| %>
+          <li><%= message %></li>
+        <% end %>
+      </ul>
+    </div>
+  <% end %>
+
+  <div class="grid gap-4 sm:grid-cols-2">
+    <div>
+      <%= form.label :name, "Material", class: "block text-sm font-medium text-slate-700" %>
+      <%= form.text_field :name, class: "mt-1 block w-full rounded-lg border border-slate-300 px-3 py-2 text-sm shadow-sm focus:border-emerald-500 focus:outline-none focus:ring-emerald-500" %>
+    </div>
+
+    <div class="grid grid-cols-2 gap-3">
+      <div>
+        <%= form.label :quantity, "Cantidad", class: "block text-sm font-medium text-slate-700" %>
+        <%= form.number_field :quantity, step: 0.01, class: "mt-1 block w-full rounded-lg border border-slate-300 px-3 py-2 text-sm shadow-sm focus:border-emerald-500 focus:outline-none focus:ring-emerald-500" %>
+      </div>
+      <div>
+        <%= form.label :unit, "Unidad", class: "block text-sm font-medium text-slate-700" %>
+        <%= form.text_field :unit, class: "mt-1 block w-full rounded-lg border border-slate-300 px-3 py-2 text-sm shadow-sm focus:border-emerald-500 focus:outline-none focus:ring-emerald-500" %>
+      </div>
+    </div>
+  </div>
+
+  <div>
+    <%= form.label :description, "Descripción", class: "block text-sm font-medium text-slate-700" %>
+    <%= form.text_area :description, rows: 2, class: "mt-1 block w-full rounded-lg border border-slate-300 px-3 py-2 text-sm shadow-sm focus:border-emerald-500 focus:outline-none focus:ring-emerald-500" %>
+  </div>
+
+  <div class="grid gap-4 sm:grid-cols-2">
+    <div>
+      <%= form.label :estimated_cost_cents, "Costo estimado (centavos)", class: "block text-sm font-medium text-slate-700" %>
+      <%= form.number_field :estimated_cost_cents, class: "mt-1 block w-full rounded-lg border border-slate-300 px-3 py-2 text-sm shadow-sm focus:border-emerald-500 focus:outline-none focus:ring-emerald-500" %>
+    </div>
+    <div>
+      <%= form.label :confidence_label, "Confianza / fuente", class: "block text-sm font-medium text-slate-700" %>
+      <%= form.text_field :confidence_label, placeholder: "p.ej. Catálogo A, cálculo propio", class: "mt-1 block w-full rounded-lg border border-slate-300 px-3 py-2 text-sm shadow-sm focus:border-emerald-500 focus:outline-none focus:ring-emerald-500" %>
+    </div>
+  </div>
+
+  <div>
+    <%= form.label :notes, "Notas internas", class: "block text-sm font-medium text-slate-700" %>
+    <%= form.text_area :notes, rows: 2, class: "mt-1 block w-full rounded-lg border border-slate-300 px-3 py-2 text-sm shadow-sm focus:border-emerald-500 focus:outline-none focus:ring-emerald-500" %>
+  </div>
+
+  <div class="flex justify-end">
+    <%= form.submit "Agregar material", class: "inline-flex items-center rounded-lg bg-emerald-600 px-4 py-2 text-sm font-semibold text-white shadow-sm hover:bg-emerald-500 focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:ring-offset-2" %>
+  </div>
+<% end %>

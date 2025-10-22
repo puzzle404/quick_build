@@ -25,6 +25,10 @@ Rails.application.routes.draw do
     root to: "projects#index"
     resources :projects do
       resources :project_memberships, only: [:create, :destroy, :new]
+      resources :material_lists, module: :projects do
+        patch :toggle_publication, on: :member
+        resources :material_items, only: [:create, :destroy], module: :material_lists
+      end
     end
   end
 

@@ -1,0 +1,52 @@
+<%= form_with(model: [:constructors, @project, @material_list],
+              class: "space-y-6",
+              data: { turbo: false }) do |form| %>
+  <% if @material_list.errors.any? %>
+    <div class="rounded-lg border border-red-200 bg-red-50 p-4 text-sm text-red-800">
+      <p class="font-semibold">Revisá los siguientes errores:</p>
+      <ul class="mt-2 list-disc pl-5">
+        <% @material_list.errors.full_messages.each do |message| %>
+          <li><%= message %></li>
+        <% end %>
+      </ul>
+    </div>
+  <% end %>
+
+  <div class="grid gap-4 sm:grid-cols-3">
+    <div class="sm:col-span-2">
+      <%= form.label :name, "Nombre de la lista", class: "block text-sm font-medium text-slate-700" %>
+      <%= form.text_field :name, class: "mt-1 block w-full rounded-lg border border-slate-300 px-3 py-2 text-sm shadow-sm focus:border-emerald-500 focus:outline-none focus:ring-emerald-500" %>
+    </div>
+
+    <div>
+      <%= form.label :status, "Estado", class: "block text-sm font-medium text-slate-700" %>
+      <%= form.select :status, MaterialList.statuses.keys.map { |key| [I18n.t("activerecord.enums.material_list.status.#{key}", default: key.humanize), key] },
+                      {}, class: "mt-1 block w-full rounded-lg border border-slate-300 px-3 py-2 text-sm shadow-sm focus:border-emerald-500 focus:outline-none focus:ring-emerald-500" %>
+    </div>
+
+    <div>
+      <%= form.label :source_type, "Origen", class: "block text-sm font-medium text-slate-700" %>
+      <%= form.select :source_type, MaterialList.source_types.keys.map { |key| [I18n.t("activerecord.enums.material_list.source_type.#{key}", default: key.humanize), key] },
+                      {}, class: "mt-1 block w-full rounded-lg border border-slate-300 px-3 py-2 text-sm shadow-sm focus:border-emerald-500 focus:outline-none focus:ring-emerald-500" %>
+    </div>
+  </div>
+
+  <div>
+    <%= form.label :notes, "Notas", class: "block text-sm font-medium text-slate-700" %>
+    <%= form.text_area :notes, rows: 3, class: "mt-1 block w-full rounded-lg border border-slate-300 px-3 py-2 text-sm shadow-sm focus:border-emerald-500 focus:outline-none focus:ring-emerald-500" %>
+    <p class="mt-1 text-xs text-slate-500">Podés describir el alcance, etapa o cualquier detalle relevante.</p>
+  </div>
+
+  <div>
+    <%= form.label :source_file, "Archivo de referencia", class: "block text-sm font-medium text-slate-700" %>
+    <%= form.file_field :source_file, direct_upload: true,
+                        class: "mt-1 block w-full rounded-lg border border-dashed border-slate-300 px-4 py-4 text-sm text-slate-500" %>
+    <p class="mt-1 text-xs text-slate-500">PDF, Excel u otros archivos que quieras conservar junto a la lista.</p>
+  </div>
+
+  <div class="flex justify-end gap-3">
+    <%= link_to "Cancelar", constructors_project_material_lists_path(@project),
+                class: "inline-flex items-center rounded-lg border border-slate-300 px-4 py-2 text-sm font-medium text-slate-700 hover:bg-slate-50" %>
+    <%= form.submit class: "inline-flex items-center rounded-lg bg-emerald-600 px-4 py-2 text-sm font-semibold text-white shadow-sm hover:bg-emerald-500 focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:ring-offset-2" %>
+  </div>
+<% end %>

@@ -1,0 +1,26 @@
+class MaterialList < ApplicationRecord
+  enum :status, { draft: 0, ready_for_review: 1, approved: 2 }
+  enum :source_type, { manual: 0, pdf_upload: 1, excel_upload: 2 }
+
+  belongs_to :project
+  belongs_to :author, class_name: "User"
+
+  has_many :material_items, dependent: :destroy, inverse_of: :material_list
+  has_one :material_list_publication, dependent: :destroy
+
+  has_one_attached :source_file
+
+  validates :name, presence: true
+
+  before_save :sync_approved_timestamp
+
+  private
+
+  def sync_approved_timestamp
+    if approved? && approved_at.blank?
+      self.approved_at = Time.current
+    elsif !approved? && approved_at.present?
+      self.approved_at = nil
+    end
+  end
+end

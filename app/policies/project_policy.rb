@@ -15,6 +15,16 @@ class ProjectPolicy < ApplicationPolicy
     admin? || owner?
   end
 
+  def materials?
+    show?
+  end
+
+  def manage_materials?
+    return false unless user
+
+    admin? || owner?
+  end
+
   alias_method :new?, :create?
   alias_method :edit?, :update?
 
