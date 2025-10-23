@@ -4,6 +4,7 @@ class MaterialList < ApplicationRecord
 
   belongs_to :project
   belongs_to :author, class_name: "User"
+  belongs_to :project_stage, optional: true
 
   has_many :material_items, dependent: :destroy, inverse_of: :material_list
   has_one :material_list_publication, dependent: :destroy
@@ -11,10 +12,18 @@ class MaterialList < ApplicationRecord
   has_one_attached :source_file
 
   validates :name, presence: true
+  validate :stage_belongs_to_project
 
   before_save :sync_approved_timestamp
 
   private
+
+  def stage_belongs_to_project
+    return if project_stage.blank?
+    return if project_stage.project_id == project_id
+
+    errors.add(:project_stage, "no pertenece a esta obra")
+  end
 
   def sync_approved_timestamp
     if approved? && approved_at.blank?

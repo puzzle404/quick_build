@@ -29,8 +29,7 @@ class Constructors::Projects::SectionsNavComponent < ViewComponent::Base
         key: :planning,
         name: "Planificación",
         description: "WBS, hitos y cronogramas",
-        path: nil,
-        soon: true
+        path: helpers.constructors_project_planning_path(@project)
       },
       {
         key: :documents,

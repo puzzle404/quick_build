@@ -1,5 +1,6 @@
 class Constructors::BaseController < ApplicationController
   before_action :ensure_constructor!, if: -> { current_user.present? }
+  helper Constructors::ProjectsHelper
   
   layout "constructor"
 

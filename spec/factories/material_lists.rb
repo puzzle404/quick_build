@@ -15,5 +15,11 @@ FactoryBot.define do
         list.material_items << build(:material_item, material_list: list)
       end
     end
+
+    trait :with_stage do
+      after(:build) do |list|
+        list.project_stage ||= build(:project_stage, project: list.project)
+      end
+    end
   end
 end

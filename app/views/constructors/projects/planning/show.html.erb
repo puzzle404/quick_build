@@ -1,0 +1,9 @@
+<%= render Constructors::Projects::SectionsNavComponent.new(project: @project, current_section: :planning) %>
+
+<div class="mt-6 space-y-6">
+  <%= render Constructors::Projects::PlanningPanelComponent.new(
+        project: @project,
+        project_stages: @project_stages,
+        new_stage: @new_stage
+      ) %>
+</div>

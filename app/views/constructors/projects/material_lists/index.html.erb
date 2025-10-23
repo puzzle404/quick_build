@@ -30,6 +30,11 @@
           </span>
         <% end %>
       </div>
+      <% if list.project_stage.present? %>
+        <p class="mt-1 text-xs font-medium uppercase tracking-wide text-indigo-500">
+          Etapa: <span class="font-semibold lowercase normal-case text-slate-700"><%= project_stage_label(list.project_stage) %></span>
+        </p>
+      <% end %>
       <p class="mt-2 text-sm text-slate-500">
         <%= pluralize(list.material_items.size, "ítem") %> · Actualizado <%= time_ago_in_words(list.updated_at) %> atrás
       </p>

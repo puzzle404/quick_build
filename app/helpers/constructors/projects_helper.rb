@@ -17,4 +17,19 @@ module Constructors::ProjectsHelper
 
     l(date, format: :long)
   end
+
+  def project_stage_label(stage)
+    period = project_stage_period(stage)
+    [stage.name, period.presence].compact.join(" · ")
+  end
+
+  def project_stage_period(stage)
+    if stage.start_date.present? && stage.end_date.present?
+      "#{l(stage.start_date, format: :short)} – #{l(stage.end_date, format: :short)}"
+    elsif stage.start_date.present?
+      "Desde #{l(stage.start_date, format: :short)}"
+    elsif stage.end_date.present?
+      "Hasta #{l(stage.end_date, format: :short)}"
+    end
+  end
 end

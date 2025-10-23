@@ -1,11 +1,15 @@
 class Constructors::Projects::MaterialListsController < Constructors::BaseController
+  helper Constructors::ProjectsHelper
   before_action :set_project
   before_action :decorate_project
   before_action :set_material_list, only: %i[show edit update destroy toggle_publication]
+  before_action :set_stage_options, only: %i[new create edit update]
 
   def index
     authorize @project, :materials?
-    @material_lists = @project.material_lists.includes(:material_list_publication).order(updated_at: :desc)
+    @material_lists = @project.material_lists
+                               .includes(:material_list_publication, :project_stage)
+                               .order(updated_at: :desc)
   end
 
   def show
@@ -17,6 +21,7 @@ class Constructors::Projects::MaterialListsController < Constructors::BaseContro
   def new
     authorize @project, :manage_materials?
     @material_list = @project.material_lists.build(author: current_user)
+    assign_stage_from_params
   end
 
   def create
@@ -84,16 +89,24 @@ class Constructors::Projects::MaterialListsController < Constructors::BaseContro
   end
 
   def set_material_list
-    @material_list = @project.material_lists.includes(:material_items).find(params[:id])
+    @material_list = @project.material_lists.includes(:material_items, :project_stage).find(params[:id])
   end
 
   def material_list_params
-    params.require(:material_list).permit(
-      :name,
-      :notes,
-      :status,
-      :source_type,
-      :source_file
-    )
+    params.require(:material_list)
+          .permit(:name, :notes, :status, :source_type, :source_file, :project_stage_id)
+          .tap do |permitted|
+            permitted[:project_stage_id] = nil if permitted[:project_stage_id].blank?
+          end
+  end
+
+  def assign_stage_from_params
+    return unless params[:project_stage_id].present?
+
+    @material_list.project_stage = @project.project_stages.find_by(id: params[:project_stage_id])
+  end
+
+  def set_stage_options
+    @project_stages = @project.project_stages.ordered
   end
 end

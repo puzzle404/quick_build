@@ -1,0 +1,9 @@
+<%= turbo_stream.append "project_stages" do %>
+  <%= render "constructors/projects/stages/stage", project: @project, stage: @stage %>
+<% end %>
+
+<%= turbo_stream.replace "new_project_stage" do %>
+  <%= turbo_frame_tag "new_project_stage" do %>
+    <%= render "constructors/projects/stages/form", project: @project, stage: @project.project_stages.build %>
+  <% end %>
+<% end %>

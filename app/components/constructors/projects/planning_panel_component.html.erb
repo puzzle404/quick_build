@@ -3,6 +3,7 @@
     <h2 class="text-lg font-semibold text-slate-900">Planificación y alcance</h2>
     <span class="text-xs font-medium uppercase tracking-wide text-slate-400">Seguimiento</span>
   </div>
+
   <dl class="mt-6 grid gap-6 sm:grid-cols-2">
     <div class="rounded-2xl bg-slate-50 p-4">
       <dt class="text-xs font-semibold uppercase tracking-wide text-slate-500">Fechas clave</dt>
@@ -26,7 +27,50 @@
       </dd>
     </div>
   </dl>
-  <div class="mt-6 rounded-2xl border border-dashed border-slate-200 p-4 text-sm text-slate-500">
-    Define hitos, tareas WBS y responsables desde la sección de planificación cuando esté disponible. Mientras tanto, utiliza este panel para centralizar toda la información clave de la obra.
+
+  <div class="mt-8 space-y-6">
+    <div class="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
+      <div>
+        <h3 class="text-base font-semibold text-slate-900">Etapas de la obra</h3>
+        <p class="text-sm text-slate-500">Organizá los hitos principales y conectalos con sus listas de materiales.</p>
+      </div>
+      <span class="inline-flex items-center rounded-full bg-slate-100 px-3 py-1 text-xs font-semibold text-slate-600">
+        <%= pluralize(project_stages.size, "etapa") %>
+      </span>
+    </div>
+
+    <div class="space-y-4" id="project_stages">
+      <% if project_stages.any? %>
+        <% project_stages.each do |stage| %>
+          <%= render "constructors/projects/stages/stage", project: project_record, stage: stage %>
+        <% end %>
+      <% else %>
+        <div class="rounded-2xl border border-dashed border-slate-200 bg-slate-50 p-6 text-sm text-slate-500">
+          Todavía no cargaste etapas para esta obra. Empezá definiendo el nombre y el rango de fechas para organizar la planificación.
+        </div>
+      <% end %>
+    </div>
   </div>
+
+  <% if helpers.policy(ProjectStage.new(project: project_record)).create? %>
+    <div class="mt-8 rounded-2xl border border-slate-200 bg-slate-50 p-6">
+      <h3 class="text-base font-semibold text-slate-900">Agregar nueva etapa</h3>
+      <p class="mt-1 text-sm text-slate-500">Define un bloque de trabajo con fechas para coordinar materiales y tareas.</p>
+
+      <% if new_stage.errors.any? %>
+        <div class="mt-4 rounded-lg border border-red-200 bg-red-50 p-3 text-sm text-red-700">
+          <p class="font-semibold">No pudimos guardar la etapa:</p>
+          <ul class="mt-2 list-disc space-y-1 pl-5">
+            <% new_stage.errors.full_messages.each do |message| %>
+              <li><%= message %></li>
+            <% end %>
+          </ul>
+        </div>
+      <% end %>
+
+      <%= helpers.turbo_frame_tag "new_project_stage" do %>
+        <%= render "constructors/projects/stages/form", project: project_record, stage: new_stage %>
+      <% end %>
+    </div>
+  <% end %>
 </div>

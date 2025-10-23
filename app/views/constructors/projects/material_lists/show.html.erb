@@ -12,6 +12,11 @@
           <%= pluralize(@material_items.size, "ítem") %>
         <% end %>
       </p>
+      <% if @material_list.project_stage.present? %>
+        <p class="mt-2 inline-flex items-center gap-2 rounded-full bg-indigo-50 px-3 py-1 text-xs font-semibold uppercase tracking-wide text-indigo-600">
+          Etapa vinculada: <span class="text-slate-800"><%= project_stage_label(@material_list.project_stage) %></span>
+        </p>
+      <% end %>
     </div>
 
     <div class="flex flex-wrap gap-3">

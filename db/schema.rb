@@ -107,9 +107,12 @@ ActiveRecord::Schema[8.0].define(version: 2025_09_14_000000) do
     t.datetime "approved_at"
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
+    t.bigint "project_stage_id"
     t.index ["author_id"], name: "index_material_lists_on_author_id"
+    t.index ["project_id", "project_stage_id"], name: "index_material_lists_on_project_id_and_project_stage_id"
     t.index ["project_id", "status"], name: "index_material_lists_on_project_id_and_status"
     t.index ["project_id"], name: "index_material_lists_on_project_id"
+    t.index ["project_stage_id"], name: "index_material_lists_on_project_stage_id"
   end
 
   create_table "orders", force: :cascade do |t|
@@ -141,6 +144,18 @@ ActiveRecord::Schema[8.0].define(version: 2025_09_14_000000) do
     t.index ["project_id"], name: "index_project_memberships_on_project_id"
     t.index ["user_id", "project_id"], name: "index_project_memberships_on_user_id_and_project_id", unique: true
     t.index ["user_id"], name: "index_project_memberships_on_user_id"
+  end
+
+  create_table "project_stages", force: :cascade do |t|
+    t.bigint "project_id", null: false
+    t.string "name", null: false
+    t.text "description"
+    t.date "start_date"
+    t.date "end_date"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["project_id", "start_date"], name: "index_project_stages_on_project_id_and_start_date"
+    t.index ["project_id"], name: "index_project_stages_on_project_id"
   end
 
   create_table "projects", force: :cascade do |t|
@@ -187,6 +202,7 @@ ActiveRecord::Schema[8.0].define(version: 2025_09_14_000000) do
   add_foreign_key "line_items", "products"
   add_foreign_key "material_items", "material_lists"
   add_foreign_key "material_list_publications", "material_lists"
+  add_foreign_key "material_lists", "project_stages"
   add_foreign_key "material_lists", "projects"
   add_foreign_key "material_lists", "users", column: "author_id"
   add_foreign_key "orders", "users"
@@ -194,6 +210,7 @@ ActiveRecord::Schema[8.0].define(version: 2025_09_14_000000) do
   add_foreign_key "products", "companies"
   add_foreign_key "project_memberships", "projects"
   add_foreign_key "project_memberships", "users"
+  add_foreign_key "project_stages", "projects"
   add_foreign_key "projects", "users", column: "owner_id"
   add_foreign_key "sessions", "users"
   add_foreign_key "users", "companies"
