@@ -6,6 +6,7 @@ class Project < ApplicationRecord
   has_many :members, through: :project_memberships, source: :user
   has_many :project_stages, dependent: :destroy
   has_many :material_lists, dependent: :destroy
+  has_many :project_people, dependent: :destroy
   has_many_attached :images
 
   validates :name, presence: true

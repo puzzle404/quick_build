@@ -1,4 +1,4 @@
-<section class="grid gap-4 md:grid-cols-2 xl:grid-cols-4">
+<section class="grid gap-4 grid-cols-[repeat(auto-fit,minmax(16rem,1fr))]">
   <% metrics.each do |metric| %>
     <%= render Ui::MetricCardComponent.new(**metric) %>
   <% end %>

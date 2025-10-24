@@ -56,6 +56,8 @@ group :development, :test do
   # Omakase Ruby styling [https://github.com/rails/rubocop-rails-omakase/]
   gem "rubocop-rails-omakase", require: false
   gem "ruby-lsp", group: :development
+  # Load environment variables from .env files in dev/test
+  gem "dotenv-rails"
 end
 
 group :development do
@@ -68,6 +70,7 @@ group :test do
   gem "capybara"
   gem "selenium-webdriver"
   gem 'shoulda-matchers', require: false
+  gem 'cuprite'
 end
 
 

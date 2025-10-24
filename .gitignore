@@ -36,3 +36,8 @@
 /app/assets/builds/*
 !/app/assets/builds/.keep
 /vendor/bundle
+
+# Local environment files
+.env
+.env.*
+!.env.example

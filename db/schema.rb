@@ -123,6 +123,19 @@ ActiveRecord::Schema[8.0].define(version: 2025_09_14_000000) do
     t.index ["user_id"], name: "index_orders_on_user_id"
   end
 
+  create_table "person_attendances", force: :cascade do |t|
+    t.bigint "project_person_id", null: false
+    t.datetime "occurred_at", null: false
+    t.float "latitude"
+    t.float "longitude"
+    t.string "source", default: "manual", null: false
+    t.text "notes"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["project_person_id", "occurred_at"], name: "index_person_attendances_on_project_person_id_and_occurred_at"
+    t.index ["project_person_id"], name: "index_person_attendances_on_project_person_id"
+  end
+
   create_table "products", force: :cascade do |t|
     t.string "name"
     t.integer "price_cents"
@@ -144,6 +157,23 @@ ActiveRecord::Schema[8.0].define(version: 2025_09_14_000000) do
     t.index ["project_id"], name: "index_project_memberships_on_project_id"
     t.index ["user_id", "project_id"], name: "index_project_memberships_on_user_id_and_project_id", unique: true
     t.index ["user_id"], name: "index_project_memberships_on_user_id"
+  end
+
+  create_table "project_people", force: :cascade do |t|
+    t.bigint "project_id", null: false
+    t.string "full_name", null: false
+    t.string "document_id"
+    t.string "phone"
+    t.string "role_title"
+    t.integer "status", default: 0, null: false
+    t.date "start_date"
+    t.date "end_date"
+    t.text "notes"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["project_id", "full_name"], name: "index_project_people_on_project_id_and_full_name"
+    t.index ["project_id", "status"], name: "index_project_people_on_project_id_and_status"
+    t.index ["project_id"], name: "index_project_people_on_project_id"
   end
 
   create_table "project_stages", force: :cascade do |t|
@@ -206,10 +236,12 @@ ActiveRecord::Schema[8.0].define(version: 2025_09_14_000000) do
   add_foreign_key "material_lists", "projects"
   add_foreign_key "material_lists", "users", column: "author_id"
   add_foreign_key "orders", "users"
+  add_foreign_key "person_attendances", "project_people"
   add_foreign_key "products", "categories"
   add_foreign_key "products", "companies"
   add_foreign_key "project_memberships", "projects"
   add_foreign_key "project_memberships", "users"
+  add_foreign_key "project_people", "projects"
   add_foreign_key "project_stages", "projects"
   add_foreign_key "projects", "users", column: "owner_id"
   add_foreign_key "sessions", "users"

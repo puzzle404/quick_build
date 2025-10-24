@@ -1,0 +1,25 @@
+<%= render Constructors::Projects::SectionsNavComponent.new(project: @project, current_section: :people) %>
+
+<div class="space-y-6 lg:flex lg:items-start lg:justify-between lg:space-y-0">
+  <div>
+    <h1 class="text-2xl font-semibold text-slate-900">Recursos humanos</h1>
+    <p class="mt-1 text-sm text-slate-500">Agregá personas y gestioná la información del equipo de obra.</p>
+  </div>
+
+  <% if policy(ProjectPerson.new(project: @project)).create? %>
+    <%= render Ui::ButtonComponent.new(label: "Nueva persona", path: new_constructors_project_person_path(@project)) %>
+  <% end %>
+</div>
+
+<div class="mt-6 grid gap-4 sm:grid-cols-2">
+  <% @people.each do |person| %>
+    <%= render Constructors::Projects::People::PersonCardComponent.new(project: @project, person: person) %>
+  <% end %>
+
+  <% if @people.empty? %>
+    <div class="rounded-2xl border border-dashed border-slate-200 bg-white p-8 text-center text-sm text-slate-500">
+      Todavía no sumaste personas a esta obra.
+    </div>
+  <% end %>
+</div>
+

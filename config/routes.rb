@@ -27,6 +27,9 @@ Rails.application.routes.draw do
       resources :project_memberships, only: [:create, :destroy, :new]
       resource :planning, only: [:show], module: :projects, controller: :planning
       resources :stages, only: [:create, :destroy], module: :projects
+      resources :people, module: :projects do
+        resources :attendances, only: [:create], module: :people
+      end
       resources :material_lists, module: :projects do
         patch :toggle_publication, on: :member
         resources :material_items, only: [:create, :destroy], module: :material_lists
@@ -43,4 +46,5 @@ Rails.application.routes.draw do
 
   # Health check y root
   get "up" => "rails/health#show", as: :rails_health_check
+
 end

@@ -48,9 +48,8 @@ RSpec.configure do |config|
     Rails.root.join('spec/fixtures')
   ]
 
-  # If you're not using ActiveRecord, or you'd prefer not to run each of your
-  # examples within a transaction, remove the following line or assign false
-  # instead of true.
+  # Use transactions by default for fast, isolated tests.
+  # System specs (Cuprite) handle cleaning via truncation hooks in spec/support.
   config.use_transactional_fixtures = true
 
   # You can uncomment this line to turn off ActiveRecord support entirely.
@@ -80,4 +79,8 @@ RSpec.configure do |config|
   config.include FactoryBot::Syntax::Methods
   config.include RequestAuthHelpers, type: :request
   config.include SystemAuthHelpers, type: :system
+
+  # System specs: rack_test by default; use Cuprite only when js: true.
+  config.before(:each, type: :system) { driven_by :rack_test }
+  config.before(:each, type: :system, js: true) { driven_by :cuprite }
 end

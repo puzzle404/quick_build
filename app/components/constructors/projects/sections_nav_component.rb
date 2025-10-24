@@ -22,8 +22,7 @@ class Constructors::Projects::SectionsNavComponent < ViewComponent::Base
         key: :people,
         name: "Recursos humanos",
         description: "Roles y disponibilidad",
-        path: nil,
-        soon: true
+        path: helpers.constructors_project_people_path(@project)
       },
       {
         key: :planning,
