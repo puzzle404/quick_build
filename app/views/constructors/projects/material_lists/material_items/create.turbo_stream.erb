@@ -1,9 +1,10 @@
 <%= turbo_stream.replace dom_id(@material_list, :items_list) do %>
-  <%= render "constructors/projects/material_lists/items_table",
-             project: @project,
-             material_list: @material_list,
-             material_items: @material_items,
-             editable: policy(@material_list).update? %>
+  <%= render Constructors::Projects::MaterialLists::ItemsTableComponent.new(
+               project: @project,
+               material_list: @material_list,
+               material_items: @material_items,
+               editable: policy(@material_list).update?
+             ) %>
 <% end %>
 
 <%= turbo_stream.replace dom_id(@material_list, :items_counter) do %>
@@ -11,8 +12,9 @@
 <% end %>
 
 <%= turbo_stream.replace dom_id(@material_list, :new_item_frame) do %>
-  <%= render "constructors/projects/material_lists/item_form",
-             project: @project,
-             material_list: @material_list,
-             material_item: @material_item %>
+  <%= render Constructors::Projects::MaterialLists::ItemFormComponent.new(
+               project: @project,
+               material_list: @material_list,
+               material_item: @material_item
+             ) %>
 <% end %>

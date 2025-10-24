@@ -42,7 +42,7 @@
     <div class="space-y-4" id="project_stages">
       <% if project_stages.any? %>
         <% project_stages.each do |stage| %>
-          <%= render "constructors/projects/stages/stage", project: project_record, stage: stage %>
+          <%= render Constructors::Projects::Stages::StageCardComponent.new(project: project_record, stage: stage) %>
         <% end %>
       <% else %>
         <div class="rounded-2xl border border-dashed border-slate-200 bg-slate-50 p-6 text-sm text-slate-500">
@@ -69,7 +69,7 @@
       <% end %>
 
       <%= helpers.turbo_frame_tag "new_project_stage" do %>
-        <%= render "constructors/projects/stages/form", project: project_record, stage: new_stage %>
+        <%= render Constructors::Projects::Stages::StageFormComponent.new(project: project_record, stage: new_stage) %>
       <% end %>
     </div>
   <% end %>
