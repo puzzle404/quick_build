@@ -78,4 +78,4 @@ gem 'acts_as_tenant'     # multi-tenancy row-based
 gem 'pg_search'          # búsquedas Full-Text
 gem 'rspec-rails', group: [:development, :test]
 gem 'factory_bot_rails', group: [:development, :test]
-gem 'faker', group: [:development, :test]
+gem 'faker'
