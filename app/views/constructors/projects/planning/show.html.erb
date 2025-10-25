@@ -1,6 +1,11 @@
 <%= render Constructors::Projects::SectionsNavComponent.new(project: @project, current_section: :planning) %>
 
 <div class="mt-6 space-y-6">
+  <%= render 'shared/section_header', title: 'Planificación', subtitle: 'Definí etapas, hitos y alcance para coordinar la obra' do %>
+    <% if policy(ProjectStage.new(project: @project)).create? %>
+      <%= render Ui::ButtonComponent.new(label: 'Nueva etapa', path: constructors_project_planning_path(@project, anchor: 'new_project_stage'), variant: :primary, size: :sm) %>
+    <% end %>
+  <% end %>
   <%= render Constructors::Projects::PlanningPanelComponent.new(
         project: @project,
         project_stages: @project_stages,

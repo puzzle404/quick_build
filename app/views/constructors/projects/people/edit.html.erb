@@ -1,11 +1,6 @@
 <%= render Constructors::Projects::SectionsNavComponent.new(project: @project, current_section: :people) %>
 
 <div class="mt-6 max-w-3xl space-y-6">
-  <div>
-    <h1 class="text-2xl font-semibold text-slate-900">Editar persona</h1>
-    <p class="mt-2 text-sm text-slate-500">Actualizá la información del trabajador.</p>
-  </div>
-
+  <%= render 'shared/section_header', title: 'Editar persona', subtitle: 'Actualizá la información del trabajador.' %>
   <%= render Constructors::Projects::People::PersonFormComponent.new(project: @project, person: @person) %>
 </div>
-

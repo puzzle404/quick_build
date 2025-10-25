@@ -1,36 +1,34 @@
 <%= render Constructors::Projects::SectionsNavComponent.new(project: @project, current_section: :materials) %>
 
 <div class="space-y-6">
-  <div class="flex flex-col justify-between gap-4 sm:flex-row sm:items-center">
-    <div>
-      <%= link_to "← Volver a las listas", constructors_project_material_lists_path(@project),
-                  class: "text-sm font-medium text-emerald-700 hover:text-emerald-600" %>
-      <h1 class="mt-2 text-2xl font-semibold text-slate-900"><%= @material_list.name %></h1>
-      <p class="mt-1 text-sm text-slate-500">
-        Actualizada <%= time_ago_in_words(@material_list.updated_at) %> atrás ·
-        <%= turbo_frame_tag dom_id(@material_list, :items_counter) do %>
-          <%= pluralize(@material_items.size, "ítem") %>
-        <% end %>
-      </p>
-      <% if @material_list.project_stage.present? %>
-        <p class="mt-2 inline-flex items-center gap-2 rounded-full bg-indigo-50 px-3 py-1 text-xs font-semibold uppercase tracking-wide text-indigo-600">
-          Etapa vinculada: <span class="text-slate-800"><%= project_stage_label(@material_list.project_stage) %></span>
-        </p>
-      <% end %>
-    </div>
+  <div>
+    <%= link_to "← Volver a las listas", constructors_project_material_lists_path(@project),
+                class: "text-sm font-medium text-indigo-700 hover:text-indigo-600" %>
+  </div>
 
-    <div class="flex flex-wrap gap-3">
-      <% if policy(@material_list).toggle_publication? %>
-        <%= button_to "Alternar presupuesto",
-                      toggle_publication_constructors_project_material_list_path(@project, @material_list),
-                      method: :patch,
-                      class: "inline-flex items-center rounded-lg border border-emerald-600 px-4 py-2 text-sm font-semibold text-emerald-700 hover:bg-emerald-50" %>
+  <%= render 'shared/section_header', title: @material_list.name %>
+
+  <div>
+    <p class="text-sm text-slate-500">
+      Actualizada <%= time_ago_in_words(@material_list.updated_at) %> atrás ·
+      <%= turbo_frame_tag dom_id(@material_list, :items_counter) do %>
+        <%= pluralize(@material_items.size, "ítem") %>
       <% end %>
-      <% if policy(@material_list).update? %>
-        <%= link_to "Editar", edit_constructors_project_material_list_path(@project, @material_list),
-                    class: "inline-flex items-center rounded-lg bg-slate-900 px-4 py-2 text-sm font-semibold text-white hover:bg-slate-800" %>
-      <% end %>
-    </div>
+    </p>
+    <% if @material_list.project_stage.present? %>
+      <p class="mt-2 inline-flex items-center gap-2 rounded-full bg-indigo-50 px-3 py-1 text-xs font-semibold uppercase tracking-wide text-indigo-600">
+        Etapa vinculada: <span class="text-slate-800"><%= project_stage_label(@material_list.project_stage) %></span>
+      </p>
+    <% end %>
+  </div>
+
+  <div class="flex flex-wrap gap-3">
+    <% if policy(@material_list).toggle_publication? %>
+      <%= render Ui::ButtonComponent.new(label: 'Alternar presupuesto', path: toggle_publication_constructors_project_material_list_path(@project, @material_list), turbo_method: :patch, variant: :secondary, size: :sm) %>
+    <% end %>
+    <% if policy(@material_list).update? %>
+      <%= render Ui::ButtonComponent.new(label: "Editar", path: edit_constructors_project_material_list_path(@project, @material_list)) %>
+    <% end %>
   </div>
 
   <div class="grid gap-6 lg:grid-cols-3">
@@ -112,7 +110,7 @@
           <p class="text-sm font-medium text-slate-600 uppercase tracking-wide">Archivo adjunto</p>
           <%= link_to @material_list.source_file.filename,
                       rails_blob_path(@material_list.source_file, disposition: :attachment),
-                      class: "mt-2 inline-flex items-center text-sm font-semibold text-emerald-700 hover:text-emerald-600" %>
+                      class: "mt-2 inline-flex items-center text-sm font-semibold text-indigo-700 hover:text-indigo-600" %>
         </div>
       <% end %>
     </div>

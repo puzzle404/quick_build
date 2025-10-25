@@ -1,22 +1,17 @@
 <%= render Constructors::Projects::SectionsNavComponent.new(project: @project, current_section: :people) %>
 
 <div class="space-y-6">
-  <div class="flex flex-col justify-between gap-4 sm:flex-row sm:items-center">
-    <div>
-      <%= link_to "← Volver", constructors_project_people_path(@project), class: "text-sm font-medium text-emerald-700 hover:text-emerald-600" %>
-      <h1 class="mt-2 text-2xl font-semibold text-slate-900"><%= @person.full_name %></h1>
-      <p class="mt-1 text-sm text-slate-500">
-        <%= @person.role_title.presence || "Sin rol especificado" %>
-      </p>
-    </div>
-    <div class="flex flex-wrap gap-3">
-      <% if policy(@person).update? %>
-        <%= render Ui::ButtonComponent.new(label: "Editar", path: edit_constructors_project_person_path(@project, @person), variant: :secondary) %>
-      <% end %>
-      <% if policy(@person).destroy? %>
-        <%= render Ui::ButtonComponent.new(label: "Eliminar", path: constructors_project_person_path(@project, @person), turbo_method: :delete, variant: :danger, turbo_confirm: "¿Seguro que querés eliminar esta persona?") %>
-      <% end %>
-    </div>
+  <div>
+    <%= link_to "← Volver", constructors_project_people_path(@project), class: "text-sm font-medium text-indigo-700 hover:text-indigo-600" %>
+  </div>
+  <%= render 'shared/section_header', title: @person.full_name, subtitle: (@person.role_title.presence || 'Sin rol especificado') %>
+  <div class="flex flex-wrap gap-3">
+    <% if policy(@person).update? %>
+      <%= render Ui::ButtonComponent.new(label: "Editar", path: edit_constructors_project_person_path(@project, @person), variant: :secondary) %>
+    <% end %>
+    <% if policy(@person).destroy? %>
+      <%= render Ui::ButtonComponent.new(label: "Eliminar", path: constructors_project_person_path(@project, @person), turbo_method: :delete, variant: :danger, turbo_confirm: "¿Seguro que querés eliminar esta persona?") %>
+    <% end %>
   </div>
 
   <div class="grid gap-6 lg:grid-cols-3">
@@ -83,4 +78,3 @@
     </div>
   </div>
 </div>
-

@@ -1,17 +1,10 @@
 <%= render Constructors::Projects::SectionsNavComponent.new(project: @project, current_section: :materials) %>
 
 <div class="mt-6 max-w-4xl space-y-6">
-  <div class="flex items-start justify-between">
-    <div>
-      <h1 class="text-2xl font-semibold text-slate-900">Editar lista: <%= @material_list.name %></h1>
-      <p class="mt-2 text-sm text-slate-500">Actualizá cantidades, notas o adjuntos para mantener la lista al día.</p>
-    </div>
-    <% if policy(@material_list).destroy? %>
-      <%= button_to "Eliminar", constructors_project_material_list_path(@project, @material_list), method: :delete,
-                    data: { turbo_confirm: "¿Seguro que querés eliminar esta lista?" },
-                    class: "inline-flex items-center rounded-lg border border-red-200 px-3 py-2 text-sm font-semibold text-red-600 hover:bg-red-50" %>
-    <% end %>
-  </div>
+  <%= render 'shared/section_header', title: "Editar lista: #{@material_list.name}", subtitle: 'Actualizá cantidades, notas o adjuntos para mantener la lista al día.' %>
+  <% if policy(@material_list).destroy? %>
+    <%= render Ui::ButtonComponent.new(label: 'Eliminar', path: constructors_project_material_list_path(@project, @material_list), turbo_method: :delete, variant: :danger, size: :sm, turbo_confirm: "¿Seguro que querés eliminar esta lista?") %>
+  <% end %>
 
   <%= render "form" %>
 </div>

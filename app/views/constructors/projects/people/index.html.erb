@@ -1,13 +1,10 @@
 <%= render Constructors::Projects::SectionsNavComponent.new(project: @project, current_section: :people) %>
 
-<div class="space-y-6 lg:flex lg:items-start lg:justify-between lg:space-y-0">
-  <div>
-    <h1 class="text-2xl font-semibold text-slate-900">Recursos humanos</h1>
-    <p class="mt-1 text-sm text-slate-500">Agregá personas y gestioná la información del equipo de obra.</p>
-  </div>
-
-  <% if policy(ProjectPerson.new(project: @project)).create? %>
-    <%= render Ui::ButtonComponent.new(label: "Nueva persona", path: new_constructors_project_person_path(@project)) %>
+<div class="mt-6">
+  <%= render 'shared/section_header', title: 'Recursos humanos', subtitle: 'Agregá personas y gestioná la información del equipo de obra.' do %>
+    <% if policy(ProjectPerson.new(project: @project)).create? %>
+      <%= render Ui::ButtonComponent.new(label: "Nueva persona", path: new_constructors_project_person_path(@project)) %>
+    <% end %>
   <% end %>
 </div>
 
@@ -22,4 +19,3 @@
     </div>
   <% end %>
 </div>
-

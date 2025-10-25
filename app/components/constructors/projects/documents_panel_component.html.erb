@@ -1,6 +1,5 @@
 <div class="rounded-3xl border border-slate-200 bg-white p-6 shadow-sm">
-  <div class="flex items-center justify-between gap-4">
-    <h2 class="text-lg font-semibold text-slate-900">Documentos y evidencias</h2>
+  <%= render 'shared/section_header', title: 'Documentos y evidencias' do %>
     <%= render Ui::ButtonComponent.new(
           label: "Gestionar archivos",
           path: edit_constructors_project_path(project),
@@ -8,7 +7,7 @@
           size: :sm,
           class_name: "rounded-none border-none px-0 py-0 font-semibold"
         ) %>
-  </div>
+  <% end %>
   <% if project_images.attached? %>
     <div class="mt-5 flex gap-4 overflow-x-auto pb-2">
       <% project_images.each do |image| %>
