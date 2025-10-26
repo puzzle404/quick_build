@@ -1,9 +1,7 @@
 
 
 Rails.application.routes.draw do
-  if Rails.env.development?
-    mount MissionControl::Jobs::Engine => "/jobs"
-    end
+  mount MissionControl::Jobs::Engine => "/jobs"
 
   root to: "dashboards#show"
 
