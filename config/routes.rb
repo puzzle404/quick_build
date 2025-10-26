@@ -1,4 +1,10 @@
+
+
 Rails.application.routes.draw do
+  if Rails.env.development?
+    mount MissionControl::Jobs::Engine => "/jobs"
+    end
+
   root to: "dashboards#show"
 
   resource :registration, only: %i[new create]
@@ -46,5 +52,4 @@ Rails.application.routes.draw do
 
   # Health check y root
   get "up" => "rails/health#show", as: :rails_health_check
-
 end
