@@ -3,19 +3,9 @@
   <article class="flex h-full flex-col overflow-hidden rounded-3xl border border-slate-200 bg-white shadow-sm transition-all duration-300 group-hover:-translate-y-1 group-hover:shadow-lg">
     <div class="relative h-48 bg-slate-100">
       <% if project.images.attached? %>
-        <% cover = project.images.last %>
-        <% if cover.variable? %>
-          <%= image_tag cover.variant(resize_to_fill: [960, 640]),
-                        class: 'absolute inset-0 h-full w-full object-cover transition-transform duration-500 group-hover:scale-105',
-                        alt: "Imagen del proyecto #{project.name}" %>
-        <% else %>
-          <div class="absolute inset-0 flex h-full w-full items-center justify-center bg-gradient-to-br from-slate-100 via-white to-slate-200 text-sm font-medium text-slate-500">
-            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" class="mr-2 h-5 w-5 text-slate-400" aria-hidden="true">
-              <path fill="currentColor" d="M6 2a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8l-6-6zm7 1.5L18.5 9H13zM8 13h8v1.5H8zm0 3h8V18H8z"/>
-            </svg>
-            <span class="truncate">Adjunto: <%= cover.filename.to_s %></span>
-          </div>
-        <% end %>
+        <%= image_tag project.images.first, 
+          class: "absolute inset-0 h-full w-full object-cover transition-transform duration-500 group-hover:scale-105",
+          alt: "Imagen del proyecto #{project.name}" %>
       <% else %>
         <div class="absolute inset-0 flex h-full w-full items-center justify-center bg-gradient-to-br from-slate-100 via-white to-slate-200 text-sm font-medium text-slate-500">
           Imagen pendiente

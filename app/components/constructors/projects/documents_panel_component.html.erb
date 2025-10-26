@@ -10,10 +10,10 @@
   <% end %>
   <% if project_images.attached? %>
     <div class="mt-5 flex gap-4 overflow-x-auto pb-2">
-      <% project_images.each do |image| %>
-        <% preview = image.variable? ? image.variant(resize_to_fill: [320, 200]) : image %>
+      <% project_images.each do |photo| %>
         <div class="relative h-32 w-48 flex-shrink-0 overflow-hidden rounded-2xl border border-slate-200 bg-slate-100">
-          <%= image_tag(preview, class: "h-full w-full object-cover", alt: image.filename.to_s) %>
+          <%#= image_tag(preview, class: "h-full w-full object-cover", alt: image.filename.to_s) %>
+          <%= cl_image_tag photo.key, height: 300, width: 400, crop: :fill, class: "h-full w-full object-cover" %>
         </div>
       <% end %>
     </div>

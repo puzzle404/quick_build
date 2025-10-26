@@ -80,3 +80,4 @@ gem 'rspec-rails', group: [:development, :test]
 gem 'factory_bot_rails', group: [:development, :test]
 gem 'faker'
 gem "mission_control-jobs"
+gem "cloudinary"
