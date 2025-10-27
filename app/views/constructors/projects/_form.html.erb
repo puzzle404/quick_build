@@ -59,16 +59,33 @@
     <p class="mt-1 text-xs text-slate-500">
       Adjunta planos, fotos o reportes relevantes. Puedes seleccionar múltiples archivos a la vez.
     </p>
-    <div class="mt-4 flex flex-col gap-4 rounded-xl border border-dashed border-slate-300 bg-slate-50 px-4 py-6 sm:flex-row sm:items-center sm:justify-between">
-      <div class="space-y-1">
-        <p class="text-sm font-medium text-slate-700">Imágenes del proyecto</p>
-        <p class="text-xs text-slate-500">Formatos recomendados: JPG, PNG o PDF (máx. 25 MB c/u)</p>
+    <div class="mt-4 space-y-4 rounded-xl border border-dashed border-slate-300 bg-slate-50 px-4 py-6">
+      <div class="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+        <div class="space-y-1">
+          <p class="text-sm font-medium text-slate-700">Imágenes del proyecto</p>
+          <p class="text-xs text-slate-500">Formatos recomendados: JPG o PNG (máx. 25 MB c/u)</p>
+        </div>
+        <div class="w-full sm:w-auto">
+          <%= f.file_field :images,
+                           multiple: true,
+                           accept: "image/*",
+                           direct_upload: true,
+                           class: "w-full text-sm text-indigo-600 file:mr-4 file:rounded-full file:border-0 file:bg-indigo-600 file:px-4 file:py-2 file:text-sm file:font-semibold file:text-white hover:file:bg-indigo-700 sm:w-auto" %>
+        </div>
       </div>
-      <div class="w-full sm:w-auto">
-        <%= f.file_field :images,
-                         multiple: true,
-                         direct_upload: true,
-                         class: "w-full text-sm text-indigo-600 file:mr-4 file:rounded-full file:border-0 file:bg-indigo-600 file:px-4 file:py-2 file:text-sm file:font-semibold file:text-white hover:file:bg-indigo-700 sm:w-auto" %>
+
+      <div class="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+        <div class="space-y-1">
+          <p class="text-sm font-medium text-slate-700">Documentos (PDF)</p>
+          <p class="text-xs text-slate-500">Adjunta planos, contratos o reportes en PDF (máx. 25 MB c/u)</p>
+        </div>
+        <div class="w-full sm:w-auto">
+          <%= f.file_field :documents,
+                           multiple: true,
+                           accept: ".pdf,application/pdf",
+                           direct_upload: true,
+                           class: "w-full text-sm text-indigo-600 file:mr-4 file:rounded-full file:border-0 file:bg-indigo-600 file:px-4 file:py-2 file:text-sm file:font-semibold file:text-white hover:file:bg-indigo-700 sm:w-auto" %>
+        </div>
       </div>
     </div>
   </section>

@@ -34,8 +34,7 @@ class Constructors::Projects::SectionsNavComponent < ViewComponent::Base
         key: :documents,
         name: "Documentos",
         description: "Contratos, planos y reportes",
-        path: nil,
-        soon: true
+        path: helpers.constructors_project_documents_path(@project)
       }
     ]
   end

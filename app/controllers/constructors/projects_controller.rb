@@ -51,7 +51,7 @@ class Constructors::ProjectsController < Constructors::BaseController
 
   def project_params
     params.require(:project)
-          .permit(:name, :location, :start_date, :end_date, :status, :latitude, :longitude, images: [])
+          .permit(:name, :location, :start_date, :end_date, :status, :latitude, :longitude, images: [], documents: [])
   end
 
   def set_project

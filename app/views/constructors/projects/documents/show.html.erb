@@ -1,0 +1,69 @@
+<%= render Constructors::Projects::SectionsNavComponent.new(project: @project, current_section: :documents) %>
+
+<div class="mt-6 space-y-6">
+  <%= render 'shared/section_header', title: 'Documentos del proyecto', subtitle: 'Imágenes y PDFs cargados en esta obra' %>
+
+  <section class="rounded-3xl border border-slate-200 bg-white p-6 shadow-sm">
+    <div class="flex items-center justify-between gap-4">
+      <h2 class="text-lg font-semibold text-slate-900">Imágenes</h2>
+      <%= form_with model: @project, url: constructors_project_path(@project), method: :patch, html: { multipart: true }, class: "flex items-center gap-3" do |f| %>
+        <div>
+          <%= f.file_field :images, multiple: true, accept: "image/*", direct_upload: true, class: "text-sm" %>
+        </div>
+        <%= render Ui::ButtonComponent.new(label: 'Subir', type: :submit, size: :sm) %>
+      <% end %>
+    </div>
+
+    <% if @project.images.attached? %>
+      <div class="mt-5 grid grid-cols-2 gap-4 sm:grid-cols-3 lg:grid-cols-4">
+        <% @project.images.each do |image| %>
+          <div class="overflow-hidden rounded-xl border border-slate-200 bg-slate-50">
+            <% if image.variable? %>
+              <%= image_tag image.variant(resize_to_fill: [480, 320]), class: "h-40 w-full object-cover" %>
+            <% else %>
+              <div class="flex h-40 w-full items-center justify-center text-xs text-slate-500">Imagen adjunta</div>
+            <% end %>
+            <div class="flex items-center justify-between border-t border-slate-100 p-2 text-xs">
+              <span class="truncate" title="<%= image.filename.to_s %>"><%= image.filename.to_s %></span>
+              <%= link_to 'Abrir', url_for(image), target: '_blank', class: 'text-indigo-600 hover:text-indigo-700' %>
+            </div>
+          </div>
+        <% end %>
+      </div>
+    <% else %>
+      <p class="mt-4 text-sm text-slate-500">Aún no se cargaron imágenes.</p>
+    <% end %>
+  </section>
+
+  <section class="rounded-3xl border border-slate-200 bg-white p-6 shadow-sm">
+    <div class="flex items-center justify-between gap-4">
+      <h2 class="text-lg font-semibold text-slate-900">PDFs</h2>
+      <%= form_with model: @project, url: constructors_project_path(@project), method: :patch, html: { multipart: true }, class: "flex items-center gap-3" do |f| %>
+        <div>
+          <%= f.file_field :documents, multiple: true, accept: ".pdf,application/pdf", direct_upload: true, class: "text-sm" %>
+        </div>
+        <%= render Ui::ButtonComponent.new(label: 'Subir', type: :submit, size: :sm) %>
+      <% end %>
+    </div>
+
+    <% if @project.documents.attached? %>
+      <ul class="mt-4 space-y-3">
+        <% @project.documents.each do |doc| %>
+          <li class="flex items-center justify-between rounded-xl border border-slate-200 bg-white p-3 text-sm">
+            <div class="flex items-center gap-3">
+              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" class="h-5 w-5 text-slate-400"><path fill="currentColor" d="M6 2a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8l-6-6zm7 1.5L18.5 9H13zM8 13h8v1.5H8zm0 3h8V18H8z"/></svg>
+              <span class="truncate" title="<%= doc.filename.to_s %>"><%= doc.filename.to_s %></span>
+            </div>
+            <div class="flex items-center gap-3">
+              <%= cl_image_tag doc.key, type: "multi" %>
+             <%= link_to 'Ver', rails_blob_url(doc, disposition: 'inline'), target: '_blank' %>
+              <%= link_to 'Descargar', url_for(doc), target: '_blank', class: 'text-indigo-600 hover:text-indigo-700' %>
+            </div>
+          </li>
+        <% end %>
+      </ul>
+    <% else %>
+      <p class="mt-4 text-sm text-slate-500">Aún no se cargaron PDFs.</p>
+    <% end %>
+  </section>
+</div>
