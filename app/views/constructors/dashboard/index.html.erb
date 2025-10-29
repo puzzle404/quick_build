@@ -1,0 +1,75 @@
+<div class="container mx-auto p-4">
+  <div class="mt-2">
+    <%= render 'shared/section_header', title: 'Inicio', subtitle: 'Resumen de tus obras, actividad y próximos hitos' %>
+  </div>
+
+  <% metrics = @dashboard[:metrics] %>
+  <section class="mt-6 grid gap-4 grid-cols-[repeat(auto-fit,minmax(16rem,1fr))]">
+    <%= render Ui::MetricCardComponent.new(title: 'Obras totales', value: metrics[:total_projects]) %>
+    <%= render Ui::MetricCardComponent.new(title: 'En progreso', value: metrics[:in_progress_projects]) %>
+    <%= render Ui::MetricCardComponent.new(title: 'Planificadas', value: metrics[:planned_projects]) %>
+    <%= render Ui::MetricCardComponent.new(title: 'Completadas', value: metrics[:completed_projects]) %>
+    <%= render Ui::MetricCardComponent.new(title: 'Listas de materiales', value: metrics[:material_lists]) %>
+    <%= render Ui::MetricCardComponent.new(title: 'Ítems de materiales', value: metrics[:material_items]) %>
+    <%= render Ui::MetricCardComponent.new(title: 'Costo estimado total', value: number_to_currency(metrics[:total_estimated_cents] / 100.0), suffix: 'ARS') %>
+  </section>
+
+  <div class="mt-8 grid grid-cols-1 gap-6 lg:grid-cols-3">
+    <div class="lg:col-span-2">
+      <%= render Constructors::Projects::ActivityPanelComponent.new(activity_entries: @dashboard[:recent_activity]) %>
+    </div>
+
+    <div class="space-y-6">
+      <div class="rounded-3xl border border-slate-200 bg-white p-6 shadow-sm">
+        <div class="flex items-center justify-between gap-4">
+          <h2 class="text-lg font-semibold text-slate-900">Próximas etapas</h2>
+          <span class="text-xs font-medium uppercase tracking-wide text-slate-400">Planificación</span>
+        </div>
+        <% if @dashboard[:upcoming_stages].any? %>
+          <ul class="mt-5 space-y-3">
+            <% @dashboard[:upcoming_stages].each do |stage| %>
+              <li class="rounded-2xl border border-slate-200 bg-slate-50 p-4">
+                <p class="text-sm font-semibold text-slate-900"><%= stage.name %></p>
+                <p class="text-xs text-slate-500">
+                  <span class="font-medium"><%= stage.project.name %></span>
+                  · Inicio: <%= l(stage.start_date, format: :long) if stage.start_date %>
+                  <% if stage.end_date.present? %>
+                    · Fin: <%= l(stage.end_date, format: :long) %>
+                  <% end %>
+                </p>
+              </li>
+            <% end %>
+          </ul>
+        <% else %>
+          <p class="mt-5 text-sm text-slate-500">No hay etapas próximas cargadas aún.</p>
+        <% end %>
+      </div>
+
+      <div class="rounded-3xl border border-slate-200 bg-white p-6 shadow-sm">
+        <div class="flex items-center justify-between gap-4">
+          <h2 class="text-lg font-semibold text-slate-900">Documentos recientes</h2>
+          <span class="text-xs font-medium uppercase tracking-wide text-slate-400">Archivos</span>
+        </div>
+        <% if @dashboard[:recent_documents].any? %>
+          <ul class="mt-5 space-y-3">
+            <% @dashboard[:recent_documents].each do |att| %>
+              <li class="flex items-start justify-between gap-3 rounded-2xl border border-slate-200 bg-slate-50 p-4">
+                <div>
+                  <p class="text-sm font-semibold text-slate-900"><%= att.blob.filename.to_s %></p>
+                  <p class="text-xs text-slate-500">
+                    <span class="font-medium"><%= att.record.name %></span>
+                    · <%= number_to_human_size(att.blob.byte_size) %>
+                    · <%= time_ago_in_words(att.created_at) %> atrás
+                  </p>
+                </div>
+                <%= link_to 'Ver', edit_constructors_project_path(att.record_id), class: 'text-xs font-medium text-indigo-600 hover:underline' %>
+              </li>
+            <% end %>
+          </ul>
+        <% else %>
+          <p class="mt-5 text-sm text-slate-500">Todavía no se subieron documentos a tus obras.</p>
+        <% end %>
+      </div>
+    </div>
+  </div>
+</div>

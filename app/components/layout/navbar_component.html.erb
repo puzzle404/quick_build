@@ -22,6 +22,7 @@
           <%= link_to "Iniciar sesión", new_session_path, class: "text-sm text-gray-700 hover:text-indigo-600" %>
         <% end %>
         <% if helpers.constructor? %>
+          <%= link_to "Inicio", constructors_root_path, class: "text-sm text-gray-700 hover:text-indigo-600" %>
           <%= link_to "Proyectos", constructors_projects_path, class: "text-sm text-gray-700 hover:text-indigo-600" %>
         <% end %>
         <%= render "carts/cart" if helpers.buyer? %>
@@ -51,6 +52,12 @@
               <% end %>
 
               <% if helpers.constructor? %>
+                <%= link_to constructors_root_path, class: "flex items-center justify-between rounded-2xl border border-slate-200 px-4 py-3 text-sm font-medium text-slate-600 hover:border-indigo-200 hover:text-indigo-600" do %>
+                  <span>Inicio</span>
+                  <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="m9 5 7 7-7 7" />
+                  </svg>
+                <% end %>
                 <%= link_to constructors_projects_path, class: "flex items-center justify-between rounded-2xl bg-indigo-50 px-4 py-3 text-sm font-semibold text-indigo-700 hover:bg-indigo-100" do %>
                   <span>Mis proyectos</span>
                   <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">

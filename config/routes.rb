@@ -26,7 +26,7 @@ Rails.application.routes.draw do
 
   # Namespace para constructores
   namespace :constructors do
-    root to: "projects#index"
+    root to: "dashboard#index"
     resources :projects do
       resources :project_memberships, only: [:create, :destroy, :new]
       resource :planning, only: [:show], module: :projects, controller: :planning
