@@ -69,9 +69,9 @@ module Constructors
     def recent_documents_list
       return [] if project_ids.empty?
 
-      ActiveStorage::Attachment
-        .where(record_type: "Project", name: "documents", record_id: project_ids)
-        .includes(:blob, :record)
+      Document
+        .where(documentable_type: "Project", documentable_id: project_ids)
+        .includes(:documentable, file_attachment: :blob)
         .order(created_at: :desc)
         .limit(6)
     end

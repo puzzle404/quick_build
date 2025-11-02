@@ -30,7 +30,7 @@ Rails.application.routes.draw do
     resources :projects do
       resources :project_memberships, only: [:create, :destroy, :new]
       resource :planning, only: [:show], module: :projects, controller: :planning
-      resource :documents, only: [:show], module: :projects, controller: :documents
+      resources :documents, only: [:index, :create, :destroy], module: :projects, controller: :documents
       resources :stages, only: [:create, :destroy], module: :projects
       resources :people, module: :projects do
         resources :attendances, only: [:create], module: :people

@@ -22,7 +22,7 @@ class Constructors::ProjectsController < Constructors::BaseController
     @project = current_user.owned_projects.build(project_params)
     authorize @project
 
-    if @project.save
+    if persist_project_with_documents(@project)
       redirect_to constructors_project_path(@project), notice: "Obra creada correctamente."
     else
       flash.now[:alert] = "Revisa los datos y vuelve a intentarlo."
@@ -38,7 +38,9 @@ class Constructors::ProjectsController < Constructors::BaseController
   def update
     authorize @project
 
-    if @project.update(project_params)
+    @project.assign_attributes(project_params)
+
+    if persist_project_with_documents(@project)
       redirect_to constructors_project_path(@project), notice: "Obra actualizada correctamente."
     else
       @project_summary = @project.decorate
@@ -51,7 +53,7 @@ class Constructors::ProjectsController < Constructors::BaseController
 
   def project_params
     params.require(:project)
-          .permit(:name, :location, :start_date, :end_date, :status, :latitude, :longitude, images: [], documents: [])
+          .permit(:name, :location, :start_date, :end_date, :status, :latitude, :longitude, images: [], document_files: [])
   end
 
   def set_project
@@ -60,5 +62,38 @@ class Constructors::ProjectsController < Constructors::BaseController
 
   def set_activity_entries
     @activity_entries ||= Projects::ActivitiesService.perform(@project)
+  end
+
+  def persist_project_with_documents(project)
+    ActiveRecord::Base.transaction do
+      project.save!
+      attach_documents_from_params!(project)
+    end
+
+    true
+  rescue ActiveRecord::RecordInvalid => e
+    assign_errors_from_exception(project, e)
+    false
+  end
+
+  def attach_documents_from_params!(project)
+    files = Array.wrap(params.dig(:project, :document_files)).compact_blank
+    return if files.empty?
+
+    files.each do |uploaded_file|
+      document = project.documents.build
+      document.file.attach(uploaded_file)
+      document.save!
+    end
+  end
+
+  def assign_errors_from_exception(project, exception)
+    record = exception.record
+    if record && record != project
+      record.errors.each do |attr, message|
+        project.errors.add(attr == :base ? attr : :base, message)
+      end
+    end
+    project.errors.add(:base, exception.message) if project.errors.empty?
   end
 end

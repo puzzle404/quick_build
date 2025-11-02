@@ -2,22 +2,44 @@
   <%= render 'shared/section_header', title: 'Documentos y evidencias' do %>
     <%= render Ui::ButtonComponent.new(
           label: "Gestionar archivos",
-          path: edit_constructors_project_path(project),
+          path: constructors_project_documents_path(project),
           variant: :link,
           size: :sm,
           class_name: "rounded-none border-none px-0 py-0 font-semibold"
         ) %>
   <% end %>
+
   <% if project_images.attached? %>
     <div class="mt-5 flex gap-4 overflow-x-auto pb-2">
       <% project_images.each do |photo| %>
         <div class="relative h-32 w-48 flex-shrink-0 overflow-hidden rounded-2xl border border-slate-200 bg-slate-100">
-          <%#= image_tag(preview, class: "h-full w-full object-cover", alt: image.filename.to_s) %>
           <%= cl_image_tag photo.key, height: 300, width: 400, crop: :fill, class: "h-full w-full object-cover" %>
         </div>
       <% end %>
     </div>
-  <% else %>
-    <p class="mt-5 text-sm text-slate-500">Todavía no se cargaron planos, fotos ni documentos para esta obra. Puedes hacerlo desde la edición del proyecto.</p>
+  <% end %>
+
+  <% if project_documents.any? %>
+    <div class="mt-5 space-y-3">
+      <% project_documents.each do |document| %>
+        <div class="flex items-center justify-between gap-3 rounded-2xl border border-slate-100 bg-slate-50 px-4 py-3 text-xs">
+          <div class="space-y-1">
+            <p class="text-sm font-semibold text-slate-900"><%= document.file_name %></p>
+            <p class="text-xs text-slate-500">
+              <%= number_to_human_size(document.file_byte_size) if document.file_byte_size %>
+              · Hace <%= time_ago_in_words(document.uploaded_at) %>
+            </p>
+          </div>
+          <div class="flex items-center gap-3">
+            <%= link_to 'Abrir', rails_blob_url(document.file, disposition: 'inline'), target: '_blank', class: 'font-medium text-slate-600 hover:text-slate-800' %>
+            <%= link_to 'Descargar', url_for(document.file), class: 'font-medium text-indigo-600 hover:text-indigo-700' %>
+          </div>
+        </div>
+      <% end %>
+    </div>
+  <% end %>
+
+  <% unless project_images.attached? || project_documents.any? %>
+    <p class="mt-5 text-sm text-slate-500">Todavía no se cargaron planos, fotos ni documentos para esta obra. Puedes hacerlo desde la sección Documentos.</p>
   <% end %>
 </div>

@@ -8,7 +8,9 @@ class Project < ApplicationRecord
   has_many :material_lists, dependent: :destroy
   has_many :project_people, dependent: :destroy
   has_many_attached :images
-  has_many_attached :documents
+  has_many :documents, as: :documentable, dependent: :destroy
+
+  attr_accessor :document_files
 
   validates :name, presence: true
 

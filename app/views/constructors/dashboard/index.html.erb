@@ -52,17 +52,17 @@
         </div>
         <% if @dashboard[:recent_documents].any? %>
           <ul class="mt-5 space-y-3">
-            <% @dashboard[:recent_documents].each do |att| %>
+            <% @dashboard[:recent_documents].each do |document| %>
               <li class="flex items-start justify-between gap-3 rounded-2xl border border-slate-200 bg-slate-50 p-4">
                 <div>
-                  <p class="text-sm font-semibold text-slate-900"><%= att.blob.filename.to_s %></p>
+                  <p class="text-sm font-semibold text-slate-900"><%= document.file_name %></p>
                   <p class="text-xs text-slate-500">
-                    <span class="font-medium"><%= att.record.name %></span>
-                    · <%= number_to_human_size(att.blob.byte_size) %>
-                    · <%= time_ago_in_words(att.created_at) %> atrás
+                    <span class="font-medium"><%= document.documentable.name %></span>
+                    · <%= number_to_human_size(document.file_byte_size) if document.file_byte_size %>
+                    · <%= time_ago_in_words(document.uploaded_at) %> atrás
                   </p>
                 </div>
-                <%= link_to 'Ver', edit_constructors_project_path(att.record_id), class: 'text-xs font-medium text-indigo-600 hover:underline' %>
+                <%= link_to 'Ver', constructors_project_documents_path(document.documentable), class: 'text-xs font-medium text-indigo-600 hover:underline' %>
               </li>
             <% end %>
           </ul>

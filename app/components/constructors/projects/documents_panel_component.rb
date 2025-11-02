@@ -14,6 +14,10 @@ module Constructors
       def project_images
         project.images
       end
+
+      def project_documents
+        @project_documents ||= project.documents.includes(file_attachment: :blob).order(created_at: :desc).limit(4)
+      end
     end
   end
 end
