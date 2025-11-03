@@ -6,8 +6,17 @@ module Constructors
 
       def index
         authorize @project, :show?
-        @stages = @project.project_stages.root.includes(:material_lists, :sub_stages)
-                     .order(:position, :name)
+
+        @view_mode = params[:view].in?(%w[sub_stages main]) ? params[:view] : 'main'
+
+        if @view_mode == 'sub_stages'
+          @sub_stages = @project.project_stages.includes(:parent, :material_lists)
+                                      .where.not(parent_id: nil)
+                                      .order(:position, :name)
+        else
+          @stages = @project.project_stages.root.includes(:material_lists, :sub_stages)
+                           .order(:position, :name)
+        end
       end
 
       def show

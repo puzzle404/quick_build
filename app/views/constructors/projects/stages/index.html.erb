@@ -1,18 +1,63 @@
 <%= render Constructors::Projects::SectionsNavComponent.new(project: @project, current_section: :planning) %>
 
 <div class="mt-6 space-y-6">
-  <div class="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
-    <div>
-      <h1 class="text-2xl font-semibold text-slate-900">Planificación de la obra</h1>
-      <p class="text-sm text-slate-500">Organizá las etapas principales, definí subetapas y mantené la documentación al día.</p>
-    </div>
-    <div class="flex flex-wrap items-center gap-3">
+  <%= render 'shared/section_header', title: 'Planificación de la obra', subtitle: 'Organizá las etapas principales, definí subetapas y mantené la documentación al día.' do %>
+    <div class="flex flex-wrap items-center gap-2">
+      <div class="inline-flex items-center rounded-full border border-slate-200 bg-white p-1 text-sm shadow-sm">
+        <%= link_to 'Etapas principales',
+                    constructors_project_stages_path(@project, view: 'main'),
+                    class: "px-3 py-1 rounded-full font-medium transition #{ @view_mode == 'sub_stages' ? 'text-slate-500 hover:text-slate-700' : 'bg-indigo-600 text-white shadow' }" %>
+        <%= link_to 'Solo subetapas',
+                    constructors_project_stages_path(@project, view: 'sub_stages'),
+                    class: "px-3 py-1 rounded-full font-medium transition #{ @view_mode == 'sub_stages' ? 'bg-indigo-600 text-white shadow' : 'text-slate-500 hover:text-slate-700' }" %>
+      </div>
       <%= render Ui::ButtonComponent.new(label: 'Aplicar plantilla base', path: apply_template_constructors_project_stages_path(@project), turbo_method: :post, variant: :secondary, size: :sm, turbo_confirm: '¿Quieres cargar la estructura sugerida? Las etapas existentes se conservarán.') %>
       <%= render Ui::ButtonComponent.new(label: 'Crear nueva etapa', path: new_constructors_project_stage_path(@project), size: :sm) %>
     </div>
-  </div>
+  <% end %>
 
-  <% if @stages.any? %>
+  <% if @view_mode == 'sub_stages' %>
+    <% if @sub_stages.any? %>
+      <div class="rounded-3xl border border-slate-200 bg-white p-6 shadow-sm">
+        <div class="overflow-x-auto">
+          <table class="min-w-full divide-y divide-slate-100 text-sm">
+            <thead class="bg-slate-50 text-xs uppercase text-slate-500">
+              <tr>
+                <th scope="col" class="px-4 py-3 text-left font-semibold">Subetapa</th>
+                <th scope="col" class="px-4 py-3 text-left font-semibold">Etapa principal</th>
+                <th scope="col" class="px-4 py-3 text-left font-semibold">Periodo</th>
+                <th scope="col" class="px-4 py-3 text-left font-semibold">Listas</th>
+                <th scope="col" class="px-4 py-3"></th>
+              </tr>
+            </thead>
+            <tbody class="divide-y divide-slate-100 bg-white">
+              <% @sub_stages.each do |substage| %>
+                <tr class="hover:bg-slate-50">
+                  <td class="px-4 py-3">
+                    <div class="font-medium text-slate-900"><%= substage.name %></div>
+                    <p class="text-xs text-slate-500"><%= substage.description.presence || 'Sin descripción.' %></p>
+                  </td>
+                  <td class="px-4 py-3 text-slate-600"><%= substage.parent&.name || '-' %></td>
+                  <td class="px-4 py-3 text-slate-600"><%= project_stage_period(substage) || 'Sin fechas' %></td>
+                  <td class="px-4 py-3 text-slate-600"><%= substage.material_lists.count %></td>
+                  <td class="px-4 py-3 text-right">
+                    <div class="flex justify-end gap-2">
+                      <%= render Ui::ButtonComponent.new(label: 'Ver', path: constructors_project_stage_path(@project, substage), size: :sm) %>
+                      <% if policy(substage).update? %>
+                        <%= render Ui::ButtonComponent.new(label: 'Editar', path: edit_constructors_project_stage_path(@project, substage), variant: :secondary, size: :sm) %>
+                      <% end %>
+                    </div>
+                  </td>
+                </tr>
+              <% end %>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    <% else %>
+      <p class="text-sm text-slate-500">Aún no cargaste subetapas. Crea una desde alguna etapa principal.</p>
+    <% end %>
+  <% elsif @stages.any? %>
     <div class="grid gap-4 md:grid-cols-2 xl:grid-cols-3">
       <% @stages.each do |stage| %>
         <%= render Constructors::Projects::Stages::SummaryCardComponent.new(project: @project, stage: stage) %>
@@ -23,8 +68,8 @@
       <h2 class="text-xl font-semibold text-slate-900">Todavía no cargaste etapas principales</h2>
       <p class="mt-2 text-sm text-slate-500">Podés iniciar con la plantilla sugerida o crear una etapa desde cero según el proceso de tu obra.</p>
       <div class="mt-6 flex flex-wrap justify-center gap-3">
-        <%= render Ui::ButtonComponent.new(label: 'Aplicar plantilla base', path: apply_template_constructors_project_stages_path(@project), turbo_method: :post, variant: :secondary, size: :md, turbo_confirm: '¿Deseas cargar las etapas recomendadas?') %>
-        <%= render Ui::ButtonComponent.new(label: 'Crear nueva etapa', path: new_constructors_project_stage_path(@project), size: :md) %>
+        <%= render Ui::ButtonComponent.new(label: 'Aplicar plantilla base', path: apply_template_constructors_project_stages_path(@project), turbo_method: :post, variant: :secondary, size: :sm, turbo_confirm: '¿Deseas cargar las etapas recomendadas?') %>
+        <%= render Ui::ButtonComponent.new(label: 'Crear nueva etapa', path: new_constructors_project_stage_path(@project), size: :sm) %>
       </div>
     </div>
   <% end %>
