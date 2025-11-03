@@ -69,8 +69,18 @@ module Constructors
     def recent_documents_list
       return [] if project_ids.empty?
 
-      Document
+      document_scope = Document
         .where(documentable_type: "Project", documentable_id: project_ids)
+
+      stage_ids = ProjectStage.where(project_id: project_ids).pluck(:id)
+
+      if stage_ids.any?
+        document_scope = document_scope.or(
+          Document.where(documentable_type: "ProjectStage", documentable_id: stage_ids)
+        )
+      end
+
+      document_scope
         .includes(:documentable, file_attachment: :blob)
         .order(created_at: :desc)
         .limit(6)

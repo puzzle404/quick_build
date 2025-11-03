@@ -1,0 +1,36 @@
+<%= render Constructors::Projects::SectionsNavComponent.new(project: @project, current_section: :planning) %>
+
+<div class="mt-6 space-y-6">
+  <%= render Constructors::Projects::Stages::StageHeaderComponent.new(project: @project, stage: @stage) %>
+
+  <div class="grid gap-6 lg:grid-cols-3">
+    <div class="space-y-6 lg:col-span-2">
+      <%= render Constructors::Projects::Stages::AttachmentsSectionComponent.new(project: @project, stage: @stage, kind: :documents) %>
+      <%= render Constructors::Projects::Stages::AttachmentsSectionComponent.new(project: @project, stage: @stage, kind: :images) %>
+    </div>
+
+    <aside class="space-y-4 rounded-2xl border border-slate-200 bg-white p-6 shadow-sm">
+      <h2 class="text-sm font-semibold text-slate-900">Resumen</h2>
+      <dl class="mt-3 space-y-3 text-sm text-slate-600">
+        <div>
+          <dt class="text-xs uppercase tracking-wide text-slate-400">Fechas</dt>
+          <dd class="mt-1 text-slate-900"><%= project_stage_period(@stage) || 'Sin definir' %></dd>
+        </div>
+        <div>
+          <dt class="text-xs uppercase tracking-wide text-slate-400">Listas de materiales</dt>
+          <dd class="mt-1 text-slate-900"><%= @stage.material_lists.count %></dd>
+        </div>
+        <% if @stage.parent.present? %>
+          <div>
+            <dt class="text-xs uppercase tracking-wide text-slate-400">Etapa superior</dt>
+            <dd class="mt-1">
+              <%= link_to @stage.parent.name, constructors_project_stage_path(@project, @stage.parent), class: 'font-medium text-indigo-600 hover:text-indigo-700' %>
+            </dd>
+          </div>
+        <% end %>
+      </dl>
+    </aside>
+  </div>
+
+    <%= render Constructors::Projects::Stages::SubstageTableComponent.new(project: @project, stage: @stage, substages: @sub_stages) if @stage.parent.nil? %>
+</div>

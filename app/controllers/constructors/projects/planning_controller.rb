@@ -5,9 +5,7 @@ module Constructors
 
       def show
         authorize @project, :show?
-        @project_stages = @project.project_stages.includes(:material_lists).ordered
-        @new_stage = @project.project_stages.build
-        @project = @project.decorate
+        redirect_to constructors_project_stages_path(@project)
       end
 
       private

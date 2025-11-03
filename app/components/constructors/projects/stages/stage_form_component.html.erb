@@ -1,6 +1,18 @@
 <%= form_with model: stage,
-              url: helpers.constructors_project_stages_path(project),
-              class: "mt-6 grid gap-4 sm:grid-cols-2" do |form| %>
+              url: form_url,
+              method: form_method,
+              class: "grid gap-4 sm:grid-cols-2" do |form| %>
+  <%= form.hidden_field :parent_id, value: parent_field_value if parent_field_value.present? %>
+  <% if stage.errors.any? %>
+    <div class="sm:col-span-2 rounded-lg border border-rose-200 bg-rose-50 p-3 text-sm text-rose-700">
+      <p class="font-semibold">No pudimos guardar la etapa:</p>
+      <ul class="mt-2 list-disc space-y-1 pl-5">
+        <% stage.errors.full_messages.each do |message| %>
+          <li><%= message %></li>
+        <% end %>
+      </ul>
+    </div>
+  <% end %>
   <div class="sm:col-span-2">
     <%= form.label :name, "Nombre de la etapa", class: "block text-sm font-medium text-slate-700" %>
     <%= form.text_field :name,
@@ -24,7 +36,6 @@
                         class: "mt-1 block w-full rounded-lg border border-slate-300 px-3 py-2 text-sm shadow-sm focus:border-indigo-500 focus:outline-none focus:ring-2 focus:ring-indigo-200" %>
   </div>
   <div class="sm:col-span-2 flex justify-end">
-    <%= render Ui::ButtonComponent.new(label: "Guardar etapa", type: :submit, size: :md) %>
+    <%= render Ui::ButtonComponent.new(label: submit_label, type: :submit, size: :md) %>
   </div>
 <% end %>
-

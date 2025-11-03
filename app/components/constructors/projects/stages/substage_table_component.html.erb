@@ -1,0 +1,57 @@
+<section class="rounded-2xl border border-slate-200 bg-white p-6 shadow-sm">
+  <div class="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
+    <div>
+      <h2 class="text-lg font-semibold text-slate-900">Subetapas</h2>
+      <p class="text-sm text-slate-500">Desglosá la etapa en entregables manejables y seguí su evolución.</p>
+    </div>
+    <% if can_manage? %>
+      <%= render Ui::ButtonComponent.new(label: 'Crear subetapa', path: new_substage_path, size: :sm) %>
+    <% end %>
+  </div>
+
+  <% if substages.any? %>
+    <div class="mt-5 overflow-hidden rounded-xl border border-slate-200">
+      <table class="min-w-full divide-y divide-slate-100 text-sm">
+        <thead class="bg-slate-50 text-xs uppercase text-slate-500">
+          <tr>
+            <th scope="col" class="px-4 py-3 text-left font-semibold">Nombre</th>
+            <th scope="col" class="px-4 py-3 text-left font-semibold">Periodo</th>
+            <th scope="col" class="px-4 py-3 text-left font-semibold">Listas</th>
+            <th scope="col" class="px-4 py-3"></th>
+          </tr>
+        </thead>
+        <tbody class="divide-y divide-slate-100 bg-white">
+          <% substages.each do |substage| %>
+            <tr class="hover:bg-slate-50">
+              <td class="px-4 py-3">
+                <div class="font-medium text-slate-900"><%= substage.name %></div>
+                <p class="text-xs text-slate-500"><%= substage.description.presence || 'Sin descripción.' %></p>
+              </td>
+              <td class="px-4 py-3 text-slate-600">
+                <%= helpers.project_stage_period(substage) || 'Sin fechas' %>
+              </td>
+              <td class="px-4 py-3 text-slate-600">
+                <%= substage.material_lists.count %>
+              </td>
+              <td class="px-4 py-3 text-right">
+                <div class="flex justify-end gap-2">
+                  <%= render Ui::ButtonComponent.new(label: 'Ver', path: row_path(substage), size: :sm) %>
+                  <% if helpers.policy(substage).update? %>
+                    <%= render Ui::ButtonComponent.new(label: 'Editar', path: edit_path(substage), variant: :secondary, size: :sm) %>
+                  <% end %>
+                  <% if helpers.policy(substage).destroy? %>
+                    <%= render Ui::ButtonComponent.new(label: 'Eliminar', path: destroy_path(substage), turbo_method: :delete, variant: :danger, size: :sm, turbo_confirm: '¿Eliminar esta subetapa?') %>
+                  <% end %>
+                </div>
+              </td>
+            </tr>
+          <% end %>
+        </tbody>
+      </table>
+    </div>
+  <% else %>
+    <p class="mt-5 rounded-xl border border-dashed border-slate-200 px-4 py-6 text-sm text-slate-500">
+      Todavía no configuraste subetapas. Sumá una para dividir esta etapa en entregables concretos.
+    </p>
+  <% end %>
+</section>

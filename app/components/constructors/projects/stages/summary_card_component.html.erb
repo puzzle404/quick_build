@@ -1,0 +1,33 @@
+<article class="flex flex-col justify-between rounded-2xl border border-slate-200 bg-white p-6 shadow-sm transition hover:-translate-y-0.5 hover:border-indigo-200 hover:shadow-lg">
+  <header class="space-y-2">
+    <p class="text-xs font-semibold uppercase tracking-wide text-indigo-500">Etapa principal</p>
+    <h3 class="text-lg font-semibold text-slate-900"><%= stage.name %></h3>
+    <p class="text-sm text-slate-500"><%= stage.description.presence || "Sin descripción todavía." %></p>
+  </header>
+
+  <dl class="mt-4 grid grid-cols-2 gap-3 text-xs text-slate-500">
+    <div class="rounded-xl bg-slate-50 p-3">
+      <dt class="font-semibold text-slate-700">Horizonte</dt>
+      <dd class="mt-1 text-sm text-slate-900"><%= status_label %></dd>
+    </div>
+    <div class="rounded-xl bg-slate-50 p-3">
+      <dt class="font-semibold text-slate-700">Subetapas</dt>
+      <dd class="mt-1 text-sm text-slate-900"><%= sub_stage_count %></dd>
+    </div>
+    <div class="rounded-xl bg-slate-50 p-3">
+      <dt class="font-semibold text-slate-700">Listas de materiales</dt>
+      <dd class="mt-1 text-sm text-slate-900"><%= material_list_count %></dd>
+    </div>
+    <div class="rounded-xl bg-slate-50 p-3">
+      <dt class="font-semibold text-slate-700">Periodo</dt>
+      <dd class="mt-1 text-sm text-slate-900"><%= period || "Sin especificar" %></dd>
+    </div>
+  </dl>
+
+  <footer class="mt-6 flex flex-wrap items-center gap-3">
+    <%= render Ui::ButtonComponent.new(label: "Ver detalle", path: show_path, size: :sm) %>
+    <% if helpers.policy(stage).update? %>
+      <%= render Ui::ButtonComponent.new(label: "Editar", path: edit_path, variant: :secondary, size: :sm) %>
+    <% end %>
+  </footer>
+</article>

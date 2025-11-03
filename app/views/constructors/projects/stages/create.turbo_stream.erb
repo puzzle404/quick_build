@@ -1,9 +1,0 @@
-<%= turbo_stream.append "project_stages" do %>
-  <%= render Constructors::Projects::Stages::StageCardComponent.new(project: @project, stage: @stage) %>
-<% end %>
-
-<%= turbo_stream.replace "new_project_stage" do %>
-  <%= turbo_frame_tag "new_project_stage" do %>
-    <%= render Constructors::Projects::Stages::StageFormComponent.new(project: @project, stage: @project.project_stages.build) %>
-  <% end %>
-<% end %>

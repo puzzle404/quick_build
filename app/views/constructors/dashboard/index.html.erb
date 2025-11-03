@@ -53,16 +53,27 @@
         <% if @dashboard[:recent_documents].any? %>
           <ul class="mt-5 space-y-3">
             <% @dashboard[:recent_documents].each do |document| %>
+              <% record = document.documentable %>
+              <% owner_label = if record.is_a?(ProjectStage)
+                                 "#{record.project.name} · #{record.name}"
+                               else
+                                 record.name
+                               end %>
+              <% link_path = if record.is_a?(ProjectStage)
+                               constructors_project_stage_path(record.project, record)
+                             else
+                               constructors_project_documents_path(record)
+                             end %>
               <li class="flex items-start justify-between gap-3 rounded-2xl border border-slate-200 bg-slate-50 p-4">
                 <div>
                   <p class="text-sm font-semibold text-slate-900"><%= document.file_name %></p>
                   <p class="text-xs text-slate-500">
-                    <span class="font-medium"><%= document.documentable.name %></span>
+                    <span class="font-medium"><%= owner_label %></span>
                     · <%= number_to_human_size(document.file_byte_size) if document.file_byte_size %>
                     · <%= time_ago_in_words(document.uploaded_at) %> atrás
                   </p>
                 </div>
-                <%= link_to 'Ver', constructors_project_documents_path(document.documentable), class: 'text-xs font-medium text-indigo-600 hover:underline' %>
+                <%= link_to 'Ver', link_path, class: 'text-xs font-medium text-indigo-600 hover:underline' %>
               </li>
             <% end %>
           </ul>
