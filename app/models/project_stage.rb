@@ -1,4 +1,6 @@
 class ProjectStage < ApplicationRecord
+  include PgSearch::Model
+
   belongs_to :project
   belongs_to :parent, class_name: "ProjectStage", optional: true
 
@@ -15,9 +17,19 @@ class ProjectStage < ApplicationRecord
   validate :parent_must_be_root
 
   scope :root, -> { where(parent_id: nil) }
+  scope :children, -> { where.not(parent_id: nil) }
   scope :ordered, lambda {
     order(:position, Arel.sql("CASE WHEN start_date IS NULL THEN 1 ELSE 0 END"), :start_date, :created_at)
   }
+
+  pg_search_scope :search_main_scope,
+                  against: [ :name, :description, :start_date, :end_date ],
+                  associated_against: { sub_stages: [ :name, :description, :start_date, :end_date ] },
+                  using: { tsearch: { prefix: true } }
+
+  pg_search_scope :search_sub_scope,
+                  against: [ :name, :description, :start_date, :end_date ],
+                  using: { tsearch: { prefix: true } }
 
   def parent?
     parent_id.present?

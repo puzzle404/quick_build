@@ -8,14 +8,17 @@ module Constructors
         authorize @project, :show?
 
         @view_mode = params[:view].in?(%w[sub_stages main]) ? params[:view] : 'main'
+        @main_query = params[:main_q].to_s.strip
+        @sub_query = params[:sub_q].to_s.strip
+        @query_param = @view_mode == 'sub_stages' ? :sub_q : :main_q
+        @query = @view_mode == 'sub_stages' ? @sub_query : @main_query
+
+        search = Constructors::Projects::StageSearchService.new(project: @project, query: @query)
 
         if @view_mode == 'sub_stages'
-          @sub_stages = @project.project_stages.includes(:parent, :material_lists)
-                                      .where.not(parent_id: nil)
-                                      .order(:position, :name)
+          @sub_stages = search.sub_stages
         else
-          @stages = @project.project_stages.root.includes(:material_lists, :sub_stages)
-                           .order(:position, :name)
+          @stages = search.main_stages
         end
       end
 
@@ -108,6 +111,7 @@ module Constructors
         created_text = created.presence || ["sin cambios"]
         "Plantilla aplicada: #{created_text.join(' · ')}"
       end
+
     end
   end
 end
