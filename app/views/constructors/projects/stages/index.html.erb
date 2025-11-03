@@ -59,9 +59,9 @@
                   <td class="px-4 py-3 text-slate-600"><%= substage.material_lists.count %></td>
                   <td class="px-4 py-3 text-right">
                     <div class="flex justify-end gap-2">
-                      <%= render Ui::ButtonComponent.new(label: 'Ver', path: constructors_project_stage_path(@project, substage), size: :sm) %>
+                      <%= render Ui::ButtonComponent.new(label: 'Ver', path: constructors_project_stage_path(@project, substage), size: :sm, turbo_frame: '_top') %>
                       <% if policy(substage).update? %>
-                        <%= render Ui::ButtonComponent.new(label: 'Editar', path: edit_constructors_project_stage_path(@project, substage), variant: :secondary, size: :sm) %>
+                        <%= render Ui::ButtonComponent.new(label: 'Editar', path: edit_constructors_project_stage_path(@project, substage), variant: :secondary, size: :sm, turbo_frame: '_top') %>
                       <% end %>
                     </div>
                   </td>

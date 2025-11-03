@@ -25,9 +25,9 @@
   </dl>
 
   <footer class="mt-6 flex flex-wrap items-center gap-3">
-    <%= render Ui::ButtonComponent.new(label: "Ver detalle", path: show_path, size: :sm) %>
+    <%= render Ui::ButtonComponent.new(label: "Ver detalle", path: show_path, size: :sm, turbo_frame: "_top") %>
     <% if helpers.policy(stage).update? %>
-      <%= render Ui::ButtonComponent.new(label: "Editar", path: edit_path, variant: :secondary, size: :sm) %>
+      <%= render Ui::ButtonComponent.new(label: "Editar", path: edit_path, variant: :secondary, size: :sm, turbo_frame: "_top") %>
     <% end %>
   </footer>
 </article>
