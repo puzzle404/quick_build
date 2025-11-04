@@ -3,8 +3,18 @@ class Constructors::Projects::PeopleController < Constructors::BaseController
   before_action :set_person, only: %i[show edit update destroy]
 
   def index
-    @people = @project.project_people.order(created_at: :desc)
-    authorize @people.build(project: @project)
+    authorize @project.project_people.build
+
+    @query = params[:q].to_s.strip
+    @from_date = params[:from_date].presence
+    @to_date = params[:to_date].presence
+
+    @people = Constructors::Projects::PeopleSearchService.new(
+      project: @project,
+      query: @query,
+      from_date: @from_date,
+      to_date: @to_date
+    ).results
   end
 
   def show
@@ -60,4 +70,3 @@ class Constructors::Projects::PeopleController < Constructors::BaseController
     params.require(:project_person).permit(:full_name, :document_id, :phone, :role_title, :status, :start_date, :end_date, :notes)
   end
 end
-

@@ -10,7 +10,16 @@ class Constructors::ProjectsController < Constructors::BaseController
   end
 
   def index
-    @projects = current_user.owned_projects.order(updated_at: :desc)
+    @query = params[:q].to_s.strip
+    @from_date = params[:from_date].presence
+    @to_date = params[:to_date].presence
+
+    @projects = Constructors::Projects::ProjectSearchService.new(
+      scope: current_user.owned_projects,
+      query: @query,
+      from_date: @from_date,
+      to_date: @to_date
+    ).results
   end
 
   def new

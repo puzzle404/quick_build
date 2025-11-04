@@ -1,4 +1,5 @@
 class Project < ApplicationRecord
+  include PgSearch::Model
   enum :status, [ :planned, :in_progress, :completed]
   
   belongs_to :owner, class_name: 'User'
@@ -13,6 +14,10 @@ class Project < ApplicationRecord
   attr_accessor :document_files
 
   validates :name, presence: true
+
+  pg_search_scope :search_text,
+                  against: [:name, :location],
+                  using: { tsearch: { prefix: true } }
 
   # Helper para saber si el proyecto tiene ubicación
   def located?

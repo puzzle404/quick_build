@@ -13,7 +13,15 @@ module Constructors
         @query_param = @view_mode == 'sub_stages' ? :sub_q : :main_q
         @query = @view_mode == 'sub_stages' ? @sub_query : @main_query
 
-        search = Constructors::Projects::StageSearchService.new(project: @project, query: @query)
+        @from_date = params[:from_date].presence
+        @to_date = params[:to_date].presence
+
+        search = Constructors::Projects::StageSearchService.new(
+          project: @project,
+          query: @query,
+          from_date: @from_date,
+          to_date: @to_date
+        )
 
         if @view_mode == 'sub_stages'
           @sub_stages = search.sub_stages
