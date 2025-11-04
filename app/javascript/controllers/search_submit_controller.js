@@ -5,6 +5,7 @@ export default class extends Controller {
 
   connect() {
     this.timeoutId = null
+    console.log(`SearchSubmitController connected with delay: `)
   }
 
   submit() {
