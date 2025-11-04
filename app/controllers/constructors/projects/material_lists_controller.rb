@@ -7,9 +7,16 @@ class Constructors::Projects::MaterialListsController < Constructors::BaseContro
 
   def index
     authorize @project, :materials?
-    @material_lists = @project.material_lists
-                               .includes(:material_list_publication, :project_stage)
-                               .order(updated_at: :desc)
+    @query = params[:q].to_s.strip
+    @from_date = params[:from_date].presence
+    @to_date = params[:to_date].presence
+
+    @material_lists = Constructors::Projects::MaterialListSearchService.new(
+      project: @project,
+      query: @query,
+      from_date: @from_date,
+      to_date: @to_date
+    ).results
   end
 
   def show

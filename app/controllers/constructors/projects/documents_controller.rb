@@ -3,7 +3,16 @@ class Constructors::Projects::DocumentsController < Constructors::BaseController
 
   def index
     authorize @project, :show?
-    @documents = @project.documents.includes(file_attachment: :blob).order(created_at: :desc)
+    @query = params[:q].to_s.strip
+    @from_date = params[:from_date].presence
+    @to_date = params[:to_date].presence
+
+    @documents = Constructors::Projects::DocumentSearchService.new(
+      project: @project,
+      query: @query,
+      from_date: @from_date,
+      to_date: @to_date
+    ).results
   end
 
   def create

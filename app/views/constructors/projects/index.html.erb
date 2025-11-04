@@ -1,10 +1,28 @@
 <div class="container mx-auto p-4">
-  <div class="mt-2">
+  <div class="mt-2 space-y-6">
     <%= render 'shared/section_header', title: 'Mis obras', subtitle: 'Gestiona tus proyectos activos y crea nuevas obras' do %>
       <%= render Ui::ButtonComponent.new(label: 'Nueva obra', path: new_constructors_project_path, variant: :primary, size: :sm) %>
     <% end %>
-  </div>
-  <div id="projects" class="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
-    <%= render @projects %>
+
+    <%= render Ui::SearchPanelComponent.new(
+          form_action: constructors_projects_path,
+          query_param: :q,
+          query_value: @query,
+          placeholder: 'Buscar obras...',
+          title: 'Buscador de obras',
+          date_filters: {
+            enabled: true,
+            from_param: :from_date,
+            to_param: :to_date,
+            from_value: @from_date,
+            to_value: @to_date,
+            from_label: 'Desde',
+            to_label: 'Hasta'
+          }
+        ) %>
+
+    <div id="projects" class="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
+      <%= render @projects %>
+    </div>
   </div>
 </div>

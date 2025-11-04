@@ -1,4 +1,5 @@
 class MaterialList < ApplicationRecord
+  include PgSearch::Model
   enum :status, { draft: 0, ready_for_review: 1, approved: 2 }
   enum :source_type, { manual: 0, pdf_upload: 1, excel_upload: 2 }
 
@@ -15,6 +16,11 @@ class MaterialList < ApplicationRecord
   validate :stage_belongs_to_project
 
   before_save :sync_approved_timestamp
+
+  pg_search_scope :search_text,
+                  against: [:name, :notes],
+                  associated_against: { project_stage: [:name, :description] },
+                  using: { tsearch: { prefix: true } }
 
   private
 
