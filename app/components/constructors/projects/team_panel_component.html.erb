@@ -1,6 +1,7 @@
-<div class="rounded-3xl border border-slate-200 bg-white p-6 shadow-sm">
-  <h2 class="text-lg font-semibold text-slate-900">Equipo de la obra</h2>
-  <p class="mt-1 text-sm text-slate-500">Administra quién puede colaborar, revisar y ejecutar tareas dentro del proyecto.</p>
+<div class="card bg-base-100 shadow-sm w-full">
+  <div class="card-body p-6">
+  <h2 class="card-title text-lg font-semibold text-slate-900">Equipo de la obra</h2>
+  <p class="text-sm text-slate-500">Administra quién puede colaborar, revisar y ejecutar tareas dentro del proyecto.</p>
   <ul id="project-team-members" class="mt-6 space-y-3">
     <% if project_members.any? %>
       <% project_members.each do |member| %>
@@ -47,5 +48,6 @@
         <%= render Ui::ButtonComponent.new(label: "Agregar miembro", type: :submit) %>
       </div>
     <% end %>
+  </div>
   </div>
 </div>
