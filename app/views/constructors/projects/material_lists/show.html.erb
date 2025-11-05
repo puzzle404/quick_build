@@ -6,7 +6,7 @@
                 class: "text-sm font-medium text-indigo-700 hover:text-indigo-600" %>
   </div>
 
-  <%= render 'shared/section_header', title: @material_list.name %>
+  <%= render Ui::SectionHeaderComponent.new(title: @material_list.name) %>
 
   <div>
     <p class="text-sm text-slate-500">

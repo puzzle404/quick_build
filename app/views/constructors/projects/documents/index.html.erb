@@ -1,7 +1,7 @@
 <%= render Constructors::Projects::SectionsNavComponent.new(project: @project, current_section: :documents) %>
 
 <div class="mt-6 space-y-6">
-  <%= render 'shared/section_header', title: 'Documentos del proyecto', subtitle: 'Imágenes y PDFs cargados en esta obra' %>
+  <%= render Ui::SectionHeaderComponent.new(title: 'Documentos del proyecto', subtitle: 'Imágenes y PDFs cargados en esta obra') %>
 
   <%= render Ui::SearchPanelComponent.new(
         form_action: constructors_project_documents_path(@project),

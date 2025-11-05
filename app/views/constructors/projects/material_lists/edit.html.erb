@@ -1,7 +1,7 @@
 <%= render Constructors::Projects::SectionsNavComponent.new(project: @project, current_section: :materials) %>
 
 <div class="mt-6 max-w-4xl space-y-6">
-  <%= render 'shared/section_header', title: "Editar lista: #{@material_list.name}", subtitle: 'Actualizá cantidades, notas o adjuntos para mantener la lista al día.' %>
+  <%= render Ui::SectionHeaderComponent.new(title: "Editar lista: #{@material_list.name}", subtitle: 'Actualizá cantidades, notas o adjuntos para mantener la lista al día.') %>
   <% if policy(@material_list).destroy? %>
     <%= render Ui::ButtonComponent.new(label: 'Eliminar', path: constructors_project_material_list_path(@project, @material_list), turbo_method: :delete, variant: :danger, size: :sm, turbo_confirm: "¿Seguro que querés eliminar esta lista?") %>
   <% end %>

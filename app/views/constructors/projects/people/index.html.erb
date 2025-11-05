@@ -1,7 +1,7 @@
 <%= render Constructors::Projects::SectionsNavComponent.new(project: @project, current_section: :people) %>
 
 <div class="mt-6 space-y-6">
-  <%= render 'shared/section_header', title: 'Recursos humanos', subtitle: 'Agregá personas y gestioná la información del equipo de obra.' do %>
+  <%= render Ui::SectionHeaderComponent.new(title: 'Recursos humanos', subtitle: 'Agregá personas y gestioná la información del equipo de obra.') do %>
     <% if policy(ProjectPerson.new(project: @project)).create? %>
       <%= render Ui::ButtonComponent.new(label: "Nueva persona", path: new_constructors_project_person_path(@project)) %>
     <% end %>

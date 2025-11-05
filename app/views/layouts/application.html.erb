@@ -20,6 +20,7 @@
     <%# Includes all stylesheet files in app/assets/stylesheets %>
     <%= stylesheet_link_tag :app, "data-turbo-track": "reload" %>
     <%= javascript_importmap_tags %>
+    <%= render "layouts/ui_kit_head" %>
   </head>
 
   <body <%= "data-hotwire-native" if hotwire_native_app? %> class="bg-gray-50 text-gray-900">

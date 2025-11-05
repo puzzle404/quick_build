@@ -1,30 +1,21 @@
-<nav class="text-xs text-slate-500">
-  <ul class="flex flex-wrap items-center gap-2">
-    <li><%= link_to 'Obra: ' + project.name, constructors_project_path(project), class: 'text-indigo-600 hover:text-indigo-700 font-medium' %></li>
-    <% breadcrumb_items.each do |item| %>
-      <li>·</li>
-      <li><%= link_to item[:label], item[:path], class: 'hover:text-indigo-600' %></li>
-    <% end %>
-    <li>·</li>
-    <li class="text-slate-900 font-semibold"><%= stage.name %></li>
-  </ul>
-</nav>
+<%= render Ui::BreadcrumbsComponent.new(
+      items: [
+        { label: "#{project.name}", path: constructors_project_path(project) }
+      ] + breadcrumb_items + [
+        { label: stage.name }
+      ]
+    ) %>
 
-<div class="mt-4 flex flex-col gap-4 lg:flex-row lg:items-start lg:justify-between">
-  <div class="space-y-2">
-    <h1 class="text-2xl font-semibold text-slate-900"><%= stage.name %></h1>
-    <p class="text-sm text-slate-500"><%= stage.description.presence || 'Sin descripción todavía.' %></p>
-    <% if status_badge.present? %>
-      <span class="inline-flex items-center rounded-full bg-indigo-50 px-3 py-1 text-xs font-semibold text-indigo-600"><%= status_badge %></span>
-    <% end %>
-  </div>
-
-  <div class="flex flex-wrap items-center gap-3">
-    <% if parent_path.present? %>
-      <%= render Ui::ButtonComponent.new(label: 'Ver etapa superior', path: parent_path, variant: :secondary, size: :sm) %>
-    <% end %>
-    <% if edit_path.present? %>
-      <%= render Ui::ButtonComponent.new(label: 'Editar', path: edit_path, variant: :secondary, size: :sm) %>
-    <% end %>
-  </div>
-</div>
+<% badge_text = status_badge %>
+<%= render Ui::SectionHeaderComponent.new(
+      title: stage.name,
+      subtitle: stage.description.presence || 'Sin descripción todavía.',
+      meta_html: (badge_text.present? ? tag.span(badge_text, class: 'inline-flex items-center rounded-full bg-indigo-50 px-3 py-1 text-xs font-semibold text-indigo-600') : nil)
+    ) do %>
+  <% if parent_path.present? %>
+    <%= render Ui::ButtonComponent.new(label: 'Ver etapa superior', path: parent_path, variant: :secondary, size: :sm) %>
+  <% end %>
+  <% if edit_path.present? %>
+    <%= render Ui::ButtonComponent.new(label: 'Editar', path: edit_path, variant: :secondary, size: :sm) %>
+  <% end %>
+<% end %>

@@ -1,7 +1,7 @@
 <%= render Constructors::Projects::SectionsNavComponent.new(project: @project, current_section: :materials) %>
 
 <div class="mt-6 space-y-6">
-  <%= render 'shared/section_header', title: 'Listas de materiales', subtitle: 'Organizá los insumos de la obra, cargalos manualmente o subí archivos para procesarlos más adelante.' do %>
+  <%= render Ui::SectionHeaderComponent.new(title: 'Listas de materiales', subtitle: 'Organizá los insumos de la obra, cargalos manualmente o subí archivos para procesarlos más adelante.') do %>
     <% if policy(@project).manage_materials? %>
       <%= render Ui::ButtonComponent.new(label: 'Nueva lista', path: new_constructors_project_material_list_path(@project)) %>
     <% end %>

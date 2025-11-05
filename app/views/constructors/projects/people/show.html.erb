@@ -4,7 +4,7 @@
   <div>
     <%= link_to "← Volver", constructors_project_people_path(@project), class: "text-sm font-medium text-indigo-700 hover:text-indigo-600" %>
   </div>
-  <%= render 'shared/section_header', title: @person.full_name, subtitle: (@person.role_title.presence || 'Sin rol especificado') %>
+  <%= render Ui::SectionHeaderComponent.new(title: @person.full_name, subtitle: (@person.role_title.presence || 'Sin rol especificado')) %>
   <div class="flex flex-wrap gap-3">
     <% if policy(@person).update? %>
       <%= render Ui::ButtonComponent.new(label: "Editar", path: edit_constructors_project_person_path(@project, @person), variant: :secondary) %>
