@@ -20,7 +20,7 @@
         </span>
 
         <%= text_field_tag query_param, query_value,
-          placeholder: placeholder.presence || "Buscar por nombre, dirección o responsable...",
+          placeholder: placeholder_text,
           id: "search-panel-#{query_param}",
           class: "w-full border border-slate-300 rounded-xl py-2.5 pl-10 pr-3 text-sm bg-white focus:ring-indigo-200 focus:border-indigo-400 shadow-sm",
           name: query_param,

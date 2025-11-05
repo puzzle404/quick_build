@@ -3,7 +3,6 @@
 <div class="mt-6 space-y-6">
   <%= render Ui::SectionHeaderComponent.new(title: 'Planificación de la obra', subtitle: 'Organizá las etapas principales, definí subetapas y mantené la documentación al día.') do %>
   <div class="flex justify-end gap-3">
-      
       <div class="flex flex-wrap items-center gap-2">
         <%= render Ui::ButtonComponent.new(label: 'Aplicar plantilla base', path: apply_template_constructors_project_stages_path(@project), turbo_method: :post, variant: :secondary, turbo_confirm: '¿Quieres cargar la estructura sugerida? Las etapas existentes se conservarán.') %>
         <%= render Ui::ButtonComponent.new(label: 'Crear nueva etapa', path: new_constructors_project_stage_path(@project)) %>
@@ -11,11 +10,7 @@
     </div>
   <% end %>
 
-  <% hidden_params = { view: @view_mode }
-     hidden_params[:main_q] = @main_query if @query_param != :main_q && @main_query.present?
-     hidden_params[:sub_q] = @sub_query if @query_param != :sub_q && @sub_query.present? %>
-
-  <% search_placeholder = @view_mode == 'sub_stages' ? 'Buscar subetapas...' : 'Buscar etapas...' %>
+  <%# Params preservados y placeholder ahora se resuelven dentro del componente %>
 
   <div>
     <div class="flex justify-end">
@@ -32,8 +27,8 @@
       form_action: constructors_project_stages_path(@project),
       query_param: @query_param,
       query_value: @query,
-      placeholder: search_placeholder,
-      hidden_params: hidden_params,
+      preserve_params: [:view, :main_q, :sub_q, :from_date, :to_date],
+      placeholder_rules: { param: :view, map: { 'sub_stages' => 'Buscar subetapas...' }, default: 'Buscar etapas...' },
       turbo_frame: 'planning_results',
       date_filters: {
         enabled: true,

@@ -62,7 +62,7 @@ class Constructors::ProjectsController < Constructors::BaseController
 
   def project_params
     params.require(:project)
-          .permit(:name, :location, :start_date, :end_date, :status, :latitude, :longitude, images: [], document_files: [])
+          .permit(:name, :location, :start_date, :end_date, :status, :latitude, :longitude, document_files: [])
   end
 
   def set_project
@@ -76,6 +76,7 @@ class Constructors::ProjectsController < Constructors::BaseController
   def persist_project_with_documents(project)
     ActiveRecord::Base.transaction do
       project.save!
+      attach_images_from_params!(project)
       attach_documents_from_params!(project)
     end
 
@@ -93,6 +94,17 @@ class Constructors::ProjectsController < Constructors::BaseController
       document = project.documents.build
       document.file.attach(uploaded_file)
       document.save!
+    end
+  end
+
+  def attach_images_from_params!(project)
+    images = Array.wrap(params.dig(:project, :images)).compact_blank
+    return if images.empty?
+
+    images.each do |uploaded_file|
+      image = project.images.build
+      image.file.attach(uploaded_file)
+      image.save!
     end
   end
 

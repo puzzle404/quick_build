@@ -8,7 +8,7 @@ RSpec.describe Constructors::Projects::DocumentSearchService do
 
     def build_document(project, filename, captured_at)
       travel_to captured_at do
-        document = project.documents.create!
+        document = project.documents.build
         document.file.attach(
           io: StringIO.new('PDF'),
           filename: filename,
