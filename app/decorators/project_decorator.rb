@@ -8,7 +8,7 @@ class ProjectDecorator < BaseDecorator
   end
 
   def attachments_count
-    images.attached? ? images.count : 0
+    object.images.count
   end
 
   def elapsed_days

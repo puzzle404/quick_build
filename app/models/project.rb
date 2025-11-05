@@ -8,7 +8,7 @@ class Project < ApplicationRecord
   has_many :project_stages, dependent: :destroy
   has_many :material_lists, dependent: :destroy
   has_many :project_people, dependent: :destroy
-  has_many_attached :images
+  has_many :images, as: :imageable, dependent: :destroy
   has_many :documents, as: :documentable, dependent: :destroy
 
   attr_accessor :document_files

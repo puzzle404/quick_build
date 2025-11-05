@@ -40,12 +40,12 @@ class Constructors::Projects::SectionsNavComponent < ViewComponent::Base
   end
 
   def nav_item_classes(section)
-    base = "inline-flex items-center gap-2 rounded-full border px-3 py-1.5 text-sm font-medium transition"
+    base = "inline-flex items-center gap-2 rounded-full border px-3 py-1.5 text-sm font-semibold transition"
 
     if current?(section)
-      "#{base} border-emerald-500 bg-emerald-50 text-emerald-700 shadow-sm"
+      "#{base} border-indigo-500 bg-indigo-50 text-indigo-700 shadow-sm"
     elsif section[:path].present?
-      "#{base} border-slate-200 bg-white text-slate-600 hover:border-emerald-200 hover:text-emerald-700"
+      "#{base} border-slate-200 bg-white text-slate-600 hover:border-indigo-200 hover:text-indigo-700"
     else
       "#{base} cursor-not-allowed border-dashed border-slate-200 bg-slate-50 text-slate-400"
     end
@@ -55,7 +55,7 @@ class Constructors::Projects::SectionsNavComponent < ViewComponent::Base
     if section[:soon]
       content_tag(:span, "Próx.", class: "rounded-full bg-slate-200 px-2 py-0.5 text-[10px] font-semibold uppercase tracking-wide text-slate-600")
     elsif current?(section)
-      content_tag(:span, "Activo", class: "text-[10px] font-semibold uppercase tracking-wide text-emerald-600")
+      content_tag(:span, "Activo", class: "text-[10px] font-semibold uppercase tracking-wide text-indigo-600")
     else
       nil
     end

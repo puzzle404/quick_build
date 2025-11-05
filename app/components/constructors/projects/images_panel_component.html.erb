@@ -1,0 +1,45 @@
+<div class="rounded-3xl border border-slate-200 bg-white p-6 shadow-sm">
+  <div class="flex items-center justify-between">
+    <h2 class="text-base font-semibold text-slate-900 tracking-tight">Imágenes recientes</h2>
+
+    <%= render Ui::ButtonComponent.new(
+      label: 'Ver todo', 
+      path: index_path, 
+      variant: :link, size: :sm,
+      class_name: "text-indigo-600 hover:text-indigo-700 font-medium"
+    ) %>
+  </div>
+
+  <% if preview_images.any? %>
+    <div class="mt-4 flex gap-3 overflow-x-auto scrollbar-thin scrollbar-thumb-slate-300 scrollbar-track-transparent pr-1">
+      
+      <% preview_images.each do |image| %>
+        <%= link_to url_for(image.file), target: '_blank', class: "group relative h-12 w-12 shrink-0 overflow-hidden rounded-lg border border-slate-200 bg-slate-100 shadow-sm transition hover:ring-2 hover:ring-indigo-200" do %>
+          <% if image.file.variable? %>
+            <%= image_tag image.file.variant(resize_to_fill: [96, 96]),
+                class: "h-full w-full object-cover transition group-hover:scale-[1.05]" %>
+          <% else %>
+            <div class="flex h-full w-full items-center justify-center text-[10px] text-slate-500">
+              IMG
+            </div>
+          <% end %>
+        <% end %>
+      <% end %>
+
+      <% if extra_count > 0 %>
+        <%= link_to index_path,
+            class: "flex h-14 w-14 shrink-0 items-center justify-center rounded-xl border border-dashed border-slate-300 bg-slate-50 text-[12px] font-medium text-slate-600 hover:border-indigo-300 hover:text-indigo-600 transition" do %>
+          +<%= extra_count %>
+        <% end %>
+      <% end %>
+
+    </div>
+  <% else %>
+    
+    <div class="mt-5 flex flex-col items-center justify-center gap-2 rounded-2xl border border-dashed border-slate-200 bg-slate-50 py-8 text-center">
+      <p class="text-sm text-slate-600">Todavía no se cargaron imágenes en este proyecto.</p>
+      <%= link_to 'Subir ahora', index_path, class: 'text-sm font-medium text-indigo-600 hover:text-indigo-700' %>
+    </div>
+
+  <% end %>
+</div>

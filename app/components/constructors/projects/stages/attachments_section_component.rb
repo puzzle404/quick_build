@@ -23,7 +23,11 @@ module Constructors
         end
 
         def attachments
-          @attachments ||= kind == :documents ? stage.documents.order(created_at: :desc) : stage.images.attachments.order(created_at: :desc)
+          @attachments ||= if kind == :documents
+                              stage.documents.order(created_at: :desc)
+                            else
+                              stage.images.includes(file_attachment: :blob).order(created_at: :desc)
+                            end
         end
 
         def empty_text

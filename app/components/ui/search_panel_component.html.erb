@@ -54,10 +54,11 @@
     <% end %>
 
     <!-- Visible submit button on desktop -->
-    <button type="submit"
+    <%= render Ui::ButtonComponent.new(label: 'Buscar', type: :submit) %>
+    <%# <button type="submit"
       class="hidden lg:inline-flex items-center gap-2 rounded-xl bg-indigo-600 px-4 py-2 text-sm font-medium text-white hover:bg-indigo-700 transition">
       <i class="ph ph-magnifying-glass"></i> Buscar
-    </button>
+    </button> %>
   </div>
 
   <%= submit_tag "Buscar", class: "hidden" %> <!-- Hidden submit for keyboard Enter -->

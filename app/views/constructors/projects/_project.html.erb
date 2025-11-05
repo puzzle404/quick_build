@@ -2,8 +2,8 @@
             class: 'group block h-full focus:outline-none focus-visible:ring-2 focus-visible:ring-indigo-500 focus-visible:ring-offset-2 focus-visible:ring-offset-white' do %>
   <article class="flex h-full flex-col overflow-hidden rounded-3xl border border-slate-200 bg-white shadow-sm transition-all duration-300 group-hover:-translate-y-1 group-hover:shadow-lg">
     <div class="relative h-48 bg-slate-100">
-      <% if project.images.attached? %>
-        <%= image_tag project.images.first, 
+      <% if project.images.any? %>
+        <%= image_tag project.images.first.file, 
           class: "absolute inset-0 h-full w-full object-cover transition-transform duration-500 group-hover:scale-105",
           alt: "Imagen del proyecto #{project.name}" %>
       <% else %>

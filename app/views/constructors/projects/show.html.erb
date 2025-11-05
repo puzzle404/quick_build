@@ -11,8 +11,7 @@
             <h2 class="text-lg font-semibold text-slate-900">Planificación</h2>
             <p class="mt-1 text-sm text-slate-500">Resumen rápido de etapas y materiales.</p>
           </div>
-          <%= link_to "Ver planificación", constructors_project_planning_path(@project),
-                      class: "inline-flex items-center rounded-lg bg-indigo-600 px-3 py-2 text-sm font-semibold text-white hover:bg-indigo-500" %>
+          <%= render Ui::ButtonComponent.new(label: 'Ver planificación', path: constructors_project_planning_path(@project)) %>
         </div>
 
         <div class="mt-6 grid gap-4 sm:grid-cols-3">
@@ -37,7 +36,10 @@
           </div>
         </div>
       </section>
-      <%= render Constructors::Projects::DocumentsPanelComponent.new(project: @project) %>
+      <div class="flex gap-4">
+        <%= render Constructors::Projects::ImagesPanelComponent.new(project: @project) %>
+        <%= render Constructors::Projects::DocumentsPanelComponent.new(project: @project) %>
+      </div>
     </div>
 
     <div class="space-y-6">

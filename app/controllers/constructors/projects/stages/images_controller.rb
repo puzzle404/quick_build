@@ -19,10 +19,18 @@ module Constructors
             redirect_to new_constructors_project_stage_image_path(@project, @stage), alert: "Seleccioná al menos una imagen." and return
           end
 
-          @stage.images.attach(files)
+          ActiveRecord::Base.transaction do
+            files.each do |uploaded|
+              image = @stage.images.build
+              image.file.attach(uploaded)
+              image.title ||= image.file_filename.to_s
+              image.save!
+            end
+          end
+
           redirect_to constructors_project_stage_path(@project, @stage), notice: "Imágenes cargadas correctamente."
-        rescue ActiveStorage::IntegrityError => e
-          redirect_to new_constructors_project_stage_image_path(@project, @stage), alert: "No pudimos cargar las imágenes: #{e.message}."
+        rescue ActiveRecord::RecordInvalid => e
+          redirect_to new_constructors_project_stage_image_path(@project, @stage), alert: "No pudimos cargar las imágenes: #{e.record.errors.full_messages.to_sentence}."
         end
 
         def destroy
@@ -43,7 +51,7 @@ module Constructors
         end
 
         def set_image
-          @image = @stage.images.attachments.find(params[:id])
+          @image = @stage.images.find(params[:id])
         end
 
         def image_params

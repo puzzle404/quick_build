@@ -113,18 +113,18 @@
       </div>
 
       <div class="rounded-3xl border border-slate-200 bg-white px-4 py-5 shadow-sm sm:p-6">
-        <h2 class="text-sm font-semibold text-slate-900">Vista previa de documentos</h2>
-        <% if @project_summary.images.attached? %>
+        <h2 class="text-sm font-semibold text-slate-900">Vista previa de imágenes</h2>
+        <% if @project.images.any? %>
           <div class="mt-3 flex gap-3 overflow-x-auto pb-1">
-            <% @project_summary.images.each do |image| %>
-              <% preview = image.variable? ? image.variant(resize_to_fill: [180, 120]) : image %>
+            <% @project.images.limit(8).each do |image| %>
+              <% preview = image.file.variable? ? image.file.variant(resize_to_fill: [180, 120]) : image.file %>
               <div class="h-24 w-36 flex-shrink-0 overflow-hidden rounded-xl border border-slate-200 bg-slate-100">
-                <%= image_tag preview, class: "h-full w-full object-cover", alt: image.filename.to_s %>
+                <%= image_tag preview, class: "h-full w-full object-cover", alt: image.title || image.file_filename.to_s %>
               </div>
             <% end %>
           </div>
         <% else %>
-          <p class="mt-3 text-sm text-slate-500">Aún no se subieron archivos. Puedes agregarlos con el campo superior “Imágenes del proyecto”.</p>
+          <p class="mt-3 text-sm text-slate-500">Aún no se subieron imágenes. Podés cargarlas desde la sección Imágenes del proyecto.</p>
         <% end %>
       </div>
     </aside>

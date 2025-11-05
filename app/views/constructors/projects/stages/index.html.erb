@@ -20,8 +20,8 @@
                     class: "px-3 py-1 rounded-full font-medium transition #{ @view_mode == 'sub_stages' ? 'bg-indigo-600 text-white shadow' : 'text-slate-500 hover:text-slate-700' }" %>
       </div>
       <div class="flex flex-wrap items-center gap-2">
-        <%= render Ui::ButtonComponent.new(label: 'Aplicar plantilla base', path: apply_template_constructors_project_stages_path(@project), turbo_method: :post, variant: :secondary, size: :sm, turbo_confirm: '¿Quieres cargar la estructura sugerida? Las etapas existentes se conservarán.') %>
-        <%= render Ui::ButtonComponent.new(label: 'Crear nueva etapa', path: new_constructors_project_stage_path(@project), size: :sm) %>
+        <%= render Ui::ButtonComponent.new(label: 'Aplicar plantilla base', path: apply_template_constructors_project_stages_path(@project), turbo_method: :post, variant: :secondary, turbo_confirm: '¿Quieres cargar la estructura sugerida? Las etapas existentes se conservarán.') %>
+        <%= render Ui::ButtonComponent.new(label: 'Crear nueva etapa', path: new_constructors_project_stage_path(@project)) %>
       </div>
     </div>
     <%= render Ui::SearchPanelComponent.new(

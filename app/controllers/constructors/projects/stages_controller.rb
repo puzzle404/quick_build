@@ -94,7 +94,9 @@ module Constructors
       end
 
       def set_stage
-        @stage = @project.project_stages.includes(:documents, :material_lists, :parent, images_attachments: :blob).find(params[:id])
+        @stage = @project.project_stages
+                          .includes(:documents, :material_lists, :parent, images: { file_attachment: :blob })
+                          .find(params[:id])
       end
 
       def stage_params

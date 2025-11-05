@@ -31,6 +31,7 @@ Rails.application.routes.draw do
       resources :project_memberships, only: [:create, :destroy, :new]
       resource :planning, only: [:show], module: :projects, controller: :planning
       resources :documents, only: [:index, :create, :destroy], module: :projects, controller: :documents
+      resources :images, only: [:index, :create, :destroy], module: :projects, controller: :images
       resources :stages, module: :projects do
         collection do
           post :apply_template
