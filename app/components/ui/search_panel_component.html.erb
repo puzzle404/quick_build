@@ -36,7 +36,7 @@
 
         <%= date_field_tag from_param, from_value,
           id: "search-panel-#{from_param}",
-          class: "w-full rounded-lg border border-slate-300 bg-white px-3 py-2 text-sm text-slate-700 shadow-sm focus:border-indigo-500 focus:outline-none focus:ring-2 focus:ring-indigo-200",
+          class: "w-full rounded-lg border border-slate-300 bg-white px-3 py-2.5 text-sm text-slate-700 shadow-sm focus:border-indigo-500 focus:outline-none focus:ring-2 focus:ring-indigo-200",
           name: from_param,
           data: { action: "change->search-submit#submit" },
           placeholder: from_label.presence || "Desde"
@@ -44,7 +44,7 @@
 
         <%= date_field_tag to_param, to_value,
           id: "search-panel-#{to_param}",
-          class: "w-full rounded-lg border border-slate-300 bg-white px-3 py-2 text-sm text-slate-700 shadow-sm focus:border-indigo-500 focus:outline-none focus:ring-2 focus:ring-indigo-200",
+          class: "w-full rounded-lg border border-slate-300 bg-white px-3 py-2.5 text-sm text-slate-700 shadow-sm focus:border-indigo-500 focus:outline-none focus:ring-2 focus:ring-indigo-200",
           name: to_param,
           data: { action: "change->search-submit#submit" },
           placeholder: to_label.presence || "Hasta"
@@ -55,11 +55,6 @@
 
     <!-- Visible submit button on desktop -->
     <%= render Ui::ButtonComponent.new(label: 'Buscar', type: :submit) %>
-    <%# <button type="submit"
-      class="hidden lg:inline-flex items-center gap-2 rounded-xl bg-indigo-600 px-4 py-2 text-sm font-medium text-white hover:bg-indigo-700 transition">
-      <i class="ph ph-magnifying-glass"></i> Buscar
-    </button> %>
   </div>
-
   <%= submit_tag "Buscar", class: "hidden" %> <!-- Hidden submit for keyboard Enter -->
 <% end %>
