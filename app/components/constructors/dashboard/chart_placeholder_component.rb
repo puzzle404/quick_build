@@ -26,12 +26,13 @@ module Constructors
         values = values_for(series_key)
         n = [values.size, 6].max
         max_val = [values.max.to_i, 1].max
-        # Ajuste: sin margen izquierdo/derecho para alinear con labels distribuidos con justify-between
-        width = n * (bar_w + gap) - gap
+        # Usamos un sistema donde los centros están en 0, step, 2*step, ... y el ancho incluye media barra a ambos extremos
+        step = (bar_w + gap)
+        width = (n - 1) * step + bar_w
 
         bars = values.each_with_index.map do |v, i|
           h = [(v.to_f / max_val) * height, (v > 0 ? 2 : 1)].max.round
-          x = i * (bar_w + gap)
+          x = i * step
           y = height - h
           { x: x, y: y, h: h }
         end
