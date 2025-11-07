@@ -12,7 +12,7 @@
     <%= render Constructors::Dashboard::KpiCardComponent.new(label: 'Completadas', value: metrics[:completed_projects]) %>
   </section>
 
-  <%= render Constructors::Dashboard::ChartPlaceholderComponent.new %>
+  <%= render Constructors::Dashboard::ChartPlaceholderComponent.new(evolution: @dashboard[:evolution]) %>
 
   <div class="mt-8 grid grid-cols-1 gap-6 lg:grid-cols-3">
     <div class="lg:col-span-2">

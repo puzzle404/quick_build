@@ -1,5 +1,80 @@
 <section class="mt-8 rounded-lg bg-white p-6 shadow-sm ring-1 ring-slate-200">
   <h2 class="mb-4 text-lg font-semibold text-slate-800"><%= title %></h2>
-  <div class="h-56 w-full rounded bg-gradient-to-r from-indigo-100 to-indigo-200"></div>
-</section>
 
+  <% if present? %>
+    <div class="mb-3 grid gap-3 sm:grid-cols-3">
+      <% s = evolution[:summary] %>
+      <div class="rounded-lg bg-slate-50 p-4 ring-1 ring-slate-200">
+        <p class="text-xs text-slate-500">Etapas finalizadas — <%= s[:current_label] %></p>
+        <p class="mt-1 text-2xl font-semibold text-slate-800"><%= s[:completed][:current] %></p>
+        <% if s[:completed][:delta_pct] %>
+          <span class="text-sm <%= s[:completed][:delta_pct] >= 0 ? 'text-green-600' : 'text-red-600' %>">
+            <%= s[:completed][:delta_pct] %>% vs mes anterior
+          </span>
+        <% else %>
+          <span class="text-sm text-slate-500">—</span>
+        <% end %>
+      </div>
+
+      <div class="rounded-lg bg-slate-50 p-4 ring-1 ring-slate-200">
+        <p class="text-xs text-slate-500">Asistencias registradas — <%= s[:current_label] %></p>
+        <p class="mt-1 text-2xl font-semibold text-slate-800"><%= s[:attendances][:current] %></p>
+        <% if s[:attendances][:delta_pct] %>
+          <span class="text-sm <%= s[:attendances][:delta_pct] >= 0 ? 'text-green-600' : 'text-red-600' %>">
+            <%= s[:attendances][:delta_pct] %>% vs mes anterior
+          </span>
+        <% else %>
+          <span class="text-sm text-slate-500">—</span>
+        <% end %>
+      </div>
+
+      <div class="rounded-lg bg-slate-50 p-4 ring-1 ring-slate-200">
+        <p class="text-xs text-slate-500">Costo estimado cargado — <%= s[:current_label] %></p>
+        <p class="mt-1 text-2xl font-semibold text-slate-800"><%= currency(s[:estimated_cents][:current]) %></p>
+        <% if s[:estimated_cents][:delta_pct] %>
+          <span class="text-sm <%= s[:estimated_cents][:delta_pct] >= 0 ? 'text-green-600' : 'text-red-600' %>">
+            <%= s[:estimated_cents][:delta_pct] %>% vs mes anterior
+          </span>
+        <% else %>
+          <span class="text-sm text-slate-500">—</span>
+        <% end %>
+      </div>
+    </div>
+
+    <div class="grid gap-4 sm:grid-cols-2">
+      <%# Gráfico 1: Etapas iniciadas %>
+      <div>
+        <p class="mb-1 text-sm font-medium text-slate-700"><%= evolution.dig(:series, :stages_started, :label) %></p>
+        <% data1 = svg_data_for(:stages_started, height: 24) %>
+        <svg viewBox="0 0 <%= data1[:width] %> <%= data1[:height] %>" class="h-8 w-full" preserveAspectRatio="xMidYMax meet" aria-hidden="true">
+          <% data1[:bars].each do |b| %>
+            <rect x="<%= b[:x] %>" y="<%= b[:y] %>" width="<%= data1[:bar_w] %>" height="<%= b[:h] %>" rx="3" fill="#6366F1" />
+          <% end %>
+        </svg>
+        <div class="mt-1 flex items-center justify-between text-[8px] text-slate-500">
+          <% evolution[:labels].each do |lbl| %>
+            <span><%= lbl.split.first %></span>
+          <% end %>
+        </div>
+      </div>
+
+      <%# Gráfico 2: Etapas finalizadas %>
+      <div>
+        <p class="mb-1 text-sm font-medium text-slate-700"><%= evolution.dig(:series, :stages_completed, :label) %></p>
+        <% data2 = svg_data_for(:stages_completed, height: 24) %>
+        <svg viewBox="0 0 <%= data2[:width] %> <%= data2[:height] %>" class="h-8 w-full" preserveAspectRatio="xMidYMax meet" aria-hidden="true">
+          <% data2[:bars].each do |b| %>
+            <rect x="<%= b[:x] %>" y="<%= b[:y] %>" width="<%= data2[:bar_w] %>" height="<%= b[:h] %>" rx="3" fill="#4F46E5" />
+          <% end %>
+        </svg>
+        <div class="mt-1 flex items-center justify-between text-[8px] text-slate-500">
+          <% evolution[:labels].each do |lbl| %>
+            <span><%= lbl.split.first %></span>
+          <% end %>
+        </div>
+      </div>
+    </div>
+  <% else %>
+    <div class="h-56 w-full rounded bg-gradient-to-r from-indigo-100 to-indigo-200"></div>
+  <% end %>
+</section>
