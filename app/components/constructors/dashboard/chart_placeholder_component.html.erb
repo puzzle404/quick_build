@@ -42,37 +42,8 @@
     </div>
 
     <div class="grid gap-4 sm:grid-cols-2">
-      <%# Gráfico 1: Etapas iniciadas %>
-      <div>
-        <p class="mb-1 text-sm font-medium text-slate-700"><%= evolution.dig(:series, :stages_started, :label) %></p>
-        <% data1 = svg_data_for(:stages_started, height: 24) %>
-        <svg viewBox="0 0 <%= data1[:width] %> <%= data1[:height] %>" class="h-8 w-full" preserveAspectRatio="xMidYMax meet" aria-hidden="true">
-          <% data1[:bars].each do |b| %>
-            <rect x="<%= b[:x] %>" y="<%= b[:y] %>" width="<%= data1[:bar_w] %>" height="<%= b[:h] %>" rx="3" fill="#6366F1" />
-          <% end %>
-        </svg>
-        <div class="mt-1 flex items-center justify-between text-[8px] text-slate-500">
-          <% evolution[:labels].each do |lbl| %>
-            <span><%= lbl.split.first %></span>
-          <% end %>
-        </div>
-      </div>
-
-      <%# Gráfico 2: Etapas finalizadas %>
-      <div>
-        <p class="mb-1 text-sm font-medium text-slate-700"><%= evolution.dig(:series, :stages_completed, :label) %></p>
-        <% data2 = svg_data_for(:stages_completed, height: 24) %>
-        <svg viewBox="0 0 <%= data2[:width] %> <%= data2[:height] %>" class="h-8 w-full" preserveAspectRatio="xMidYMax meet" aria-hidden="true">
-          <% data2[:bars].each do |b| %>
-            <rect x="<%= b[:x] %>" y="<%= b[:y] %>" width="<%= data2[:bar_w] %>" height="<%= b[:h] %>" rx="3" fill="#4F46E5" />
-          <% end %>
-        </svg>
-        <div class="mt-1 flex items-center justify-between text-[8px] text-slate-500">
-          <% evolution[:labels].each do |lbl| %>
-            <span><%= lbl.split.first %></span>
-          <% end %>
-        </div>
-      </div>
+      <%= render Constructors::Dashboard::TwoLinesChartComponent.new(evolution: evolution) %>
+      <%= render Constructors::Dashboard::TwoLinesChartComponent.new(evolution: evolution) %>
     </div>
   <% else %>
     <div class="h-56 w-full rounded bg-gradient-to-r from-indigo-100 to-indigo-200"></div>
