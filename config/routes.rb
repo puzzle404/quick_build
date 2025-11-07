@@ -3,7 +3,8 @@
 Rails.application.routes.draw do
   mount MissionControl::Jobs::Engine => "/jobs"
 
-  root to: "dashboards#show"
+  # Home público
+  root to: "home#index"
 
   resource :registration, only: %i[new create]
   resource :session, only: %i[new create destroy]
