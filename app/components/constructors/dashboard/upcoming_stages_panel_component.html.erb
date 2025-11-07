@@ -1,0 +1,25 @@
+<div class="rounded-lg bg-white p-6 shadow-sm ring-1 ring-slate-200">
+  <div class="flex items-center justify-between gap-4">
+    <h2 class="text-lg font-semibold text-slate-800">Próximas etapas</h2>
+    <span class="text-xs font-medium uppercase tracking-wide text-slate-400">Planificación</span>
+  </div>
+  <% if stages.any? %>
+    <ul class="mt-5 space-y-3">
+      <% stages.each do |stage| %>
+        <li class="rounded-lg bg-slate-50 p-4 ring-1 ring-slate-200">
+          <p class="text-sm font-semibold text-slate-800"><%= stage.name %></p>
+          <p class="text-xs text-slate-500">
+            <span class="font-medium"><%= stage.project.name %></span>
+            · Inicio: <%= l(stage.start_date, format: :long) if stage.start_date %>
+            <% if stage.end_date.present? %>
+              · Fin: <%= l(stage.end_date, format: :long) %>
+            <% end %>
+          </p>
+        </li>
+      <% end %>
+    </ul>
+  <% else %>
+    <p class="mt-5 text-sm text-slate-500">No hay etapas próximas cargadas aún.</p>
+  <% end %>
+</div>
+

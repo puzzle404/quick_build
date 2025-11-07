@@ -1,0 +1,31 @@
+<section class="rounded-lg bg-white p-6 shadow-sm ring-1 ring-slate-200">
+  <h2 class="mb-4 text-lg font-semibold text-slate-800">Actividad reciente</h2>
+  <% if entries.any? %>
+    <div class="overflow-x-auto">
+      <table class="w-full text-left text-sm text-slate-700">
+        <thead>
+          <tr class="border-b border-slate-200 text-slate-500">
+            <th class="py-2">Evento</th>
+            <th class="py-2">Detalle</th>
+            <th class="py-2">Fecha</th>
+            <th class="py-2 text-right">Estado</th>
+          </tr>
+        </thead>
+        <tbody>
+          <% entries.each do |e| %>
+            <tr class="border-b border-slate-100 hover:bg-slate-50">
+              <td class="py-2"><%= e[:title] %></td>
+              <td class="py-2"><%= e[:description].presence || '—' %></td>
+              <td class="py-2"><%= e[:timestamp] ? l(e[:timestamp], format: :long) : '—' %></td>
+              <% status_text = status_for(e) %>
+              <td class="py-2 text-right <%= status_color_for(e) %>"><%= status_text || '—' %></td>
+            </tr>
+          <% end %>
+        </tbody>
+      </table>
+    </div>
+  <% else %>
+    <p class="text-sm text-slate-500">Sin actividad reciente.</p>
+  <% end %>
+</section>
+

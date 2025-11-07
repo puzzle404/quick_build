@@ -22,24 +22,23 @@
       </div>
     </button>
 
-    <div class="dropdown dropdown-end">
-      <div tabindex="0" role="button" class="btn btn-ghost btn-circle">
-        <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h7" />
-        </svg>
-      </div>
-      <ul tabindex="-1" class="menu menu-sm dropdown-content bg-base-100 rounded-box z-10 mt-3 w-52 p-2 shadow">
-        <li><%= link_to "Inicio", root_path %></li>
-        <% if helpers.constructor? %>
-          <li><%= link_to "Dashboard", constructors_root_path %></li>
-          <li><%= link_to "Proyectos", constructors_projects_path %></li>
-        <% end %>
-        <% if helpers.buyer? %>
-          <li><%= link_to "Catálogo", products_path %></li>
-        <% end %>
-        <%= button_to "Cerrar sesión", session_path, method: :delete, class: "btn btn-ghost btn-sm" if helpers.authenticated? %>
-      </ul>
-    </div>
+    <%= render Ui::DropdownMenuComponent.new(aria_label: 'Abrir menú', anchor: 'bottom end', button_class: 'px-3 py-2') do %>
+      <%= link_to "Inicio", root_path, class: "block px-4 py-2 text-sm text-gray-700 focus:bg-gray-100 focus:text-gray-900 focus:outline-hidden" %>
+      <% if helpers.constructor? %>
+        <%= link_to "Dashboard", constructors_root_path, class: "block px-4 py-2 text-sm text-gray-700 focus:bg-gray-100 focus:text-gray-900 focus:outline-hidden" %>
+        <%= link_to "Proyectos", constructors_projects_path, class: "block px-4 py-2 text-sm text-gray-700 focus:bg-gray-100 focus:text-gray-900 focus:outline-hidden" %>
+      <% end %>
+      <% if helpers.buyer? %>
+        <%= link_to "Catálogo", products_path, class: "block px-4 py-2 text-sm text-gray-700 focus:bg-gray-100 focus:text-gray-900 focus:outline-hidden" %>
+      <% end %>
+      <% if helpers.authenticated? %>
+        <%= button_to "Cerrar sesión", session_path, method: :delete, class: "block w-full px-4 py-2 text-left text-sm text-gray-700 focus:bg-gray-100 focus:text-gray-900 focus:outline-hidden" %>
+      <% else %>
+        <%= link_to "Iniciar sesión", new_session_path, class: "block px-4 py-2 text-sm text-gray-700 focus:bg-gray-100 focus:text-gray-900 focus:outline-hidden" %>
+      <% end %>
+    <% end %>
+
+
     <%= render "carts/cart" if helpers.buyer? %>
   </div>
 </div>
