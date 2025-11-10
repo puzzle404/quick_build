@@ -5,7 +5,7 @@
   <div class="flex justify-end gap-3">
       <div class="flex flex-wrap items-center gap-2">
         <%= render Ui::ButtonComponent.new(label: 'Aplicar plantilla base', path: apply_template_constructors_project_stages_path(@project), turbo_method: :post, variant: :secondary, turbo_confirm: '¿Quieres cargar la estructura sugerida? Las etapas existentes se conservarán.') %>
-        <%= render Ui::ButtonComponent.new(label: 'Crear nueva etapa', path: new_constructors_project_stage_path(@project)) %>
+        <%= render Ui::ButtonComponent.new(label: 'Crear nueva etapa', path: new_constructors_project_stage_path(@project), turbo_frame: 'project_modal') %>
       </div>
     </div>
   <% end %>
@@ -97,9 +97,11 @@
         <p class="mt-2 text-sm text-slate-500">Podés iniciar con la plantilla sugerida o crear una etapa desde cero según el proceso de tu obra.</p>
         <div class="mt-6 flex flex-wrap justify-center gap-3">
           <%= render Ui::ButtonComponent.new(label: 'Aplicar plantilla base', path: apply_template_constructors_project_stages_path(@project), turbo_method: :post, variant: :secondary, size: :sm, turbo_confirm: '¿Deseas cargar las etapas recomendadas?') %>
-          <%= render Ui::ButtonComponent.new(label: 'Crear nueva etapa', path: new_constructors_project_stage_path(@project), size: :sm) %>
+          <%= render Ui::ButtonComponent.new(label: 'Crear nueva etapa', path: new_constructors_project_stage_path(@project), size: :sm, turbo_frame: 'project_modal') %>
         </div>
       </div>
     <% end %>
   <% end %>
 </div>
+
+<%= turbo_frame_tag "project_modal" %>

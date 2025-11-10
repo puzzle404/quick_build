@@ -1,14 +1,40 @@
-<%= render Constructors::Projects::SectionsNavComponent.new(project: @project, current_section: :planning) %>
+<% title = @stage.parent.present? ? 'Nueva subetapa' : 'Nueva etapa principal' %>
+<% subtitle = @stage.parent.present? ? "Asocia esta subetapa a #{@stage.parent.name} para detallar entregables." : 'Define una nueva etapa clave dentro de la planificación de la obra.' %>
 
-<div class="mt-6 space-y-6">
-  <header class="space-y-2">
-    <h1 class="text-2xl font-semibold text-slate-900"><%= @stage.parent.present? ? 'Nueva subetapa' : 'Nueva etapa principal' %></h1>
-    <p class="text-sm text-slate-500">
-      <%= @stage.parent.present? ? "Asocia esta subetapa a #{@stage.parent.name} para detallar entregables." : 'Define una nueva etapa clave dentro de la planificación de la obra.' %>
-    </p>
-  </header>
+<% unless turbo_frame_request? %>
+  <%= render Constructors::Projects::SectionsNavComponent.new(project: @project, current_section: :planning) %>
+<% end %>
 
-  <section class="rounded-2xl border border-slate-200 bg-white p-6 shadow-sm">
-    <%= render Constructors::Projects::Stages::StageFormComponent.new(project: @project, stage: @stage) %>
-  </section>
-</div>
+<% if turbo_frame_request? %>
+  <%= turbo_frame_tag "project_modal" do %>
+    <%= render Ui::ModalComponent.new(
+          size: :lg,
+          tag_label: "Planificación",
+          title: title,
+          subtitle: subtitle,
+          auxiliary_button: {
+            label: "Ver planificación",
+            path: constructors_project_stages_path(@project),
+            variant: :link,
+            size: :sm,
+            turbo_frame: "_top",
+            class_name: "px-0 py-0 text-sm"
+          }
+        ) do %>
+      <section class="rounded-2xl border border-slate-200 bg-white p-6 shadow-inner">
+        <%= render Constructors::Projects::Stages::StageFormComponent.new(project: @project, stage: @stage) %>
+      </section>
+    <% end %>
+  <% end %>
+<% else %>
+  <div class="mt-6 space-y-6">
+    <header class="space-y-2">
+      <h1 class="text-2xl font-semibold text-slate-900"><%= title %></h1>
+      <p class="text-sm text-slate-500"><%= subtitle %></p>
+    </header>
+
+    <section class="rounded-2xl border border-slate-200 bg-white p-6 shadow-sm">
+      <%= render Constructors::Projects::Stages::StageFormComponent.new(project: @project, stage: @stage) %>
+    </section>
+  </div>
+<% end %>

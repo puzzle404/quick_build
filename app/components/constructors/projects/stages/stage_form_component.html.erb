@@ -1,6 +1,7 @@
 <%= form_with model: stage,
               url: form_url,
               method: form_method,
+              data: { turbo_frame: "_top" },
               class: "grid gap-4 sm:grid-cols-2" do |form| %>
   <%= form.hidden_field :parent_id, value: parent_field_value if parent_field_value.present? %>
   <% if stage.errors.any? %>

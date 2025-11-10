@@ -1,4 +1,25 @@
-<%= turbo_frame_tag "project_form", class: "block w-full" do %>
+<% if turbo_frame_request? %>
+  <%= turbo_frame_tag "project_modal" do %>
+    <%= render Ui::ModalComponent.new(
+          size: :xl,
+          tag_label: "Alta de obra",
+          title: "Crea una nueva obra",
+          subtitle: "Centraliza planos, costos e hitos sin salir del tablero.",
+          auxiliary_button: {
+            label: "Ver todas",
+            path: constructors_projects_path,
+            variant: :link,
+            size: :sm,
+            turbo_frame: "_top",
+            class_name: "px-0 py-0 text-sm"
+          }
+        ) do %>
+      <div class="space-y-8">
+        <%= render "form", project: @project %>
+      </div>
+    <% end %>
+  <% end %>
+<% else %>
   <div class="w-full space-y-8 pb-14">
     <section class="rounded-3xl border border-slate-200 bg-white px-4 py-6 shadow-sm sm:p-8">
       <div class="flex flex-col gap-6 lg:flex-row lg:items-start lg:justify-between">
