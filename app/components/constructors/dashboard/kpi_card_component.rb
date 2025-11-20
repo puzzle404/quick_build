@@ -3,24 +3,33 @@
 module Constructors
   module Dashboard
     class KpiCardComponent < ViewComponent::Base
-      def initialize(label:, value:, delta_text: nil, delta_color: :slate)
+      def initialize(label:, value:, delta_text: nil, delta_color: :slate, icon: nil)
         @label = label
         @value = value
         @delta_text = delta_text
         @delta_color = delta_color
+        @icon = icon
+      end
+
+      def call
+        render Ui::MetricCardComponent.new(
+          title: label,
+          value: value,
+          icon: icon,
+          trend: trend_data
+        )
       end
 
       private
 
-      attr_reader :label, :value, :delta_text, :delta_color
+      attr_reader :label, :value, :delta_text, :delta_color, :icon
 
-      def delta_classes
-        case delta_color.to_s
-        when 'green' then 'text-sm text-green-600'
-        when 'red' then 'text-sm text-red-600'
-        when 'blue' then 'text-sm text-blue-600'
-        else 'text-sm text-slate-500'
-        end
+      def trend_data
+        return unless delta_text.present?
+
+        direction = { 'green' => :up, 'red' => :down }.fetch(delta_color.to_s, :neutral)
+
+        { value: delta_text, direction: direction }
       end
     end
   end
