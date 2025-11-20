@@ -1,23 +1,7 @@
 <% content_for :title, "Sign In" %>
 
-<div class="fixed inset-0 flex items-center justify-center bg-white px-4 md:static md:min-h-screen md:bg-gray-50 md:py-12">
-  <div class="w-full p-6 md:max-w-md md:w-full md:bg-white md:shadow-lg md:rounded-2xl md:p-8">
-    <h2 class="text-center text-3xl font-extrabold text-indigo-600 mb-6">Iniciar Sesión</h2>
-    <%= form_with url: session_path, scope: :session, method: :post, html: { class: "space-y-6" }, data: { turbo_action: "replace" } do |f| %>
-      <div class="rounded-md shadow-sm -space-y-px">
-        <div>
-          <%= f.label :email, class: "sr-only" %>
-          <%= f.email_field :email, autofocus: true, autocomplete: "email", placeholder: "Correo electrónico", class: "appearance-none rounded-t-md relative block w-full px-3 py-2 border border-gray-300 placeholder-gray-500 text-gray-900 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 focus:z-10 sm:text-sm" %>
-        </div>
-        <div>
-          <%= f.label :password, class: "sr-only" %>
-          <%= f.password_field :password, autocomplete: "current-password", placeholder: "Contraseña", class: "appearance-none rounded-b-md relative block w-full px-3 py-2 border border-gray-300 placeholder-gray-500 text-gray-900 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 focus:z-10 sm:text-sm" %>
-        </div>
-      </div>
-
-      <div>
-        <%= f.submit "Iniciar Sesión", class: "w-full flex justify-center py-2 px-4 border border-transparent rounded-[14px] shadow-sm text-sm font-semibold text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500" %>
-      </div>
-    <% end %>
-  </div>
-</div>
+<turbo-frame id="login_modal">
+  <%= render Ui::ModalComponent.new(title: "Iniciar Sesión", subtitle: "Ingresá a tu cuenta", size: :sm) do %>
+    <%= render "login_form" %>
+  <% end %>
+</turbo-frame>

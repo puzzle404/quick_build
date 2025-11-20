@@ -2,6 +2,7 @@
 
 class Ui::ModalComponent < ViewComponent::Base
   PANEL_WIDTH = {
+    sm: "max-w-md",
     md: "max-w-3xl",
     lg: "max-w-4xl",
     xl: "max-w-5xl"

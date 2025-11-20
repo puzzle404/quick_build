@@ -1,18 +1,18 @@
 # frozen_string_literal: true
 
 class Ui::ButtonComponent < ViewComponent::Base
-  BASE_CLASSES = "inline-flex items-center justify-center gap-2 font-semibold rounded transition focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2"
+  BASE_CLASSES = "inline-flex items-center justify-center gap-2 font-medium rounded-lg transition-all duration-200 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 disabled:opacity-50 disabled:pointer-events-none"
   SIZE_CLASSES = {
-    sm: "px-3 py-1 text-xs",
-    md: "px-5 py-2 text-sm",
+    sm: "px-3 py-1.5 text-xs",
+    md: "px-4 py-2 text-sm",
     lg: "px-6 py-3 text-base"
   }.freeze
 
   VARIANT_CLASSES = {
-    primary:   "bg-indigo-600 text-white shadow-sm hover:bg-indigo-700 focus-visible:outline-indigo-500",
-    secondary: "border border-slate-200 bg-white text-slate-700 hover:border-slate-300 hover:text-slate-900 focus-visible:outline-indigo-500",
-    danger:    "border border-rose-200 bg-white text-rose-600 hover:border-rose-400 hover:text-rose-700 focus-visible:outline-rose-500",
-    link:      "bg-transparent text-indigo-600 shadow-none hover:text-indigo-700 focus-visible:outline-indigo-500"
+    primary:   "bg-indigo-600 text-white shadow-sm hover:bg-indigo-500 hover:shadow focus-visible:outline-indigo-600 active:bg-indigo-700",
+    secondary: "bg-white text-slate-700 ring-1 ring-inset ring-slate-300 hover:bg-slate-50 hover:text-slate-900 focus-visible:outline-slate-600",
+    danger:    "bg-white text-rose-600 ring-1 ring-inset ring-rose-200 hover:bg-rose-50 hover:text-rose-700 focus-visible:outline-rose-600",
+    link:      "bg-transparent text-indigo-600 hover:text-indigo-500 underline-offset-4 hover:underline focus-visible:outline-indigo-600"
   }.freeze
 
   # Params:
