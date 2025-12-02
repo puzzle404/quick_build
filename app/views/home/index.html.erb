@@ -65,6 +65,95 @@
         ) %>
   </div>
 
+  <!-- Contact Section -->
+  <div id="contacto" class="bg-slate-950 text-white">
+    <div class="mx-auto max-w-4xl px-6 py-16 lg:py-20">
+      <div class="text-center space-y-2">
+        <p class="text-xs font-semibold uppercase tracking-[0.28em] text-indigo-300">Contacto</p>
+        <h2 class="text-3xl font-bold sm:text-4xl">Dejanos tu mensaje</h2>
+        <p class="text-base text-slate-300 sm:text-lg">Respondemos en menos de 24 hs. También podés escribir a <%= mail_to "cmanuferrer@gmail.com", "cmanuferrer@gmail.com", class: "font-semibold text-indigo-200 underline decoration-2" %>.</p>
+      </div>
+
+      <div class="mt-10 overflow-hidden rounded-xl border border-slate-800 bg-gradient-to-br from-slate-900 via-slate-900 to-slate-800 shadow-2xl ring-1 ring-white/5">
+        <div class="grid gap-0 md:grid-cols-[1.05fr_1.1fr]">
+          <div class="relative p-8 sm:p-9">
+            <div class="absolute inset-0 bg-[radial-gradient(circle_at_20%_20%,rgba(99,102,241,0.12),transparent_35%),radial-gradient(circle_at_80%_0%,rgba(14,165,233,0.12),transparent_28%)]"></div>
+            <div class="relative space-y-4">
+              <p class="text-sm font-semibold text-indigo-200">Contacto directo</p>
+              <p class="text-2xl font-semibold text-white leading-snug">Coordinemos una demo o contanos qué necesitás.</p>
+              <div class="space-y-3 text-sm text-slate-200">
+                <div class="flex items-center gap-3 rounded-lg border border-white/10 bg-white/5 px-4 py-3">
+                  <div class="flex h-9 w-9 items-center justify-center rounded-full bg-white/10 text-indigo-200">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor"><path d="M2.003 5.884L10 10.882l7.997-4.998A2 2 0 0016.8 4H3.2a2 2 0 00-1.197.684z"/><path d="M18 8.118l-8 5-8-5V14a2 2 0 002 2h12a2 2 0 002-2V8.118z"/></svg>
+                  </div>
+                  <div>
+                    <p class="text-xs uppercase tracking-[0.12em] text-indigo-200">Email</p>
+                    <p class="text-base font-semibold text-white">cmanuferrer@gmail.com</p>
+                    <%= mail_to "cmanuferrer@gmail.com", "Escribir ahora", class: "text-xs font-semibold text-indigo-200 hover:text-white" %>
+                  </div>
+                </div>
+                <div class="flex items-center gap-3 rounded-lg border border-white/10 bg-white/5 px-4 py-3">
+                  <div class="flex h-9 w-9 items-center justify-center rounded-full bg-white/10 text-emerald-200">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 32 32" fill="currentColor"><path d="M16 4a11.93 11.93 0 00-6.153 1.722A12.02 12.02 0 004 16.002c0 1.996.49 3.949 1.419 5.685L4 28l6.515-1.368A11.915 11.915 0 0016 28a12.02 12.02 0 0010.278-6.153A11.93 11.93 0 0028 16a12.02 12.02 0 00-6.153-10.278A11.93 11.93 0 0016 4zm0 2c2.214 0 4.304.648 6.108 1.876A10.02 10.02 0 0126 16c0 1.592-.38 3.16-1.11 4.571l-.235.46.457 1.744-1.77-.36-.455-.092-.414.246A10.041 10.041 0 0116 26a9.9 9.9 0 01-4.882-1.262l-.414-.246-.456.092-2.858.6.605-2.636.1-.435-.216-.397A9.9 9.9 0 016 16c0-1.833.497-3.62 1.438-5.18A10.02 10.02 0 0116 6zm-3.57 4.5a.79.79 0 00-.785.426c-.126.237-.446 1.073-.516 1.307-.067.233-.113.504.07.823.183.32.275.52.553.9.277.38.873 1.24 2.083 2.005 1.441.9 2.008.98 2.388.86.38-.12 1.175-.477 1.34-.937.163-.46.163-.853.114-.935-.05-.083-.183-.133-.38-.233l-.98-.467c-.13-.06-.237-.098-.333-.093-.096.005-.187.06-.264.166-.077.107-.302.364-.37.437-.07.07-.143.08-.263.02-.12-.06-.995-.368-1.896-1.17-.703-.628-1.177-1.403-1.315-1.633-.138-.23-.015-.335.052-.39.066-.055.15-.143.227-.214.076-.07.1-.12.152-.198.05-.08.028-.147-.007-.214-.036-.066-.855-2.05-1.176-2.793-.087-.202-.178-.21-.26-.214z"/></svg>
+                  </div>
+                  <div>
+                    <p class="text-xs uppercase tracking-[0.12em] text-emerald-200">WhatsApp</p>
+                    <p class="text-base font-semibold text-white">+54 9 261 383 1194</p>
+                    <% whatsapp_link = "https://wa.me/5492613831194?text=#{ERB::Util.url_encode('¡Hola! Quiero conocer más sobre Quick Build.')}" %>
+                    <%= link_to "Chatear ahora", whatsapp_link, class: "text-xs font-semibold text-emerald-200 hover:text-white", target: "_blank", rel: "noopener" %>
+                  </div>
+                </div>
+              </div>
+              <p class="text-xs text-slate-300">Atendemos de lunes a viernes, 9 a 18 hs (GMT-3).</p>
+            </div>
+          </div>
+
+          <div class="bg-white p-8 sm:p-9">
+            <% if @contact_message&.errors&.any? %>
+              <div class="mb-5 rounded-lg border border-rose-200 bg-rose-50 p-3.5 text-sm text-rose-700">
+                <p class="font-semibold">Revisá los campos destacados.</p>
+                <ul class="mt-2 list-disc space-y-1 pl-5">
+                  <% @contact_message.errors.full_messages.each do |error| %>
+                    <li><%= error %></li>
+                  <% end %>
+                </ul>
+              </div>
+            <% end %>
+
+            <%= form_with model: @contact_message, url: contacts_path, html: { class: "space-y-4" } do |form| %>
+              <div class="grid gap-4 sm:grid-cols-2">
+                <div>
+                  <%= form.label :name, "Nombre completo", class: "block text-sm font-medium text-slate-700" %>
+                  <%= form.text_field :name, required: true, class: "mt-2 block w-full rounded-md border border-slate-200 px-3 py-2 text-slate-900 shadow-sm focus:border-indigo-500 focus:outline-none focus:ring-2 focus:ring-indigo-500" %>
+                </div>
+                <div>
+                  <%= form.label :email, "Email", class: "block text-sm font-medium text-slate-700" %>
+                  <%= form.email_field :email, required: true, class: "mt-2 block w-full rounded-md border border-slate-200 px-3 py-2 text-slate-900 shadow-sm focus:border-indigo-500 focus:outline-none focus:ring-2 focus:ring-indigo-500" %>
+                </div>
+                <div>
+                  <%= form.label :phone, "WhatsApp o teléfono", class: "block text-sm font-medium text-slate-700" %>
+                  <%= form.telephone_field :phone, placeholder: "+54 9 ...", class: "mt-2 block w-full rounded-md border border-slate-200 px-3 py-2 text-slate-900 shadow-sm focus:border-indigo-500 focus:outline-none focus:ring-2 focus:ring-indigo-500" %>
+                </div>
+                <div>
+                  <%= form.label :company, "Empresa (opcional)", class: "block text-sm font-medium text-slate-700" %>
+                  <%= form.text_field :company, class: "mt-2 block w-full rounded-md border border-slate-200 px-3 py-2 text-slate-900 shadow-sm focus:border-indigo-500 focus:outline-none focus:ring-2 focus:ring-indigo-500" %>
+                </div>
+              </div>
+              <div>
+                <%= form.label :message, "Tu mensaje", class: "block text-sm font-medium text-slate-700" %>
+                <%= form.text_area :message, rows: 4, required: true, class: "mt-2 block w-full rounded-md border border-slate-200 px-3 py-2 text-slate-900 shadow-sm focus:border-indigo-500 focus:outline-none focus:ring-2 focus:ring-indigo-500" %>
+              </div>
+              <div class="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+                <p class="text-xs text-slate-500">Tu mensaje llega directo a <strong>cmanuferrer@gmail.com</strong> y a WhatsApp si dejás tu número.</p>
+                <%= form.submit "Enviar mensaje", class: "inline-flex justify-center rounded-md bg-indigo-600 px-4 py-2 text-sm font-semibold text-white shadow-sm transition hover:-translate-y-0.5 hover:bg-indigo-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600" %>
+              </div>
+            <% end %>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
   <!-- CTA Section -->
   <div class="bg-white">
     <div class="mx-auto max-w-7xl py-24 sm:px-6 sm:py-32 lg:px-8">
@@ -94,6 +183,14 @@
   </div>
 
   <%= render Layout::FooterComponent.new %>
+  
+  <% whatsapp_link = "https://wa.me/5492613831194?text=#{ERB::Util.url_encode('¡Hola! Quiero conocer más sobre Quick Build.')}" %>
+  <%= link_to whatsapp_link, class: "fixed bottom-6 right-6 z-50 inline-flex items-center gap-3 rounded-full bg-emerald-500 px-4 py-3 text-sm font-semibold text-white shadow-lg shadow-emerald-500/30 transition hover:scale-105 hover:bg-emerald-600", target: "_blank", rel: "noopener", aria: { label: "Chatear por WhatsApp" } do %>
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32" fill="currentColor" class="h-5 w-5">
+      <path d="M16 4a11.93 11.93 0 00-6.153 1.722A12.02 12.02 0 004 16.002c0 1.996.49 3.949 1.419 5.685L4 28l6.515-1.368A11.915 11.915 0 0016 28a12.02 12.02 0 0010.278-6.153A11.93 11.93 0 0028 16a12.02 12.02 0 00-6.153-10.278A11.93 11.93 0 0016 4zm0 2c2.214 0 4.304.648 6.108 1.876A10.02 10.02 0 0126 16c0 1.592-.38 3.16-1.11 4.571l-.235.46.457 1.744-1.77-.36-.455-.092-.414.246A10.041 10.041 0 0116 26a9.9 9.9 0 01-4.882-1.262l-.414-.246-.456.092-2.858.6.605-2.636.1-.435-.216-.397A9.9 9.9 0 016 16c0-1.833.497-3.62 1.438-5.18A10.02 10.02 0 0116 6zm-3.57 4.5a.79.79 0 00-.785.426c-.126.237-.446 1.073-.516 1.307-.067.233-.113.504.07.823.183.32.275.52.553.9.277.38.873 1.24 2.083 2.005 1.441.9 2.008.98 2.388.86.38-.12 1.175-.477 1.34-.937.163-.46.163-.853.114-.935-.05-.083-.183-.133-.38-.233l-.98-.467c-.13-.06-.237-.098-.333-.093-.096.005-.187.06-.264.166-.077.107-.302.364-.37.437-.07.07-.143.08-.263.02-.12-.06-.995-.368-1.896-1.17-.703-.628-1.177-1.403-1.315-1.633-.138-.23-.015-.335.052-.39.066-.055.15-.143.227-.214.076-.07.1-.12.152-.198.05-.08.028-.147-.007-.214-.036-.066-.855-2.05-1.176-2.793-.087-.202-.178-.21-.26-.214z"/>
+    </svg>
+    <span class="hidden sm:inline">Chatear por WhatsApp</span>
+  <% end %>
   
   <!-- Login Modal -->
   <turbo-frame id="login_modal">

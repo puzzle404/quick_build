@@ -3,9 +3,14 @@
 Rails.application.routes.draw do
   mount MissionControl::Jobs::Engine => "/jobs"
 
+  if Rails.env.development?
+    mount LetterOpenerWeb::Engine, at: "/letter_opener"
+  end
+
   # Home público
   root to: "home#index"
 
+  resources :contacts, only: :create
   resource :registration, only: %i[new create]
   resource :session, only: %i[new create destroy]
 

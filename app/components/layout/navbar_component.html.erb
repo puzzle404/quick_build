@@ -27,7 +27,7 @@
       <% else %>
         <a href="#features" class="text-sm font-semibold leading-6 text-slate-900 hover:text-indigo-600">Características</a>
         <a href="#" class="text-sm font-semibold leading-6 text-slate-900 hover:text-indigo-600">Precios</a>
-        <a href="#" class="text-sm font-semibold leading-6 text-slate-900 hover:text-indigo-600">Contacto</a>
+        <%= link_to "Contacto", root_path(anchor: "contacto"), class: "text-sm font-semibold leading-6 text-slate-900 hover:text-indigo-600" %>
       <% end %>
     </div>
     <div class="hidden lg:flex lg:flex-1 lg:justify-end lg:gap-x-4">
@@ -95,7 +95,7 @@
             <% else %>
               <a href="#features" class="-mx-3 block rounded-lg px-3 py-2 text-base font-semibold leading-7 text-slate-900 hover:bg-slate-50">Características</a>
               <a href="#" class="-mx-3 block rounded-lg px-3 py-2 text-base font-semibold leading-7 text-slate-900 hover:bg-slate-50">Precios</a>
-              <a href="#" class="-mx-3 block rounded-lg px-3 py-2 text-base font-semibold leading-7 text-slate-900 hover:bg-slate-50">Contacto</a>
+              <%= link_to "Contacto", root_path(anchor: "contacto"), class: "-mx-3 block rounded-lg px-3 py-2 text-base font-semibold leading-7 text-slate-900 hover:bg-slate-50" %>
             <% end %>
           </div>
           <div class="py-6 space-y-2">
@@ -114,5 +114,4 @@
     </div>
   </div>
 </header>
-
 

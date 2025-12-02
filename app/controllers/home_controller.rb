@@ -7,6 +7,7 @@ class HomeController < ApplicationController
     # Forzar la reanudación de sesión para usuarios autenticados
     # (necesario porque allow_unauthenticated_access skip el before_action)
     resume_session
+    @contact_message = ContactMessage.new
     
     # Si el usuario está autenticado, dirigirlo a su dashboard correspondiente
     if current_user
