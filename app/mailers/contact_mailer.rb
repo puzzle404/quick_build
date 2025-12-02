@@ -1,7 +1,7 @@
 # frozen_string_literal: true
 
 class ContactMailer < ApplicationMailer
-  CONTACT_EMAIL = ENV.fetch("CONTACT_FORM_EMAIL", "test-68zxl2708om4j905.mlsender.net")
+  CONTACT_EMAIL = ENV.fetch("CONTACT_FORM_EMAIL", "no-reply@test-68zxl2708om4j905.mlsender.net")
   default to: CONTACT_EMAIL, from: ENV.fetch("CONTACT_FORM_SENDER", "no-reply@quickbuild.com"), template_path: "mailer/contact"
 
   def new_request
