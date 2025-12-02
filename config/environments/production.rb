@@ -52,19 +52,19 @@ Rails.application.configure do
   # Replace the default in-process and non-durable queuing backend for Active Job.
   config.active_job.queue_adapter = :solid_queue
 
-  # Mailer (SendGrid)
+  # Mailer (MailerSend SMTP)
   config.action_mailer.raise_delivery_errors = true
   config.action_mailer.perform_deliveries = true
   config.action_mailer.default_url_options = {
-    host: ENV.fetch("MAILER_HOST", ENV.fetch("APP_HOST", "example.com")),
+    host: ENV.fetch("MAILER_HOST", ENV.fetch("APP_HOST", "quick-build-aeb805c3d9c1.herokuapp.com/")),
     protocol: "https"
   }
   config.action_mailer.asset_host = ENV.fetch("MAILER_ASSET_HOST", "https://#{config.action_mailer.default_url_options[:host]}")
   config.action_mailer.delivery_method = :smtp
   config.action_mailer.smtp_settings = {
-    user_name: ENV.fetch("SENDGRID_USERNAME", "apikey"),
-    password: ENV.fetch("SENDGRID_API_KEY"),
-    address: "smtp.sendgrid.net",
+    user_name: ENV.fetch("MAILERSEND_USERNAME"),
+    password: ENV.fetch("MAILERSEND_PASSWORD"),
+    address: "smtp.mailersend.net",
     port: 587,
     domain: ENV.fetch("MAILER_DOMAIN", config.action_mailer.default_url_options[:host]),
     authentication: :plain,
