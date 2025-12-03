@@ -53,6 +53,10 @@ Rails.application.routes.draw do
         patch :toggle_publication, on: :member
         resources :material_items, only: [:create, :destroy], module: :material_lists
       end
+      resources :blueprints, only: [:index, :new, :create, :show, :destroy], module: :projects do
+        patch :update_scale, on: :member
+        patch :update_measurements, on: :member
+      end
     end
   end
 

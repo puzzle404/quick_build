@@ -19,6 +19,12 @@ class Constructors::Projects::SectionsNavComponent < ViewComponent::Base
         path: helpers.constructors_project_material_lists_path(@project)
       },
       {
+        key: :blueprints,
+        name: "Planos",
+        description: "Medición y cálculo de materiales",
+        path: helpers.constructors_project_blueprints_path(@project)
+      },
+      {
         key: :people,
         name: "Recursos humanos",
         description: "Roles y disponibilidad",

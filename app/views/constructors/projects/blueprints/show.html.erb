@@ -1,0 +1,170 @@
+<%= render Constructors::Projects::SectionsNavComponent.new(project: @project, current_section: :blueprints) %>
+
+<div class="mt-6 space-y-4">
+  <!-- Header -->
+  <div class="flex items-center justify-between">
+    <div>
+      <h1 class="text-2xl font-bold text-slate-900"><%= @blueprint.name %></h1>
+      <% if @blueprint.description.present? %>
+        <p class="mt-1 text-sm text-slate-600"><%= @blueprint.description %></p>
+      <% end %>
+    </div>
+    <%= link_to constructors_project_blueprints_path(@project), class: "inline-flex items-center gap-2 rounded-lg border border-slate-300 bg-white px-4 py-2 text-sm font-medium text-slate-700 hover:bg-slate-50" do %>
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" class="h-4 w-4">
+        <path d="M20 11H7.83l5.59-5.59L12 4l-8 8 8 8 1.41-1.41L7.83 13H20v-2z"/>
+      </svg>
+      Volver a planos
+    <% end %>
+  </div>
+
+  <!-- Canvas Viewer -->
+  <div class="rounded-3xl border border-slate-200 bg-white shadow-sm overflow-hidden"
+       data-controller="blueprint-viewer"
+       data-blueprint-viewer-image-url-value="<%= url_for(@blueprint.file) %>"
+       data-blueprint-viewer-blueprint-id-value="<%= @blueprint.id %>"
+       data-blueprint-viewer-project-id-value="<%= @project.id %>"
+       data-blueprint-viewer-scale-ratio-value="<%= @blueprint.scale_ratio || 0 %>"
+       data-blueprint-viewer-measurements-value="<%= (@blueprint.measurements['items'] || []).to_json %>">
+    <!-- Toolbar -->
+    <div class="border-b border-slate-200 bg-slate-50 px-4 py-3">
+      <div class="flex items-center justify-between">
+        <div class="flex items-center gap-2">
+          <span class="text-sm font-medium text-slate-700">Herramientas:</span>
+          <div class="flex gap-1" data-blueprint-viewer-target="toolbar">
+            <button type="button" 
+                    data-action="click->blueprint-viewer#zoomIn"
+                    class="rounded-lg border border-slate-300 bg-white px-3 py-1.5 text-sm font-medium text-slate-700 hover:bg-slate-50"
+                    title="Zoom in">
+              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" class="h-4 w-4">
+                <path d="M15.5 14h-.79l-.28-.27A6.471 6.471 0 0 0 16 9.5 6.5 6.5 0 1 0 9.5 16c1.61 0 3.09-.59 4.23-1.57l.27.28v.79l5 4.99L20.49 19l-4.99-5zm-6 0C7.01 14 5 11.99 5 9.5S7.01 5 9.5 5 14 7.01 14 9.5 11.99 14 9.5 14z"/>
+                <path d="M12 10h-2v2H9v-2H7V9h2V7h1v2h2v1z"/>
+              </svg>
+            </button>
+            <button type="button" 
+                    data-action="click->blueprint-viewer#zoomOut"
+                    class="rounded-lg border border-slate-300 bg-white px-3 py-1.5 text-sm font-medium text-slate-700 hover:bg-slate-50"
+                    title="Zoom out">
+              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" class="h-4 w-4">
+                <path d="M15.5 14h-.79l-.28-.27A6.471 6.471 0 0 0 16 9.5 6.5 6.5 0 1 0 9.5 16c1.61 0 3.09-.59 4.23-1.57l.27.28v.79l5 4.99L20.49 19l-4.99-5zm-6 0C7.01 14 5 11.99 5 9.5S7.01 5 9.5 5 14 7.01 14 9.5 11.99 14 9.5 14z"/>
+                <path d="M7 9h5v1H7z"/>
+              </svg>
+            </button>
+            <button type="button" 
+                    data-action="click->blueprint-viewer#resetView"
+                    class="rounded-lg border border-slate-300 bg-white px-3 py-1.5 text-sm font-medium text-slate-700 hover:bg-slate-50"
+                    title="Resetear vista">
+              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" class="h-4 w-4">
+                <path d="M12 5V1L7 6l5 5V7c3.31 0 6 2.69 6 6s-2.69 6-6 6-6-2.69-6-6H4c0 4.42 3.58 8 8 8s8-3.58 8-8-3.58-8-8-8z"/>
+              </svg>
+            </button>
+            <div class="mx-2 h-6 w-px bg-slate-300"></div>
+            <button type="button" 
+                    data-action="click->blueprint-viewer#toggleScaleTool"
+                    data-blueprint-viewer-target="scaleButton"
+                    class="rounded-lg border border-slate-300 bg-white px-3 py-1.5 text-sm font-medium text-slate-700 hover:bg-slate-50 data-[active]:bg-indigo-50 data-[active]:border-indigo-500 data-[active]:text-indigo-700"
+                    title="Definir escala">
+              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" class="h-4 w-4">
+                <path d="M3 17v2h6v-2H3zM3 5v2h10V5H3zm10 16v-2h8v-2h-8v-2h-2v6h2zM7 9v2H3v2h4v2h2V9H7zm14 4v-2H11v2h10zm-6-4h2V7h4V5h-4V3h-2v6z"/>
+              </svg>
+              <span data-blueprint-viewer-target="scaleButtonText">Definir escala</span>
+            </button>
+            <div class="mx-2 h-6 w-px bg-slate-300"></div>
+            
+            <!-- Measurement Tools -->
+            <button type="button" 
+                    data-action="click->blueprint-viewer#setTool"
+                    data-tool="line"
+                    data-blueprint-viewer-target="toolButton"
+                    class="rounded-lg border border-slate-300 bg-white px-3 py-1.5 text-sm font-medium text-slate-700 hover:bg-slate-50 data-[active]:bg-indigo-50 data-[active]:border-indigo-500 data-[active]:text-indigo-700"
+                    title="Medir línea">
+              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" class="h-4 w-4">
+                <path d="M3 17.25V21h3.75L17.81 9.94l-3.75-3.75L3 17.25zM20.71 7.04c.39-.39.39-1.02 0-1.41l-2.34-2.34c-.39-.39-1.02-.39-1.41 0l-1.83 1.83 3.75 3.75 1.83-1.83z"/>
+              </svg>
+            </button>
+            <button type="button" 
+                    data-action="click->blueprint-viewer#setTool"
+                    data-tool="polygon"
+                    data-blueprint-viewer-target="toolButton"
+                    class="rounded-lg border border-slate-300 bg-white px-3 py-1.5 text-sm font-medium text-slate-700 hover:bg-slate-50 data-[active]:bg-indigo-50 data-[active]:border-indigo-500 data-[active]:text-indigo-700"
+                    title="Medir área">
+              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" class="h-4 w-4">
+                <path d="M17 15.7V13c0-2.21-1.79-4-4-4-1.58 0-2.9.96-3.56 2.33l-2.92-2.92 1.41-1.41-1.41-1.41-4.24 4.24 4.24 4.24 1.41-1.41-1.41-1.41 2.92 2.92C8.55 15.53 8 16.7 8 18c0 2.21 1.79 4 4 4 2.21 0 4-1.79 4-4v-2.3l4.9-4.9-1.41-1.41L17 15.7z"/>
+              </svg>
+            </button>
+            <button type="button" 
+                    data-action="click->blueprint-viewer#setTool"
+                    data-tool="marker"
+                    data-blueprint-viewer-target="toolButton"
+                    class="rounded-lg border border-slate-300 bg-white px-3 py-1.5 text-sm font-medium text-slate-700 hover:bg-slate-50 data-[active]:bg-indigo-50 data-[active]:border-indigo-500 data-[active]:text-indigo-700"
+                    title="Marcador">
+              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" class="h-4 w-4">
+                <path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7zm0 9.5c-1.38 0-2.5-1.12-2.5-2.5s1.12-2.5 2.5-2.5 2.5 1.12 2.5 2.5-1.12 2.5-2.5 2.5z"/>
+              </svg>
+            </button>
+        </div>
+        <div class="flex items-center gap-4">
+          <div class="text-sm text-slate-600">
+            <span data-blueprint-viewer-target="scaleIndicator">
+              <% if @blueprint.scale_ratio.present? %>
+                Escala: 1:<%= number_with_precision(@blueprint.scale_ratio, precision: 0) %>
+              <% else %>
+                Sin escala definida
+              <% end %>
+            </span>
+          </div>
+          <div class="text-sm text-slate-600">
+            <span data-blueprint-viewer-target="zoomLevel">100%</span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Main Content with Sidebar -->
+    <div class="flex h-[calc(100vh-300px)] min-h-[500px]">
+      <!-- Canvas Container -->
+      <div class="relative flex-1 bg-slate-100 overflow-hidden">
+        <div class="h-full w-full overflow-hidden cursor-grab active:cursor-grabbing"
+             data-blueprint-viewer-target="container">
+          <canvas 
+            data-blueprint-viewer-target="canvas"
+            class="block"
+            style="image-rendering: crisp-edges;">
+          </canvas>
+        </div>
+      </div>
+
+      <!-- Sidebar -->
+      <div class="w-80 border-l border-slate-200 bg-white flex flex-col">
+        <div class="p-4 border-b border-slate-200 bg-slate-50 flex justify-between items-center">
+          <h3 class="font-medium text-slate-900">Mediciones</h3>
+          <button type="button" 
+                  data-action="click->blueprint-viewer#saveMeasurements"
+                  class="text-xs font-medium text-indigo-600 hover:text-indigo-700">
+            Guardar
+          </button>
+        </div>
+        <div class="flex-1 overflow-y-auto p-4 space-y-3" data-blueprint-viewer-target="measurementsList">
+          <!-- Measurements will be inserted here -->
+          <div class="text-center text-sm text-slate-500 py-8">
+            No hay mediciones aún
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Info Footer -->
+    <div class="border-t border-slate-200 bg-slate-50 px-4 py-3">
+      <div class="flex items-center justify-between text-xs text-slate-600">
+        <div>
+          <span class="font-medium">Archivo:</span> <%= @blueprint.file_name %>
+        </div>
+        <div>
+          <span class="font-medium">Tamaño:</span> <%= number_to_human_size(@blueprint.file_byte_size) if @blueprint.file_byte_size %>
+        </div>
+        <div>
+          <span class="font-medium">Subido:</span> <%= time_ago_in_words(@blueprint.uploaded_at) %> atrás
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
