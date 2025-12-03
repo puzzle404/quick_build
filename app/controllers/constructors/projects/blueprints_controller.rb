@@ -27,6 +27,7 @@ class Constructors::Projects::BlueprintsController < Constructors::BaseControlle
 
   def show
     authorize @project, :show?
+    @construction_items = ConstructionItem.all.select(:id, :name, :unit, :category).group_by(&:category)
   end
 
   def update_scale
@@ -82,6 +83,6 @@ class Constructors::Projects::BlueprintsController < Constructors::BaseControlle
   end
 
   def measurements_params
-    params.require(:blueprint).permit(measurements: { items: [:id, :type, :value, :unit, :label, point: [:x, :y], points: [:x, :y]] })
+    params.require(:blueprint).permit(measurements: { groups: [:id, :name, :construction_item_id, :type, :color, :total_value, :unit, elements: [:id, :value, point: [:x, :y], points: [:x, :y]]] })
   end
 end

@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.0].define(version: 2025_12_02_235716) do
+ActiveRecord::Schema[8.0].define(version: 2025_12_03_033346) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
 
@@ -73,6 +73,25 @@ ActiveRecord::Schema[8.0].define(version: 2025_12_02_235716) do
     t.string "phone"
     t.index ["email"], name: "index_companies_on_email", unique: true
     t.index ["reset_password_token"], name: "index_companies_on_reset_password_token", unique: true
+  end
+
+  create_table "construction_item_materials", force: :cascade do |t|
+    t.bigint "construction_item_id", null: false
+    t.bigint "material_id", null: false
+    t.decimal "quantity", precision: 10, scale: 4
+    t.decimal "waste_factor", default: "1.0"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["construction_item_id"], name: "index_construction_item_materials_on_construction_item_id"
+    t.index ["material_id"], name: "index_construction_item_materials_on_material_id"
+  end
+
+  create_table "construction_items", force: :cascade do |t|
+    t.string "name", null: false
+    t.string "unit", null: false
+    t.string "category"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
   end
 
   create_table "documents", force: :cascade do |t|
@@ -143,6 +162,14 @@ ActiveRecord::Schema[8.0].define(version: 2025_12_02_235716) do
     t.index ["project_id", "status"], name: "index_material_lists_on_project_id_and_status"
     t.index ["project_id"], name: "index_material_lists_on_project_id"
     t.index ["project_stage_id"], name: "index_material_lists_on_project_stage_id"
+  end
+
+  create_table "materials", force: :cascade do |t|
+    t.string "name", null: false
+    t.string "unit", null: false
+    t.decimal "price", precision: 10, scale: 2
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
   end
 
   create_table "orders", force: :cascade do |t|
@@ -383,6 +410,8 @@ ActiveRecord::Schema[8.0].define(version: 2025_12_02_235716) do
   add_foreign_key "active_storage_attachments", "active_storage_blobs", column: "blob_id"
   add_foreign_key "active_storage_variant_records", "active_storage_blobs", column: "blob_id"
   add_foreign_key "blueprints", "projects"
+  add_foreign_key "construction_item_materials", "construction_items"
+  add_foreign_key "construction_item_materials", "materials"
   add_foreign_key "line_items", "orders"
   add_foreign_key "line_items", "products"
   add_foreign_key "material_items", "material_lists"
