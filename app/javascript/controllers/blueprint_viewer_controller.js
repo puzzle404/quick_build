@@ -5,7 +5,9 @@ export default class extends Controller {
         "canvas", "container", "zoomLevel",
         "scaleButton", "scaleButtonText", "scaleIndicator",
         "toolButton", "measurementsList",
-        "materialModal", "materialList"
+        "materialModal", "materialList",
+        "manualScaleModal", "manualScalePixels", "manualScaleRatio",
+        "saveStatus"
     ]
 
     static values = {
@@ -36,6 +38,13 @@ export default class extends Controller {
             points: [],
             currentPoint: null
         }
+
+        // Auto-save setup
+        this.saveTimeout = null
+        this.isSaving = false
+
+        // Hover state for segment highlighting
+        this.hoveredSegment = null
 
         this.setupCanvas()
         this.loadImage()
@@ -387,6 +396,7 @@ export default class extends Controller {
             this.recalculateGroupTotal(this.currentGroup)
             this.renderMeasurementsList()
             this.draw()
+            this.autoSave()
         }
     }
 
@@ -426,23 +436,27 @@ export default class extends Controller {
         const opacity = isCurrent ? 1 : 0.6
 
         group.elements.forEach(el => {
+            const isHovered = this.hoveredSegment &&
+                this.hoveredSegment.groupId === group.id &&
+                this.hoveredSegment.segmentId === el.id
+
             if (group.type === 'line') {
-                this.ctx.strokeStyle = color
-                this.ctx.lineWidth = (isCurrent ? 4 : 2) / this.scale
-                this.ctx.globalAlpha = opacity
+                this.ctx.strokeStyle = isHovered ? '#ef4444' : color
+                this.ctx.lineWidth = (isHovered ? 6 : (isCurrent ? 4 : 2)) / this.scale
+                this.ctx.globalAlpha = isHovered ? 1 : opacity
                 this.ctx.beginPath()
                 this.ctx.moveTo(el.points[0].x, el.points[0].y)
                 this.ctx.lineTo(el.points[1].x, el.points[1].y)
                 this.ctx.stroke()
 
-                if (isCurrent) {
-                    this.drawMeasurementLabel(el.points[0], el.points[1], `${el.value.toFixed(2)}m`, color)
+                if (isCurrent || isHovered) {
+                    this.drawMeasurementLabel(el.points[0], el.points[1], `${el.value.toFixed(2)}m`, isHovered ? '#ef4444' : color)
                 }
 
             } else if (group.type === 'polygon') {
-                this.ctx.fillStyle = this.hexToRgba(color, 0.2)
-                this.ctx.strokeStyle = color
-                this.ctx.lineWidth = (isCurrent ? 3 : 1) / this.scale
+                this.ctx.fillStyle = this.hexToRgba(isHovered ? '#ef4444' : color, isHovered ? 0.3 : 0.2)
+                this.ctx.strokeStyle = isHovered ? '#ef4444' : color
+                this.ctx.lineWidth = (isHovered ? 5 : (isCurrent ? 3 : 1)) / this.scale
                 this.ctx.beginPath()
                 el.points.forEach((p, i) => {
                     if (i === 0) this.ctx.moveTo(p.x, p.y)
@@ -452,16 +466,16 @@ export default class extends Controller {
                 this.ctx.fill()
                 this.ctx.stroke()
 
-                if (isCurrent) {
+                if (isCurrent || isHovered) {
                     const center = this.getPolygonCenter(el.points)
-                    this.drawText(center, `${el.value.toFixed(2)}m²`, color)
+                    this.drawText(center, `${el.value.toFixed(2)}m²`, isHovered ? '#ef4444' : color)
                 }
 
             } else if (group.type === 'marker') {
                 const p = el.points[0] || el.point
-                this.ctx.fillStyle = color
+                this.ctx.fillStyle = isHovered ? '#ef4444' : color
                 this.ctx.beginPath()
-                this.ctx.arc(p.x, p.y, (isCurrent ? 8 : 5) / this.scale, 0, Math.PI * 2)
+                this.ctx.arc(p.x, p.y, (isHovered ? 10 : (isCurrent ? 8 : 5)) / this.scale, 0, Math.PI * 2)
                 this.ctx.fill()
                 this.ctx.strokeStyle = 'white'
                 this.ctx.lineWidth = 2 / this.scale
@@ -484,30 +498,64 @@ export default class extends Controller {
             const isCurrent = this.currentGroup && this.currentGroup.id === g.id
             const activeClass = isCurrent ? 'ring-2 ring-indigo-500 bg-indigo-50' : 'bg-slate-50 hover:bg-slate-100'
 
-            return `
-      <div class="p-3 rounded-lg border border-slate-200 cursor-pointer transition-all ${activeClass}"
-           data-action="click->blueprint-viewer#selectGroup"
-           data-id="${g.id}">
-        <div class="flex items-center justify-between mb-1">
-          <div class="flex items-center gap-2">
-            <div class="w-3 h-3 rounded-full" style="background-color: ${g.color}"></div>
-            <div class="text-sm font-medium text-slate-900">${g.name}</div>
-          </div>
+            // Render individual segments
+            const segmentsHtml = g.elements.map((el, idx) => `
+        <div class="flex items-center justify-between py-1 px-2 hover:bg-indigo-50 rounded cursor-pointer"
+             data-action="mouseenter->blueprint-viewer#highlightSegment mouseleave->blueprint-viewer#unhighlightSegment"
+             data-group-id="${g.id}"
+             data-segment-id="${el.id}">
+          <span class="text-xs text-slate-600">Tramo ${idx + 1}: ${el.value.toFixed(2)} ${g.unit}</span>
           <button type="button" 
-                  data-action="click->blueprint-viewer#deleteGroup" 
-                  data-id="${g.id}"
-                  class="text-slate-400 hover:text-red-500 p-1">
-            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" class="w-4 h-4">
+                  data-action="click->blueprint-viewer#deleteSegment" 
+                  data-group-id="${g.id}"
+                  data-segment-id="${el.id}"
+                  class="text-slate-400 hover:text-red-500 p-0.5">
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" class="w-3 h-3">
               <path fill-rule="evenodd" d="M8.75 1A2.75 2.75 0 006 3.75v.443c-.795.077-1.584.176-2.365.298a.75.75 0 10.23 1.482l.149-.022.841 10.518A2.75 2.75 0 007.596 19h4.807a2.75 2.75 0 002.742-2.53l.841-10.52.149.023a.75.75 0 00.23-1.482A41.03 41.03 0 0014 4.193V3.75A2.75 2.75 0 0011.25 1h-2.5zM10 4c.84 0 1.673.025 2.5.075V3.75c0-.69-.56-1.25-1.25-1.25h-2.5c-.69 0-1.25.56-1.25 1.25v.325C8.327 4.025 9.16 4 10 4zM8.58 7.72a.75.75 0 00-1.5.06l.3 7.5a.75.75 0 101.5-.06l-.3-7.5zm4.34.06a.75.75 0 10-1.5-.06l-.3 7.5a.75.75 0 001.5.06l.3-7.5z" clip-rule="evenodd" />
             </svg>
           </button>
         </div>
-        <div class="flex justify-between text-xs text-slate-500 pl-5">
-          <span>${g.elements.length} tramos</span>
-          <span class="font-semibold text-slate-700">${g.total_value.toFixed(2)} ${g.unit}</span>
+      `).join('')
+
+            return `
+        <div class="rounded-lg border border-slate-200 transition-all ${activeClass}">
+          <div class="p-3 cursor-pointer"
+               data-action="click->blueprint-viewer#selectGroup"
+               data-id="${g.id}">
+            <div class="flex items-center justify-between mb-1">
+              <div class="flex items-center gap-2">
+                <div class="w-3 h-3 rounded-full" style="background-color: ${g.color}"></div>
+                <div class="text-sm font-medium text-slate-900">${g.name}</div>
+              </div>
+              <div class="flex items-center gap-1">
+                <button type="button" 
+                        data-action="click->blueprint-viewer#toggleGroupExpand" 
+                        data-id="${g.id}"
+                        class="text-slate-400 hover:text-slate-600 p-1">
+                  <span class="expand-icon text-xs">▸</span>
+                </button>
+                <button type="button" 
+                        data-action="click->blueprint-viewer#deleteGroup" 
+                        data-id="${g.id}"
+                        class="text-slate-400 hover:text-red-500 p-1">
+                  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" class="w-4 h-4">
+                    <path fill-rule="evenodd" d="M8.75 1A2.75 2.75 0 006 3.75v.443c-.795.077-1.584.176-2.365.298a.75.75 0 10.23 1.482l.149-.022.841 10.518A2.75 2.75 0 007.596 19h4.807a2.75 2.75 0 002.742-2.53l.841-10.52.149.023a.75.75 0 00.23-1.482A41.03 41.03 0 0014 4.193V3.75A2.75 2.75 0 0011.25 1h-2.5zM10 4c.84 0 1.673.025 2.5.075V3.75c0-.69-.56-1.25-1.25-1.25h-2.5c-.69 0-1.25.56-1.25 1.25v.325C8.327 4.025 9.16 4 10 4zM8.58 7.72a.75.75 0 00-1.5.06l.3 7.5a.75.75 0 101.5-.06l-.3-7.5zm4.34.06a.75.75 0 10-1.5-.06l-.3 7.5a.75.75 0 001.5.06l.3-7.5z" clip-rule="evenodd" />
+                  </svg>
+                </button>
+              </div>
+            </div>
+            <div class="flex justify-between text-xs text-slate-500 pl-5">
+              <span>${g.elements.length} tramos</span>
+              <span class="font-semibold text-slate-700">${g.total_value.toFixed(2)} ${g.unit}</span>
+            </div>
+          </div>
+          <!-- Expandable segments list -->
+          <div class="group-segments hidden border-t border-slate-200 px-3 pb-2 pt-1 space-y-1">
+            ${segmentsHtml}
+          </div>
         </div>
-      </div>
-    `}).join('')
+      `
+        }).join('')
     }
 
     deleteGroup(e) {
@@ -521,10 +569,68 @@ export default class extends Controller {
         }
         this.renderMeasurementsList()
         this.draw()
+        this.autoSave()
     }
 
-    async saveMeasurements() {
+    deleteSegment(e) {
+        e.stopPropagation()
+        const groupId = e.currentTarget.dataset.groupId
+        const segmentId = e.currentTarget.dataset.segmentId
+
+        const group = this.groups.find(g => g.id === groupId)
+        if (!group) return
+
+        group.elements = group.elements.filter(el => el.id !== segmentId)
+
+        // Si el grupo queda vacío, eliminarlo
+        if (group.elements.length === 0) {
+            this.groups = this.groups.filter(g => g.id !== groupId)
+            if (this.currentGroup && this.currentGroup.id === groupId) {
+                this.resetToPan()
+            }
+        } else {
+            // Recalcular total
+            this.recalculateGroupTotal(group)
+        }
+
+        this.renderMeasurementsList()
+        this.draw()
+        this.autoSave()
+    }
+
+    toggleGroupExpand(e) {
+        e.stopPropagation()
+        const groupId = e.currentTarget.dataset.id
+
+        // Find the segments div (next sibling of parent's parent)
+        const groupCard = e.currentTarget.closest('.rounded-lg')
+        const segmentsDiv = groupCard.querySelector('.group-segments')
+
+        if (segmentsDiv) {
+            segmentsDiv.classList.toggle('hidden')
+            const icon = e.currentTarget.querySelector('.expand-icon')
+            if (icon) {
+                icon.textContent = segmentsDiv.classList.contains('hidden') ? '▸' : '▾'
+            }
+        }
+    }
+
+    highlightSegment(e) {
+        const groupId = e.currentTarget.dataset.groupId
+        const segmentId = e.currentTarget.dataset.segmentId
+
+        this.hoveredSegment = { groupId, segmentId }
+        this.draw()
+    }
+
+    unhighlightSegment() {
+        this.hoveredSegment = null
+        this.draw()
+    }
+
+    async saveMeasurements(silent = false) {
         try {
+            this.isSaving = true
             const response = await fetch(
                 `/constructors/projects/${this.projectIdValue}/blueprints/${this.blueprintIdValue}/update_measurements`,
                 {
@@ -541,13 +647,24 @@ export default class extends Controller {
 
             const data = await response.json()
             if (data.success) {
-                alert('Mediciones guardadas correctamente')
+                this.updateSaveStatus('saved')
+                if (!silent) {
+                    alert('Mediciones guardadas correctamente')
+                }
             } else {
-                alert('Error al guardar: ' + data.errors.join(', '))
+                this.updateSaveStatus('error')
+                if (!silent) {
+                    alert('Error al guardar: ' + data.errors.join(', '))
+                }
             }
         } catch (error) {
             console.error('Error:', error)
-            alert('Error al guardar las mediciones')
+            this.updateSaveStatus('error')
+            if (!silent) {
+                alert('Error al guardar las mediciones')
+            }
+        } finally {
+            this.isSaving = false
         }
     }
 
@@ -758,4 +875,100 @@ export default class extends Controller {
     zoomOut() { this.zoomAtPoint(this.canvas.width / 2, this.canvas.height / 2, 0.8) }
     resetView() { this.fitImageToCanvas(); this.draw() }
     showError() { }
+
+    // Auto-save with debounce
+    autoSave() {
+        if (this.saveTimeout) {
+            clearTimeout(this.saveTimeout)
+        }
+
+        this.updateSaveStatus('saving')
+
+        this.saveTimeout = setTimeout(() => {
+            this.saveMeasurements(true)
+        }, 2000)
+    }
+
+    updateSaveStatus(status) {
+        if (!this.hasSaveStatusTarget) return
+
+        const statusSpan = this.saveStatusTarget.querySelector('span')
+
+        if (status === 'saving') {
+            statusSpan.textContent = 'Guardando...'
+            this.saveStatusTarget.classList.remove('text-slate-500', 'text-green-600', 'text-red-600')
+            this.saveStatusTarget.classList.add('text-blue-600')
+        } else if (status === 'saved') {
+            statusSpan.textContent = 'Guardado ✓'
+            this.saveStatusTarget.classList.remove('text-blue-600', 'text-red-600')
+            this.saveStatusTarget.classList.add('text-green-600')
+        } else if (status === 'error') {
+            statusSpan.textContent = 'Error al guardar'
+            this.saveStatusTarget.classList.remove('text-blue-600', 'text-green-600')
+            this.saveStatusTarget.classList.add('text-red-600')
+        }
+    }
+
+    // Manual Scale Input
+    toggleManualScaleInput() {
+        this.manualScaleModalTarget.classList.remove('hidden')
+    }
+
+    closeManualScaleModal() {
+        this.manualScaleModalTarget.classList.add('hidden')
+        if (this.hasManualScalePixelsTarget) this.manualScalePixelsTarget.value = ''
+        if (this.hasManualScaleRatioTarget) this.manualScaleRatioTarget.value = ''
+    }
+
+    applyManualScale() {
+        const pixelsValue = parseFloat(this.manualScalePixelsTarget.value)
+        const ratioValue = parseFloat(this.manualScaleRatioTarget.value)
+
+        let scaleRatio = 0
+
+        if (pixelsValue && pixelsValue > 0) {
+            // Opción 1: Píxeles por metro
+            scaleRatio = pixelsValue
+        } else if (ratioValue && ratioValue > 0) {
+            // Opción 2: Escala 1:X
+            // Necesitamos convertir: si escala es 1:100, significa que 1 unidad = 100 unidades reales
+            // Asumimos que el plano tiene una resolución típica, por ejemplo 100 px = 1m en escala 1:100
+            // Esto es una aproximación - idealmente necesitaríamos el DPI del plano
+            scaleRatio = ratioValue
+        } else {
+            alert('Por favor ingresá un valor válido en uno de los campos')
+            return
+        }
+
+        this.saveScaleValue(scaleRatio)
+    }
+
+    async saveScaleValue(scaleRatio) {
+        try {
+            const response = await fetch(
+                `/constructors/projects/${this.projectIdValue}/blueprints/${this.blueprintIdValue}/update_scale`,
+                {
+                    method: 'PATCH',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'X-CSRF-Token': document.querySelector('[name="csrf-token"]').content
+                    },
+                    body: JSON.stringify({ blueprint: { scale_ratio: scaleRatio } })
+                }
+            )
+
+            const data = await response.json()
+            if (data.success) {
+                this.scaleRatioValue = scaleRatio
+                this.updateScaleIndicator(scaleRatio)
+                this.closeManualScaleModal()
+                alert('Escala definida correctamente')
+            } else {
+                alert('Error: ' + data.errors.join(', '))
+            }
+        } catch (error) {
+            console.error('Error:', error)
+            alert('Error al guardar la escala')
+        }
+    }
 }
