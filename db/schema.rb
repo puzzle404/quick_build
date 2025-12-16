@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.0].define(version: 2025_12_03_033346) do
+ActiveRecord::Schema[8.0].define(version: 2025_12_05_214343) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
 
@@ -40,6 +40,19 @@ ActiveRecord::Schema[8.0].define(version: 2025_12_03_033346) do
     t.bigint "blob_id", null: false
     t.string "variation_digest", null: false
     t.index ["blob_id", "variation_digest"], name: "index_active_storage_variant_records_uniqueness", unique: true
+  end
+
+  create_table "ai_blueprint_analyses", force: :cascade do |t|
+    t.bigint "blueprint_id", null: false
+    t.string "status", default: "queued", null: false
+    t.jsonb "raw_response"
+    t.jsonb "suggested_measurements"
+    t.datetime "applied_at"
+    t.text "error_message"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["blueprint_id"], name: "index_ai_blueprint_analyses_on_blueprint_id"
+    t.index ["status"], name: "index_ai_blueprint_analyses_on_status"
   end
 
   create_table "blueprints", force: :cascade do |t|
@@ -409,6 +422,7 @@ ActiveRecord::Schema[8.0].define(version: 2025_12_03_033346) do
 
   add_foreign_key "active_storage_attachments", "active_storage_blobs", column: "blob_id"
   add_foreign_key "active_storage_variant_records", "active_storage_blobs", column: "blob_id"
+  add_foreign_key "ai_blueprint_analyses", "blueprints"
   add_foreign_key "blueprints", "projects"
   add_foreign_key "construction_item_materials", "construction_items"
   add_foreign_key "construction_item_materials", "materials"

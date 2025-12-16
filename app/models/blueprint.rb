@@ -1,5 +1,6 @@
 class Blueprint < ApplicationRecord
   belongs_to :project
+  has_many :ai_blueprint_analyses, dependent: :destroy
   
   has_one_attached :file
   

@@ -23,6 +23,11 @@ module QuickBuild
     #
     # config.time_zone = "Central Time (US & Canada)"
     # config.eager_load_paths << Rails.root.join("extras")
+    
+    # Add app/ai to load paths for AI integration
+    config.autoload_paths << Rails.root.join("app/ai")
+    config.eager_load_paths << Rails.root.join("app/ai")
+    
     config.active_job.queue_adapter = :solid_queue
   end
 end

@@ -83,3 +83,4 @@ gem 'factory_bot_rails', group: [:development, :test]
 gem 'faker'
 gem "mission_control-jobs"
 gem "cloudinary"
+gem "ruby-openai"        # OpenAI API client for AI blueprint analysis

@@ -56,6 +56,10 @@ Rails.application.routes.draw do
       resources :blueprints, only: [:index, :new, :create, :show, :destroy], module: :projects do
         patch :update_scale, on: :member
         patch :update_measurements, on: :member
+        
+        resources :ai_analyses, only: [:index, :create, :show, :destroy], module: :blueprints do
+          post :apply, on: :member
+        end
       end
     end
   end

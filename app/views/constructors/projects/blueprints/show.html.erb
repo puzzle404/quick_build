@@ -108,6 +108,31 @@
                 <path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7zm0 9.5c-1.38 0-2.5-1.12-2.5-2.5s1.12-2.5 2.5-2.5 2.5 1.12 2.5 2.5-1.12 2.5-2.5 2.5z"/>
               </svg>
             </button>
+            
+            <div class="mx-2 h-6 w-px bg-slate-300"></div>
+            
+            <!-- AI Analysis Button -->
+            <%= button_to constructors_project_blueprint_ai_analyses_path(@project, @blueprint), 
+                          method: :post,
+                          class: "rounded-lg border border-purple-300 bg-purple-50 px-3 py-1.5 text-sm font-medium text-purple-700 hover:bg-purple-100 flex items-center gap-2",
+                          title: "Analizar plano con IA",
+                          data: { turbo: false } do %>
+              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" class="h-4 w-4">
+                <path d="M16.5 7.5h-9v9h9v-9z"/>
+                <path fill-rule="evenodd" d="M8.25 2.75A.75.75 0 019 2h6a.75.75 0 010 1.5H9a.75.75 0 01-.75-.75zm-3 9a.75.75 0 01.75-.75h12a.75.75 0 010 1.5H6a.75.75 0 01-.75-.75zM3 15.75a.75.75 0 01.75-.75h16.5a.75.75 0 010 1.5H3.75a.75.75 0 01-.75-.75z" clip-rule="evenodd"/>
+              </svg>
+              IA
+            <% end %>
+            
+            <%= link_to constructors_project_blueprint_ai_analyses_path(@project, @blueprint),
+                        class: "rounded-lg border border-slate-300 bg-white px-3 py-1.5 text-sm font-medium text-slate-700 hover:bg-slate-50 flex items-center gap-2",
+                        title: "Ver historial de análisis IA" do %>
+              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" class="h-4 w-4">
+                <path fill-rule="evenodd" d="M1 4.75C1 3.784 1.784 3 2.75 3h14.5c.966 0 1.75.784 1.75 1.75v10.5A1.75 1.75 0 0117.25 17H2.75A1.75 1.75 0 011 15.25V4.75zm16.5 0a.25.25 0 00-.25-.25H2.75a.25.25 0 00-.25.25v10.5c0 .138.112.25.25.25h14.5a.25.25 0 00.25-.25V4.75z" clip-rule="evenodd"/>
+                <path d="M4.75 7a.75.75 0 000 1.5h6.5a.75.75 0 000-1.5h-6.5zm0 3a.75.75 0 000 1.5h3.5a.75.75 0 000-1.5h-3.5z"/>
+              </svg>
+              Historial
+            <% end %>
         </div>
         <div class="flex items-center gap-4">
           <div class="text-sm text-slate-600">

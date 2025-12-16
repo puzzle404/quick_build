@@ -1,0 +1,148 @@
+<%
+  # Status helpers
+  status_bg = case @analysis.status
+  when 'completed' then 'bg-green-50 border border-green-200'
+  when 'processing', 'queued' then 'bg-blue-50 border border-blue-200'
+  when 'failed' then 'bg-red-50 border border-red-200'
+  else 'bg-slate-50 border border-slate-200'
+  end
+
+  status_text_color = case @analysis.status
+  when 'completed' then 'text-green-900'
+  when 'processing', 'queued' then 'text-blue-900'
+  when 'failed' then 'text-red-900'
+  else 'text-slate-900'
+  end
+
+  status_icon_html = case @analysis.status
+  when 'completed'
+    '<svg class="h-5 w-5 text-green-600" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"/></svg>'.html_safe
+  when 'processing', 'queued'
+    '<svg class="animate-spin h-5 w-5 text-blue-600" fill="none" viewBox="0 0 24 24"><circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle><path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path></svg>'.html_safe
+  when 'failed'
+    '<svg class="h-5 w-5 text-red-600" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z" clip-rule="evenodd"/></svg>'.html_safe
+  end
+
+  status_text_display = case @analysis.status
+  when 'completed' then 'Análisis completado'
+  when 'processing' then 'Procesando...'
+  when 'queued' then 'En cola...'
+  when 'failed' then 'Error en el análisis'
+  else @analysis.status.titleize
+  end
+%>
+
+<div class="container mx-auto px-4 py-8">
+  <div class="max-w-4xl mx-auto">
+    <!-- Header -->
+    <div class="mb-6">
+      <%= link_to "← Volver al plano", constructors_project_blueprint_path(@project, @blueprint), class: "text-indigo-600 hover:text-indigo-700 text-sm font-medium" %>
+      <h1 class="mt-4 text-2xl font-bold text-slate-900">Resultados del Análisis IA</h1>
+      <p class="mt-1 text-sm text-slate-600">
+        Revisá las mediciones sugeridas por la IA y seleccioná cuáles querés aplicar
+      </p>
+    </div>
+
+    <!-- Status -->
+    <div class="mb-6 p-4 rounded-lg <%= status_bg %>">
+      <div class="flex items-center gap-2">
+        <%= status_icon_html %>
+        <span class="font-medium <%= status_text_color %>"><%= status_text_display %></span>
+      </div>
+      <% if @analysis.failed? && @analysis.error_message.present? %>
+        <p class="mt-2 text-sm text-red-600"><%= @analysis.error_message %></p>
+      <% end %>
+    </div>
+
+    <% if @analysis.completed? %>
+      <!-- Results Form -->
+      <%= form_with url: apply_constructors_project_blueprint_ai_analysis_path(@project, @blueprint, @analysis), 
+                    method: :post, 
+                    local: true do |f| %>
+        
+        <!-- Suggested Measurements List -->
+        <div class="bg-white rounded-lg border border-slate-200 shadow-sm overflow-hidden">
+          <div class="px-4 py-3 bg-slate-50 border-b border-slate-200">
+            <h2 class="font-medium text-slate-900">
+              <%= pluralize(@analysis.suggested_count, 'elemento detectado') %>
+            </h2>
+          </div>
+
+          <div class="divide-y divide-slate-200">
+            <% elements = @analysis.suggested_measurements['elements'] || [] %>
+            <% elements.each_with_index do |element, index| %>
+              <%
+                confidence = element['confidence'].to_i
+                confidence_badge = if confidence >= 80
+                  "bg-green-100 text-green-800"
+                elsif confidence >= 60
+                  "bg-yellow-100 text-yellow-800"
+                else
+                  "bg-red-100 text-red-800"
+                end
+              %>
+              <div class="p-4 hover:bg-slate-50 transition-colors">
+                <label class="flex items-start gap-3 cursor-pointer">
+                  <%= check_box_tag "selected_indices[]", index, true, 
+                                    class: "mt-1 rounded border-slate-300 text-indigo-600 focus:ring-indigo-500" %>
+                  
+                  <div class="flex-1">
+                    <div class="flex items-center gap-2">
+                      <span class="font-medium text-slate-900"><%= element['construction_item'] %></span>
+                      <span class="inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-slate-100 text-slate-800">
+                        <%= element['type'] == 'line' ? 'Línea' : element['type'] == 'polygon' ? 'Área' : 'Punto' %>
+                      </span>
+                      <span class="inline-flex items-center px-2 py-0.5 rounded text-xs font-medium <%= confidence_badge %>">
+                        <%= confidence %>% confianza
+                      </span>
+                    </div>
+                    
+                    <div class="mt-1 text-sm text-slate-600">
+                      <span class="font-semibold text-slate-900">
+                        <%= number_with_precision(element['estimated_value'], precision: 2) %> <%= element['unit'] %>
+                      </span>
+                      <% if element['description'].present? %>
+                        — <%= element['description'] %>
+                      <% end %>
+                    </div>
+                  </div>
+                </label>
+              </div>
+            <% end %>
+          </div>
+        </div>
+
+        <!-- Notes Section -->
+        <% if @analysis.suggested_measurements['general_notes'].present? %>
+          <div class="mt-4 p-4 bg-blue-50 border border-blue-200 rounded-lg">
+            <h3 class="text-sm font-medium text-blue-900 mb-1">Notas del análisis</h3>
+            <p class="text-sm text-blue-700"><%= @analysis.suggested_measurements['general_notes'] %></p>
+          </div>
+        <% end %>
+
+        <!-- Actions -->
+        <div class="mt-6 flex gap-3">
+          <%= f.submit "Aplicar Seleccionados", 
+                       class: "px-4 py-2 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 font-medium" %>
+          <%= link_to "Cancelar", constructors_project_blueprint_path(@project, @blueprint), 
+                      class: "px-4 py-2 border border-slate-300 text-slate-700 rounded-lg hover:bg-slate-50 font-medium" %>
+        </div>
+      <% end %>
+    <% elsif @analysis.processing? || @analysis.status == 'queued' %>
+      <!-- Loading State -->
+      <div class="text-center py-12">
+        <div class="inline-flex items-center gap-3">
+          <svg class="animate-spin h-8 w-8 text-indigo-600" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+            <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+            <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+          </svg>
+          <span class="text-lg text-slate-700">Analizando plano...</span>
+        </div>
+        <p class="mt-4 text-sm text-slate-500">Esto puede tomar entre 10-30 segundos</p>
+        <script>
+          setTimeout(() => window.location.reload(), 5000);
+        </script>
+      </div>
+    <% end %>
+  </div>
+</div>
