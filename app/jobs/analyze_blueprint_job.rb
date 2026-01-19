@@ -1,11 +1,3 @@
-# Explicit requires for AI classes (workaround for autoload issues)
-require_relative '../ai/client'
-require_relative '../ai/prompts/base'
-require_relative '../ai/prompts/blueprint_analyzer'
-require_relative '../ai/parsers/measurement_parser'
-require_relative '../ai/services/vision_processor'
-require_relative '../ai/services/blueprint_analyzer'
-
 class AnalyzeBlueprintJob < ApplicationJob
   queue_as :default
   
