@@ -1,0 +1,52 @@
+<%= render Constructors::Projects::SectionsNavComponent.new(project: @project, current_section: :blueprints) %>
+
+<div class="mt-6 space-y-6">
+  <%= render Ui::SectionHeaderComponent.new(title: 'Subir plano', subtitle: 'Cargá un plano arquitectónico en formato JPG o PNG') %>
+
+  <section class="rounded-3xl border border-slate-200 bg-white p-6 shadow-sm">
+    <%= form_with model: @blueprint, url: constructors_project_blueprints_path(@project), html: { multipart: true, class: "space-y-6" } do |f| %>
+      
+      <% if @blueprint.errors.any? %>
+        <div class="rounded-lg border border-red-200 bg-red-50 p-4">
+          <h3 class="text-sm font-medium text-red-800">Hay <%= pluralize(@blueprint.errors.count, "error") %> que impiden guardar el plano:</h3>
+          <ul class="mt-2 list-inside list-disc text-sm text-red-700">
+            <% @blueprint.errors.full_messages.each do |message| %>
+              <li><%= message %></li>
+            <% end %>
+          </ul>
+        </div>
+      <% end %>
+
+      <div>
+        <%= f.label :name, "Nombre del plano", class: "block text-sm font-medium text-slate-700" %>
+        <%= f.text_field :name, 
+              placeholder: "Ej: Planta baja - Arquitectura", 
+              class: "mt-1 block w-full rounded-lg border border-slate-300 px-3 py-2 text-sm focus:border-indigo-500 focus:outline-none focus:ring-1 focus:ring-indigo-500" %>
+      </div>
+
+      <div>
+        <%= f.label :description, "Descripción (opcional)", class: "block text-sm font-medium text-slate-700" %>
+        <%= f.text_area :description, 
+              rows: 3,
+              placeholder: "Ej: Plano de arquitectura con distribución de ambientes", 
+              class: "mt-1 block w-full rounded-lg border border-slate-300 px-3 py-2 text-sm focus:border-indigo-500 focus:outline-none focus:ring-1 focus:ring-indigo-500" %>
+      </div>
+
+      <div>
+        <%= f.label :file, "Archivo del plano", class: "block text-sm font-medium text-slate-700" %>
+        <div class="mt-1">
+          <%= f.file_field :file, 
+                accept: "image/jpeg,image/png,image/jpg",
+                direct_upload: true,
+                class: "block w-full text-sm text-slate-500 file:mr-4 file:rounded-lg file:border-0 file:bg-indigo-50 file:px-4 file:py-2 file:text-sm file:font-medium file:text-indigo-700 hover:file:bg-indigo-100" %>
+        </div>
+        <p class="mt-2 text-xs text-slate-500">Formatos aceptados: JPG, PNG. Tamaño máximo: 10MB</p>
+      </div>
+
+      <div class="flex gap-3">
+        <%= f.submit "Subir plano", class: "inline-flex items-center gap-2 rounded-lg bg-indigo-600 px-4 py-2 text-sm font-medium text-white hover:bg-indigo-700" %>
+        <%= link_to "Cancelar", constructors_project_blueprints_path(@project), class: "inline-flex items-center gap-2 rounded-lg border border-slate-300 bg-white px-4 py-2 text-sm font-medium text-slate-700 hover:bg-slate-50" %>
+      </div>
+    <% end %>
+  </section>
+</div>

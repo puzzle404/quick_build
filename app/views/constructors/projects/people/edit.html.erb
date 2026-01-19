@@ -1,0 +1,6 @@
+<%= render Constructors::Projects::SectionsNavComponent.new(project: @project, current_section: :people) %>
+
+<div class="mt-6 max-w-3xl space-y-6">
+  <%= render Ui::SectionHeaderComponent.new(title: 'Editar persona', subtitle: 'Actualizá la información del trabajador.') %>
+  <%= render Constructors::Projects::People::PersonFormComponent.new(project: @project, person: @person) %>
+</div>

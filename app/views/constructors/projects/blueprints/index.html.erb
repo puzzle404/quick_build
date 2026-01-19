@@ -1,0 +1,58 @@
+<%= render Constructors::Projects::SectionsNavComponent.new(project: @project, current_section: :blueprints) %>
+
+<div class="mt-6 space-y-6">
+  <%= render Ui::SectionHeaderComponent.new(title: 'Planos del proyecto', subtitle: 'Planos arquitectónicos para medición y cálculo de materiales') %>
+
+  <section class="rounded-3xl border border-slate-200 bg-white p-6 shadow-sm">
+    <div class="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+      <h2 class="text-lg font-semibold text-slate-900">Planos</h2>
+      <%= link_to new_constructors_project_blueprint_path(@project), class: "inline-flex items-center gap-2 rounded-lg bg-indigo-600 px-4 py-2 text-sm font-medium text-white hover:bg-indigo-700" do %>
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" class="h-5 w-5">
+          <path d="M12 4v16m8-8H4" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+        </svg>
+        Subir plano
+      <% end %>
+    </div>
+
+    <% if @blueprints.any? %>
+      <div class="mt-6 grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+        <% @blueprints.each do |blueprint| %>
+          <div class="group relative overflow-hidden rounded-xl border border-slate-200 bg-white shadow-sm transition hover:shadow-md">
+            <%= link_to constructors_project_blueprint_path(@project, blueprint), class: "block" do %>
+              <div class="aspect-video overflow-hidden bg-slate-100">
+                <%= image_tag blueprint.file, class: "h-full w-full object-cover" %>
+              </div>
+              <div class="p-4">
+                <h3 class="font-semibold text-slate-900 group-hover:text-indigo-600"><%= blueprint.name %></h3>
+                <% if blueprint.description.present? %>
+                  <p class="mt-1 text-sm text-slate-600 line-clamp-2"><%= blueprint.description %></p>
+                <% end %>
+                <p class="mt-2 text-xs text-slate-500">
+                  Subido <%= time_ago_in_words(blueprint.uploaded_at) %> atrás
+                </p>
+              </div>
+            <% end %>
+            <div class="absolute right-2 top-2">
+              <%= button_to constructors_project_blueprint_path(@project, blueprint), 
+                    method: :delete, 
+                    class: "rounded-lg bg-white/90 p-2 text-red-600 opacity-0 shadow-sm transition hover:bg-red-50 group-hover:opacity-100", 
+                    data: { turbo_confirm: '¿Seguro que querés eliminar este plano?' } do %>
+                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" class="h-4 w-4">
+                  <path d="M6 19c0 1.1.9 2 2 2h8c1.1 0 2-.9 2-2V7H6v12zM19 4h-3.5l-1-1h-5l-1 1H5v2h14V4z"/>
+                </svg>
+              <% end %>
+            </div>
+          </div>
+        <% end %>
+      </div>
+    <% else %>
+      <div class="mt-6 text-center">
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" class="mx-auto h-12 w-12 text-slate-300">
+          <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8l-6-6zm4 18H6V4h7v5h5v11z"/>
+        </svg>
+        <p class="mt-4 text-sm text-slate-500">Aún no se cargaron planos.</p>
+        <p class="mt-1 text-xs text-slate-400">Subí planos arquitectónicos para comenzar a medir y calcular materiales.</p>
+      </div>
+    <% end %>
+  </section>
+</div>

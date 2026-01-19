@@ -1,0 +1,130 @@
+<%# Premium Chart Section with visual flair %>
+<section class="relative overflow-hidden rounded-2xl bg-gradient-to-br from-slate-50 via-white to-emerald-50/20 shadow-lg shadow-emerald-500/5 ring-1 ring-slate-200/80">
+  <%# Decorative orbs %>
+  <div class="pointer-events-none absolute -left-20 -top-20 h-40 w-40 rounded-full bg-gradient-to-br from-emerald-400/10 to-teal-400/10 blur-3xl"></div>
+  <div class="pointer-events-none absolute -right-10 bottom-0 h-32 w-32 rounded-full bg-gradient-to-br from-sky-400/10 to-indigo-400/10 blur-2xl"></div>
+  
+  <%# Header %>
+  <header class="relative flex flex-wrap items-center justify-between gap-4 border-b border-slate-100/80 p-5">
+    <div class="flex items-center gap-3">
+      <span class="flex h-10 w-10 items-center justify-center rounded-xl bg-gradient-to-br from-emerald-500 to-teal-600 shadow-lg shadow-emerald-500/30">
+        <svg class="h-5 w-5 text-white" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor">
+          <path stroke-linecap="round" stroke-linejoin="round" d="M3 13.125C3 12.504 3.504 12 4.125 12h2.25c.621 0 1.125.504 1.125 1.125v6.75C7.5 20.496 6.996 21 6.375 21h-2.25A1.125 1.125 0 013 19.875v-6.75zM9.75 8.625c0-.621.504-1.125 1.125-1.125h2.25c.621 0 1.125.504 1.125 1.125v11.25c0 .621-.504 1.125-1.125 1.125h-2.25a1.125 1.125 0 01-1.125-1.125V8.625zM16.5 4.125c0-.621.504-1.125 1.125-1.125h2.25C20.496 3 21 3.504 21 4.125v15.75c0 .621-.504 1.125-1.125 1.125h-2.25a1.125 1.125 0 01-1.125-1.125V4.125z" />
+        </svg>
+      </span>
+      <div>
+        <h2 class="text-base font-bold text-slate-900">Evolución de Obras</h2>
+        <p class="text-xs text-slate-500">Últimos <%= selected_months %> meses de actividad</p>
+      </div>
+    </div>
+    <div data-controller="time-range" 
+         data-time-range-url-value="<%= helpers.constructors_evolution_chart_path %>"
+         data-time-range-frame-value="evolution-chart">
+      <select class="rounded-xl border-0 bg-white py-2.5 pl-4 pr-10 text-sm font-semibold text-slate-700 shadow-md shadow-slate-200/50 ring-1 ring-inset ring-slate-200 transition-all hover:shadow-lg hover:ring-slate-300 focus:ring-2 focus:ring-emerald-500"
+              data-action="change->time-range#change">
+        <option value="6" <%= 'selected' if selected_months == 6 %>>📅 Últimos 6 meses</option>
+        <option value="12" <%= 'selected' if selected_months == 12 %>>📆 Este año</option>
+      </select>
+    </div>
+  </header>
+
+  <% if present? %>
+    <% s = evolution[:summary] %>
+    
+    <%# Premium metric cards %>
+    <div class="grid grid-cols-3 gap-px bg-slate-100/50">
+      <%# Etapas completadas %>
+      <div class="group relative bg-white p-4 transition-colors hover:bg-emerald-50/50">
+        <div class="flex items-center gap-3">
+          <div class="flex h-11 w-11 items-center justify-center rounded-xl bg-gradient-to-br from-emerald-100 to-emerald-200 shadow-inner transition-transform group-hover:scale-105">
+            <svg class="h-5 w-5 text-emerald-600" fill="none" viewBox="0 0 24 24" stroke-width="2.5" stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round" d="M4.5 12.75l6 6 9-13.5" />
+            </svg>
+          </div>
+          <div class="min-w-0">
+            <div class="flex items-baseline gap-2">
+              <span class="text-2xl font-black text-slate-900"><%= s[:completed][:current] %></span>
+              <% if s[:completed][:delta_pct] %>
+                <span class="inline-flex items-center gap-0.5 rounded-full px-1.5 py-0.5 text-xs font-bold <%= s[:completed][:delta_pct] >= 0 ? 'bg-emerald-100 text-emerald-700' : 'bg-rose-100 text-rose-700' %>">
+                  <svg class="h-3 w-3 <%= s[:completed][:delta_pct] >= 0 ? '' : 'rotate-180' %>" fill="none" viewBox="0 0 24 24" stroke-width="3" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M4.5 10.5L12 3m0 0l7.5 7.5M12 3v18" />
+                  </svg>
+                  <%= s[:completed][:delta_pct].abs %>%
+                </span>
+              <% end %>
+            </div>
+            <p class="text-xs font-medium text-slate-500">Etapas finalizadas</p>
+          </div>
+        </div>
+      </div>
+      
+      <%# Asistencias %>
+      <div class="group relative bg-white p-4 transition-colors hover:bg-sky-50/50">
+        <div class="flex items-center gap-3">
+          <div class="flex h-11 w-11 items-center justify-center rounded-xl bg-gradient-to-br from-sky-100 to-sky-200 shadow-inner transition-transform group-hover:scale-105">
+            <svg class="h-5 w-5 text-sky-600" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round" d="M15 19.128a9.38 9.38 0 002.625.372 9.337 9.337 0 004.121-.952 4.125 4.125 0 00-7.533-2.493M15 19.128v-.003c0-1.113-.285-2.16-.786-3.07M15 19.128v.106A12.318 12.318 0 018.624 21c-2.331 0-4.512-.645-6.374-1.766l-.001-.109a6.375 6.375 0 0111.964-3.07M12 6.375a3.375 3.375 0 11-6.75 0 3.375 3.375 0 016.75 0zm8.25 2.25a2.625 2.625 0 11-5.25 0 2.625 2.625 0 015.25 0z" />
+            </svg>
+          </div>
+          <div class="min-w-0">
+            <div class="flex items-baseline gap-2">
+              <span class="text-2xl font-black text-slate-900"><%= s[:attendances][:current] %></span>
+              <% if s[:attendances][:delta_pct] %>
+                <span class="inline-flex items-center gap-0.5 rounded-full px-1.5 py-0.5 text-xs font-bold <%= s[:attendances][:delta_pct] >= 0 ? 'bg-emerald-100 text-emerald-700' : 'bg-rose-100 text-rose-700' %>">
+                  <svg class="h-3 w-3 <%= s[:attendances][:delta_pct] >= 0 ? '' : 'rotate-180' %>" fill="none" viewBox="0 0 24 24" stroke-width="3" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M4.5 10.5L12 3m0 0l7.5 7.5M12 3v18" />
+                  </svg>
+                  <%= s[:attendances][:delta_pct].abs %>%
+                </span>
+              <% end %>
+            </div>
+            <p class="text-xs font-medium text-slate-500">Asistencias</p>
+          </div>
+        </div>
+      </div>
+      
+      <%# Costo estimado %>
+      <div class="group relative bg-white p-4 transition-colors hover:bg-amber-50/50">
+        <div class="flex items-center gap-3">
+          <div class="flex h-11 w-11 items-center justify-center rounded-xl bg-gradient-to-br from-amber-100 to-amber-200 shadow-inner transition-transform group-hover:scale-105">
+            <svg class="h-5 w-5 text-amber-600" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round" d="M12 6v12m-3-2.818l.879.659c1.171.879 3.07.879 4.242 0 1.172-.879 1.172-2.303 0-3.182C13.536 12.219 12.768 12 12 12c-.725 0-1.45-.22-2.003-.659-1.106-.879-1.106-2.303 0-3.182s2.9-.879 4.006 0l.415.33M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+            </svg>
+          </div>
+          <div class="min-w-0">
+            <div class="flex items-baseline gap-2">
+              <span class="text-lg font-black text-slate-900"><%= currency(s[:estimated_cents][:current]) %></span>
+              <% if s[:estimated_cents][:delta_pct] %>
+                <span class="inline-flex items-center gap-0.5 rounded-full px-1.5 py-0.5 text-xs font-bold <%= s[:estimated_cents][:delta_pct] >= 0 ? 'bg-emerald-100 text-emerald-700' : 'bg-rose-100 text-rose-700' %>">
+                  <svg class="h-3 w-3 <%= s[:estimated_cents][:delta_pct] >= 0 ? '' : 'rotate-180' %>" fill="none" viewBox="0 0 24 24" stroke-width="3" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M4.5 10.5L12 3m0 0l7.5 7.5M12 3v18" />
+                  </svg>
+                  <%= s[:estimated_cents][:delta_pct].abs %>%
+                </span>
+              <% end %>
+            </div>
+            <p class="text-xs font-medium text-slate-500">Costo estimado</p>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <%# Chart area %>
+    <div class="relative flex-1 p-5">
+      <div class="h-48">
+        <%= render Constructors::Dashboard::TwoLinesChartComponent.new(evolution: evolution) %>
+      </div>
+    </div>
+  <% else %>
+    <%# Empty state %>
+    <div class="flex flex-1 flex-col items-center justify-center py-12 text-center">
+      <div class="flex h-16 w-16 items-center justify-center rounded-2xl bg-gradient-to-br from-slate-100 to-slate-200 shadow-inner">
+        <svg class="h-8 w-8 text-slate-400" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor">
+          <path stroke-linecap="round" stroke-linejoin="round" d="M3 13.125C3 12.504 3.504 12 4.125 12h2.25c.621 0 1.125.504 1.125 1.125v6.75C7.5 20.496 6.996 21 6.375 21h-2.25A1.125 1.125 0 013 19.875v-6.75zM9.75 8.625c0-.621.504-1.125 1.125-1.125h2.25c.621 0 1.125.504 1.125 1.125v11.25c0 .621-.504 1.125-1.125 1.125h-2.25a1.125 1.125 0 01-1.125-1.125V8.625zM16.5 4.125c0-.621.504-1.125 1.125-1.125h2.25C20.496 3 21 3.504 21 4.125v15.75c0 .621-.504 1.125-1.125 1.125h-2.25a1.125 1.125 0 01-1.125-1.125V4.125z" />
+        </svg>
+      </div>
+      <p class="mt-4 text-sm font-bold text-slate-700">Sin datos suficientes</p>
+      <p class="mt-1 text-xs text-slate-500">Los gráficos aparecerán cuando tengas más actividad</p>
+    </div>
+  <% end %>
+</section>

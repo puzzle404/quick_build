@@ -8,7 +8,6 @@ abort("The Rails environment is running in production mode!") if Rails.env.produ
 # that will avoid rails generators crashing because migrations haven't been run yet
 # return unless Rails.env.test?
 require 'rspec/rails'
-
 require 'shoulda/matchers'
 
 Shoulda::Matchers.configure do |config|
@@ -32,7 +31,7 @@ end
 # directory. Alternatively, in the individual `*_spec.rb` files, manually
 # require only the support files necessary.
 #
-# Rails.root.glob('spec/support/**/*.rb').sort_by(&:to_s).each { |f| require f }
+Rails.root.glob('spec/support/**/*.rb').sort_by(&:to_s).each { |f| require f }
 
 # Ensures that the test database schema matches the current schema file.
 # If there are pending migrations it will invoke `db:test:prepare` to
@@ -49,9 +48,8 @@ RSpec.configure do |config|
     Rails.root.join('spec/fixtures')
   ]
 
-  # If you're not using ActiveRecord, or you'd prefer not to run each of your
-  # examples within a transaction, remove the following line or assign false
-  # instead of true.
+  # Use transactions by default for fast, isolated tests.
+  # System specs (Cuprite) handle cleaning via truncation hooks in spec/support.
   config.use_transactional_fixtures = true
 
   # You can uncomment this line to turn off ActiveRecord support entirely.
@@ -79,4 +77,10 @@ RSpec.configure do |config|
   # arbitrary gems may also be filtered via:
   # config.filter_gems_from_backtrace("gem name")
   config.include FactoryBot::Syntax::Methods
+  config.include RequestAuthHelpers, type: :request
+  config.include SystemAuthHelpers, type: :system
+
+  # System specs: rack_test by default; use Cuprite only when js: true.
+  config.before(:each, type: :system) { driven_by :rack_test }
+  config.before(:each, type: :system, js: true) { driven_by :cuprite }
 end

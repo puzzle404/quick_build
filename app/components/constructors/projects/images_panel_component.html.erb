@@ -1,0 +1,38 @@
+<div class="card bg-base-100 shadow-sm w-full">
+  <div class="card-body p-6">
+    <div class="flex items-center justify-between">
+      <h2 class="text-base font-semibold text-slate-900 tracking-tight">Imágenes recientes</h2>
+
+      <%= render Ui::ButtonComponent.new(
+            label: 'Ver todo',
+            path: index_path,
+            variant: :link,
+            size: :sm,
+            class_name: "text-indigo-600 hover:text-indigo-700 font-medium"
+          ) %>
+    </div>
+
+    <% if preview_images.any? %>
+      <div class="mt-4">
+        <div class="carousel rounded-box w-full">
+          <% preview_images.each do |image| %>
+            <div class="carousel-item w-1/2 md:w-1/3 lg:w-1/4">
+              <% if image.file.variable? %>
+                <%= link_to url_for(image.file), target: '_blank' do %>
+                  <%= image_tag image.file.variant(resize_to_fill: [640, 400]), class: "w-full h-40 md:h-44 lg:h-48 object-cover" %>
+                <% end %>
+              <% else %>
+                <div class="flex h-40 w-full items-center justify-center rounded-lg bg-slate-100 text-xs text-slate-500">IMG</div>
+              <% end %>
+            </div>
+          <% end %>
+        </div>
+      </div>
+    <% else %>
+      <div class="mt-5 flex flex-col items-center justify-center gap-2 rounded-2xl border border-dashed border-slate-200 bg-slate-50 py-8 text-center">
+        <p class="text-sm text-slate-600">Todavía no se cargaron imágenes en este proyecto.</p>
+        <%= link_to 'Subir ahora', index_path, class: 'text-sm font-medium text-indigo-600 hover:text-indigo-700' %>
+      </div>
+    <% end %>
+  </div>
+</div>

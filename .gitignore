@@ -35,3 +35,13 @@
 
 /app/assets/builds/*
 !/app/assets/builds/.keep
+/vendor/bundle
+
+# Local environment files
+.env
+.env.*
+!.env.example
+
+/config/credentials/development.key
+
+/config/credentials/production.key

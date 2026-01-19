@@ -19,4 +19,32 @@
     --color-yellow-500: #eab308;
     --color-yellow-600: #ca8a04;
   }
+
+  html {
+    overflow-x: hidden;
+  }
+
+  body {
+    min-height: 100%;
+    width: 100%;
+  }
+}
+
+
+@custom-variant hotwire-native {
+  body[data-hotwire-native] & {
+    @slot;
+  }
+}
+
+@custom-variant not-hotwire-native {
+  body:not([data-hotwire-native]) & {
+    @slot;
+  }
+}
+
+@layer components {
+  .leaflet-container {
+    width: 100% !important;
+  }
 }

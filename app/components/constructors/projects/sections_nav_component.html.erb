@@ -1,0 +1,22 @@
+<nav class="space-y-3 mb-6">
+  <h2 class="text-xs font-semibold uppercase tracking-wide text-slate-500">Secciones de la obra</h2>
+  <div class="flex flex-wrap items-center gap-2">
+    <% sections.each do |section| %>
+      <% icon_html = icon_for(section[:icon]) %>
+      <% label = content_tag(:span, section[:name], class: "whitespace-nowrap") %>
+      <% badge = badge_for(section) %>
+      <% inner = safe_join([icon_html, label, badge].compact, " ") %>
+
+      <% if section[:path].present? %>
+        <%= link_to section[:path], class: nav_item_classes(section), title: section[:description] do %>
+          <%= inner %>
+        <% end %>
+      <% else %>
+        <span class="<%= nav_item_classes(section) %>" title="<%= section[:description] %>">
+          <%= inner %>
+        </span>
+      <% end %>
+    <% end %>
+  </div>
+</nav>
+

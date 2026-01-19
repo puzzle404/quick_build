@@ -1,0 +1,68 @@
+<%= render Constructors::Projects::SectionsNavComponent.new(project: @project, current_section: :documents) %>
+
+<div class="mt-6 space-y-6">
+  <%= render Ui::SectionHeaderComponent.new(title: 'Documentos del proyecto', subtitle: 'Imágenes y PDFs cargados en esta obra') %>
+
+  <%= render Ui::SearchPanelComponent.new(
+        form_action: constructors_project_documents_path(@project),
+        query_param: :q,
+        query_value: @query,
+        placeholder: 'Buscar documentos...',
+        title: 'Buscador de documentos',
+        date_filters: {
+          enabled: true,
+          from_param: :from_date,
+          to_param: :to_date,
+          from_value: @from_date,
+          to_value: @to_date,
+          from_label: 'Subidos desde',
+          to_label: 'Subidos hasta'
+        }
+      ) %>
+
+  <section class="rounded-3xl border border-slate-200 bg-white p-6 shadow-sm">
+    <div class="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+      <h2 class="text-lg font-semibold text-slate-900">Documentos</h2>
+      <%= form_with scope: :document, url: constructors_project_documents_path(@project), html: { multipart: true }, class: "flex items-center gap-3" do |f| %>
+        <div>
+          <%= f.file_field :files, multiple: true, accept: ".pdf,application/pdf", direct_upload: true, class: "text-sm" %>
+        </div>
+        <%= render Ui::ButtonComponent.new(label: 'Subir', type: :submit, size: :sm) %>
+      <% end %>
+    </div>
+
+    <% if @documents.any? %>
+      <ul class="mt-4 space-y-3">
+        <% @documents.each do |document| %>
+          <li class="rounded-xl border border-slate-200 bg-white p-3 text-sm">
+            <div class="flex items-start justify-between gap-3">
+              <div class="flex flex-col gap-1">
+                <div class="flex items-center gap-3">
+                  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" class="h-5 w-5 text-slate-400"><path fill="currentColor" d="M6 2a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8l-6-6zm7 1.5L18.5 9H13zM8 13h8v1.5H8zm0 3h8V18H8z"/></svg>
+                  <span class="truncate" title="<%= document.file_name %>"><%= document.file_name %></span>
+                </div>
+                <p class="text-xs text-slate-500">
+                  Tamaño · <%= number_to_human_size(document.file_byte_size) if document.file_byte_size %>
+                  · Subido <%= time_ago_in_words(document.uploaded_at) %> atrás
+                </p>
+              </div>
+              <div class="flex flex-col items-end gap-2 sm:flex-row sm:items-center">
+                <%= link_to 'Abrir', rails_blob_url(document.file, disposition: 'inline'), target: '_blank', class: 'text-xs font-medium text-slate-600 hover:text-slate-800' %>
+                <%= link_to 'Descargar', url_for(document.file), class: 'text-xs font-medium text-indigo-600 hover:text-indigo-700' %>
+                <%= button_to 'Eliminar', constructors_project_document_path(@project, document), method: :delete, class: 'text-xs font-medium text-red-600 hover:text-red-700', data: { turbo_confirm: '¿Seguro que querés eliminar este documento?' } %>
+              </div>
+            </div>
+            <details class="mt-3">
+              <summary class="cursor-pointer select-none text-xs font-medium text-slate-600 hover:text-slate-800">Previsualizar</summary>
+              <div class="mt-3 overflow-hidden rounded-lg border border-slate-200">
+                <iframe src="<%= rails_storage_proxy_path(document.file, disposition: 'inline') %>#view=FitH" class="h-[28rem] w-full" title="Previsualización"></iframe>
+              </div>
+            </details>
+          </li>
+        <% end %>
+      </ul>
+    <% else %>
+      <p class="mt-4 text-sm text-slate-500">Aún no se cargaron documentos.</p>
+    <% end %>
+  </section>
+</div>

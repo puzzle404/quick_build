@@ -1,0 +1,7 @@
+<% content_for :title, "Sign In" %>
+
+<turbo-frame id="login_modal">
+  <%= render Ui::ModalComponent.new(title: "Iniciar Sesión", subtitle: "Ingresá a tu cuenta", size: :sm) do %>
+    <%= render "login_form" %>
+  <% end %>
+</turbo-frame>

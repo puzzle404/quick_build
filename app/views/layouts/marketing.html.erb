@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title><%= content_for(:title) || "Quick Build" %></title>
+    <meta name="viewport" content="width=device-width,initial-scale=1">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="mobile-web-app-capable" content="yes">
+    <%= csrf_meta_tags %>
+    <%= csp_meta_tag %>
+
+    <%= yield :head %>
+
+    <%# Enable PWA manifest for installable apps (make sure to enable in config/routes.rb too!) %>
+    <%#= tag.link rel: "manifest", href: pwa_manifest_path(format: :json) %>
+
+    <link rel="icon" href="/icon.png" type="image/png">
+    <link rel="icon" href="/icon.svg" type="image/svg+xml">
+    <link rel="apple-touch-icon" href="/icon.png">
+
+    <%# Includes all stylesheet files in app/assets/stylesheets %>
+    <%= stylesheet_link_tag :app, "data-turbo-track": "reload" %>
+    <%= javascript_importmap_tags %>
+    <%= render "layouts/ui_kit_head" %>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  </head>
+
+  <body <%= "data-hotwire-native" if hotwire_native_app? %> class="bg-slate-50 text-slate-900 font-sans antialiased">
+    <%= render Layout::NavbarComponent.new(current_user: current_user) %>
+    
+    <main>
+      <% if notice %>
+        <div class="max-w-7xl mx-auto px-4 mt-6">
+          <p class="mb-4 rounded bg-green-100 p-4 text-green-800"><%= notice %></p>
+        </div>
+      <% end %>
+      <% if alert %>
+        <div class="max-w-7xl mx-auto px-4 mt-6">
+          <p class="mb-4 rounded bg-red-100 p-4 text-red-800"><%= alert %></p>
+        </div>
+      <% end %>
+      <%= yield %>
+    </main>
+  </body>
+</html>

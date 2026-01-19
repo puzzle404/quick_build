@@ -1,0 +1,24 @@
+<%= render Constructors::Projects::SectionsNavComponent.new(project: @project, current_section: :planning) %>
+
+<div class="mt-6 space-y-6">
+  <%= render Ui::SectionHeaderComponent.new(title: 'Planificación', subtitle: 'Definí etapas, hitos y alcance para coordinar la obra') do %>
+    <% if policy(ProjectStage.new(project: @project)).create? %>
+      <div class="flex flex-wrap items-center gap-2">
+        <%= render Ui::ButtonComponent.new(label: 'Nueva etapa', path: constructors_project_planning_path(@project, anchor: 'new_project_stage'), variant: :primary, size: :sm) %>
+        <%= render Ui::ButtonComponent.new(
+              label: 'Aplicar plantilla base',
+              path: apply_template_constructors_project_stages_path(@project),
+              turbo_method: :post,
+              variant: :secondary,
+              turbo: false,
+              data: { turbo_confirm: '¿Querés agregar las etapas sugeridas? No se duplicarán si ya existen.' }
+            ) %>
+      </div>
+    <% end %>
+  <% end %>
+  <%= render Constructors::Projects::PlanningPanelComponent.new(
+        project: @project,
+        project_stages: @project_stages,
+        new_stage: @new_stage
+      ) %>
+</div>

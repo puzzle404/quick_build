@@ -1,0 +1,53 @@
+<div class="card bg-base-100 shadow-sm w-full">
+  <div class="card-body p-6">
+  <h2 class="card-title text-lg font-semibold text-slate-900">Equipo de la obra</h2>
+  <p class="text-sm text-slate-500">Administra quién puede colaborar, revisar y ejecutar tareas dentro del proyecto.</p>
+  <ul id="project-team-members" class="mt-6 space-y-3">
+    <% if project_members.any? %>
+      <% project_members.each do |member| %>
+        <li class="flex items-start justify-between gap-4 rounded-2xl border border-slate-200 bg-slate-50 p-4">
+          <div>
+            <p class="text-sm font-semibold text-slate-900"><%= member.email %></p>
+            <p class="mt-1 text-xs text-slate-500"><%= member.role.humanize %></p>
+          </div>
+          <%= render Ui::ButtonComponent.new(
+                label: "Quitar",
+                path: constructors_project_project_membership_path(project, member),
+                method: :delete,
+                data: { turbo_confirm: "¿Eliminar a este miembro del proyecto?" },
+                variant: :danger,
+                size: :sm
+              ) %>
+        </li>
+      <% end %>
+    <% else %>
+      <li class="rounded-2xl border border-dashed border-slate-200 p-6 text-sm text-slate-500">
+        Todavía no se agregaron colaboradores a la obra.
+      </li>
+    <% end %>
+  </ul>
+
+  <div class="mt-6 rounded-2xl border border-slate-200 bg-white p-4">
+    <h3 class="text-sm font-semibold text-slate-900">Agregar colaborador</h3>
+    <%= form_with model: [:constructors, project, membership], local: true, class: "mt-4 space-y-4" do |form| %>
+      <div>
+        <%= form.label :user_id, "Selecciona un usuario", class: "text-sm font-medium text-slate-700" %>
+        <%= form.select :user_id,
+                        options_for_select(available_users),
+                        { prompt: "Escoge un usuario" },
+                        class: "mt-1 w-full rounded-lg border border-slate-200 bg-white px-3 py-2 text-sm text-slate-700 focus:border-indigo-500 focus:outline-none focus:ring-2 focus:ring-indigo-200" %>
+      </div>
+      <div>
+        <%= form.label :role, "Rol en el proyecto", class: "text-sm font-medium text-slate-700" %>
+        <%= form.select :role,
+                        membership_roles,
+                        { prompt: "Selecciona un rol" },
+                        class: "mt-1 w-full rounded-lg border border-slate-200 bg-white px-3 py-2 text-sm text-slate-700 focus:border-indigo-500 focus:outline-none focus:ring-2 focus:ring-indigo-200" %>
+      </div>
+      <div class="flex justify-end">
+        <%= render Ui::ButtonComponent.new(label: "Agregar miembro", type: :submit) %>
+      </div>
+    <% end %>
+  </div>
+  </div>
+</div>
