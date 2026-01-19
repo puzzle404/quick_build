@@ -16,6 +16,7 @@ module Constructors
         recent_activity: recent_activity_entries,
         upcoming_stages: upcoming_stages_list,
         recent_documents: recent_documents_list,
+        recent_projects: recent_projects_list,
         evolution: evolution_data
       }
     end
@@ -87,9 +88,18 @@ module Constructors
         .limit(6)
     end
 
-    # Evolución mensual (últimos 6 meses) con métricas relevantes
-    def evolution_data
-      months = (0..5).map { |i| (Date.current.beginning_of_month - (5 - i).months) }
+    # Últimos 5 proyectos ordenados por actividad (updated_at más reciente)
+    def recent_projects_list
+      projects.order(updated_at: :desc).limit(5)
+    end
+
+    # Evolución mensual con métricas relevantes
+    # @param months_count [Integer] número de meses a incluir (6 o 12)
+    def evolution_data(months_count: 6)
+      months_count = [months_count.to_i, 6].max # mínimo 6 meses
+      months_count = [months_count, 12].min     # máximo 12 meses
+      
+      months = (0..(months_count - 1)).map { |i| (Date.current.beginning_of_month - (months_count - 1 - i).months) }
       range_start = months.first
       range_end   = months.last.end_of_month
 

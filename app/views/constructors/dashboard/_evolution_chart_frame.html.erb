@@ -1,0 +1,3 @@
+<%= turbo_frame_tag "evolution-chart" do %>
+  <%= render Constructors::Dashboard::ChartPlaceholderComponent.new(evolution: evolution, selected_months: selected_months) %>
+<% end %>

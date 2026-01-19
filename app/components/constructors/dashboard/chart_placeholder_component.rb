@@ -3,14 +3,16 @@
 module Constructors
   module Dashboard
     class ChartPlaceholderComponent < ViewComponent::Base
-      def initialize(title: "Evolución mensual", evolution: nil)
+      def initialize(title: "Evolución mensual", evolution: nil, selected_months: 6)
         @title = title
         @evolution = evolution
+        @selected_months = selected_months.to_i
+        @selected_months = 6 unless [6, 12].include?(@selected_months)
       end
 
       private
 
-      attr_reader :title, :evolution
+      attr_reader :title, :evolution, :selected_months
 
       def present?
         evolution.present?
@@ -20,24 +22,6 @@ module Constructors
         vals = evolution.dig(:series, series_key, :values)
         return Array.new((evolution[:labels] || []).size, 0) if vals.blank?
         vals.map(&:to_i)
-      end
-
-      def svg_data_for(series_key, height: 24, bar_w: 6, gap: 6)
-        values = values_for(series_key)
-        n = [values.size, 6].max
-        max_val = [values.max.to_i, 1].max
-        # Usamos un sistema donde los centros están en 0, step, 2*step, ... y el ancho incluye media barra a ambos extremos
-        step = (bar_w + gap)
-        width = (n - 1) * step + bar_w
-
-        bars = values.each_with_index.map do |v, i|
-          h = [(v.to_f / max_val) * height, (v > 0 ? 2 : 1)].max.round
-          x = i * step
-          y = height - h
-          { x: x, y: y, h: h }
-        end
-
-        { width: width, height: height, bar_w: bar_w, gap: gap, bars: bars }
       end
 
       def currency(amount_cents)

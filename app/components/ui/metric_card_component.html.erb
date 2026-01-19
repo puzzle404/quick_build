@@ -1,31 +1,71 @@
-<div class="relative overflow-hidden rounded-xl border border-slate-200 bg-white p-6 shadow-sm transition-all hover:shadow-md hover:border-indigo-200 group">
-  <dt>
-    <div class="absolute rounded-md bg-indigo-50 p-3">
+<%# Fortune 500 Premium Stat Card - Compact Version %>
+<article class="group relative flex h-full flex-col overflow-hidden rounded-2xl <%= card_bg_class %> transition-all duration-500 hover:scale-[1.02] hover:shadow-2xl">
+  <%# Gradient background %>
+  <div class="pointer-events-none absolute inset-0 bg-gradient-to-br <%= gradient_bg_class %> opacity-100"></div>
+  
+  <%# Decorative mesh pattern %>
+  <div class="pointer-events-none absolute inset-0 opacity-[0.07]" style="background-image: url('data:image/svg+xml,%3Csvg width=&quot;40&quot; height=&quot;40&quot; viewBox=&quot;0 0 40 40&quot; xmlns=&quot;http://www.w3.org/2000/svg&quot;%3E%3Cg fill=&quot;none&quot; fill-rule=&quot;evenodd&quot;%3E%3Cg fill=&quot;%23ffffff&quot; fill-opacity=&quot;0.5&quot;%3E%3Cpath d=&quot;M20 20h20v20H20V20zM0 0h20v20H0V0z&quot;/%3E%3C/g%3E%3C/g%3E%3C/svg%3E');"></div>
+  
+  <%# Glowing orbs - smaller %>
+  <div class="pointer-events-none absolute -right-8 -top-8 h-24 w-24 rounded-full <%= orb_class %> blur-2xl"></div>
+  
+  <%# Main content - compact padding %>
+  <div class="relative flex-1 p-5">
+    <%# Header row %>
+    <div class="flex items-center justify-between gap-3">
+      <%# Icon - smaller %>
       <% if icon.present? %>
-        <%= icon %>
-      <% else %>
-        <svg class="h-6 w-6 text-indigo-600" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" aria-hidden="true">
-          <path stroke-linecap="round" stroke-linejoin="round" d="M3 13.125C3 12.504 3.504 12 4.125 12h2.25c.621 0 1.125.504 1.125 1.125v6.75C7.5 20.496 6.996 21 6.375 21h-2.25A1.125 1.125 0 013 19.875v-6.75zM9.75 8.625c0-.621.504-1.125 1.125-1.125h2.25c.621 0 1.125.504 1.125 1.125v11.25c0 .621-.504 1.125-1.125 1.125h-2.25a1.125 1.125 0 01-1.125-1.125V8.625zM16.5 4.125c0-.621.504-1.125 1.125-1.125h2.25C20.496 3 21 3.504 21 4.125v15.75c0 .621-.504 1.125-1.125 1.125h-2.25a1.125 1.125 0 01-1.125-1.125V4.125z" />
-        </svg>
+        <div class="flex h-10 w-10 items-center justify-center rounded-xl <%= icon_bg_class %> backdrop-blur-sm shadow-lg">
+          <%= icon %>
+        </div>
+      <% end %>
+      
+      <%# Title next to icon %>
+      <h3 class="flex-1 text-xs font-bold <%= title_color_class %> uppercase tracking-wider"><%= title %></h3>
+      
+      <%# Trend badge %>
+      <% if trend.present? %>
+        <div class="flex items-center gap-1 rounded-full <%= trend_badge_class %> px-2 py-1 text-[10px] font-bold">
+          <%= trend_icon %>
+          <span><%= trend[:value] %></span>
+        </div>
       <% end %>
     </div>
-    <p class="ml-16 truncate text-sm font-medium text-slate-500"><%= title %></p>
-  </dt>
-  <dd class="ml-16 flex items-baseline pb-1 sm:pb-2">
-    <p class="text-2xl font-semibold text-slate-900"><%= value.presence || "—" %></p>
-    <% if suffix.present? %>
-      <span class="ml-1 text-sm font-medium text-slate-500"><%= suffix %></span>
-    <% end %>
     
-    <% if trend.present? %>
-      <p class="ml-2 flex items-baseline text-sm font-semibold <%= trend_color_class %>">
-        <%= trend_icon %>
-        <span class="sr-only"><%= trend[:direction] == :up ? 'Increased' : 'Decreased' %> by</span>
-        <%= trend[:value] %>
-      </p>
+    <%# Value - bold but not oversized %>
+    <div class="mt-3 flex items-baseline gap-2">
+      <span class="text-4xl font-black tracking-tight <%= value_color_class %>"><%= value.presence || "—" %></span>
+      <% if suffix.present? %>
+        <span class="text-base font-bold <%= suffix_color_class %>"><%= suffix %></span>
+      <% end %>
+    </div>
+    
+    <%# Comparison text %>
+    <p class="mt-1 text-xs font-medium <%= comparison_color_class %>">
+      <%= comparison.presence || description.presence || "" %>
+    </p>
+    
+    <%# Progress bar - compact %>
+    <% if show_progress_bar? %>
+      <div class="mt-3">
+        <div class="flex items-center justify-between text-[10px] font-bold mb-1">
+          <span class="<%= progress_label_class %>">Progreso</span>
+          <span class="<%= progress_value_class %>"><%= progress_percentage %>%</span>
+        </div>
+        <div class="h-1.5 w-full overflow-hidden rounded-full <%= progress_track_class %>">
+          <div class="h-full rounded-full <%= progress_fill_class %>" style="width: <%= [progress_percentage, 5].max %>%"></div>
+        </div>
+      </div>
     <% end %>
-  </dd>
-  <% if description.present? %>
-    <p class="ml-16 text-sm text-slate-500"><%= description %></p>
+  </div>
+  
+  <%# Footer - compact %>
+  <% if action_path.present? %>
+    <%= link_to action_path, class: "relative flex items-center justify-between px-5 py-3 #{footer_bg_class} transition-all group/footer" do %>
+      <span class="text-xs font-bold <%= footer_text_class %>"><%= action_label || "Ver detalles" %></span>
+      <svg class="h-4 w-4 <%= footer_arrow_class %> transition-transform group-hover/footer:translate-x-1" fill="none" viewBox="0 0 24 24" stroke-width="2.5" stroke="currentColor">
+        <path stroke-linecap="round" stroke-linejoin="round" d="M13.5 4.5L21 12m0 0l-7.5 7.5M21 12H3" />
+      </svg>
+    <% end %>
   <% end %>
-</div>
+</article>

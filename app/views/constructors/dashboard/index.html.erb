@@ -1,43 +1,110 @@
-<div class="min-h-screen p-6">
-  <%= render Ui::SectionHeaderComponent.new(title: 'Dashboard') do %>
-    <%= link_to "Nuevo proyecto", new_constructors_project_path, class: "rounded-lg bg-indigo-600 px-4 py-2 text-sm font-medium text-white hover:bg-indigo-700" %>
-  <% end %>
+<div class="min-h-screen bg-slate-50">
+  <div class="mx-auto max-w-7xl px-4 py-8 sm:px-6 lg:px-8">
+    <!-- Header con saludo contextual -->
+    <header class="mb-8">
+      <div class="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+        <div>
+          <h1 class="text-2xl font-bold tracking-tight text-slate-900">
+            <%= greeting_for_time_of_day %>, <%= current_user.email.split('@').first.capitalize %>
+          </h1>
+          <p class="mt-1 text-sm text-slate-500">
+            Aquí está el resumen de tus obras y actividad reciente.
+          </p>
+        </div>
+        <%= link_to new_constructors_project_path, 
+            class: "inline-flex items-center gap-2 rounded-lg bg-indigo-600 px-4 py-2.5 text-sm font-semibold text-white shadow-sm transition-all hover:bg-indigo-500 hover:shadow-md focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600" do %>
+          <svg class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M12 4.5v15m7.5-7.5h-15" />
+          </svg>
+          Nuevo proyecto
+        <% end %>
+      </div>
+    </header>
 
-  <% metrics = @dashboard[:metrics] %>
+    <% metrics = @dashboard[:metrics] %>
 
-  <section class="grid gap-6 sm:grid-cols-2 lg:grid-cols-4">
-    <%= render Constructors::Dashboard::KpiCardComponent.new(
-      label: 'Obras totales', 
-      value: metrics[:total_projects],
-      icon: '<svg class="h-6 w-6 text-indigo-600" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M3.75 21h16.5M4.5 3h15M5.25 3v18m13.5-18v18M9 6.75h1.5m-1.5 3h1.5m-1.5 3h1.5m3-6H15m-1.5 3H15m-1.5 3H15M9 21v-3.375c0-.621.504-1.125 1.125-1.125h3.75c.621 0 1.125.504 1.125 1.125V21" /></svg>'.html_safe
-    ) %>
-    <%= render Constructors::Dashboard::KpiCardComponent.new(
-      label: 'En progreso', 
-      value: metrics[:in_progress_projects],
-      icon: '<svg class="h-6 w-6 text-amber-600" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M11.42 15.17L17.25 21A2.652 2.652 0 0021 17.25l-5.877-5.877M11.42 15.17l2.496-3.03c.317-.384.74-.626 1.208-.766M11.42 15.17l-4.655 5.653a2.548 2.548 0 11-3.586-3.586l6.837-5.63m5.108-.233c.55-.164 1.163-.188 1.743-.14a4.5 4.5 0 004.486-6.336l-3.276 3.277a3.004 3.004 0 01-2.25-2.25l3.276-3.276a4.5 4.5 0 00-6.336 4.486c.091 1.076-.071 2.264-.904 2.95l-.102.085m-1.745 1.437L5.909 7.5H4.5L2.25 3.75l1.5-1.5L7.5 4.5v1.409l4.26 4.26m-1.745 1.437l1.745-1.437m6.615 8.206L15.75 15.75M4.867 19.125h.008v.008h-.008v-.008z" /></svg>'.html_safe
-    ) %>
-    <%= render Constructors::Dashboard::KpiCardComponent.new(
-      label: 'Planificadas', 
-      value: metrics[:planned_projects],
-      icon: '<svg class="h-6 w-6 text-blue-600" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M6.75 3v2.25M17.25 3v2.25M3 18.75V7.5a2.25 2.25 0 012.25-2.25h13.5A2.25 2.25 0 0121 7.5v11.25m-18 0A2.25 2.25 0 005.25 21h13.5A2.25 2.25 0 0021 18.75m-18 0v-7.5A2.25 2.25 0 015.25 9h13.5A2.25 2.25 0 0121 11.25v7.5" /></svg>'.html_safe
-    ) %>
-    <%= render Constructors::Dashboard::KpiCardComponent.new(
-      label: 'Completadas', 
-      value: metrics[:completed_projects],
-      icon: '<svg class="h-6 w-6 text-green-600" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M9 12.75L11.25 15 15 9.75M21 12a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>'.html_safe
-    ) %>
-  </section>
+    <% if metrics[:total_projects] == 0 %>
+      <%= render Constructors::Dashboard::EmptyStateComponent.new %>
+    <% else %>
+      <!-- Nivel 1: KPIs de Alto Impacto -->
+      <% total = metrics[:total_projects] %>
+      <% completed = metrics[:completed_projects] %>
+      <% in_progress = metrics[:in_progress_projects] %>
+      <% planned = metrics[:planned_projects] %>
+      <% completion_pct = total > 0 ? ((completed.to_f / total) * 100).round : 0 %>
+      <% active_pct = total > 0 ? ((in_progress.to_f / total) * 100).round : 0 %>
+      
+      <section class="grid gap-5 sm:grid-cols-2 lg:grid-cols-4" aria-label="Métricas principales">
+        <%= render Constructors::Dashboard::KpiCardComponent.new(
+          label: 'Obras totales', 
+          value: total,
+          color: :indigo,
+          comparison: "#{completed + in_progress} activas, #{planned} por iniciar",
+          action_path: constructors_projects_path,
+          action_label: "Ver proyectos",
+          icon: '<svg class="h-5 w-5 text-white" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M3.75 21h16.5M4.5 3h15M5.25 3v18m13.5-18v18M9 6.75h1.5m-1.5 3h1.5m-1.5 3h1.5m3-6H15m-1.5 3H15m-1.5 3H15M9 21v-3.375c0-.621.504-1.125 1.125-1.125h3.75c.621 0 1.125.504 1.125 1.125V21" /></svg>'.html_safe
+        ) %>
+        <%= render Constructors::Dashboard::KpiCardComponent.new(
+          label: 'En progreso', 
+          value: in_progress,
+          color: :amber,
+          comparison: total > 0 ? "#{active_pct}% del total" : nil,
+          progress: active_pct,
+          action_path: constructors_projects_path(status: :in_progress),
+          action_label: "Ver en progreso",
+          icon: '<svg class="h-5 w-5 text-white" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M11.42 15.17L17.25 21A2.652 2.652 0 0021 17.25l-5.877-5.877M11.42 15.17l2.496-3.03c.317-.384.74-.626 1.208-.766M11.42 15.17l-4.655 5.653a2.548 2.548 0 11-3.586-3.586l6.837-5.63m5.108-.233c.55-.164 1.163-.188 1.743-.14a4.5 4.5 0 004.486-6.336l-3.276 3.277a3.004 3.004 0 01-2.25-2.25l3.276-3.276a4.5 4.5 0 00-6.336 4.486c.091 1.076-.071 2.264-.904 2.95l-.102.085m-1.745 1.437L5.909 7.5H4.5L2.25 3.75l1.5-1.5L7.5 4.5v1.409l4.26 4.26m-1.745 1.437l1.745-1.437m6.615 8.206L15.75 15.75M4.867 19.125h.008v.008h-.008v-.008z" /></svg>'.html_safe
+        ) %>
+        <%= render Constructors::Dashboard::KpiCardComponent.new(
+          label: 'Planificadas', 
+          value: planned,
+          color: :sky,
+          comparison: planned > 0 ? "Próximas a iniciar" : "Sin obras pendientes",
+          action_path: constructors_projects_path(status: :planned),
+          action_label: "Ver planificadas",
+          icon: '<svg class="h-5 w-5 text-white" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M6.75 3v2.25M17.25 3v2.25M3 18.75V7.5a2.25 2.25 0 012.25-2.25h13.5A2.25 2.25 0 0121 7.5v11.25m-18 0A2.25 2.25 0 005.25 21h13.5A2.25 2.25 0 0021 18.75m-18 0v-7.5A2.25 2.25 0 015.25 9h13.5A2.25 2.25 0 0121 11.25v7.5" /></svg>'.html_safe
+        ) %>
+        <%= render Constructors::Dashboard::KpiCardComponent.new(
+          label: 'Completadas', 
+          value: completed,
+          color: :emerald,
+          comparison: total > 0 ? "#{completion_pct}% de avance global" : nil,
+          progress: completion_pct,
+          action_path: constructors_projects_path(status: :completed),
+          action_label: "Ver completadas",
+          icon: '<svg class="h-5 w-5 text-white" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M9 12.75L11.25 15 15 9.75M21 12a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>'.html_safe
+        ) %>
+      </section>
 
-  <%= render Constructors::Dashboard::ChartPlaceholderComponent.new(evolution: @dashboard[:evolution]) %>
+      <!-- Nivel 2: Tendencias + Proyectos (Side by Side) -->
+      <section class="mt-8 grid gap-6 lg:grid-cols-5 items-start">
+        <!-- Chart: 3 columnas -->
+        <div class="lg:col-span-3">
+          <%= turbo_frame_tag "evolution-chart" do %>
+            <%= render Constructors::Dashboard::ChartPlaceholderComponent.new(evolution: @dashboard[:evolution], selected_months: @months_selected) %>
+          <% end %>
+        </div>
+        
+        <!-- Proyectos Recientes: 2 columnas -->
+        <div class="lg:col-span-2">
+          <%= render Constructors::Dashboard::RecentProjectsComponent.new(projects: @dashboard[:recent_projects]) %>
+        </div>
+      </section>
 
-  <div class="mt-8 grid grid-cols-1 gap-6 lg:grid-cols-3">
-    <div class="lg:col-span-2">
-      <%= render Constructors::Dashboard::ActivityTableComponent.new(entries: @dashboard[:recent_activity]) %>
-    </div>
-
-    <div class="space-y-6">
-      <%= render Constructors::Dashboard::UpcomingStagesPanelComponent.new(stages: @dashboard[:upcoming_stages]) %>
-      <%= render Constructors::Dashboard::RecentDocumentsPanelComponent.new(documents: @dashboard[:recent_documents]) %>
-    </div>
+      <!-- Nivel 3: Contenido Principal + Sidebar -->
+      <div class="mt-8 grid gap-6 lg:grid-cols-3 items-start">
+        <!-- Columna Principal: Actividad -->
+        <div class="lg:col-span-2">
+          <%= render Constructors::Dashboard::ActivityTableComponent.new(entries: @dashboard[:recent_activity]) %>
+        </div>
+        
+        <!-- Sidebar: Paneles Apilados -->
+        <aside class="space-y-5" aria-label="Accesos rápidos">
+          <%= render Constructors::Dashboard::QuickActionsComponent.new(user: current_user) %>
+          <%= render Constructors::Dashboard::UpcomingStagesPanelComponent.new(stages: @dashboard[:upcoming_stages]) %>
+          <%= render Constructors::Dashboard::RecentDocumentsPanelComponent.new(documents: @dashboard[:recent_documents]) %>
+        </aside>
+      </div>
+    <% end %>
   </div>
 </div>
+

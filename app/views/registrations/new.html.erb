@@ -1,70 +1,168 @@
-<div class="min-h-screen flex items-center justify-center bg-gray-50 py-12 px-4 sm:px-6 lg:px-8">
-  <div class="max-w-md w-full space-y-8">
-    <div>
-      <h2 class="mt-6 text-center text-3xl font-extrabold text-gray-900">Crear cuenta</h2>
-      <p class="mt-2 text-center text-sm text-gray-600">Regístrate para empezar a gestionar tus proyectos</p>
+<div class="min-h-screen flex">
+  <!-- Left Panel - Branding -->
+  <div class="hidden lg:flex lg:w-1/2 relative bg-gradient-to-br from-slate-900 via-indigo-950 to-slate-900">
+    <!-- Decorative elements -->
+    <div class="absolute inset-0 overflow-hidden">
+      <div class="absolute -top-1/4 -left-1/4 h-[600px] w-[600px] rounded-full bg-gradient-to-r from-indigo-500/20 to-purple-500/20 blur-3xl"></div>
+      <div class="absolute bottom-0 right-0 h-[400px] w-[400px] rounded-full bg-gradient-to-l from-emerald-500/10 to-cyan-500/10 blur-3xl"></div>
     </div>
-
-    <div class="bg-white py-8 px-6 rounded-lg shadow-md">
-      <% if flash[:alert] %>
-        <div class="mb-4 text-sm text-red-600"><%= flash[:alert] %></div>
-      <% end %>
-
-      <%= form_with model: @user, url: registration_path, local: true, class: "space-y-6" do |f| %>
+    
+    <div class="relative flex flex-col justify-between p-12 text-white">
+      <!-- Logo -->
+      <div class="flex items-center gap-3">
+        <div class="flex h-10 w-10 items-center justify-center rounded-xl bg-indigo-600 font-bold text-lg">Q</div>
+        <span class="text-xl font-bold">Quick Build</span>
+      </div>
+      
+      <!-- Main content -->
+      <div class="space-y-8">
         <div>
-          <label for="user_name" class="block text-sm font-medium text-gray-700">Nombre</label>
-          <div class="mt-1">
-            <%= f.text_field :name, id: :user_name, required: true, class: "appearance-none block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm placeholder-gray-400 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm" %>
-          </div>
-          <%= render 'shared/error_messages_for', object: @user, field: :name %>
+          <h1 class="text-4xl font-bold leading-tight">
+            Gestioná tus obras<br>
+            <span class="text-indigo-300">como un profesional</span>
+          </h1>
+          <p class="mt-4 text-lg text-slate-300 leading-relaxed max-w-md">
+            Unite a cientos de constructores que ya están optimizando sus proyectos con Quick Build.
+          </p>
         </div>
-
-        <div>
-          <label for="user_email" class="block text-sm font-medium text-gray-700">Email</label>
-          <div class="mt-1">
-            <%= f.email_field :email, id: :user_email, required: true, class: "appearance-none block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm placeholder-gray-400 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm" %>
-          </div>
-          <%= render 'shared/error_messages_for', object: @user, field: :email %>
-        </div>
-
-        <div class="grid grid-cols-2 gap-4">
-          <div>
-            <label for="user_password" class="block text-sm font-medium text-gray-700">Contraseña</label>
-            <div class="mt-1">
-              <%= f.password_field :password, id: :user_password, required: true, autocomplete: "new-password", class: "appearance-none block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm placeholder-gray-400 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm" %>
+        
+        <!-- Features list -->
+        <ul class="space-y-4">
+          <li class="flex items-center gap-3">
+            <div class="flex h-8 w-8 items-center justify-center rounded-lg bg-white/10">
+              <svg class="h-4 w-4 text-emerald-400" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M9 12.75L11.25 15 15 9.75M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+              </svg>
             </div>
-            <%= render 'shared/error_messages_for', object: @user, field: :password %>
+            <span class="text-slate-200">Control total de etapas y avances</span>
+          </li>
+          <li class="flex items-center gap-3">
+            <div class="flex h-8 w-8 items-center justify-center rounded-lg bg-white/10">
+              <svg class="h-4 w-4 text-emerald-400" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M9 12.75L11.25 15 15 9.75M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+              </svg>
+            </div>
+            <span class="text-slate-200">Listas de materiales con IA</span>
+          </li>
+          <li class="flex items-center gap-3">
+            <div class="flex h-8 w-8 items-center justify-center rounded-lg bg-white/10">
+              <svg class="h-4 w-4 text-emerald-400" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M9 12.75L11.25 15 15 9.75M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+              </svg>
+            </div>
+            <span class="text-slate-200">Documentación y planos centralizados</span>
+          </li>
+        </ul>
+      </div>
+      
+      <!-- Trust badge -->
+      <div class="flex items-center gap-3 text-sm text-slate-400">
+        <svg class="h-5 w-5 text-emerald-500" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor">
+          <path stroke-linecap="round" stroke-linejoin="round" d="M9 12.75L11.25 15 15 9.75m-3-7.036A11.959 11.959 0 013.598 6 11.99 11.99 0 003 9.749c0 5.592 3.824 10.29 9 11.623 5.176-1.332 9-6.03 9-11.622 0-1.31-.21-2.571-.598-3.751h-.152c-3.196 0-6.1-1.248-8.25-3.285z" />
+        </svg>
+        <span>Tus datos protegidos con encriptación de grado empresarial</span>
+      </div>
+    </div>
+  </div>
+  
+  <!-- Right Panel - Form -->
+  <div class="flex flex-1 flex-col justify-center px-6 py-12 lg:px-12 bg-white">
+    <div class="mx-auto w-full max-w-md">
+      <!-- Mobile logo -->
+      <div class="lg:hidden flex items-center justify-center gap-3 mb-8">
+        <div class="flex h-10 w-10 items-center justify-center rounded-xl bg-indigo-600 font-bold text-lg text-white">Q</div>
+        <span class="text-xl font-bold text-slate-900">Quick Build</span>
+      </div>
+      
+      <div class="text-center lg:text-left">
+        <h2 class="text-2xl font-bold tracking-tight text-slate-900 sm:text-3xl">
+          Creá tu cuenta gratis
+        </h2>
+        <p class="mt-2 text-sm text-slate-600">
+          Empezá a gestionar tus proyectos en minutos
+        </p>
+      </div>
+
+      <div class="mt-8">
+        <% if flash[:alert] %>
+          <div class="mb-6 rounded-xl border border-rose-200 bg-rose-50 p-4 text-sm text-rose-700">
+            <div class="flex items-center gap-2">
+              <svg class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M12 9v3.75m9-.75a9 9 0 11-18 0 9 9 0 0118 0zm-9 3.75h.008v.008H12v-.008z" />
+              </svg>
+              <span><%= flash[:alert] %></span>
+            </div>
+          </div>
+        <% end %>
+
+        <%= form_with model: @user, url: registration_path, local: true, class: "space-y-5" do |f| %>
+          <div>
+            <%= f.label :name, "Nombre completo", class: "block text-sm font-medium text-slate-700" %>
+            <div class="mt-2">
+              <%= f.text_field :name, 
+                  id: :user_name, 
+                  required: true, 
+                  placeholder: "Ej: Juan Pérez",
+                  class: "block w-full rounded-xl border border-slate-200 px-4 py-3 text-slate-900 shadow-sm transition-all placeholder:text-slate-400 focus:border-indigo-500 focus:outline-none focus:ring-2 focus:ring-indigo-500/20" %>
+            </div>
+            <%= render 'shared/error_messages_for', object: @user, field: :name %>
           </div>
 
           <div>
-            <label for="user_password_confirmation" class="block text-sm font-medium text-gray-700">Confirmar contraseña</label>
-            <div class="mt-1">
-              <%= f.password_field :password_confirmation, id: :user_password_confirmation, required: true, autocomplete: "new-password", class: "appearance-none block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm placeholder-gray-400 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm" %>
+            <%= f.label :email, "Email", class: "block text-sm font-medium text-slate-700" %>
+            <div class="mt-2">
+              <%= f.email_field :email, 
+                  id: :user_email, 
+                  required: true, 
+                  placeholder: "tu@email.com",
+                  class: "block w-full rounded-xl border border-slate-200 px-4 py-3 text-slate-900 shadow-sm transition-all placeholder:text-slate-400 focus:border-indigo-500 focus:outline-none focus:ring-2 focus:ring-indigo-500/20" %>
+            </div>
+            <%= render 'shared/error_messages_for', object: @user, field: :email %>
+          </div>
+
+          <div class="grid grid-cols-1 gap-5 sm:grid-cols-2">
+            <div>
+              <%= f.label :password, "Contraseña", class: "block text-sm font-medium text-slate-700" %>
+              <div class="mt-2">
+                <%= f.password_field :password, 
+                    id: :user_password, 
+                    required: true, 
+                    autocomplete: "new-password",
+                    placeholder: "Mínimo 6 caracteres",
+                    class: "block w-full rounded-xl border border-slate-200 px-4 py-3 text-slate-900 shadow-sm transition-all placeholder:text-slate-400 focus:border-indigo-500 focus:outline-none focus:ring-2 focus:ring-indigo-500/20" %>
+              </div>
+              <%= render 'shared/error_messages_for', object: @user, field: :password %>
+            </div>
+
+            <div>
+              <%= f.label :password_confirmation, "Confirmar", class: "block text-sm font-medium text-slate-700" %>
+              <div class="mt-2">
+                <%= f.password_field :password_confirmation, 
+                    id: :user_password_confirmation, 
+                    required: true, 
+                    autocomplete: "new-password",
+                    placeholder: "Repetí la contraseña",
+                    class: "block w-full rounded-xl border border-slate-200 px-4 py-3 text-slate-900 shadow-sm transition-all placeholder:text-slate-400 focus:border-indigo-500 focus:outline-none focus:ring-2 focus:ring-indigo-500/20" %>
+              </div>
             </div>
           </div>
-        </div>
 
-        <div>
-          <label for="user_role" class="block text-sm font-medium text-gray-700">Rol</label>
-          <div class="mt-1">
-            <%= f.select :role, User.roles.keys.map { |r| [r.humanize, r] }, {}, class: "block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm" %>
+          <div class="pt-2">
+            <%= f.submit "Crear cuenta", class: "w-full inline-flex justify-center items-center gap-2 rounded-xl bg-indigo-600 px-6 py-3.5 text-base font-semibold text-white shadow-lg shadow-indigo-500/20 transition-all duration-300 hover:-translate-y-0.5 hover:bg-indigo-500 hover:shadow-xl hover:shadow-indigo-500/30 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600 cursor-pointer" %>
           </div>
-        </div>
+        <% end %>
 
-        <div>
-          <label for="user_company_id" class="block text-sm font-medium text-gray-700">Empresa (opcional)</label>
-          <div class="mt-1">
-            <%= f.collection_select :company_id, @companies, :id, :name, { include_blank: 'Sin empresa' }, class: "block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm" %>
-          </div>
-        </div>
-
-        <div>
-          <%= f.submit "Crear cuenta", class: "w-full inline-flex justify-center py-2 px-4 border border-transparent shadow-sm text-sm font-medium rounded-md text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500" %>
-        </div>
-      <% end %>
-
-      <div class="mt-6 text-center text-sm text-gray-600">
-        ¿Ya tenés cuenta? <%= link_to 'Ingresar', new_session_path, class: 'font-medium text-indigo-600 hover:text-indigo-500' %>
+        <p class="mt-6 text-center text-sm text-slate-500">
+          ¿Ya tenés cuenta? 
+          <%= link_to "Iniciar sesión", new_session_path, class: "font-semibold text-indigo-600 hover:text-indigo-500 transition-colors", data: { turbo_frame: "_top" } %>
+        </p>
+        
+        <p class="mt-6 text-center text-xs text-slate-400">
+          Al registrarte, aceptás nuestros 
+          <%= link_to "Términos de servicio", "#", class: "underline hover:text-slate-600" %> 
+          y 
+          <%= link_to "Política de privacidad", "#", class: "underline hover:text-slate-600" %>.
+        </p>
       </div>
     </div>
   </div>

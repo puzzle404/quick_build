@@ -1,25 +1,44 @@
-<div class="rounded-lg bg-white p-6 shadow-sm ring-1 ring-slate-200">
-  <div class="flex items-center justify-between gap-4">
-    <h2 class="text-lg font-semibold text-slate-800">Próximas etapas</h2>
-    <span class="text-xs font-medium uppercase tracking-wide text-slate-400">Planificación</span>
-  </div>
+<section class="group relative overflow-hidden rounded-2xl bg-gradient-to-br from-violet-50/50 via-white to-indigo-50/30 shadow-lg shadow-violet-500/5 ring-1 ring-slate-200/80">
+  <div class="pointer-events-none absolute -right-10 -top-10 h-24 w-24 rounded-full bg-gradient-to-br from-violet-400/10 to-indigo-400/10 blur-2xl"></div>
+  
+  <header class="relative flex items-center justify-between border-b border-slate-100/80 px-5 py-4">
+    <h2 class="flex items-center gap-2.5 text-sm font-bold text-slate-900">
+      <span class="flex h-8 w-8 items-center justify-center rounded-xl bg-gradient-to-br from-violet-500 to-indigo-600 shadow-lg shadow-violet-500/30">
+        <svg class="h-4 w-4 text-white" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor">
+          <path stroke-linecap="round" stroke-linejoin="round" d="M6.75 3v2.25M17.25 3v2.25M3 18.75V7.5a2.25 2.25 0 012.25-2.25h13.5A2.25 2.25 0 0121 7.5v11.25m-18 0A2.25 2.25 0 005.25 21h13.5A2.25 2.25 0 0021 18.75m-18 0v-7.5A2.25 2.25 0 015.25 9h13.5A2.25 2.25 0 0121 11.25v7.5" />
+        </svg>
+      </span>
+      Próximas etapas
+    </h2>
+    <% if stages.any? %>
+      <span class="rounded-full bg-violet-100 px-2.5 py-1 text-xs font-bold text-violet-700 shadow-sm"><%= stages.size %></span>
+    <% end %>
+  </header>
+  
   <% if stages.any? %>
-    <ul class="mt-5 space-y-3">
-      <% stages.each do |stage| %>
-        <li class="rounded-lg bg-slate-50 p-4 ring-1 ring-slate-200">
-          <p class="text-sm font-semibold text-slate-800"><%= stage.name %></p>
-          <p class="text-xs text-slate-500">
-            <span class="font-medium"><%= stage.project.name %></span>
-            · Inicio: <%= l(stage.start_date, format: :long) if stage.start_date %>
-            <% if stage.end_date.present? %>
-              · Fin: <%= l(stage.end_date, format: :long) %>
-            <% end %>
-          </p>
+    <ul class="relative divide-y divide-slate-100/60">
+      <% stages.first(3).each do |stage| %>
+        <% days_until = stage.start_date ? (stage.start_date - Date.current).to_i : nil %>
+        <% badge_class = days_until.nil? ? 'bg-slate-100 text-slate-600' : 
+                         days_until <= 7 ? 'bg-rose-100 text-rose-700' : 
+                         days_until <= 14 ? 'bg-amber-100 text-amber-700' : 
+                         'bg-emerald-100 text-emerald-700' %>
+        <li class="group/item flex items-center justify-between gap-3 px-5 py-3 transition-all hover:bg-gradient-to-r hover:from-violet-50/50 hover:to-transparent">
+          <div class="min-w-0 flex-1">
+            <p class="truncate text-sm font-semibold text-slate-700 group-hover/item:text-violet-700"><%= stage.name %></p>
+            <p class="truncate text-xs text-slate-500"><%= stage.project.name %></p>
+          </div>
+          <% if days_until %>
+            <span class="shrink-0 rounded-full px-2.5 py-1 text-xs font-bold shadow-sm <%= badge_class %>">
+              <%= days_until == 0 ? '🔥 Hoy' : days_until == 1 ? 'Mañana' : "#{days_until}d" %>
+            </span>
+          <% end %>
         </li>
       <% end %>
     </ul>
   <% else %>
-    <p class="mt-5 text-sm text-slate-500">No hay etapas próximas cargadas aún.</p>
+    <div class="flex items-center justify-center py-6">
+      <p class="text-sm text-slate-400">Sin etapas próximas</p>
+    </div>
   <% end %>
-</div>
-
+</section>
