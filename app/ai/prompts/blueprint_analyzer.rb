@@ -1,4 +1,4 @@
-module AI
+module Ai
   module Prompts
     class BlueprintAnalyzer < Base
       def initialize(filter: nil, scale_known: false)

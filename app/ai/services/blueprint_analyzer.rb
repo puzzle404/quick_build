@@ -1,4 +1,4 @@
-module AI
+module Ai
   module Services
     class BlueprintAnalyzer
       attr_reader :analysis, :blueprint
@@ -57,7 +57,7 @@ module AI
       end
       
       def parse_response(raw_response)
-        parser = AI::Parsers::MeasurementParser.new(raw_response)
+        parser = Ai::Parsers::MeasurementParser.new(raw_response)
         parser.parse
       end
     end

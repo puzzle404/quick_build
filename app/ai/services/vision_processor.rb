@@ -1,7 +1,7 @@
-module AI
+module Ai
   module Services
     class VisionProcessor
-      def initialize(blueprint, client: AI::Client.new)
+      def initialize(blueprint, client: Ai::Client.new)
         @blueprint = blueprint
         @client = client
       end
@@ -44,7 +44,7 @@ module AI
       end
       
       def build_prompt(filter:)
-        AI::Prompts::BlueprintAnalyzer.new(
+        Ai::Prompts::BlueprintAnalyzer.new(
           filter: filter,
           scale_known: @blueprint.scale_ratio.present?
         ).build
