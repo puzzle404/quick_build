@@ -7,6 +7,10 @@ module Constructors
         @user = user
       end
 
+      def render?
+        false
+      end
+      
       def recent_material_lists
         @user.owned_projects
              .joins(:material_lists)
