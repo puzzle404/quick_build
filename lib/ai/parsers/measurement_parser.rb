@@ -1,4 +1,4 @@
-module AI
+module Ai
   module Parsers
     class MeasurementParser
       class ParseError < StandardError; end

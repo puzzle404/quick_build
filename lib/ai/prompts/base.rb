@@ -1,4 +1,4 @@
-module AI
+module Ai
   module Prompts
     class Base
       def build

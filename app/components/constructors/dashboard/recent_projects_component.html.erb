@@ -1,0 +1,89 @@
+<section class="group relative overflow-hidden rounded-2xl bg-gradient-to-br from-slate-50 via-white to-indigo-50/30 shadow-lg shadow-indigo-500/5 ring-1 ring-slate-200/80">
+  <%# Decorative gradient orb %>
+  <div class="pointer-events-none absolute -right-20 -top-20 h-40 w-40 rounded-full bg-gradient-to-br from-indigo-400/10 to-violet-400/10 blur-3xl"></div>
+  
+  <header class="relative flex items-center justify-between border-b border-slate-100/80 px-6 py-4">
+    <h2 class="flex items-center gap-2.5 text-sm font-bold text-slate-900">
+      <span class="flex h-8 w-8 items-center justify-center rounded-xl bg-gradient-to-br from-indigo-500 to-violet-600 shadow-lg shadow-indigo-500/30">
+        <svg class="h-4 w-4 text-white" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor">
+          <path stroke-linecap="round" stroke-linejoin="round" d="M3.75 21h16.5M4.5 3h15M5.25 3v18m13.5-18v18M9 6.75h1.5m-1.5 3h1.5m-1.5 3h1.5m3-6H15m-1.5 3H15m-1.5 3H15M9 21v-3.375c0-.621.504-1.125 1.125-1.125h3.75c.621 0 1.125.504 1.125 1.125V21" />
+        </svg>
+      </span>
+      Proyectos recientes
+    </h2>
+    <% if projects.any? %>
+      <%= link_to constructors_projects_path, class: "flex items-center gap-1 rounded-full bg-indigo-50 px-3 py-1.5 text-xs font-bold text-indigo-600 transition-all hover:bg-indigo-100 hover:shadow-md hover:shadow-indigo-500/10" do %>
+        Ver todos
+        <svg class="h-3 w-3" fill="none" viewBox="0 0 24 24" stroke-width="2.5" stroke="currentColor">
+          <path stroke-linecap="round" stroke-linejoin="round" d="M13.5 4.5L21 12m0 0l-7.5 7.5M21 12H3" />
+        </svg>
+      <% end %>
+    <% end %>
+  </header>
+  
+  <% if projects.any? %>
+    <ul class="relative divide-y divide-slate-100/60">
+      <% projects.each_with_index do |project, index| %>
+        <li>
+          <%= link_to constructors_project_path(project), class: "group/item relative flex items-center gap-4 px-6 py-4 transition-all hover:bg-gradient-to-r hover:from-indigo-50/50 hover:to-transparent" do %>
+            <%# Project icon with gradient %>
+            <div class="relative flex h-11 w-11 shrink-0 items-center justify-center rounded-xl bg-gradient-to-br from-slate-100 to-slate-200 text-base font-bold text-slate-600 shadow-sm transition-all group-hover/item:from-indigo-100 group-hover/item:to-violet-100 group-hover/item:text-indigo-600 group-hover/item:shadow-md group-hover/item:shadow-indigo-500/20">
+              <%= project.name.first.upcase %>
+              <% if index == 0 %>
+                <span class="absolute -bottom-0.5 -right-0.5 flex h-3 w-3">
+                  <span class="absolute inline-flex h-full w-full animate-ping rounded-full bg-emerald-400 opacity-75"></span>
+                  <span class="relative inline-flex h-3 w-3 rounded-full bg-emerald-500 ring-2 ring-white"></span>
+                </span>
+              <% end %>
+            </div>
+            
+            <%# Content %>
+            <div class="min-w-0 flex-1">
+              <p class="truncate text-sm font-bold text-slate-800 transition-colors group-hover/item:text-indigo-700"><%= project.name %></p>
+              <p class="mt-0.5 flex items-center gap-2 truncate text-xs text-slate-500">
+                <% stages_count = project.project_stages.count %>
+                <% materials_count = project.material_lists.count %>
+                <span class="inline-flex items-center gap-1">
+                  <svg class="h-3 w-3 text-slate-400" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M3.75 6A2.25 2.25 0 016 3.75h2.25A2.25 2.25 0 0110.5 6v2.25a2.25 2.25 0 01-2.25 2.25H6a2.25 2.25 0 01-2.25-2.25V6z" />
+                  </svg>
+                  <%= stages_count %> etapas
+                </span>
+                <span class="text-slate-300">·</span>
+                <span><%= materials_count %> listas</span>
+              </p>
+            </div>
+            
+            <%# Status badge %>
+            <span class="shrink-0 rounded-full px-3 py-1 text-xs font-bold shadow-sm <%= status_badge_class(project.status) %>">
+              <%= status_label(project.status) %>
+            </span>
+            
+            <%# Arrow %>
+            <div class="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-slate-100 text-slate-400 transition-all group-hover/item:bg-indigo-100 group-hover/item:text-indigo-600 group-hover/item:translate-x-1">
+              <svg class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke-width="2.5" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M8.25 4.5l7.5 7.5-7.5 7.5" />
+              </svg>
+            </div>
+          <% end %>
+        </li>
+      <% end %>
+    </ul>
+  <% else %>
+    <div class="flex flex-col items-center justify-center py-10 text-center">
+      <div class="flex h-14 w-14 items-center justify-center rounded-2xl bg-gradient-to-br from-slate-100 to-slate-200 shadow-inner">
+        <svg class="h-7 w-7 text-slate-400" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor">
+          <path stroke-linecap="round" stroke-linejoin="round" d="M3.75 21h16.5M4.5 3h15M5.25 3v18m13.5-18v18M9 6.75h1.5m-1.5 3h1.5m-1.5 3h1.5m3-6H15m-1.5 3H15m-1.5 3H15M9 21v-3.375c0-.621.504-1.125 1.125-1.125h3.75c.621 0 1.125.504 1.125 1.125V21" />
+        </svg>
+      </div>
+      <p class="mt-4 text-sm font-bold text-slate-700">Sin proyectos aún</p>
+      <p class="mt-1 text-xs text-slate-500">Crea tu primer proyecto para comenzar</p>
+      <%= link_to new_constructors_project_path, class: "mt-4 inline-flex items-center gap-2 rounded-full bg-indigo-600 px-4 py-2 text-xs font-bold text-white shadow-lg shadow-indigo-500/30 transition-all hover:bg-indigo-700 hover:shadow-xl hover:shadow-indigo-500/40" do %>
+        <svg class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke-width="2.5" stroke="currentColor">
+          <path stroke-linecap="round" stroke-linejoin="round" d="M12 4.5v15m7.5-7.5h-15" />
+        </svg>
+        Nuevo proyecto
+      <% end %>
+    </div>
+  <% end %>
+</section>

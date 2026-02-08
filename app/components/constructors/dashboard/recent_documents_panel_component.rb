@@ -7,6 +7,10 @@ module Constructors
         @documents = documents
       end
 
+      def render?
+        false
+      end
+
       private
 
       attr_reader :documents

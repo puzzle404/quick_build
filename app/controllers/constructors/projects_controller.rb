@@ -32,7 +32,8 @@ class Constructors::ProjectsController < Constructors::BaseController
     authorize @project
 
     if persist_project_with_documents(@project)
-      redirect_to constructors_project_path(@project), notice: "Obra creada correctamente."
+      flash[:new_project] = true
+      redirect_to constructors_project_path(@project), notice: "¡Obra creada correctamente!"
     else
       flash.now[:alert] = "Revisa los datos y vuelve a intentarlo."
       render :new, status: :unprocessable_entity

@@ -1,4 +1,4 @@
-module AI
+module Ai
   class Client
     def initialize
       @client = OpenAI::Client.new(

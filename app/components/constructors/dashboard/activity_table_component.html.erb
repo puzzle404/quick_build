@@ -1,31 +1,74 @@
-<section class="rounded-lg bg-white p-6 shadow-sm ring-1 ring-slate-200">
-  <h2 class="mb-4 text-lg font-semibold text-slate-800">Actividad reciente</h2>
+<section class="group relative overflow-hidden rounded-2xl bg-gradient-to-br from-slate-50 via-white to-slate-100/50 shadow-lg shadow-slate-500/5 ring-1 ring-slate-200/80">
+  <%# Decorative orbs %>
+  <div class="pointer-events-none absolute -left-16 -top-16 h-32 w-32 rounded-full bg-gradient-to-br from-slate-400/5 to-slate-500/5 blur-2xl"></div>
+  <div class="pointer-events-none absolute -right-10 bottom-10 h-24 w-24 rounded-full bg-gradient-to-br from-indigo-400/5 to-violet-400/5 blur-2xl"></div>
+
+  <header class="relative flex items-center justify-between border-b border-slate-100/80 px-6 py-4">
+    <h2 class="flex items-center gap-2.5 text-sm font-bold text-slate-900">
+      <span class="flex h-8 w-8 items-center justify-center rounded-xl bg-gradient-to-br from-slate-700 to-slate-900 shadow-lg shadow-slate-500/30">
+        <svg class="h-4 w-4 text-white" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor">
+          <path stroke-linecap="round" stroke-linejoin="round" d="M12 6v6h4.5m4.5 0a9 9 0 11-18 0 9 9 0 0118 0z" />
+        </svg>
+      </span>
+      Actividad reciente
+    </h2>
+    <% if entries.any? %>
+      <span class="inline-flex items-center gap-1.5 rounded-full bg-slate-100 px-3 py-1 text-xs font-bold text-slate-600 shadow-inner">
+        <span class="relative flex h-2 w-2">
+          <span class="absolute inline-flex h-full w-full animate-ping rounded-full bg-emerald-400 opacity-75"></span>
+          <span class="relative inline-flex h-2 w-2 rounded-full bg-emerald-500"></span>
+        </span>
+        <%= entries.size %> eventos
+      </span>
+    <% end %>
+  </header>
+  
   <% if entries.any? %>
-    <div class="overflow-x-auto">
-      <table class="w-full text-left text-sm text-slate-700">
-        <thead>
-          <tr class="border-b border-slate-200 text-slate-500">
-            <th class="py-2">Evento</th>
-            <th class="py-2">Detalle</th>
-            <th class="py-2">Fecha</th>
-            <th class="py-2 text-right">Estado</th>
-          </tr>
-        </thead>
-        <tbody>
-          <% entries.each do |e| %>
-            <tr class="border-b border-slate-100 hover:bg-slate-50">
-              <td class="py-2"><%= e[:title] %></td>
-              <td class="py-2"><%= e[:description].presence || '—' %></td>
-              <td class="py-2"><%= e[:timestamp] ? l(e[:timestamp], format: :long) : '—' %></td>
-              <% status_text = status_for(e) %>
-              <td class="py-2 text-right <%= status_color_for(e) %>"><%= status_text || '—' %></td>
-            </tr>
-          <% end %>
-        </tbody>
-      </table>
-    </div>
+    <ul class="relative divide-y divide-slate-100/60" role="list">
+      <% entries.each_with_index do |e, index| %>
+        <li class="group/item relative">
+          <div class="flex items-center gap-4 px-6 py-4 transition-all hover:bg-gradient-to-r hover:from-slate-50 hover:to-transparent">
+            <%# Icon %>
+            <div class="relative flex h-10 w-10 shrink-0 items-center justify-center rounded-xl shadow-sm transition-transform group-hover/item:scale-105 <%= icon_bg_for(e) %>">
+              <%= icon_for(e) %>
+              <% if index == 0 %>
+                <span class="absolute -right-0.5 -top-0.5 flex h-2.5 w-2.5">
+                  <span class="absolute inline-flex h-full w-full animate-ping rounded-full bg-emerald-400 opacity-75"></span>
+                  <span class="relative inline-flex h-2.5 w-2.5 rounded-full bg-emerald-500 ring-2 ring-white"></span>
+                </span>
+              <% end %>
+            </div>
+            
+            <%# Content %>
+            <div class="min-w-0 flex-1">
+              <p class="truncate text-sm font-semibold text-slate-800 group-hover/item:text-slate-900"><%= e[:title] %></p>
+              <% if e[:description].present? %>
+                <p class="mt-0.5 truncate text-xs text-slate-500"><%= e[:description] %></p>
+              <% end %>
+            </div>
+            
+            <%# Meta %>
+            <div class="shrink-0 text-right">
+              <p class="inline-flex items-center gap-1 rounded-full bg-slate-100 px-2 py-0.5 text-xs font-medium text-slate-500">
+                <svg class="h-3 w-3" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor">
+                  <path stroke-linecap="round" stroke-linejoin="round" d="M12 6v6h4.5m4.5 0a9 9 0 11-18 0 9 9 0 0118 0z" />
+                </svg>
+                <%= e[:timestamp] ? time_ago_in_words(e[:timestamp]) : '—' %>
+              </p>
+            </div>
+          </div>
+        </li>
+      <% end %>
+    </ul>
   <% else %>
-    <p class="text-sm text-slate-500">Sin actividad reciente.</p>
+    <div class="flex flex-col items-center justify-center py-12 text-center">
+      <div class="flex h-14 w-14 items-center justify-center rounded-2xl bg-gradient-to-br from-slate-100 to-slate-200 shadow-inner">
+        <svg class="h-7 w-7 text-slate-400" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor">
+          <path stroke-linecap="round" stroke-linejoin="round" d="M12 6v6h4.5m4.5 0a9 9 0 11-18 0 9 9 0 0118 0z" />
+        </svg>
+      </div>
+      <p class="mt-4 text-sm font-bold text-slate-700">Sin actividad reciente</p>
+      <p class="mt-1 text-xs text-slate-500">La actividad de tus proyectos aparecerá aquí</p>
+    </div>
   <% end %>
 </section>
-
