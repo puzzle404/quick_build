@@ -1,0 +1,40 @@
+<%= link_to cta_href,
+            style: "padding:16px;border-radius:10px;background:#{theme[:bg]};border:none;color:white;text-align:left;cursor:pointer;position:relative;overflow:hidden;display:flex;flex-direction:column;gap:12px;min-height:160px;box-shadow:0 1px 0 0 rgba(0,0,0,0.08), 0 4px 14px -8px rgba(0,0,0,0.3);transition:transform .15s;text-decoration:none;" do %>
+  <%# Subtle pattern + decorative ring (purely visual) %>
+  <div style="position:absolute;inset:0;opacity:0.08;background-image:repeating-linear-gradient(45deg, transparent 0 8px, white 8px 9px);pointer-events:none;"></div>
+  <div style="position:absolute;top:-30px;right:-30px;width:140px;height:140px;border-radius:999px;border:1.5px solid rgba(255,255,255,0.14);pointer-events:none;"></div>
+
+  <%# Icon + label %>
+  <div style="display:flex;align-items:center;gap:8px;position:relative;">
+    <div style="width:30px;height:30px;border-radius:7px;background:rgba(255,255,255,0.18);display:flex;align-items:center;justify-content:center;">
+      <%= render Qb::IconComponent.new(name: icon, size: 15) %>
+    </div>
+    <span style="font-size:10.5px;font-family:var(--font-mono);letter-spacing:0.8px;text-transform:uppercase;font-weight:600;color:<%= theme[:accent] %>;"><%= label %></span>
+  </div>
+
+  <%# Value %>
+  <div style="position:relative;">
+    <div class="qb-mono qb-tnum" style="font-size:40px;font-weight:500;letter-spacing:-1.2px;line-height:1;"><%= value %></div>
+    <% if hint %>
+      <div style="font-size:11.5px;color:<%= theme[:accent] %>;margin-top:4px;opacity:0.9;"><%= hint %></div>
+    <% end %>
+  </div>
+
+  <%# Progress bar (optional) %>
+  <% if progress %>
+    <div style="position:relative;">
+      <div style="display:flex;justify-content:space-between;font-size:10.5px;font-family:var(--font-mono);color:<%= theme[:accent] %>;margin-bottom:4px;opacity:0.85;">
+        <span>Progreso</span>
+        <span><%= progress %>%</span>
+      </div>
+      <div style="height:4px;border-radius:999px;background:rgba(255,255,255,0.2);overflow:hidden;">
+        <div style="height:100%;width:<%= progress %>%;background:rgba(255,255,255,0.85);border-radius:999px;"></div>
+      </div>
+    </div>
+  <% end %>
+
+  <%# CTA chip %>
+  <div style="position:relative;margin-top:auto;display:flex;align-items:center;gap:6px;padding:6px 10px;background:rgba(0,0,0,0.18);border-radius:6px;width:fit-content;font-size:11.5px;font-weight:500;">
+    <%= cta_label %> <%= render Qb::IconComponent.new(name: :'arrow-right', size: 12) %>
+  </div>
+<% end %>
