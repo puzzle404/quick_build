@@ -10,16 +10,26 @@ class Constructors::ProjectsController < Constructors::BaseController
   end
 
   def index
+    @current_qb_section = :projects
+
     @query = params[:q].to_s.strip
     @from_date = params[:from_date].presence
     @to_date = params[:to_date].presence
+    @status_filter = params[:status].to_s.presence_in(%w[in_progress planned completed]) || 'all'
+
+    base_scope = current_user.owned_projects
+    base_scope = base_scope.where(status: Project.statuses[@status_filter]) if @status_filter != 'all'
 
     @projects = Constructors::Projects::ProjectSearchService.new(
-      scope: current_user.owned_projects,
+      scope: base_scope,
       query: @query,
       from_date: @from_date,
       to_date: @to_date
     ).results
+
+    @projects_decorated = @projects.map { ProjectDecorator.new(_1) }
+    @counts = current_user.owned_projects.group(:status).count
+    @counts_total = @counts.values.sum
   end
 
   def new
