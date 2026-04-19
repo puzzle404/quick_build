@@ -1,0 +1,65 @@
+<div style="display:grid;grid-template-columns:420px 1fr;">
+  <%# Left: WBS list %>
+  <div style="border-right:1px solid var(--color-line);">
+    <div style="padding:8px 12px;background:var(--color-bg-raised);border-bottom:1px solid var(--color-line);display:grid;grid-template-columns:40px 1fr 70px 50px;gap:8px;font-size:10px;font-family:var(--font-mono);color:var(--color-ink-3);text-transform:uppercase;letter-spacing:0.5px;font-weight:500;">
+      <span>WBS</span><span>Tarea</span><span style="text-align:right;">Avance</span><span style="text-align:right;">Días</span>
+    </div>
+    <% rows.each do |row| %>
+      <% s = row.stage %>
+      <div style="display:grid;grid-template-columns:40px 1fr 70px 50px;gap:8px;padding:0 12px;height:34px;align-items:center;border-bottom:1px solid var(--color-line);padding-left:<%= row.depth.positive? ? 28 : 12 %>px;background:<%= row.depth.positive? ? 'var(--color-bg-sunken)' : 'transparent' %>;">
+        <span class="qb-mono" style="font-size:11px;color:var(--color-ink-3);"><%= s.code %></span>
+        <div style="min-width:0;">
+          <div style="font-size:12px;font-weight:<%= row.depth.positive? ? 400 : 500 %>;color:var(--color-ink);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;"><%= s.name %></div>
+          <% if s.lead_label != 'Sin asignar' %>
+            <div style="font-size:10px;color:var(--color-ink-4);"><%= s.lead_label %></div>
+          <% end %>
+        </div>
+        <div style="display:flex;align-items:center;gap:4px;justify-content:flex-end;">
+          <div style="width:28px;"><%= render Qb::BarComponent.new(value: s.progress_value, tone: s.status == :done ? :ok : s.progress_value >= 60 ? :accent : :warn, height: 3) %></div>
+          <span class="qb-mono qb-tnum" style="font-size:10px;color:var(--color-ink-3);min-width:22px;text-align:right;"><%= s.progress_value %>%</span>
+        </div>
+        <span class="qb-mono qb-tnum" style="font-size:11px;color:var(--color-ink-3);text-align:right;"><%= s.days_total ? "#{s.days_total}d" : '—' %></span>
+      </div>
+    <% end %>
+  </div>
+
+  <%# Right: timeline %>
+  <div style="position:relative;overflow:hidden;background:var(--color-bg);">
+    <%# Months header + today line %>
+    <div style="height:38px;background:var(--color-bg-raised);border-bottom:1px solid var(--color-line);position:relative;">
+      <% months_grid.each_with_index do |m, i| %>
+        <% left = (i.to_f / months_grid.size * 100).round(2) %>
+        <div style="position:absolute;left:<%= left %>%;top:0;bottom:0;width:1px;background:var(--color-line);"></div>
+        <div style="position:absolute;left:<%= (left + 50.0 / months_grid.size).round(2) %>%;top:10px;transform:translateX(-50%);font-size:11px;color:var(--color-ink-3);font-family:var(--font-mono);letter-spacing:0.5px;"><%= month_label(m) %></div>
+      <% end %>
+      <div style="position:absolute;left:<%= today_pct %>%;top:0;bottom:-10000px;width:1px;background:var(--color-accent);z-index:3;">
+        <div style="position:absolute;top:20px;left:-24px;font-size:10px;color:var(--color-accent);font-family:var(--font-mono);background:var(--color-bg-raised);padding:1px 4px;border-radius:3px;">HOY</div>
+      </div>
+    </div>
+
+    <%# Bars %>
+    <div style="position:relative;">
+      <% months_grid.each_with_index do |_, i| %>
+        <div style="position:absolute;left:<%= (i.to_f / months_grid.size * 100).round(2) %>%;top:0;bottom:0;width:1px;background:var(--color-line);"></div>
+      <% end %>
+      <% rows.each do |row| %>
+        <% s = row.stage %>
+        <% if s.start_date && s.end_date %>
+          <% left = pct_at(s.start_date) %>
+          <% right = pct_at(s.end_date) %>
+          <% width = [right - left, 0.5].max %>
+          <div style="height:34px;border-bottom:1px solid var(--color-line);background:<%= row.depth.positive? ? 'var(--color-bg-sunken)' : 'transparent' %>;position:relative;">
+            <div style="position:absolute;top:8px;height:18px;left:<%= left %>%;width:<%= width %>%;background:<%= bar_color(s) %>;border-radius:3px;display:flex;align-items:center;overflow:hidden;<%= 'box-shadow:inset 0 0 0 1px var(--color-line-2);' if s.progress_value.zero? %>">
+              <% if s.progress_value.positive? && s.progress_value < 100 %>
+                <div style="position:absolute;inset:0;width:<%= s.progress_value %>%;background:rgba(0,0,0,0.22);"></div>
+              <% end %>
+              <span style="position:relative;color:<%= s.progress_value.zero? ? 'var(--color-ink-3)' : 'white' %>;font-size:10px;font-family:var(--font-mono);font-weight:500;padding:0 6px;white-space:nowrap;"><%= s.progress_value %>%</span>
+            </div>
+          </div>
+        <% else %>
+          <div style="height:34px;border-bottom:1px solid var(--color-line);background:<%= row.depth.positive? ? 'var(--color-bg-sunken)' : 'transparent' %>;"></div>
+        <% end %>
+      <% end %>
+    </div>
+  </div>
+</div>
