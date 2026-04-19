@@ -7,6 +7,10 @@ class Constructors::Projects::MaterialListsController < Constructors::BaseContro
 
   def index
     authorize @project, :materials?
+    @current_qb_section = :projects
+    @current_qb_project = @project
+    @current_qb_project_sub = :materials
+
     @query = params[:q].to_s.strip
     @from_date = params[:from_date].presence
     @to_date = params[:to_date].presence
