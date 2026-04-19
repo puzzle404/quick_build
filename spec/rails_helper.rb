@@ -79,6 +79,8 @@ RSpec.configure do |config|
   config.include FactoryBot::Syntax::Methods
   config.include RequestAuthHelpers, type: :request
   config.include SystemAuthHelpers, type: :system
+  config.include ViewComponent::TestHelpers, type: :component
+  config.include Capybara::RSpecMatchers, type: :component
 
   # System specs: rack_test by default; use Cuprite only when js: true.
   config.before(:each, type: :system) { driven_by :rack_test }
