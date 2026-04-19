@@ -1,0 +1,108 @@
+<aside data-controller="qb--sidebar"
+       class="qb-sidebar"
+       data-qb--sidebar-storage-key-value="qb_sidebar_collapsed"
+       style="flex-shrink:0;height:100vh;position:sticky;top:0;display:flex;flex-direction:column;border-right:1px solid var(--color-line);background:var(--color-bg-raised);transition:width .2s ease;">
+
+  <%# Brand %>
+  <div style="display:flex;align-items:center;height:48px;padding:0 12px;gap:10px;border-bottom:1px solid var(--color-line);">
+    <div style="width:26px;height:26px;border-radius:6px;background:var(--color-ink);color:var(--color-bg);display:flex;align-items:center;justify-content:center;font-family:var(--font-mono);font-weight:700;font-size:14px;letter-spacing:-0.5px;flex-shrink:0;">◱</div>
+    <div data-qb-sidebar-label style="line-height:1.1;overflow:hidden;">
+      <div style="font-weight:600;font-size:13px;letter-spacing:-0.1px;white-space:nowrap;">Quick Build</div>
+      <div style="font-size:10px;color:var(--color-ink-3);font-family:var(--font-mono);letter-spacing:0.5px;">OPS CONSOLE</div>
+    </div>
+  </div>
+
+  <%# Company switcher %>
+  <button data-qb-sidebar-label style="margin:8px;padding:8px 10px;text-align:left;background:var(--color-bg);border:1px solid var(--color-line);border-radius:5px;display:flex;align-items:center;gap:8px;cursor:pointer;color:var(--color-ink);">
+    <%= render Qb::AvatarComponent.new(name: display_company, size: 22) %>
+    <div style="flex:1;overflow:hidden;">
+      <div style="font-size:12px;font-weight:500;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;"><%= display_company %></div>
+      <div style="font-size:10px;color:var(--color-ink-3);">Plan Pro</div>
+    </div>
+    <%= render Qb::IconComponent.new(name: :'chevron-down', size: 12, style: 'color:var(--color-ink-3)') %>
+  </button>
+
+  <%# New project CTA %>
+  <div style="padding:0 8px 4px;">
+    <%= link_to new_project_url, style: 'width:100%;height:32px;display:flex;align-items:center;justify-content:flex-start;gap:8px;padding:0 10px;background:var(--color-accent);color:var(--color-accent-ink);border:none;border-radius:5px;cursor:pointer;font-size:12px;font-weight:600;text-decoration:none;' do %>
+      <%= render Qb::IconComponent.new(name: :plus, size: 14) %>
+      <span data-qb-sidebar-label>Nuevo proyecto</span>
+      <span data-qb-sidebar-label style="margin-left:auto;font-size:10px;opacity:.8;font-family:var(--font-mono);">⌘N</span>
+    <% end %>
+  </div>
+
+  <%# Primary nav %>
+  <nav style="padding:8px;flex:1;overflow:auto;">
+    <% nav_items.each do |item| %>
+      <%= link_to item[:url], style: nav_link_style(item) do %>
+        <% if item[:active] %>
+          <span data-qb-sidebar-label style="position:absolute;left:-8px;top:6px;bottom:6px;width:2px;background:var(--color-accent);border-radius:2px;"></span>
+        <% end %>
+        <%= render Qb::IconComponent.new(name: item[:icon], size: 15, style: "color:#{item[:active] ? 'var(--color-ink)' : 'var(--color-ink-3)'};flex-shrink:0;") %>
+        <span data-qb-sidebar-label style="flex:1;text-align:left;"><%= item[:label] %></span>
+        <% if item[:badge_kind] == :project_count && @project_count %>
+          <span data-qb-sidebar-label class="qb-mono" style="font-size:10px;color:var(--color-ink-3);background:var(--color-bg-sunken);padding:0 5px;height:16px;border-radius:3px;display:inline-flex;align-items:center;"><%= @project_count %></span>
+        <% end %>
+      <% end %>
+    <% end %>
+
+    <% if project %>
+      <%# Active project chip %>
+      <div data-qb-sidebar-label style="margin-top:14px;margin-bottom:4px;padding:0 6px;">
+        <div style="<%= project_chip_style %>">
+          <div style="display:flex;align-items:center;gap:6px;margin-bottom:4px;">
+            <%= render Qb::StatusDotComponent.new(tone: project_health) %>
+            <span class="qb-mono" style="font-size:9.5px;color:var(--color-ink-3);letter-spacing:0.5px;"><%= project_code %></span>
+          </div>
+          <div style="font-size:12px;font-weight:600;color:var(--color-ink);line-height:1.25;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;"><%= project_short_name %></div>
+          <div style="font-size:10.5px;color:var(--color-ink-3);margin-top:2px;display:flex;justify-content:space-between;">
+            <span><%= project_progress %>% avance</span>
+            <span class="qb-mono" style="color:var(--color-ink-4);"><%= project_stages_done %>/<%= project_stages_count %> etapas</span>
+          </div>
+          <div style="margin-top:6px;">
+            <%= render Qb::BarComponent.new(value: project_progress, tone: (project_health == :bad ? :bad : project_health == :warn ? :warn : :accent), height: 3) %>
+          </div>
+        </div>
+      </div>
+
+      <div data-qb-sidebar-label style="margin-top:8px;padding:4px 10px 4px;font-size:10px;font-family:var(--font-mono);color:var(--color-ink-4);letter-spacing:1px;text-transform:uppercase;font-weight:500;">En este proyecto</div>
+      <% project_nav_items.each do |item| %>
+        <%= link_to item[:url], style: project_nav_link_style(item) do %>
+          <% if item[:active] %>
+            <span data-qb-sidebar-label style="position:absolute;left:-8px;top:6px;bottom:6px;width:2px;background:var(--color-accent);border-radius:2px;"></span>
+          <% end %>
+          <%= render Qb::IconComponent.new(name: item[:icon], size: 14, style: "color:#{item[:active] ? 'var(--color-ink)' : 'var(--color-ink-3)'};flex-shrink:0;") %>
+          <span data-qb-sidebar-label style="flex:1;text-align:left;"><%= item[:label] %></span>
+          <% if item[:accent] %>
+            <span data-qb-sidebar-label style="width:5px;height:5px;border-radius:999px;background:var(--color-accent);"></span>
+          <% end %>
+        <% end %>
+      <% end %>
+    <% elsif pinned_projects.any? %>
+      <div data-qb-sidebar-label style="margin-top:14px;padding:6px 10px 4px;font-size:10px;font-family:var(--font-mono);color:var(--color-ink-4);letter-spacing:1px;text-transform:uppercase;font-weight:500;">Fijados</div>
+      <% pinned_projects.first(4).each do |p| %>
+        <%= link_to helpers.constructors_project_path(p), style: 'width:100%;display:flex;align-items:center;gap:8px;padding:0 10px;height:28px;margin-bottom:1px;background:transparent;color:var(--color-ink-2);border:none;border-radius:5px;cursor:pointer;font-size:12px;text-decoration:none;' do %>
+          <%= render Qb::StatusDotComponent.new(tone: p.try(:health) || :ok) %>
+          <span data-qb-sidebar-label style="flex:1;text-align:left;overflow:hidden;white-space:nowrap;text-overflow:ellipsis;"><%= p.respond_to?(:project_short_name) ? p.project_short_name : p.name.to_s.split('·').first&.strip %></span>
+          <span data-qb-sidebar-label class="qb-mono" style="font-size:10px;color:var(--color-ink-4);"><%= p.try(:progress).to_i %>%</span>
+        <% end %>
+      <% end %>
+    <% end %>
+  </nav>
+
+  <%# Footer: search trigger + collapse toggle %>
+  <div style="padding:8px;border-top:1px solid var(--color-line);">
+    <button type="button" data-controller="qb--cmd-palette-trigger"
+            data-action="click->qb--cmd-palette-trigger#open"
+            style="width:100%;height:30px;display:flex;align-items:center;gap:8px;padding:0 10px;background:var(--color-bg-sunken);border:1px solid var(--color-line);border-radius:5px;color:var(--color-ink-3);font-size:12px;cursor:pointer;">
+      <%= render Qb::IconComponent.new(name: :search, size: 13) %>
+      <span data-qb-sidebar-label>Buscar o saltar…</span>
+      <span data-qb-sidebar-label class="qb-kbd" style="margin-left:auto;">⌘K</span>
+    </button>
+    <button type="button" data-action="click->qb--sidebar#toggle"
+            style="margin-top:4px;width:100%;height:26px;background:transparent;border:none;color:var(--color-ink-4);font-size:11px;cursor:pointer;display:flex;align-items:center;gap:6px;padding:0 10px;">
+      <%= render Qb::IconComponent.new(name: :'chevron-right', size: 12, css_class: 'qb-collapse-icon') %>
+      <span data-qb-sidebar-label>Contraer</span>
+    </button>
+  </div>
+</aside>

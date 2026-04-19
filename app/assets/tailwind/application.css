@@ -120,6 +120,26 @@
     width: 100% !important;
   }
 
+  /* ─── Sidebar collapse ───────────────────────────────────── */
+  .qb-sidebar { width: 224px; }
+  .qb-sidebar.qb-sidebar-collapsed { width: 56px; }
+  .qb-sidebar.qb-sidebar-collapsed [data-qb-sidebar-label] { display: none !important; }
+  .qb-sidebar.qb-sidebar-collapsed nav a,
+  .qb-sidebar.qb-sidebar-collapsed nav button {
+    justify-content: center !important;
+    padding: 0 !important;
+  }
+  .qb-sidebar.qb-sidebar-collapsed .qb-collapse-icon { transform: none; }
+  .qb-sidebar:not(.qb-sidebar-collapsed) .qb-collapse-icon { transform: rotate(180deg); }
+
+  /* ─── Cmd palette + tweaks: active row highlight ─────────── */
+  .qb-active {
+    background: var(--color-bg-sunken) !important;
+  }
+
+  /* Hidden helper used by panels that toggle visibility */
+  .hidden { display: none !important; }
+
   /* Keyboard chip used by sidebar/cmd palette */
   .qb-kbd {
     font-family: var(--font-mono);
