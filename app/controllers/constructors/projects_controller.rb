@@ -4,9 +4,15 @@ class Constructors::ProjectsController < Constructors::BaseController
 
   def show
     authorize @project
+    @current_qb_section = :projects
     @project = @project.decorate
+    @current_qb_project = @project
+    @current_qb_project_sub = :overview
+
     @members = @project.members.order(created_at: :desc)
     @membership = @project.project_memberships.build
+    @stages_root = @project.project_stages.where(parent_id: nil).order(:position)
+    @recent_documents = @project.documents.order(created_at: :desc).limit(6)
   end
 
   def index
