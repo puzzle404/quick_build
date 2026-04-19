@@ -63,7 +63,7 @@
         </div>
       <% end %>
       <div style="display:flex;gap:4px;">
-        <%= render Qb::BtnComponent.new(variant: :ghost, size: :xs, icon: :edit, href: edit_constructors_project_stage_path(project, stage), data: { turbo_frame: 'project_modal' }) { '' } %>
+        <%= render Qb::BtnComponent.new('', variant: :ghost, size: :xs, icon: :edit, href: edit_constructors_project_stage_path(project, stage), data: { turbo_frame: 'project_modal' }) %>
       </div>
     </div>
   </div>
@@ -92,9 +92,7 @@
         <% end %>
       <% end %>
       <div style="padding:8px 16px;background:var(--color-bg-sunken);">
-        <%= render Qb::BtnComponent.new(variant: :ghost, size: :xs, icon: :plus, href: new_constructors_project_stage_path(project, parent_id: stage.id), data: { turbo_frame: 'project_modal' }) do %>
-          Agregar sub-etapa a "<%= stage.name %>"
-        <% end %>
+        <%= render Qb::BtnComponent.new(%(Agregar sub-etapa a "#{stage.name}"), variant: :ghost, size: :xs, icon: :plus, href: new_constructors_project_stage_path(project, parent_id: stage.id), data: { turbo_frame: 'project_modal' }) %>
       </div>
     </div>
   <% end %>

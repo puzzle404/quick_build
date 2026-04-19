@@ -4,6 +4,10 @@ class Constructors::Projects::PeopleController < Constructors::BaseController
 
   def index
     authorize @project.project_people.build
+    @current_qb_section = :projects
+    @project = @project.decorate
+    @current_qb_project = @project
+    @current_qb_project_sub = :team
 
     @query = params[:q].to_s.strip
     @from_date = params[:from_date].presence

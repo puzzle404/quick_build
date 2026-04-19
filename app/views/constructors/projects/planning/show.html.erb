@@ -30,9 +30,9 @@
         <%= total %> etapas principales · <%= done %> completadas · <%= in_progress_count %> en curso · <%= pending_count %> pendientes
       </div>
     </div>
-    <%= render Qb::BtnComponent.new(variant: :ghost, size: :sm, icon: :layers, href: apply_template_constructors_project_stages_path(@project), data: { turbo_method: :post, turbo_confirm: '¿Aplicar la plantilla base de etapas?' }) { 'Aplicar plantilla' } %>
-    <%= render Qb::BtnComponent.new(variant: :secondary, size: :sm, icon: :download) { 'Exportar' } %>
-    <%= render Qb::BtnComponent.new(variant: :primary, size: :sm, icon: :plus, href: new_constructors_project_stage_path(@project), data: { turbo_frame: 'project_modal' }) { 'Nueva etapa' } %>
+    <%= render Qb::BtnComponent.new('Aplicar plantilla', variant: :ghost, size: :sm, icon: :layers, href: apply_template_constructors_project_stages_path(@project), data: { turbo_method: :post, turbo_confirm: '¿Aplicar la plantilla base de etapas?' }) %>
+    <%= render Qb::BtnComponent.new('Exportar', variant: :secondary, size: :sm, icon: :download) %>
+    <%= render Qb::BtnComponent.new('Nueva etapa', variant: :primary, size: :sm, icon: :plus, href: new_constructors_project_stage_path(@project), data: { turbo_frame: 'project_modal' }) %>
   </div>
 
   <%# View switcher %>

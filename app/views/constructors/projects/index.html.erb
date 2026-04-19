@@ -18,8 +18,8 @@
       <h1 style="margin:4px 0 0;font-size:20px;font-weight:600;letter-spacing:-0.3px;color:var(--color-ink);">Lista de obras</h1>
       <div style="font-size:12px;color:var(--color-ink-3);margin-top:2px;"><%= @projects_decorated.size %> mostradas · <%= @counts_total %> en total</div>
     </div>
-    <%= render Qb::BtnComponent.new(variant: :secondary, size: :sm, icon: :download) { 'Exportar CSV' } %>
-    <%= render Qb::BtnComponent.new(variant: :primary, size: :sm, icon: :plus, href: new_constructors_project_path) { 'Nuevo proyecto' } %>
+    <%= render Qb::BtnComponent.new('Exportar CSV', variant: :secondary, size: :sm, icon: :download) %>
+    <%= render Qb::BtnComponent.new('Nuevo proyecto', variant: :primary, size: :sm, icon: :plus, href: new_constructors_project_path) %>
   </div>
 
   <%# Tabs + search + view switch %>

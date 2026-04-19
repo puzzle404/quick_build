@@ -4,6 +4,10 @@ class Constructors::Projects::BlueprintsController < Constructors::BaseControlle
 
   def index
     authorize @project, :show?
+    @current_qb_section = :projects
+    @project = @project.decorate
+    @current_qb_project = @project
+    @current_qb_project_sub = :blueprints
     @blueprints = @project.blueprints.order(created_at: :desc)
   end
 

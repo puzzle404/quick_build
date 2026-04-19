@@ -15,8 +15,8 @@
   <%= render Qb::TabsComponent.new(tabs: tabs, current: :overview) do |c| %>
     <% c.with_right do %>
       <div style="display:flex;gap:4px;align-items:center;padding:0 8px;">
-        <%= render Qb::BtnComponent.new(variant: :ghost, size: :xs, icon: :upload) { 'Subir' } %>
-        <%= render Qb::BtnComponent.new(variant: :secondary, size: :xs, icon: :ai) { 'Asistente IA' } %>
+        <%= render Qb::BtnComponent.new('Subir', variant: :ghost, size: :xs, icon: :upload) %>
+        <%= render Qb::BtnComponent.new('Asistente IA', variant: :secondary, size: :xs, icon: :ai) %>
       </div>
     <% end %>
   <% end %>
@@ -24,7 +24,7 @@
   <div style="display:grid;grid-template-columns:1.5fr 1fr;gap:0;">
     <div style="border-right:1px solid var(--color-line);">
       <%= render Qb::SectionHeadComponent.new(title: 'Curva S · Real vs Plan') do |c| %>
-        <% c.with_right { render Qb::BtnComponent.new(variant: :ghost, size: :xs, icon: :download) { 'PNG' } } %>
+        <% c.with_right { render Qb::BtnComponent.new('PNG', variant: :ghost, size: :xs, icon: :download) } %>
       <% end %>
       <%= render Constructors::ProjectsV2::Overview::SCurveComponent.new(project: @project) %>
 
@@ -43,7 +43,7 @@
       <%= render Constructors::ProjectsV2::Overview::MiniMapComponent.new(lat: @project.latitude, lng: @project.longitude) %>
 
       <%= render Qb::SectionHeadComponent.new(title: 'Equipo asignado') do |c| %>
-        <% c.with_right { render Qb::BtnComponent.new(variant: :ghost, size: :xs, icon: :plus) { 'Invitar' } } %>
+        <% c.with_right { render Qb::BtnComponent.new('Invitar', variant: :ghost, size: :xs, icon: :plus) } %>
       <% end %>
       <%= render Constructors::ProjectsV2::Overview::TeamChipsComponent.new(members: @members.first(6)) %>
 

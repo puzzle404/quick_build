@@ -36,9 +36,9 @@
       <h2 style="margin:3px 0 0;font-size:18px;font-weight:600;letter-spacing:-0.3px;">Listas de materiales</h2>
       <div style="font-size:12px;color:var(--color-ink-3);margin-top:2px;">Creá listas por etapa o generales, manualmente o desde PDF/Excel.</div>
     </div>
-    <%= render Qb::BtnComponent.new(variant: :ghost, size: :sm, icon: :upload) { 'Importar PDF/Excel' } %>
-    <%= render Qb::BtnComponent.new(variant: :secondary, size: :sm, icon: :ai) { 'Generar con IA' } %>
-    <%= render Qb::BtnComponent.new(variant: :primary, size: :sm, icon: :plus, href: new_constructors_project_material_list_path(@project)) { 'Nueva lista' } %>
+    <%= render Qb::BtnComponent.new('Importar PDF/Excel', variant: :ghost, size: :sm, icon: :upload) %>
+    <%= render Qb::BtnComponent.new('Generar con IA', variant: :secondary, size: :sm, icon: :ai) %>
+    <%= render Qb::BtnComponent.new('Nueva lista', variant: :primary, size: :sm, icon: :plus, href: new_constructors_project_material_list_path(@project)) %>
   </div>
 
   <%# Toolbar — search %>

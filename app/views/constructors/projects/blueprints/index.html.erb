@@ -1,58 +1,62 @@
-<%= render Constructors::Projects::SectionsNavComponent.new(project: @project, current_section: :blueprints) %>
+<%
+  tabs = [
+    { value: :overview,   label: 'Resumen',       icon: :home,      href: constructors_project_path(@project) },
+    { value: :planning,   label: 'Planificación', icon: :planning,  count: @project.project_stages.where(parent_id: nil).count, href: constructors_project_planning_path(@project) },
+    { value: :materials,  label: 'Materiales',    icon: :materials, count: @project.material_lists.count, href: constructors_project_material_lists_path(@project) },
+    { value: :blueprints, label: 'Planos · IA',   icon: :blueprint, count: @blueprints.size, href: constructors_project_blueprints_path(@project) },
+    { value: :team,       label: 'Equipo',        icon: :people,    count: @project.project_people.count, href: constructors_project_people_path(@project) },
+    { value: :docs,       label: 'Documentos',    icon: :docs,      count: @project.documents.count, href: constructors_project_documents_path(@project) },
+  ]
+%>
 
-<div class="mt-6 space-y-6">
-  <%= render Ui::SectionHeaderComponent.new(title: 'Planos del proyecto', subtitle: 'Planos arquitectónicos para medición y cálculo de materiales') %>
+<div>
+  <%= render Constructors::ProjectsV2::HeaderComponent.new(project: @project) %>
+  <%= render Qb::TabsComponent.new(tabs: tabs, current: :blueprints) %>
 
-  <section class="rounded-3xl border border-slate-200 bg-white p-6 shadow-sm">
-    <div class="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
-      <h2 class="text-lg font-semibold text-slate-900">Planos</h2>
-      <%= link_to new_constructors_project_blueprint_path(@project), class: "inline-flex items-center gap-2 rounded-lg bg-indigo-600 px-4 py-2 text-sm font-medium text-white hover:bg-indigo-700" do %>
-        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" class="h-5 w-5">
-          <path d="M12 4v16m8-8H4" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
-        </svg>
-        Subir plano
-      <% end %>
+  <%# Header strip %>
+  <div style="padding:14px 20px;border-bottom:1px solid var(--color-line);display:flex;align-items:flex-end;gap:16px;">
+    <div style="flex:1;">
+      <div style="font-size:11px;font-family:var(--font-mono);color:var(--color-ink-3);text-transform:uppercase;letter-spacing:0.8px;"><%= @project.code %></div>
+      <h2 style="margin:3px 0 0;font-size:18px;font-weight:600;letter-spacing:-0.3px;">Planos · IA</h2>
+      <div style="font-size:12px;color:var(--color-ink-3);margin-top:2px;"><%= @blueprints.size %> planos cargados · análisis con IA</div>
     </div>
+    <%= render Qb::BtnComponent.new('Subir plano', variant: :primary, size: :sm, icon: :upload, href: new_constructors_project_blueprint_path(@project)) %>
+  </div>
 
-    <% if @blueprints.any? %>
-      <div class="mt-6 grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
-        <% @blueprints.each do |blueprint| %>
-          <div class="group relative overflow-hidden rounded-xl border border-slate-200 bg-white shadow-sm transition hover:shadow-md">
-            <%= link_to constructors_project_blueprint_path(@project, blueprint), class: "block" do %>
-              <div class="aspect-video overflow-hidden bg-slate-100">
-                <%= image_tag blueprint.file, class: "h-full w-full object-cover" %>
-              </div>
-              <div class="p-4">
-                <h3 class="font-semibold text-slate-900 group-hover:text-indigo-600"><%= blueprint.name %></h3>
-                <% if blueprint.description.present? %>
-                  <p class="mt-1 text-sm text-slate-600 line-clamp-2"><%= blueprint.description %></p>
-                <% end %>
-                <p class="mt-2 text-xs text-slate-500">
-                  Subido <%= time_ago_in_words(blueprint.uploaded_at) %> atrás
-                </p>
+  <% if @blueprints.any? %>
+    <div style="padding:16px;display:grid;grid-template-columns:repeat(auto-fill, minmax(280px, 1fr));gap:12px;">
+      <% @blueprints.each do |bp| %>
+        <%= link_to constructors_project_blueprint_path(@project, bp), style: 'border:1px solid var(--color-line);border-radius:8px;background:var(--color-bg-raised);overflow:hidden;text-decoration:none;color:inherit;display:flex;flex-direction:column;' do %>
+          <div style="aspect-ratio:16/10;background:var(--color-bg-sunken);overflow:hidden;border-bottom:1px solid var(--color-line);">
+            <% if bp.file.attached? %>
+              <%= image_tag bp.file, style: 'width:100%;height:100%;object-fit:cover;' %>
+            <% else %>
+              <div style="width:100%;height:100%;display:flex;align-items:center;justify-content:center;color:var(--color-ink-4);">
+                <%= render Qb::IconComponent.new(name: :blueprint, size: 32) %>
               </div>
             <% end %>
-            <div class="absolute right-2 top-2">
-              <%= button_to constructors_project_blueprint_path(@project, blueprint), 
-                    method: :delete, 
-                    class: "rounded-lg bg-white/90 p-2 text-red-600 opacity-0 shadow-sm transition hover:bg-red-50 group-hover:opacity-100", 
-                    data: { turbo_confirm: '¿Seguro que querés eliminar este plano?' } do %>
-                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" class="h-4 w-4">
-                  <path d="M6 19c0 1.1.9 2 2 2h8c1.1 0 2-.9 2-2V7H6v12zM19 4h-3.5l-1-1h-5l-1 1H5v2h14V4z"/>
-                </svg>
-              <% end %>
+          </div>
+          <div style="padding:12px;flex:1;display:flex;flex-direction:column;gap:4px;">
+            <div style="display:flex;align-items:center;gap:6px;">
+              <span class="qb-mono" style="font-size:10px;color:var(--color-ink-4);background:var(--color-bg-sunken);padding:1px 6px;border-radius:3px;">BP-<%= bp.id %></span>
+              <%= render Qb::PillComponent.new(tone: :ok, compact: true) { 'Listo' } %>
+            </div>
+            <div style="font-size:13px;font-weight:600;color:var(--color-ink);"><%= bp.name %></div>
+            <% if bp.description.present? %>
+              <div style="font-size:11px;color:var(--color-ink-3);"><%= truncate(bp.description, length: 80) %></div>
+            <% end %>
+            <div style="font-size:10px;color:var(--color-ink-4);margin-top:auto;font-family:var(--font-mono);">
+              <%= qb_fmt_date_short(bp.created_at) %> · hace <%= time_ago_in_words(bp.created_at) %>
             </div>
           </div>
         <% end %>
-      </div>
-    <% else %>
-      <div class="mt-6 text-center">
-        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" class="mx-auto h-12 w-12 text-slate-300">
-          <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8l-6-6zm4 18H6V4h7v5h5v11z"/>
-        </svg>
-        <p class="mt-4 text-sm text-slate-500">Aún no se cargaron planos.</p>
-        <p class="mt-1 text-xs text-slate-400">Subí planos arquitectónicos para comenzar a medir y calcular materiales.</p>
-      </div>
-    <% end %>
-  </section>
+      <% end %>
+    </div>
+  <% else %>
+    <div style="padding:60px;margin:16px;text-align:center;color:var(--color-ink-4);font-size:13px;border:1px dashed var(--color-line);border-radius:10px;">
+      <%= render Qb::IconComponent.new(name: :blueprint, size: 32, style: 'margin-bottom:8px;opacity:0.5;') %>
+      <div>Aún no se cargaron planos.</div>
+      <div style="font-size:11px;color:var(--color-ink-4);margin-top:6px;">Subí planos arquitectónicos para comenzar a medir y calcular materiales.</div>
+    </div>
+  <% end %>
 </div>

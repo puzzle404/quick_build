@@ -18,8 +18,9 @@ class Qb::BtnComponent < ViewComponent::Base
     md: 'height:32px;padding:0 12px;font-size:13px;',
   }.freeze
 
-  def initialize(variant: :ghost, size: :sm, icon: nil, href: nil, active: false, type: 'button',
+  def initialize(label = nil, variant: :ghost, size: :sm, icon: nil, href: nil, active: false, type: 'button',
                  data: {}, title: nil, css_class: nil, extra_style: nil, target: nil)
+    @label = label
     @variant = variant&.to_sym || :ghost
     @size = size&.to_sym || :sm
     @icon = icon
@@ -34,14 +35,16 @@ class Qb::BtnComponent < ViewComponent::Base
   end
 
   def call
+    label = (@label.presence || content).to_s
+    icon_html = @icon ? Qb::IconComponent.new(name: @icon, size: 13).call : ''.html_safe
+    body_html = safe_join([icon_html, label])
+
     if @href
       link_to @href, **link_opts do
-        body
+        body_html
       end
     else
-      button_tag type: @type, title: @title, data: @data, class: @css_class, style: full_style do
-        body
-      end
+      button_tag(body_html, type: @type, title: @title, data: @data, class: @css_class, style: full_style)
     end
   end
 
@@ -57,10 +60,5 @@ class Qb::BtnComponent < ViewComponent::Base
     base = 'display:inline-flex;align-items:center;gap:6px;font-weight:500;border-radius:5px;border-width:1px;border-style:solid;font-family:var(--font-ui);white-space:nowrap;cursor:pointer;text-decoration:none;transition:background .15s, border-color .15s, color .15s;'
     variant_style = (@variant == :ghost && @active) ? GHOST_ACTIVE : (VARIANTS[@variant] || VARIANTS[:ghost])
     [base, variant_style, SIZES[@size] || SIZES[:sm], @extra_style].compact.join
-  end
-
-  def body
-    icon_tag = @icon ? Qb::IconComponent.new(name: @icon, size: 13).call : ''.html_safe
-    safe_join([icon_tag, content])
   end
 end

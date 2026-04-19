@@ -11,7 +11,7 @@
             <span class="qb-mono" style="color:var(--color-ink-4);"><%= a[:project] %></span> · <%= a[:when] %>
           </div>
         </div>
-        <%= render Qb::BtnComponent.new(variant: :ghost, size: :xs) { 'Revisar' } %>
+        <%= render Qb::BtnComponent.new('Revisar', variant: :ghost, size: :xs) %>
       </div>
     <% end %>
   <% end %>

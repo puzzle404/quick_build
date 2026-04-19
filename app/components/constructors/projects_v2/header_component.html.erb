@@ -17,9 +17,9 @@
       </div>
     </div>
     <div style="display:flex;gap:8px;">
-      <%= render Qb::BtnComponent.new(variant: :secondary, size: :sm, icon: :download) { 'Exportar' } %>
-      <%= render Qb::BtnComponent.new(variant: :secondary, size: :sm, icon: :more) { '' } %>
-      <%= render Qb::BtnComponent.new(variant: :primary, size: :sm, icon: :plus) { 'Registrar gasto' } %>
+      <%= render Qb::BtnComponent.new('Exportar', variant: :secondary, size: :sm, icon: :download) %>
+      <%= render Qb::BtnComponent.new('', variant: :secondary, size: :sm, icon: :more) %>
+      <%= render Qb::BtnComponent.new('Registrar gasto', variant: :primary, size: :sm, icon: :plus) %>
     </div>
   </div>
 

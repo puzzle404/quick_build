@@ -31,8 +31,8 @@
       </div>
     </div>
     <div style="display:flex;gap:8px;">
-      <%= render Qb::BtnComponent.new(variant: :secondary, size: :sm, icon: :download) { 'Reporte' } %>
-      <%= render Qb::BtnComponent.new(variant: :primary, size: :sm, icon: :plus, href: new_constructors_project_path) { 'Nuevo proyecto' } %>
+      <%= render Qb::BtnComponent.new('Reporte', variant: :secondary, size: :sm, icon: :download) %>
+      <%= render Qb::BtnComponent.new('Nuevo proyecto', variant: :primary, size: :sm, icon: :plus, href: new_constructors_project_path) %>
     </div>
   </div>
 
@@ -109,8 +109,8 @@
           ) do |c| %>
         <% c.with_right do %>
           <div style="display:flex;gap:4px;align-items:center;">
-            <%= render Qb::BtnComponent.new(variant: :ghost, size: :xs, icon: :filter) { 'Filtros' } %>
-            <%= render Qb::BtnComponent.new(variant: :ghost, size: :xs, href: constructors_projects_path) { 'Ver todos →' } %>
+            <%= render Qb::BtnComponent.new('Filtros', variant: :ghost, size: :xs, icon: :filter) %>
+            <%= render Qb::BtnComponent.new('Ver todos →', variant: :ghost, size: :xs, href: constructors_projects_path) %>
           </div>
         <% end %>
       <% end %>
@@ -119,12 +119,12 @@
 
     <div style="display:flex;flex-direction:column;">
       <%= render Qb::SectionHeadComponent.new(title: 'Alertas · hoy', subtitle: "#{@projects_decorated.count { |p| p.health != :ok && p.status.to_s != 'completed' }} activas · ordenadas por impacto") do |c| %>
-        <% c.with_right { render Qb::BtnComponent.new(variant: :ghost, size: :xs) { 'Ver todas' } } %>
+        <% c.with_right { render Qb::BtnComponent.new('Ver todas', variant: :ghost, size: :xs) } %>
       <% end %>
       <%= render Constructors::DashboardV2::AlertStripComponent.new(projects: @projects_decorated) %>
 
       <%= render Qb::SectionHeadComponent.new(title: 'Actividad reciente') do |c| %>
-        <% c.with_right { render Qb::BtnComponent.new(variant: :ghost, size: :xs) { 'Stream' } } %>
+        <% c.with_right { render Qb::BtnComponent.new('Stream', variant: :ghost, size: :xs) } %>
       <% end %>
       <%= render Constructors::DashboardV2::ActivityFeedComponent.new(entries: @dashboard[:recent_activity]) %>
 
