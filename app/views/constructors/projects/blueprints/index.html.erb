@@ -24,34 +24,7 @@
   </div>
 
   <% if @blueprints.any? %>
-    <div style="padding:16px;display:grid;grid-template-columns:repeat(auto-fill, minmax(280px, 1fr));gap:12px;">
-      <% @blueprints.each do |bp| %>
-        <%= link_to constructors_project_blueprint_path(@project, bp), style: 'border:1px solid var(--color-line);border-radius:8px;background:var(--color-bg-raised);overflow:hidden;text-decoration:none;color:inherit;display:flex;flex-direction:column;' do %>
-          <div style="aspect-ratio:16/10;background:var(--color-bg-sunken);overflow:hidden;border-bottom:1px solid var(--color-line);">
-            <% if bp.file.attached? %>
-              <%= image_tag bp.file, style: 'width:100%;height:100%;object-fit:cover;' %>
-            <% else %>
-              <div style="width:100%;height:100%;display:flex;align-items:center;justify-content:center;color:var(--color-ink-4);">
-                <%= render Qb::IconComponent.new(name: :blueprint, size: 32) %>
-              </div>
-            <% end %>
-          </div>
-          <div style="padding:12px;flex:1;display:flex;flex-direction:column;gap:4px;">
-            <div style="display:flex;align-items:center;gap:6px;">
-              <span class="qb-mono" style="font-size:10px;color:var(--color-ink-4);background:var(--color-bg-sunken);padding:1px 6px;border-radius:3px;">BP-<%= bp.id %></span>
-              <%= render Qb::PillComponent.new(tone: :ok, compact: true) { 'Listo' } %>
-            </div>
-            <div style="font-size:13px;font-weight:600;color:var(--color-ink);"><%= bp.name %></div>
-            <% if bp.description.present? %>
-              <div style="font-size:11px;color:var(--color-ink-3);"><%= truncate(bp.description, length: 80) %></div>
-            <% end %>
-            <div style="font-size:10px;color:var(--color-ink-4);margin-top:auto;font-family:var(--font-mono);">
-              <%= qb_fmt_date_short(bp.created_at) %> · hace <%= time_ago_in_words(bp.created_at) %>
-            </div>
-          </div>
-        <% end %>
-      <% end %>
-    </div>
+    <%= render Constructors::ProjectsV2::Blueprints::WorkspaceComponent.new(project: @project, blueprints: @blueprints, selected: @selected_blueprint) %>
   <% else %>
     <div style="padding:60px;margin:16px;text-align:center;color:var(--color-ink-4);font-size:13px;border:1px dashed var(--color-line);border-radius:10px;">
       <%= render Qb::IconComponent.new(name: :blueprint, size: 32, style: 'margin-bottom:8px;opacity:0.5;') %>

@@ -9,6 +9,7 @@ class Constructors::Projects::BlueprintsController < Constructors::BaseControlle
     @current_qb_project = @project
     @current_qb_project_sub = :blueprints
     @blueprints = @project.blueprints.order(created_at: :desc)
+    @selected_blueprint = @blueprints.find_by(id: params[:selected]) || @blueprints.first
   end
 
   def new
