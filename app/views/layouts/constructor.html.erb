@@ -38,11 +38,19 @@
           ) %>
 
       <main style="flex:1;min-width:0;display:flex;flex-direction:column;">
+        <%
+          # Topbar values derived from DB so the chip doesn't lie:
+          #   · people_on_site → active project_people across owned projects
+          #   · has_alerts     → any in-progress project with non-:ok health
+          qb_people_on_site = (current_user.owned_projects.joins(:project_people).where(project_people: { status: ProjectPerson.statuses[:active] }).count rescue 0)
+          qb_people_on_site = nil if qb_people_on_site.zero?
+          qb_has_alerts = (current_user.owned_projects.in_progress.any? { |p| ProjectDecorator.new(p).health != :ok } rescue false)
+        %>
         <%= render Qb::Layout::TopbarComponent.new(
               crumbs: (content_for(:qb_crumbs).present? ? JSON.parse(content_for(:qb_crumbs), symbolize_names: true) : [{label: 'Inicio'}]),
               user: current_user,
-              people_on_site: 73,
-              has_alerts: true
+              people_on_site: qb_people_on_site,
+              has_alerts: qb_has_alerts
             ) %>
 
         <% if notice %>

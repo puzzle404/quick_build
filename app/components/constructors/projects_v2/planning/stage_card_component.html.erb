@@ -1,4 +1,4 @@
-<div data-controller="qb--expandable"
+<div data-controller="qb--expandable qb--drawer"
      data-qb--expandable-open-value="<%= initial_open? ? 'true' : 'false' %>"
      style="border:1px solid var(--color-line);border-radius:10px;background:var(--color-bg-raised);overflow:hidden;">
   <%# Header row %>
@@ -18,7 +18,8 @@
       </div>
     </div>
 
-    <%= link_to constructors_project_stage_path(project, stage), style: 'min-width:0;cursor:pointer;text-decoration:none;color:inherit;display:block;' do %>
+    <button type="button" data-action="click->qb--drawer#open"
+            style="min-width:0;cursor:pointer;text-align:left;background:transparent;border:none;padding:0;color:inherit;display:block;width:100%;">
       <div style="display:flex;align-items:center;gap:8px;margin-bottom:3px;flex-wrap:wrap;">
         <h3 style="margin:0;font-size:15px;font-weight:600;color:var(--color-ink);"><%= stage.name %></h3>
         <%= render Qb::PillComponent.new(tone: stage.status_tone, compact: true) { stage.status_label } %>
@@ -43,7 +44,7 @@
         <% if stage.images_count.positive? %><span style="display:inline-flex;align-items:center;gap:3px;"><%= render Qb::IconComponent.new(name: :image, size: 11) %><%= stage.images_count %></span><% end %>
         <% if stage.material_lists_count.positive? %><span style="display:inline-flex;align-items:center;gap:3px;"><%= render Qb::IconComponent.new(name: :materials, size: 11) %><%= stage.material_lists_count %></span><% end %>
       </div>
-    <% end %>
+    </button>
 
     <div style="display:flex;align-items:center;gap:14px;">
       <div style="width:120px;">
@@ -96,4 +97,8 @@
       </div>
     </div>
   <% end %>
+
+  <%# Stage detail drawer — opens via the title button above. Each card owns
+      its own drawer instance so open/close stays local to the card. %>
+  <%= render Constructors::ProjectsV2::Planning::StageDrawerComponent.new(project: project, stage: stage, sub_stages: sub_stages) %>
 </div>
