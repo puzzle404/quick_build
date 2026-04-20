@@ -75,3 +75,10 @@ constructor ||= User.find_by!(email: 'constructor@example.com')
     owner: constructor
   )
 end
+
+# Quick Build OS redesign demo seed — only loaded when DEMO_DATA=1.
+# Creates the 7 curated projects + stages + material lists + team members
+# from the Claude Design handoff. Idempotent (safe to re-run).
+if ENV['DEMO_DATA'].present?
+  load Rails.root.join('db/seeds/redesign_demo.rb')
+end

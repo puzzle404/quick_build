@@ -13,6 +13,7 @@ class Constructors::ProjectsV2::Overview::MiniMapComponent < ViewComponent::Base
 
   def coords_label
     return 'Ubicación pendiente' if lat.blank? || lng.blank?
-    "#{format('%.4f', lat)}, #{format('%.4f', lng)}"
+    # Use sprintf — `format` in a ViewComponent collides with ActionView#format (0-arg).
+    "#{sprintf('%.4f', lat)}, #{sprintf('%.4f', lng)}"
   end
 end
