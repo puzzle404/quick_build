@@ -2,6 +2,12 @@
 
 This file provides guidance to Claude Code (claude.ai/code) when working with code in this repository.
 
+## Prerequisites
+
+- Ruby 3.2+
+- PostgreSQL
+- Bundler
+
 ## Build & Development Commands
 
 ```bash
@@ -13,7 +19,7 @@ bin/rails db:setup      # Create, migrate, and seed
 bin/rails db:seed       # Load seed data
 
 # Development server
-bin/dev                 # Start with Procfile.dev
+bin/dev                 # Runs Puma + Tailwind watcher (Procfile.dev)
 
 # Tests (always use bundle exec)
 bundle exec rspec                        # Run all specs
@@ -38,6 +44,8 @@ Copy `.env.example` to `.env` for development. Key variables:
 
 QuickBuild is a construction project management platform with role-based access. Current focus is the **Constructor Operating System** - constructors manage projects, documentation, costs, and materials.
 
+Row-based multi-tenancy via `acts_as_tenant`. Background jobs, cache, and Action Cable all run on the Solid stack (`solid_queue`, `solid_cache`, `solid_cable`) — no Redis dependency.
+
 ### Key Patterns
 
 **Namespace Organization:**
@@ -46,8 +54,9 @@ QuickBuild is a construction project management platform with role-based access.
 - Public/marketing pages use `layouts/marketing.html.erb`
 
 **Authentication & Authorization:**
-- Custom authentication via `Authenticable` concern (not Devise, despite AGENTS.md mention)
+- Rails 8 session-based auth: `has_secure_password` on `User` + a `Session` model, wired through the `Authenticable` concern (`app/controllers/concerns/authenticable.rb`). AGENTS.md mentions Devise — that reference is stale, ignore it.
 - Authorization via Pundit policies in `app/policies/`
+- User roles enum: `buyer, constructor, admin, seller` (sellers require a `company`)
 - Role checking via `RolesHelper` (e.g., `current_user.constructor?`)
 
 **Code Organization Guidelines (from AGENTS.md):**
@@ -69,11 +78,11 @@ Core entities under constructor namespace:
 
 ### AI Integration
 
-Blueprint analysis uses OpenAI via `ruby-openai` gem:
-- `app/ai/client.rb` - OpenAI client wrapper
-- `app/ai/prompts/` - Prompt templates
-- `app/ai/parsers/` - Response parsers
-- `app/ai/services/` - AI service orchestration
+Blueprint analysis uses OpenAI via `ruby-openai` gem. The `Ai` module lives under `lib/ai/` (moved from `app/ai/` to satisfy Zeitwerk — do not move it back):
+- `lib/ai/client.rb` - OpenAI client wrapper
+- `lib/ai/prompts/` - Prompt templates
+- `lib/ai/parsers/` - Response parsers
+- `lib/ai/services/` - AI service orchestration (e.g., `BlueprintAnalyzer`, `VisionProcessor`)
 
 ### Frontend Stack
 

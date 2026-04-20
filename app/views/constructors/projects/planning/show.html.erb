@@ -18,7 +18,7 @@
      data-qb--view-switcher-storage-key-value="qb_planning_view"
      data-qb--view-switcher-default-value="cards">
 
-  <%= render Constructors::ProjectsV2::HeaderComponent.new(project: @project) %>
+  <%= render Constructors::Projects::HeaderComponent.new(project: @project) %>
   <%= render Qb::TabsComponent.new(tabs: tabs, current: :planning) %>
 
   <%# Page header %>
@@ -59,7 +59,7 @@
     <% if @root_stages.any? %>
       <div style="padding:16px;display:flex;flex-direction:column;gap:12px;">
         <% @root_stages.each do |stage| %>
-          <%= render Constructors::ProjectsV2::Planning::StageCardComponent.new(project: @project, stage: stage, sub_stages: stage.sub_stages.order(:position, :name)) %>
+          <%= render Constructors::Projects::Planning::StageCardComponent.new(project: @project, stage: stage, sub_stages: stage.sub_stages.order(:position, :name)) %>
         <% end %>
       </div>
     <% else %>
@@ -72,7 +72,7 @@
   <%# Gantt view %>
   <div data-qb--view-switcher-target="panel" data-view="gantt" style="display:none;">
     <% if @root_stages.any? %>
-      <%= render Constructors::ProjectsV2::Planning::GanttComponent.new(project: @project, root_stages: @root_stages) %>
+      <%= render Constructors::Projects::Planning::GanttComponent.new(project: @project, root_stages: @root_stages) %>
     <% else %>
       <div style="padding:60px;text-align:center;color:var(--color-ink-3);font-size:13px;">No hay etapas para mostrar en el Gantt.</div>
     <% end %>
@@ -81,7 +81,7 @@
   <%# WBS view %>
   <div data-qb--view-switcher-target="panel" data-view="wbs" style="display:none;">
     <% if @root_stages.any? %>
-      <%= render Constructors::ProjectsV2::Planning::WbsTableComponent.new(project: @project, root_stages: @root_stages) %>
+      <%= render Constructors::Projects::Planning::WbsTableComponent.new(project: @project, root_stages: @root_stages) %>
     <% else %>
       <div style="padding:60px;text-align:center;color:var(--color-ink-3);font-size:13px;">Sin etapas cargadas.</div>
     <% end %>

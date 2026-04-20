@@ -13,7 +13,7 @@
 %>
 
 <div>
-  <%= render Constructors::ProjectsV2::HeaderComponent.new(project: @project) %>
+  <%= render Constructors::Projects::HeaderComponent.new(project: @project) %>
   <%= render Qb::TabsComponent.new(tabs: tabs, current: :team) %>
 
   <%# KPI strip %>

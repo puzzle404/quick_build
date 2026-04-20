@@ -10,7 +10,7 @@
 %>
 
 <div>
-  <%= render Constructors::ProjectsV2::HeaderComponent.new(project: @project) %>
+  <%= render Constructors::Projects::HeaderComponent.new(project: @project) %>
 
   <%= render Qb::TabsComponent.new(tabs: tabs, current: :overview) do |c| %>
     <% c.with_right do %>
@@ -26,29 +26,29 @@
       <%= render Qb::SectionHeadComponent.new(title: 'Curva S · Real vs Plan') do |c| %>
         <% c.with_right { render Qb::BtnComponent.new('PNG', variant: :ghost, size: :xs, icon: :download) } %>
       <% end %>
-      <%= render Constructors::ProjectsV2::Overview::SCurveComponent.new(project: @project) %>
+      <%= render Constructors::Projects::Overview::SCurveComponent.new(project: @project) %>
 
       <%= render Qb::SectionHeadComponent.new(title: 'Mini-map de obra', subtitle: 'Todas las etapas en una sola vista · color = salud') %>
-      <%= render Constructors::ProjectsV2::Overview::StageHeatmapComponent.new(stages: @stages_root) %>
+      <%= render Constructors::Projects::Overview::StageHeatmapComponent.new(stages: @stages_root) %>
 
       <%= render Qb::SectionHeadComponent.new(title: 'Actividad en este proyecto') %>
-      <%= render Constructors::DashboardV2::ActivityFeedComponent.new(entries: @activity_entries) %>
+      <%= render Constructors::Dashboard::ActivityFeedComponent.new(entries: @activity_entries) %>
     </div>
 
     <div>
       <%= render Qb::SectionHeadComponent.new(title: 'Riesgos y bloqueos') %>
-      <%= render Constructors::ProjectsV2::Overview::RisksPanelComponent.new(project: @project) %>
+      <%= render Constructors::Projects::Overview::RisksPanelComponent.new(project: @project) %>
 
       <%= render Qb::SectionHeadComponent.new(title: 'Ubicación') %>
-      <%= render Constructors::ProjectsV2::Overview::MiniMapComponent.new(lat: @project.latitude, lng: @project.longitude) %>
+      <%= render Constructors::Projects::Overview::MiniMapComponent.new(lat: @project.latitude, lng: @project.longitude) %>
 
       <%= render Qb::SectionHeadComponent.new(title: 'Equipo asignado') do |c| %>
         <% c.with_right { render Qb::BtnComponent.new('Invitar', variant: :ghost, size: :xs, icon: :plus) } %>
       <% end %>
-      <%= render Constructors::ProjectsV2::Overview::TeamChipsComponent.new(members: @members.first(6)) %>
+      <%= render Constructors::Projects::Overview::TeamChipsComponent.new(members: @members.first(6)) %>
 
       <%= render Qb::SectionHeadComponent.new(title: 'Documentos recientes') %>
-      <%= render Constructors::ProjectsV2::Overview::RecentDocsComponent.new(documents: @recent_documents) %>
+      <%= render Constructors::Projects::Overview::RecentDocsComponent.new(documents: @recent_documents) %>
     </div>
   </div>
 </div>

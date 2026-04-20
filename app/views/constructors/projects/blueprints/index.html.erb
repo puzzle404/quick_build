@@ -10,7 +10,7 @@
 %>
 
 <div>
-  <%= render Constructors::ProjectsV2::HeaderComponent.new(project: @project) %>
+  <%= render Constructors::Projects::HeaderComponent.new(project: @project) %>
   <%= render Qb::TabsComponent.new(tabs: tabs, current: :blueprints) %>
 
   <%# Header strip %>
@@ -24,7 +24,7 @@
   </div>
 
   <% if @blueprints.any? %>
-    <%= render Constructors::ProjectsV2::Blueprints::WorkspaceComponent.new(project: @project, blueprints: @blueprints, selected: @selected_blueprint) %>
+    <%= render Constructors::Projects::Blueprints::WorkspaceComponent.new(project: @project, blueprints: @blueprints, selected: @selected_blueprint) %>
   <% else %>
     <div style="padding:60px;margin:16px;text-align:center;color:var(--color-ink-4);font-size:13px;border:1px dashed var(--color-line);border-radius:10px;">
       <%= render Qb::IconComponent.new(name: :blueprint, size: 32, style: 'margin-bottom:8px;opacity:0.5;') %>

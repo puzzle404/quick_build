@@ -38,24 +38,24 @@
 
   <%# Hero strip — 4 colourful gradient cards %>
   <div style="display:grid;grid-template-columns:repeat(4, 1fr);gap:12px;padding:16px;border-bottom:1px solid var(--color-line);">
-    <%= render Constructors::DashboardV2::HeroCardComponent.new(
+    <%= render Constructors::Dashboard::HeroCardComponent.new(
           variant: :violet, icon: :projects, label: 'Obras totales',
           value: total, hint: "#{in_progress + planned} activas · #{completed} finalizadas",
           cta_label: 'Ver proyectos', cta_href: constructors_projects_path
         ) %>
-    <%= render Constructors::DashboardV2::HeroCardComponent.new(
+    <%= render Constructors::Dashboard::HeroCardComponent.new(
           variant: :amber, icon: :zap, label: 'En progreso',
           value: in_progress,
           hint: "#{(in_progress.to_f / [total, 1].max * 100).round}% del total",
           progress: (in_progress.to_f / [total, 1].max * 100).round,
           cta_label: 'Ver en progreso', cta_href: constructors_projects_path(status: :in_progress)
         ) %>
-    <%= render Constructors::DashboardV2::HeroCardComponent.new(
+    <%= render Constructors::Dashboard::HeroCardComponent.new(
           variant: :sky, icon: :planning, label: 'Planificadas',
           value: planned, hint: 'próximas a iniciar',
           cta_label: 'Ver planificadas', cta_href: constructors_projects_path(status: :planned)
         ) %>
-    <%= render Constructors::DashboardV2::HeroCardComponent.new(
+    <%= render Constructors::Dashboard::HeroCardComponent.new(
           variant: :emerald, icon: :check, label: 'Completadas',
           value: completed,
           hint: "#{(completed.to_f / [total, 1].max * 100).round}% de entrega global",
@@ -66,25 +66,25 @@
 
   <%# Operational KPI strip — 4 dense cells %>
   <div style="display:grid;grid-template-columns:repeat(4, 1fr);border-bottom:1px solid var(--color-line);background:var(--color-bg-raised);">
-    <%= render Constructors::DashboardV2::KpiBlockComponent.new(
+    <%= render Constructors::Dashboard::KpiBlockComponent.new(
           label: 'Etapas iniciadas',
           value: ev_progress.last.to_i,
           hint: "este mes · #{ev_progress.last(2).first.to_i} mes anterior",
           tone: :ok, data: ev_progress.any? ? ev_progress : [0]
         ) %>
-    <%= render Constructors::DashboardV2::KpiBlockComponent.new(
+    <%= render Constructors::Dashboard::KpiBlockComponent.new(
           label: 'Etapas finalizadas',
           value: ev_completed.last.to_i,
           hint: 'cerradas este mes',
           tone: :info, data: ev_completed.any? ? ev_completed : [0]
         ) %>
-    <%= render Constructors::DashboardV2::KpiBlockComponent.new(
+    <%= render Constructors::Dashboard::KpiBlockComponent.new(
           label: 'Ítems materiales',
           value: m[:material_items].to_i,
           hint: "en #{m[:material_lists]} listas",
           tone: :accent, data: ev_estimated.any? ? ev_estimated : [0]
         ) %>
-    <%= render Constructors::DashboardV2::KpiBlockComponent.new(
+    <%= render Constructors::Dashboard::KpiBlockComponent.new(
           label: 'Costo estimado',
           value: qb_fmt_cents(m[:total_estimated_cents]),
           hint: 'acumulado en listas',
@@ -96,7 +96,7 @@
   <div style="display:grid;grid-template-columns:1.4fr 1fr;gap:0;">
     <div style="border-right:1px solid var(--color-line);">
       <%= render Qb::SectionHeadComponent.new(title: 'Evolución · 6 meses', subtitle: 'Avance físico real vs plan · Gasto mensual') %>
-      <%= render Constructors::DashboardV2::EvolutionChartComponent.new(
+      <%= render Constructors::Dashboard::EvolutionChartComponent.new(
             months: ev_labels,
             spend: ev_estimated.map { |c| (c.to_f / 100).round },
             progress: ev_progress.map(&:to_f),
@@ -114,22 +114,22 @@
           </div>
         <% end %>
       <% end %>
-      <%= render Constructors::DashboardV2::ProjectsTableComponent.new(rows: @active_projects) %>
+      <%= render Constructors::Dashboard::ProjectsTableComponent.new(rows: @active_projects) %>
     </div>
 
     <div style="display:flex;flex-direction:column;">
       <%= render Qb::SectionHeadComponent.new(title: 'Alertas · hoy', subtitle: "#{@projects_decorated.count { |p| p.health != :ok && p.status.to_s != 'completed' }} activas · ordenadas por impacto") do |c| %>
         <% c.with_right { render Qb::BtnComponent.new('Ver todas', variant: :ghost, size: :xs) } %>
       <% end %>
-      <%= render Constructors::DashboardV2::AlertStripComponent.new(projects: @projects_decorated) %>
+      <%= render Constructors::Dashboard::AlertStripComponent.new(projects: @projects_decorated) %>
 
       <%= render Qb::SectionHeadComponent.new(title: 'Actividad reciente') do |c| %>
         <% c.with_right { render Qb::BtnComponent.new('Stream', variant: :ghost, size: :xs) } %>
       <% end %>
-      <%= render Constructors::DashboardV2::ActivityFeedComponent.new(entries: @dashboard[:recent_activity]) %>
+      <%= render Constructors::Dashboard::ActivityFeedComponent.new(entries: @dashboard[:recent_activity]) %>
 
       <%= render Qb::SectionHeadComponent.new(title: 'Próximas etapas · 14 días') %>
-      <%= render Constructors::DashboardV2::UpcomingStagesComponent.new(stages: @dashboard[:upcoming_stages]) %>
+      <%= render Constructors::Dashboard::UpcomingStagesComponent.new(stages: @dashboard[:upcoming_stages]) %>
     </div>
   </div>
 </div>

@@ -64,7 +64,7 @@
   <%# Panels %>
   <div data-qb--view-switcher-target="panel" data-view="list">
     <% if @projects_decorated.any? %>
-      <%= render Constructors::DashboardV2::ProjectsTableComponent.new(rows: @projects_decorated) %>
+      <%= render Constructors::Dashboard::ProjectsTableComponent.new(rows: @projects_decorated) %>
     <% else %>
       <div style="padding:60px;text-align:center;color:var(--color-ink-3);font-size:13px;">No hay obras que coincidan con los filtros.</div>
     <% end %>
@@ -74,7 +74,7 @@
     <% if @projects_decorated.any? %>
       <div style="padding:16px;display:grid;grid-template-columns:repeat(auto-fill, minmax(300px, 1fr));gap:12px;">
         <% @projects_decorated.each do |p| %>
-          <%= render Constructors::ProjectsV2::List::GridCardComponent.new(project: p) %>
+          <%= render Constructors::Projects::List::GridCardComponent.new(project: p) %>
         <% end %>
       </div>
     <% else %>
