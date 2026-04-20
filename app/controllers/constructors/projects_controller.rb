@@ -39,6 +39,7 @@ class Constructors::ProjectsController < Constructors::BaseController
   end
 
   def new
+    @current_qb_section = :projects
     @project = current_user.owned_projects.build
     authorize @project
   end
@@ -48,6 +49,10 @@ class Constructors::ProjectsController < Constructors::BaseController
     authorize @project
 
     if persist_project_with_documents(@project)
+      # Wizard step 3 may request the base stage template — apply it now.
+      if params[:apply_template].to_s == 'template'
+        ::Constructors::Projects::StageTemplateService.call(@project) rescue nil
+      end
       flash[:new_project] = true
       redirect_to constructors_project_path(@project), notice: "¡Obra creada correctamente!"
     else
@@ -79,7 +84,8 @@ class Constructors::ProjectsController < Constructors::BaseController
 
   def project_params
     params.require(:project)
-          .permit(:name, :location, :start_date, :end_date, :status, :latitude, :longitude, document_files: [])
+          .permit(:name, :client, :location, :start_date, :end_date, :status, :budget_cents,
+                  :latitude, :longitude, document_files: [])
   end
 
   def set_project

@@ -47,7 +47,7 @@
           qb_has_alerts = (current_user.owned_projects.in_progress.any? { |p| ProjectDecorator.new(p).health != :ok } rescue false)
         %>
         <%= render Qb::Layout::TopbarComponent.new(
-              crumbs: (content_for(:qb_crumbs).present? ? JSON.parse(content_for(:qb_crumbs), symbolize_names: true) : [{label: 'Inicio'}]),
+              crumbs: (content_for(:qb_crumbs).present? ? JSON.parse(CGI.unescapeHTML(content_for(:qb_crumbs).to_s), symbolize_names: true) : [{label: 'Inicio'}]),
               user: current_user,
               people_on_site: qb_people_on_site,
               has_alerts: qb_has_alerts
