@@ -36,20 +36,39 @@
       <h2 style="margin:3px 0 0;font-size:18px;font-weight:600;letter-spacing:-0.3px;">Listas de materiales</h2>
       <div style="font-size:12px;color:var(--color-ink-3);margin-top:2px;">Creá listas por etapa o generales, manualmente o desde PDF/Excel.</div>
     </div>
-    <%= render Qb::BtnComponent.new('Importar PDF/Excel', variant: :ghost, size: :sm, icon: :upload) %>
-    <%= render Qb::BtnComponent.new('Generar con IA', variant: :secondary, size: :sm, icon: :ai) %>
-    <%= render Qb::BtnComponent.new('Nueva lista', variant: :primary, size: :sm, icon: :plus, href: new_constructors_project_material_list_path(@project)) %>
+    <div data-controller="qb--modal" style="display:contents;">
+      <%= render Qb::BtnComponent.new('Importar PDF/Excel', variant: :ghost, size: :sm, icon: :upload, data: { action: 'click->qb--modal#open' }) %>
+      <%= render Qb::BtnComponent.new('Generar con IA', variant: :secondary, size: :sm, icon: :ai) %>
+      <%= render Qb::BtnComponent.new('Nueva lista', variant: :primary, size: :sm, icon: :plus, data: { action: 'click->qb--modal#open' }) %>
+      <%= render Constructors::ProjectsV2::Materials::NewListModalComponent.new(project: @project) %>
+    </div>
   </div>
 
-  <%# Toolbar — search %>
+  <%# Toolbar — search + filter chips %>
+  <%
+    base_path = constructors_project_material_lists_path(@project)
+    extra = { q: @query.presence, status: @status_filter == 'all' ? nil : @status_filter, source: @source_filter == 'all' ? nil : @source_filter, stage: @stage_filter.presence }
+    status_options = [['all', 'Todos'], ['approved', 'Aprobada'], ['ready_for_review', 'En revisión'], ['draft', 'Borrador']]
+    source_options = [['all', 'Todos'], ['manual', 'Manual'], ['pdf_upload', 'PDF'], ['excel_upload', 'Excel']]
+    stage_options  = [['all', 'Todas'], ['none', 'Sin etapa']] +
+                      @project.project_stages.where(parent_id: nil).order(:position).pluck(:id, :name).map { |id, name| [id.to_s, name] }
+  %>
   <div style="display:flex;align-items:center;padding:10px 16px;gap:8px;border-bottom:1px solid var(--color-line);background:var(--color-bg-raised);">
-    <%= form_with url: constructors_project_material_lists_path(@project), method: :get, html: { style: 'display:flex;align-items:center;gap:8px;flex:1;' } do |f| %>
-      <div style="display:flex;align-items:center;gap:6px;padding:0 10px;height:28px;background:var(--color-bg);border:1px solid var(--color-line);border-radius:5px;flex:1;max-width:320px;">
+    <%= form_with url: base_path, method: :get, html: { style: 'display:flex;align-items:center;gap:8px;' } do |f| %>
+      <% if @status_filter != 'all' %><%= hidden_field_tag :status, @status_filter %><% end %>
+      <% if @source_filter != 'all' %><%= hidden_field_tag :source, @source_filter %><% end %>
+      <% if @stage_filter.present? && @stage_filter != 'all' %><%= hidden_field_tag :stage, @stage_filter %><% end %>
+      <div style="display:flex;align-items:center;gap:6px;padding:0 10px;height:28px;background:var(--color-bg);border:1px solid var(--color-line);border-radius:5px;width:280px;">
         <%= render Qb::IconComponent.new(name: :search, size: 13, style: 'color:var(--color-ink-4)') %>
         <%= f.search_field :q, value: @query, placeholder: 'Buscar lista, etapa o autor…',
                             style: 'flex:1;border:none;outline:none;background:transparent;font-size:12px;color:var(--color-ink);' %>
       </div>
     <% end %>
+
+    <%= render Qb::FilterChipComponent.new(label: 'Estado', param: :status, value: @status_filter, options: status_options, base_path: base_path, extra_params: extra.except(:status)) %>
+    <%= render Qb::FilterChipComponent.new(label: 'Etapa',  param: :stage,  value: (@stage_filter.presence || 'all'), options: stage_options, base_path: base_path, extra_params: extra.except(:stage)) %>
+    <%= render Qb::FilterChipComponent.new(label: 'Origen', param: :source, value: @source_filter, options: source_options, base_path: base_path, extra_params: extra.except(:source)) %>
+
     <div style="flex:1;"></div>
     <span class="qb-mono" style="font-size:11px;color:var(--color-ink-3);"><%= @material_lists.size %> / <%= all.size %> listas</span>
   </div>

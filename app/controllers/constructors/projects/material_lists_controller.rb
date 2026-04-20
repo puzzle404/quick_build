@@ -15,12 +15,22 @@ class Constructors::Projects::MaterialListsController < Constructors::BaseContro
     @from_date = params[:from_date].presence
     @to_date = params[:to_date].presence
 
+    # Redesign filter chips
+    @status_filter = params[:status].to_s.presence_in(MaterialList.statuses.keys.map(&:to_s)) || 'all'
+    @source_filter = params[:source].to_s.presence_in(MaterialList.source_types.keys.map(&:to_s)) || 'all'
+    @stage_filter  = params[:stage].to_s # 'all', 'none', or stage id
+
     @material_lists = Constructors::Projects::MaterialListSearchService.new(
       project: @project,
       query: @query,
       from_date: @from_date,
       to_date: @to_date
     ).results
+
+    @material_lists = @material_lists.where(status: MaterialList.statuses[@status_filter])           if @status_filter != 'all'
+    @material_lists = @material_lists.where(source_type: MaterialList.source_types[@source_filter])  if @source_filter != 'all'
+    @material_lists = @material_lists.where(project_stage_id: nil)                                   if @stage_filter == 'none'
+    @material_lists = @material_lists.where(project_stage_id: @stage_filter.to_i)                    if @stage_filter.present? && @stage_filter != 'all' && @stage_filter != 'none'
   end
 
   def show

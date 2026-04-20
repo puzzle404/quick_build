@@ -1,0 +1,69 @@
+<div data-qb--modal-target="dialog"
+     class="hidden"
+     data-action="click->qb--modal#backdrop keydown@window->qb--modal#keydown"
+     style="display:none;position:fixed;inset:0;z-index:60;background:rgba(0,0,0,0.45);align-items:center;justify-content:center;">
+  <div data-qb--modal-target="panel"
+       data-controller="qb--source-picker"
+       style="position:relative;width:540px;background:var(--color-bg);border:1px solid var(--color-line);border-radius:10px;overflow:hidden;box-shadow:0 20px 50px -10px rgba(0,0,0,0.4);">
+
+    <div style="padding:14px 18px;border-bottom:1px solid var(--color-line);display:flex;justify-content:space-between;align-items:center;">
+      <h3 style="margin:0;font-size:15px;font-weight:600;">Nueva lista de materiales</h3>
+      <button type="button" data-action="click->qb--modal#close"
+              style="background:transparent;border:none;color:var(--color-ink-3);cursor:pointer;">
+        <%= render Qb::IconComponent.new(name: :x, size: 16) %>
+      </button>
+    </div>
+
+    <%= form_with url: constructors_project_material_lists_path(project), method: :post, html: { style: 'display:flex;flex-direction:column;' } do |f| %>
+      <div style="padding:18px;display:flex;flex-direction:column;gap:14px;">
+        <label style="display:flex;flex-direction:column;gap:5px;">
+          <span style="font-size:11px;font-weight:500;color:var(--color-ink-2);">Nombre <span style="color:var(--color-accent);">*</span></span>
+          <%= f.text_field :name, required: true, placeholder: 'Ej: Hierros para estructura · Losas 1°–3°',
+                            style: 'width:100%;padding:8px 10px;font-size:13px;border:1px solid var(--color-line);border-radius:5px;background:var(--color-bg);color:var(--color-ink);outline:none;font-family:inherit;' %>
+        </label>
+
+        <label style="display:flex;flex-direction:column;gap:5px;">
+          <span style="font-size:11px;font-weight:500;color:var(--color-ink-2);">Etapa asociada (opcional)</span>
+          <%= f.select :project_stage_id, [['— Sin etapa asociada —', '']] + stage_options, {},
+                        style: 'width:100%;padding:8px 10px;font-size:13px;border:1px solid var(--color-line);border-radius:5px;background:var(--color-bg);color:var(--color-ink);outline:none;font-family:inherit;' %>
+        </label>
+
+        <div>
+          <div style="font-size:11px;font-weight:500;color:var(--color-ink-2);margin-bottom:5px;">Origen de datos</div>
+          <%# Hidden field tracks the picked source; buttons below toggle it via Stimulus. %>
+          <%= f.hidden_field :source_type, value: 'manual', data: { qb_source_picker_target: 'value' } %>
+          <div style="display:grid;grid-template-columns:repeat(3, 1fr);gap:6px;">
+            <% SOURCES.each do |s| %>
+              <button type="button"
+                      data-action="click->qb--source-picker#pick"
+                      data-qb--source-picker-key-param="<%= s[:key] %>"
+                      data-qb-source-key="<%= s[:key] %>"
+                      data-qb-source-picker-button
+                      style="padding:10px;background:<%= s[:key] == :manual ? 'color-mix(in oklab, var(--color-accent) 10%, transparent)' : 'var(--color-bg-raised)' %>;border:1px solid <%= s[:key] == :manual ? 'var(--color-accent)' : 'var(--color-line)' %>;border-radius:6px;cursor:pointer;text-align:left;display:flex;flex-direction:column;gap:4px;color:<%= s[:key] == :manual ? 'var(--color-accent)' : 'var(--color-ink)' %>;">
+                <%= render Qb::IconComponent.new(name: s[:icon], size: 14) %>
+                <div style="font-size:12px;font-weight:600;"><%= s[:label] %></div>
+                <div style="font-size:10.5px;color:var(--color-ink-3);"><%= s[:hint] %></div>
+              </button>
+            <% end %>
+          </div>
+        </div>
+
+        <label style="display:flex;flex-direction:column;gap:5px;">
+          <span style="font-size:11px;font-weight:500;color:var(--color-ink-2);">Notas (opcional)</span>
+          <%= f.text_area :notes, rows: 3, placeholder: 'Contexto, proveedor sugerido, revisiones pendientes…',
+                          style: 'width:100%;padding:8px 10px;font-size:13px;border:1px solid var(--color-line);border-radius:5px;background:var(--color-bg);color:var(--color-ink);outline:none;font-family:inherit;resize:vertical;' %>
+        </label>
+      </div>
+
+      <div style="padding:12px 18px;border-top:1px solid var(--color-line);display:flex;gap:8px;justify-content:flex-end;background:var(--color-bg-raised);">
+        <button type="button" data-action="click->qb--modal#close"
+                style="height:28px;padding:0 10px;background:transparent;color:var(--color-ink-2);border:1px solid transparent;border-radius:5px;font-size:12px;cursor:pointer;">Cancelar</button>
+        <button type="submit"
+                style="display:inline-flex;align-items:center;gap:6px;height:28px;padding:0 10px;background:var(--color-accent);color:var(--color-accent-ink);border:1px solid var(--color-accent);border-radius:5px;font-size:12px;font-weight:500;cursor:pointer;">
+          <%= render Qb::IconComponent.new(name: :check, size: 13) %>
+          Crear lista
+        </button>
+      </div>
+    <% end %>
+  </div>
+</div>
