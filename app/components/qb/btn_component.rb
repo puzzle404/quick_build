@@ -19,7 +19,7 @@ class Qb::BtnComponent < ViewComponent::Base
   }.freeze
 
   def initialize(label = nil, variant: :ghost, size: :sm, icon: nil, href: nil, active: false, type: 'button',
-                 data: {}, title: nil, css_class: nil, extra_style: nil, target: nil)
+                 data: {}, title: nil, css_class: nil, extra_style: nil, target: nil, aria_label: nil)
     @label = label
     @variant = variant&.to_sym || :ghost
     @size = size&.to_sym || :sm
@@ -32,6 +32,7 @@ class Qb::BtnComponent < ViewComponent::Base
     @css_class = css_class
     @extra_style = extra_style
     @target = target
+    @aria_label = aria_label
   end
 
   def call
@@ -39,12 +40,21 @@ class Qb::BtnComponent < ViewComponent::Base
     icon_html = @icon ? Qb::IconComponent.new(name: @icon, size: 13).call : ''.html_safe
     body_html = safe_join([icon_html, label])
 
+    # Icon-only buttons (no visible label) need an explicit accessible name
+    # to avoid screen-reader-silent buttons. Fall back to the icon name when
+    # the caller didn't pass aria_label or title.
+    aria_value = if label.strip.empty?
+                   @aria_label || @title || @icon&.to_s&.titleize
+                 else
+                   @aria_label
+                 end
+
     if @href
-      link_to @href, **link_opts do
+      link_to @href, **link_opts.merge('aria-label': aria_value).compact do
         body_html
       end
     else
-      button_tag(body_html, type: @type, title: @title, data: @data, class: @css_class, style: full_style)
+      button_tag(body_html, type: @type, title: @title, data: @data, class: @css_class, style: full_style, 'aria-label': aria_value)
     end
   end
 

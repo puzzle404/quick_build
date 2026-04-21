@@ -1,4 +1,4 @@
-<div data-qb--drawer-target="dialog"
+<div data-qb--drawer-target="dialog" role="dialog" aria-modal="true"
      class="hidden"
      data-action="click->qb--drawer#backdrop keydown@window->qb--drawer#keydown"
      style="display:none;position:fixed;inset:0;z-index:50;background:rgba(0,0,0,0.40);justify-content:flex-end;">
@@ -7,7 +7,7 @@
 
     <%# Header strip %>
     <div style="padding:14px 20px;border-bottom:1px solid var(--color-line);display:flex;align-items:center;gap:10px;">
-      <button type="button" data-action="click->qb--drawer#close"
+      <button type="button" data-action="click->qb--drawer#close" aria-label="Cerrar"
               style="background:transparent;border:none;color:var(--color-ink-3);cursor:pointer;padding:4px;">
         <%= render Qb::IconComponent.new(name: :x, size: 16) %>
       </button>

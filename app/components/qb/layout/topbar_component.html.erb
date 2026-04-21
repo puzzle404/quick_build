@@ -20,14 +20,17 @@
       </div>
     <% end %>
 
-    <button type="button" style="position:relative;height:28px;width:28px;background:transparent;border:none;color:var(--color-ink-2);cursor:pointer;display:inline-flex;align-items:center;justify-content:center;border-radius:5px;">
+    <button type="button"
+            aria-label="<%= has_alerts ? 'Notificaciones (hay alertas)' : 'Notificaciones' %>"
+            style="position:relative;height:28px;width:28px;background:transparent;border:none;color:var(--color-ink-2);cursor:pointer;display:inline-flex;align-items:center;justify-content:center;border-radius:5px;">
       <%= render Qb::IconComponent.new(name: :bell, size: 14) %>
       <% if has_alerts %>
-        <span style="position:absolute;top:4px;right:6px;width:6px;height:6px;border-radius:999px;background:var(--color-warn);"></span>
+        <span aria-hidden="true" style="position:absolute;top:4px;right:6px;width:6px;height:6px;border-radius:999px;background:var(--color-warn);"></span>
       <% end %>
     </button>
 
     <button type="button"
+            aria-label="Ajustes de apariencia"
             data-action="click->qb--tweaks#open"
             style="height:28px;width:28px;background:transparent;border:none;color:var(--color-ink-2);cursor:pointer;display:inline-flex;align-items:center;justify-content:center;border-radius:5px;">
       <%= render Qb::IconComponent.new(name: :settings, size: 14) %>

@@ -120,6 +120,22 @@
     width: 100% !important;
   }
 
+  /* ─── A11y · focus rings consistentes en QB chrome ───────── */
+  body.qb-os :focus-visible {
+    outline: 2px solid var(--color-accent);
+    outline-offset: 2px;
+    border-radius: 4px;
+  }
+  /* No quitar outline en botones — :focus-visible mejora encima */
+  body.qb-os button:focus-visible,
+  body.qb-os a:focus-visible,
+  body.qb-os input:focus-visible,
+  body.qb-os select:focus-visible,
+  body.qb-os textarea:focus-visible {
+    outline: 2px solid var(--color-accent);
+    outline-offset: 2px;
+  }
+
   /* ─── Sidebar collapse ───────────────────────────────────── */
   .qb-sidebar { width: 224px; }
   .qb-sidebar.qb-sidebar-collapsed { width: 56px; }
