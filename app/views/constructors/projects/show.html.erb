@@ -42,10 +42,13 @@
       <%= render Qb::SectionHeadComponent.new(title: 'Ubicación') %>
       <%= render Constructors::Projects::Overview::MiniMapComponent.new(lat: @project.latitude, lng: @project.longitude) %>
 
-      <%= render Qb::SectionHeadComponent.new(title: 'Equipo asignado') do |c| %>
-        <% c.with_right { render Qb::BtnComponent.new('Invitar', variant: :ghost, size: :xs, icon: :plus) } %>
-      <% end %>
-      <%= render Constructors::Projects::Overview::TeamChipsComponent.new(members: @members.first(6)) %>
+      <div data-controller="qb--modal">
+        <%= render Qb::SectionHeadComponent.new(title: 'Equipo asignado') do |c| %>
+          <% c.with_right { render Qb::BtnComponent.new('Invitar', variant: :ghost, size: :xs, icon: :plus, data: { action: 'click->qb--modal#open' }) } %>
+        <% end %>
+        <%= render Constructors::Projects::Overview::TeamChipsComponent.new(members: @members.first(6)) %>
+        <%= render Constructors::Projects::Overview::InviteMemberModalComponent.new(project: @project) %>
+      </div>
 
       <%= render Qb::SectionHeadComponent.new(title: 'Documentos recientes') %>
       <%= render Constructors::Projects::Overview::RecentDocsComponent.new(documents: @recent_documents) %>

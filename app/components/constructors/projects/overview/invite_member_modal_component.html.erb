@@ -1,0 +1,46 @@
+<div data-qb--modal-target="dialog"
+     class="hidden"
+     data-action="click->qb--modal#backdrop keydown@window->qb--modal#keydown"
+     style="display:flex;position:fixed;inset:0;z-index:60;background:rgba(0,0,0,0.45);align-items:center;justify-content:center;">
+  <div data-qb--modal-target="panel"
+       style="position:relative;width:480px;background:var(--color-bg);border:1px solid var(--color-line);border-radius:10px;overflow:hidden;box-shadow:0 20px 50px -10px rgba(0,0,0,0.4);">
+
+    <div style="padding:14px 18px;border-bottom:1px solid var(--color-line);display:flex;justify-content:space-between;align-items:center;">
+      <div>
+        <h3 style="margin:0;font-size:15px;font-weight:600;">Invitar miembro al proyecto</h3>
+        <div style="font-size:12px;color:var(--color-ink-3);margin-top:2px;">El usuario debe existir en la plataforma.</div>
+      </div>
+      <button type="button" data-action="click->qb--modal#close"
+              style="background:transparent;border:none;color:var(--color-ink-3);cursor:pointer;">
+        <%= render Qb::IconComponent.new(name: :x, size: 16) %>
+      </button>
+    </div>
+
+    <%= form_with url: constructors_project_project_memberships_path(project), method: :post, scope: :project_membership,
+                  html: { style: 'display:flex;flex-direction:column;' } do |f| %>
+      <div style="padding:18px;display:flex;flex-direction:column;gap:14px;">
+        <label style="display:flex;flex-direction:column;gap:5px;">
+          <span style="font-size:11px;font-weight:500;color:var(--color-ink-2);">Selecciona un usuario <span style="color:var(--color-accent);">*</span></span>
+          <%= f.select :user_id, candidate_user_options, { include_blank: '— Elegí un usuario —' }, required: true,
+                        style: 'width:100%;padding:8px 10px;font-size:13px;border:1px solid var(--color-line);border-radius:5px;background:var(--color-bg);color:var(--color-ink);outline:none;font-family:inherit;' %>
+        </label>
+
+        <label style="display:flex;flex-direction:column;gap:5px;">
+          <span style="font-size:11px;font-weight:500;color:var(--color-ink-2);">Rol en el proyecto <span style="color:var(--color-accent);">*</span></span>
+          <%= f.select :role, ROLES, { selected: 'editor' }, required: true,
+                        style: 'width:100%;padding:8px 10px;font-size:13px;border:1px solid var(--color-line);border-radius:5px;background:var(--color-bg);color:var(--color-ink);outline:none;font-family:inherit;' %>
+        </label>
+      </div>
+
+      <div style="padding:12px 18px;border-top:1px solid var(--color-line);display:flex;gap:8px;justify-content:flex-end;background:var(--color-bg-raised);">
+        <button type="button" data-action="click->qb--modal#close"
+                style="height:28px;padding:0 10px;background:transparent;color:var(--color-ink-2);border:1px solid transparent;border-radius:5px;font-size:12px;cursor:pointer;">Cancelar</button>
+        <button type="submit"
+                style="display:inline-flex;align-items:center;gap:6px;height:28px;padding:0 10px;background:var(--color-accent);color:var(--color-accent-ink);border:1px solid var(--color-accent);border-radius:5px;font-size:12px;font-weight:500;cursor:pointer;">
+          <%= render Qb::IconComponent.new(name: :plus, size: 13) %>
+          Agregar miembro
+        </button>
+      </div>
+    <% end %>
+  </div>
+</div>

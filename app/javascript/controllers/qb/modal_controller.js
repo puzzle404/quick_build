@@ -5,18 +5,22 @@ import { Controller } from "@hotwired/stimulus"
 export default class extends Controller {
   static targets = ["dialog", "panel"]
 
-  open() {
-    if (!this.hasDialogTarget) return
-    this.dialogTarget.classList.remove("hidden")
-    this.dialogTarget.style.display = "flex"
-    document.body.style.overflow = "hidden"
+  // Hide the dialog on connect so the markup doesn't need inline
+  // display:none (which makes rack_test specs unable to interact with
+  // the form). With no JS the dialog stays visible and the form is
+  // submittable directly — degraded UX, but functional.
+  connect() {
+    this._setOpen(false)
   }
 
-  close() {
+  open()  { this._setOpen(true) }
+  close() { this._setOpen(false) }
+
+  _setOpen(open) {
     if (!this.hasDialogTarget) return
-    this.dialogTarget.classList.add("hidden")
-    this.dialogTarget.style.display = "none"
-    document.body.style.overflow = ""
+    this.dialogTarget.classList.toggle("hidden", !open)
+    this.dialogTarget.style.display = open ? "flex" : "none"
+    document.body.style.overflow = open ? "hidden" : ""
   }
 
   backdrop(event) {

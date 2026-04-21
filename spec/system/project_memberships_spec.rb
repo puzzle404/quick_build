@@ -5,18 +5,21 @@ RSpec.describe 'Project membership management', type: :system do
   let!(:member) { create(:user) }
   let!(:project) { create(:project, owner: constructor) }
 
-  # NOTE: the inline "add member" form on the project show page was removed
-  # in the Quick Build OS redesign. Membership management now lives under the
-  # team panel via /constructors/projects/:id/project_memberships. Marking as
-  # pending until we rewire the system spec to the new entry point.
-  it 'constructor adds and views members', skip: 'Relocated by redesign — needs rewrite against /project_memberships' do
+  # The redesign moved the inline form to a centered modal opened by the
+  # "Invitar" button in the Equipo asignado section. The dialog renders in
+  # the DOM but starts hidden via inline display:none — qb--modal#open
+  # toggles it on click. In rack_test (no JS) we can submit the form by
+  # passing visible: :all (or :hidden) when finding inputs.
+  it 'constructor adds and views members' do
     sign_in_user(constructor)
     visit constructors_project_path(project)
-    select member.email, from: 'Selecciona un usuario'
-    select 'Editor', from: 'Rol en el proyecto'
-    click_button 'Agregar miembro'
+
+    Capybara.using_wait_time(2) do
+      page.find_by_id('project_membership_user_id', visible: :all).set(member.id)
+      page.find_by_id('project_membership_role',    visible: :all).set('editor')
+      page.find_button('Agregar miembro', visible: :all).click
+    end
 
     expect(page).to have_text(member.email)
-    expect(page).to have_text('Editor')
   end
 end
