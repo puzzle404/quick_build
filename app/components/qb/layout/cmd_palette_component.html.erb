@@ -1,5 +1,8 @@
-<div data-controller="qb--cmd-palette" data-action="keydown->qb--cmd-palette#keydown">
+<div data-controller="qb--cmd-palette"
+     data-qb--cmd-palette-endpoint-value="<%= helpers.constructors_search_path(format: :json) rescue '/constructors/search.json' %>"
+     data-action="keydown->qb--cmd-palette#keydown">
   <div data-qb--cmd-palette-target="dialog"
+       role="dialog" aria-modal="true" aria-label="Buscar"
        data-action="click->qb--cmd-palette#backdrop"
        class="hidden"
        style="display:none;position:fixed;inset:0;background:rgba(10,14,24,0.35);z-index:100;align-items:flex-start;justify-content:center;padding-top:12vh;">
@@ -10,29 +13,25 @@
         <input type="text"
                data-qb--cmd-palette-target="input"
                data-action="input->qb--cmd-palette#filter"
-               placeholder="Buscar proyectos, acciones, personas…"
+               placeholder="Buscar proyectos, personas, etapas, materiales…"
+               aria-label="Buscar"
                style="flex:1;border:none;outline:none;background:transparent;font-size:14px;color:var(--color-ink);font-family:var(--font-ui);">
         <span class="qb-kbd">ESC</span>
       </div>
 
-      <%# Item list %>
-      <div style="overflow:auto;padding:6px;">
-        <% items.each do |it| %>
-          <%= link_to it[:url] || '#',
-                     data: { qb_cmd_palette_target: 'item', qb_label: it[:label] },
-                     style: "width:100%;display:flex;align-items:center;gap:10px;padding:0 12px;height:34px;background:transparent;border:none;border-radius:5px;cursor:pointer;text-align:left;text-decoration:none;color:var(--color-ink);" do %>
-            <%= render Qb::IconComponent.new(name: :'arrow-right', size: 12, style: 'color:var(--color-ink-4)') %>
-            <span style="flex:1;font-size:13px;color:var(--color-ink);"><%= it[:label] %></span>
-            <span style="font-size:11px;color:var(--color-ink-4);"><%= it[:hint] %></span>
-          <% end %>
-        <% end %>
+      <%# Results · llenado dinámicamente por qb--cmd-palette#_render %>
+      <div data-qb--cmd-palette-target="results"
+           style="overflow:auto;padding:6px;flex:1;">
+        <div style="padding:32px;text-align:center;color:var(--color-ink-4);font-size:12px;">
+          Cargando…
+        </div>
       </div>
 
       <%# Footer hints %>
       <div style="padding:8px 14px;border-top:1px solid var(--color-line);display:flex;align-items:center;gap:10px;font-size:10px;color:var(--color-ink-3);">
         <span class="qb-kbd">↵</span> <span>abrir</span>
         <span class="qb-kbd">↑↓</span> <span>navegar</span>
-        <span style="margin-left:auto;">Quick Build · command bar</span>
+        <span style="margin-left:auto;">QB · command bar</span>
       </div>
     </div>
   </div>

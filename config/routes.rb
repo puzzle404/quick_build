@@ -38,6 +38,7 @@ Rails.application.routes.draw do
     root to: "dashboard#index"
     get 'dashboard/evolution_chart', to: 'dashboard#evolution_chart', as: :evolution_chart
     resources :people, only: [:index]
+    get 'search', to: 'search#index', defaults: { format: :json }
     resources :projects do
       resources :project_memberships, only: [:create, :destroy, :new]
       resource :planning, only: [:show], module: :projects, controller: :planning

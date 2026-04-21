@@ -67,9 +67,7 @@
       </main>
     </div>
 
-    <%= render Qb::Layout::CmdPaletteComponent.new(
-          projects: (current_user.owned_projects.order(:name).limit(20) rescue [])
-        ) %>
+    <%= render Qb::Layout::CmdPaletteComponent.new %>
     <%= render Qb::Layout::TweaksPanelComponent.new %>
   </body>
 </html>
