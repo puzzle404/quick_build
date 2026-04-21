@@ -39,12 +39,13 @@
 
       <main style="flex:1;min-width:0;display:flex;flex-direction:column;">
         <%
-          # Topbar values derived from DB so the chip doesn't lie:
-          #   · people_on_site → active project_people across owned projects
-          #   · has_alerts     → any in-progress project with non-:ok health
-          qb_people_on_site = (current_user.owned_projects.joins(:project_people).where(project_people: { status: ProjectPerson.statuses[:active] }).count rescue 0)
+          # Topbar values come from DashboardKpis so the chip stays consistent
+          # with the dashboard hero strip. Reuse @kpis when set by the
+          # dashboard controller; compute lazily otherwise.
+          qb_topbar_kpis = (defined?(@kpis) && @kpis.is_a?(Hash)) ? @kpis : (DashboardKpis.new(current_user.owned_projects.includes(:project_stages).map { ProjectDecorator.new(_1) }).call rescue {})
+          qb_people_on_site = qb_topbar_kpis[:people_on_site].to_i
           qb_people_on_site = nil if qb_people_on_site.zero?
-          qb_has_alerts = (current_user.owned_projects.in_progress.any? { |p| ProjectDecorator.new(p).health != :ok } rescue false)
+          qb_has_alerts = qb_topbar_kpis[:has_alerts] == true
         %>
         <%= render Qb::Layout::TopbarComponent.new(
               crumbs: (content_for(:qb_crumbs).present? ? JSON.parse(CGI.unescapeHTML(content_for(:qb_crumbs).to_s), symbolize_names: true) : [{label: 'Inicio'}]),

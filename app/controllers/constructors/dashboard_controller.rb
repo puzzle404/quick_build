@@ -20,6 +20,7 @@ class Constructors::DashboardController < Constructors::BaseController
     # Decorated projects feed the new dashboard widgets (active table + alerts).
     @projects_decorated = current_user.owned_projects.includes(:project_stages).order(updated_at: :desc).map { ProjectDecorator.new(_1) }
     @active_projects = @projects_decorated.reject { |p| p.status.to_s == 'completed' }.first(5)
+    @kpis = DashboardKpis.new(@projects_decorated).call
   end
 
   # Turbo Frame endpoint for chart section
