@@ -32,8 +32,8 @@
             user: current_user,
             project: current_qb_project,
             project_sub: current_qb_project_sub,
-            project_count: (Project.count rescue nil),
-            pinned_projects: (Project.order(updated_at: :desc).limit(4).map { ProjectDecorator.new(_1) } rescue []),
+            project_count: (current_user.owned_projects.count rescue nil),
+            pinned_projects: (current_user.owned_projects.order(updated_at: :desc).limit(4).map { ProjectDecorator.new(_1) } rescue []),
             company_name: (current_user.try(:company)&.name rescue nil)
           ) %>
 
@@ -68,7 +68,7 @@
     </div>
 
     <%= render Qb::Layout::CmdPaletteComponent.new(
-          projects: (Project.order(:name).limit(20) rescue [])
+          projects: (current_user.owned_projects.order(:name).limit(20) rescue [])
         ) %>
     <%= render Qb::Layout::TweaksPanelComponent.new %>
   </body>
