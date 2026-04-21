@@ -27,8 +27,23 @@
           hint: avg_pct ? "últimos #{@team_stats[:window_days]} días" : 'sin datos todavía',
           tone: avg_pct.to_i >= 85 ? :ok : (avg_pct.to_i >= 70 ? :warn : :muted)
         ) %>
-    <%# Costo MO requires schema (PersonAttendance#hours, ProjectPerson#hourly_rate). %>
-    <%= render Qb::MetricCellComponent.new(label: 'Costo MO', value: '—', hint: 'requiere tarifas') %>
+    <%
+      labor_cents = @team_stats[:labor_cost_cents]
+      hours       = @team_stats[:hours_logged]
+      planned     = @team_stats[:planned_hours]
+      hint = if hours && planned
+               "#{hours} hs · #{((hours.to_f / planned) * 100).round}% plan"
+             elsif hours
+               "#{hours} hs registradas"
+             else
+               'sin tarifas u horas cargadas'
+             end
+    %>
+    <%= render Qb::MetricCellComponent.new(
+          label: 'Costo MO',
+          value: labor_cents ? qb_fmt_cents(labor_cents) : '—',
+          hint: hint
+        ) %>
   </div>
 
   <%# Toolbar %>

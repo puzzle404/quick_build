@@ -1,10 +1,11 @@
 # frozen_string_literal: true
 
-# Computes attendance KPIs for a project's team over a rolling window.
-# Hours/cost KPIs are not implementable yet — PersonAttendance has no hours
-# field and ProjectPerson has no hourly_rate; both stay nil until those
-# columns exist (see TODO in #call).
+# Computes attendance KPIs for a project's team over a rolling window:
+# average attendance %, hours logged, planned hours (from working days),
+# and labor cost in cents (hours × hourly_rate_cents per person).
 class TeamAttendanceStats
+  DEFAULT_HOURS_PER_DAY = 8 # used as planned-hours when person.hourly_rate is set
+
   def initialize(project, window_days: 30)
     @project = project
     @window_days = window_days
@@ -13,9 +14,9 @@ class TeamAttendanceStats
   def call
     {
       avg_attendance_pct: average_attendance_pct,
-      hours_logged:       nil, # TODO: needs PersonAttendance#hours column
-      planned_hours:      nil, # TODO: needs ProjectPerson#planned_hours/week
-      labor_cost_cents:   nil, # TODO: needs ProjectPerson#hourly_rate_cents
+      hours_logged:       hours_logged,
+      planned_hours:      planned_hours,
+      labor_cost_cents:   labor_cost_cents,
       window_days:        @window_days
     }
   end
@@ -50,5 +51,40 @@ class TeamAttendanceStats
 
   def working_days(from, to)
     (from..to).count { |d| ![0, 6].include?(d.wday) } # Mon–Fri
+  end
+
+  # Sum of `hours` across all attendance records in the window. nil when
+  # there are no records (so the UI can still show a dash instead of "0 h").
+  def hours_logged
+    sum = attendances_in_window.sum(:hours)
+    sum&.positive? ? sum.to_f.round(1) : nil
+  end
+
+  # Active people × default 8h × working days. Intended as an aspiration —
+  # nil when there are no people.
+  def planned_hours
+    active_count = project.project_people.where(status: ProjectPerson.statuses[:active]).count
+    return nil if active_count.zero?
+    bd = working_days(window_days.days.ago.to_date, Date.current)
+    return nil if bd.zero?
+    active_count * DEFAULT_HOURS_PER_DAY * bd
+  end
+
+  # Sum over each attendance: hours × person.hourly_rate_cents. nil when
+  # there isn't a single person with both rate and hours.
+  def labor_cost_cents
+    rows = attendances_in_window
+             .joins(:project_person)
+             .where.not(project_people: { hourly_rate_cents: nil })
+             .where.not(hours: nil)
+             .pluck(:hours, 'project_people.hourly_rate_cents')
+    return nil if rows.empty?
+    rows.sum { |h, rate| (h.to_f * rate.to_i).round }
+  end
+
+  def attendances_in_window
+    @attendances_in_window ||= PersonAttendance.joins(:project_person)
+                                               .where(project_people: { project_id: project.id })
+                                               .where(occurred_at: window_days.days.ago.beginning_of_day..Time.current.end_of_day)
   end
 end
