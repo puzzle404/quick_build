@@ -57,7 +57,7 @@ class Qb::Layout::SidebarComponent < ViewComponent::Base
 
   def nav_url(key)
     case key
-    when :dashboard then helpers.constructors_dashboard_path
+    when :dashboard then helpers.constructors_root_path
     when :projects  then helpers.constructors_projects_path
     when :team      then helpers.constructors_projects_path
     when :docs      then helpers.constructors_projects_path

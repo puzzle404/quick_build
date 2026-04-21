@@ -3,11 +3,8 @@
     <div style="flex:1;min-width:0;">
       <div style="display:flex;align-items:center;gap:10px;margin-bottom:6px;">
         <span class="qb-mono" style="font-size:11px;color:var(--color-ink-3);background:var(--color-bg-sunken);padding:2px 6px;border-radius:3px;"><%= project.code %></span>
-        <%= render Qb::PillComponent.new(tone: project.status_tone, compact: true) { project.status_label } %>
-        <%= render Qb::PillComponent.new(tone: project.health, compact: true) do %>
-          <%= render Qb::StatusDotComponent.new(tone: project.health) %>
-          <%= health_label %>
-        <% end %>
+        <%= render Qb::PillComponent.new(project.status_label, tone: project.status_tone, compact: true) %>
+        <%= render Qb::PillComponent.new(health_label, tone: project.health, compact: true) %>
       </div>
       <h1 style="margin:0 0 4px;font-size:20px;font-weight:600;letter-spacing:-0.3px;color:var(--color-ink);"><%= project.name %></h1>
       <div style="display:flex;gap:14px;color:var(--color-ink-3);font-size:12px;align-items:center;flex-wrap:wrap;">

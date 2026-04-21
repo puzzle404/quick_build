@@ -11,7 +11,8 @@ class Qb::PillComponent < ViewComponent::Base
     muted:  { bg: 'var(--color-bg-sunken)',                                    fg: 'var(--color-ink-3)' },
   }.freeze
 
-  def initialize(tone: :ok, mono: false, compact: false)
+  def initialize(label = nil, tone: :ok, mono: false, compact: false)
+    @label = label
     @tone = tone&.to_sym || :muted
     @mono = mono
     @compact = compact
@@ -21,7 +22,8 @@ class Qb::PillComponent < ViewComponent::Base
     palette = TONES[@tone] || TONES[:muted]
     pad = @compact ? '1px 6px' : '2px 8px'
     family = @mono ? 'var(--font-mono)' : 'inherit'
+    body = (@label.presence || content).to_s
     style = "display:inline-flex;align-items:center;gap:4px;padding:#{pad};font-size:11px;font-weight:500;letter-spacing:0.2px;border-radius:4px;background:#{palette[:bg]};color:#{palette[:fg]};font-family:#{family};white-space:nowrap;line-height:1.5;"
-    %(<span style="#{style}">#{content}</span>).html_safe
+    %(<span style="#{style}">#{body}</span>).html_safe
   end
 end

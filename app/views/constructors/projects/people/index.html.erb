@@ -76,9 +76,7 @@
               <% if person.try(:end_date) %>→ <%= qb_fmt_date_short(person.end_date) %><% end %>
             </td>
             <td style="padding:0 12px;text-align:right;">
-              <%= render Qb::PillComponent.new(tone: person.status.to_s == 'active' ? :ok : :muted, compact: true) do %>
-                <%= person.status.to_s == 'active' ? 'Activa' : 'Licencia' %>
-              <% end %>
+              <%= render Qb::PillComponent.new(person.status.to_s == 'active' ? 'Activa' : 'Licencia', tone: person.status.to_s == 'active' ? :ok : :muted, compact: true) %>
             </td>
             <td style="padding:0 12px;width:24px;">
               <%= link_to constructors_project_person_path(@project, person), style: 'color:var(--color-ink-4);text-decoration:none;' do %>
