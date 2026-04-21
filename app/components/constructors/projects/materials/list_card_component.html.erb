@@ -9,7 +9,7 @@
     <div style="flex:1;min-width:0;">
       <div style="display:flex;align-items:center;gap:6px;flex-wrap:wrap;">
         <%= render Qb::PillComponent.new(tone: status_tone, compact: true) { status_label } %>
-        <% if private? %><%= render Qb::PillComponent.new(tone: :muted, compact: true) { 'Privada' } %><% end %>
+        <% if private? %><%= render Qb::PillComponent.new('Privada', tone: :muted, compact: true) %><% end %>
         <% if list.source_type.to_s != 'manual' %>
           <span class="qb-mono" style="font-size:10px;color:var(--color-ink-4);background:var(--color-bg-sunken);padding:1px 5px;border-radius:3px;"><%= source_label %></span>
         <% end %>

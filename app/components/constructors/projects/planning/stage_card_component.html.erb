@@ -23,7 +23,7 @@
       <div style="display:flex;align-items:center;gap:8px;margin-bottom:3px;flex-wrap:wrap;">
         <h3 style="margin:0;font-size:15px;font-weight:600;color:var(--color-ink);"><%= stage.name %></h3>
         <%= render Qb::PillComponent.new(tone: stage.status_tone, compact: true) { stage.status_label } %>
-        <% if stage.overdue? %><%= render Qb::PillComponent.new(tone: :bad, compact: true) { 'Atrasada' } %><% end %>
+        <% if stage.overdue? %><%= render Qb::PillComponent.new('Atrasada', tone: :bad, compact: true) %><% end %>
         <% if sub_stages.any? %>
           <span class="qb-mono" style="font-size:10px;color:var(--color-ink-4);background:var(--color-bg-sunken);padding:1px 6px;border-radius:3px;"><%= sub_stages.size %> sub-etapas</span>
         <% end %>

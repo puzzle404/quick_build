@@ -63,7 +63,7 @@
       <%= render Qb::IconComponent.new(name: :sparkles, size: 14, style: 'color:var(--color-accent)') %>
       <span style="font-size:12px;font-weight:600;">Análisis IA</span>
       <% if selected && has_analysis?(selected) %>
-        <%= render Qb::PillComponent.new(tone: :ok, compact: true) { 'completo' } %>
+        <%= render Qb::PillComponent.new('completo', tone: :ok, compact: true) %>
       <% end %>
     </div>
 
