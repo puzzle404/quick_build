@@ -20,17 +20,19 @@ class Constructors::Projects::MaterialListsController < Constructors::BaseContro
     @source_filter = params[:source].to_s.presence_in(MaterialList.source_types.keys.map(&:to_s)) || 'all'
     @stage_filter  = params[:stage].to_s # 'all', 'none', or stage id
 
-    @material_lists = Constructors::Projects::MaterialListSearchService.new(
+    @material_lists_scope = Constructors::Projects::MaterialListSearchService.new(
       project: @project,
       query: @query,
       from_date: @from_date,
       to_date: @to_date
     ).results
 
-    @material_lists = @material_lists.where(status: MaterialList.statuses[@status_filter])           if @status_filter != 'all'
-    @material_lists = @material_lists.where(source_type: MaterialList.source_types[@source_filter])  if @source_filter != 'all'
-    @material_lists = @material_lists.where(project_stage_id: nil)                                   if @stage_filter == 'none'
-    @material_lists = @material_lists.where(project_stage_id: @stage_filter.to_i)                    if @stage_filter.present? && @stage_filter != 'all' && @stage_filter != 'none'
+    @material_lists_scope = @material_lists_scope.where(status: MaterialList.statuses[@status_filter])           if @status_filter != 'all'
+    @material_lists_scope = @material_lists_scope.where(source_type: MaterialList.source_types[@source_filter])  if @source_filter != 'all'
+    @material_lists_scope = @material_lists_scope.where(project_stage_id: nil)                                   if @stage_filter == 'none'
+    @material_lists_scope = @material_lists_scope.where(project_stage_id: @stage_filter.to_i)                    if @stage_filter.present? && @stage_filter != 'all' && @stage_filter != 'none'
+
+    @pagy, @material_lists = pagy(@material_lists_scope, limit: 25)
   end
 
   def show

@@ -26,13 +26,14 @@ class Constructors::ProjectsController < Constructors::BaseController
     base_scope = current_user.owned_projects
     base_scope = base_scope.where(status: Project.statuses[@status_filter]) if @status_filter != 'all'
 
-    @projects = Constructors::Projects::ProjectSearchService.new(
+    @projects_scope = Constructors::Projects::ProjectSearchService.new(
       scope: base_scope,
       query: @query,
       from_date: @from_date,
       to_date: @to_date
     ).results
 
+    @pagy, @projects = pagy(@projects_scope, limit: 25)
     @projects_decorated = @projects.map { ProjectDecorator.new(_1) }
     @counts = current_user.owned_projects.group(:status).count
     @counts_total = @counts.values.sum

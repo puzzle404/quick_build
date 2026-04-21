@@ -70,7 +70,7 @@
     <%= render Qb::FilterChipComponent.new(label: 'Origen', param: :source, value: @source_filter, options: source_options, base_path: base_path, extra_params: extra.except(:source)) %>
 
     <div style="flex:1;"></div>
-    <span class="qb-mono" style="font-size:11px;color:var(--color-ink-3);"><%= @material_lists.size %> / <%= all.size %> listas</span>
+    <span class="qb-mono" style="font-size:11px;color:var(--color-ink-3);"><%= @pagy.count %> / <%= all.size %> listas</span>
   </div>
 
   <%# Cards grid %>
@@ -86,4 +86,6 @@
       <div>Todavía no generaste listas de materiales para esta obra.</div>
     </div>
   <% end %>
+
+  <%= render Qb::PaginationComponent.new(pagy: @pagy, label: 'listas') %>
 </div>

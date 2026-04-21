@@ -16,7 +16,7 @@
     <div style="flex:1;">
       <div style="font-size:11px;font-family:var(--font-mono);color:var(--color-ink-3);text-transform:uppercase;letter-spacing:0.8px;">Proyectos</div>
       <h1 style="margin:4px 0 0;font-size:20px;font-weight:600;letter-spacing:-0.3px;color:var(--color-ink);">Lista de obras</h1>
-      <div style="font-size:12px;color:var(--color-ink-3);margin-top:2px;"><%= @projects_decorated.size %> mostradas · <%= @counts_total %> en total</div>
+      <div style="font-size:12px;color:var(--color-ink-3);margin-top:2px;"><%= @pagy.count %> obras coinciden · <%= @counts_total %> en total</div>
     </div>
     <%= render Qb::BtnComponent.new('Exportar CSV', variant: :secondary, size: :sm, icon: :download) %>
     <%= render Qb::BtnComponent.new('Nuevo proyecto', variant: :primary, size: :sm, icon: :plus, href: new_constructors_project_path) %>
@@ -81,6 +81,8 @@
       <div style="padding:60px;text-align:center;color:var(--color-ink-3);font-size:13px;">No hay obras que coincidan con los filtros.</div>
     <% end %>
   </div>
+
+  <%= render Qb::PaginationComponent.new(pagy: @pagy, label: 'obras') %>
 </div>
 
 <%= turbo_frame_tag "project_modal" %>
