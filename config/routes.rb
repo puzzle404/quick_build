@@ -5,6 +5,9 @@ Rails.application.routes.draw do
 
   if Rails.env.development?
     mount LetterOpenerWeb::Engine, at: "/letter_opener"
+    namespace :dev do
+      get 'styleguide', to: 'styleguide#show'
+    end
   end
 
   # Home público
