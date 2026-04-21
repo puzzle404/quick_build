@@ -20,8 +20,15 @@
   <div style="display:grid;grid-template-columns:repeat(4, 1fr);border-bottom:1px solid var(--color-line);background:var(--color-bg-raised);">
     <%= render Qb::MetricCellComponent.new(label: 'Personas asignadas', value: @people.size, hint: "#{active_count} activas") %>
     <%= render Qb::MetricCellComponent.new(label: 'En licencia', value: on_leave_count, hint: 'inactivas hoy') %>
-    <%= render Qb::MetricCellComponent.new(label: 'Asistencia promedio', value: '—', hint: 'últimos 30 días', tone: :ok) %>
-    <%= render Qb::MetricCellComponent.new(label: 'Costo MO', value: '—', hint: 'este mes') %>
+    <% avg_pct = @team_stats[:avg_attendance_pct] %>
+    <%= render Qb::MetricCellComponent.new(
+          label: 'Asistencia promedio',
+          value: avg_pct ? "#{avg_pct}%" : '—',
+          hint: avg_pct ? "últimos #{@team_stats[:window_days]} días" : 'sin datos todavía',
+          tone: avg_pct.to_i >= 85 ? :ok : (avg_pct.to_i >= 70 ? :warn : :muted)
+        ) %>
+    <%# Costo MO requires schema (PersonAttendance#hours, ProjectPerson#hourly_rate). %>
+    <%= render Qb::MetricCellComponent.new(label: 'Costo MO', value: '—', hint: 'requiere tarifas') %>
   </div>
 
   <%# Toolbar %>

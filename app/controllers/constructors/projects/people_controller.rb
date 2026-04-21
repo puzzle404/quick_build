@@ -19,6 +19,8 @@ class Constructors::Projects::PeopleController < Constructors::BaseController
       from_date: @from_date,
       to_date: @to_date
     ).results
+
+    @team_stats = TeamAttendanceStats.new(@project).call
   end
 
   def show
