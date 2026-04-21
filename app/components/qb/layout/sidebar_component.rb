@@ -59,7 +59,7 @@ class Qb::Layout::SidebarComponent < ViewComponent::Base
     case key
     when :dashboard then helpers.constructors_root_path
     when :projects  then helpers.constructors_projects_path
-    when :team      then helpers.constructors_projects_path
+    when :team      then helpers.constructors_people_path
     when :docs      then helpers.constructors_projects_path
     else '#'
     end

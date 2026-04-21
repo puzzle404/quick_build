@@ -37,6 +37,7 @@ Rails.application.routes.draw do
   namespace :constructors do
     root to: "dashboard#index"
     get 'dashboard/evolution_chart', to: 'dashboard#evolution_chart', as: :evolution_chart
+    resources :people, only: [:index]
     resources :projects do
       resources :project_memberships, only: [:create, :destroy, :new]
       resource :planning, only: [:show], module: :projects, controller: :planning
