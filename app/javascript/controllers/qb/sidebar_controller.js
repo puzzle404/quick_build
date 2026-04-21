@@ -1,23 +1,31 @@
 import { Controller } from "@hotwired/stimulus"
 
-// Toggles a "qb-sidebar-collapsed" class and persists the state in localStorage.
-// The class itself controls the visual collapse via CSS.
+// Sidebar three-state toggle:
+//   default      → no class, the CSS media query decides (desktop = expanded,
+//                  tablet < 1024px = collapsed)
+//   "0" stored   → forced expanded (.qb-sidebar-expanded), 224px even on tablet
+//   "1" stored   → forced collapsed (.qb-sidebar-collapsed), 56px even on desktop
+//
+// toggle() inspects the CURRENT visual state via offsetWidth and flips. So in
+// tablet (where default is collapsed) the first click expands; in desktop
+// (where default is expanded) the first click collapses. Either way the
+// preference persists in localStorage.
 export default class extends Controller {
   static values = { storageKey: { type: String, default: "qb_sidebar_collapsed" } }
 
   connect() {
-    if (localStorage.getItem(this.storageKeyValue) === "1") {
+    const stored = localStorage.getItem(this.storageKeyValue)
+    if (stored === "1") {
       this.element.classList.add("qb-sidebar-collapsed")
-      this.element.dataset.collapsed = "true"
-    } else {
-      this.element.dataset.collapsed = "false"
+    } else if (stored === "0") {
+      this.element.classList.add("qb-sidebar-expanded")
     }
   }
 
   toggle() {
-    const isCollapsed = this.element.dataset.collapsed === "true"
-    this.element.classList.toggle("qb-sidebar-collapsed", !isCollapsed)
-    this.element.dataset.collapsed = isCollapsed ? "false" : "true"
-    localStorage.setItem(this.storageKeyValue, isCollapsed ? "0" : "1")
+    const isCurrentlyCollapsed = this.element.offsetWidth < 100
+    this.element.classList.toggle("qb-sidebar-collapsed", !isCurrentlyCollapsed)
+    this.element.classList.toggle("qb-sidebar-expanded",  isCurrentlyCollapsed)
+    localStorage.setItem(this.storageKeyValue, isCurrentlyCollapsed ? "0" : "1")
   }
 }

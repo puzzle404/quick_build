@@ -120,6 +120,46 @@
     width: 100% !important;
   }
 
+  /* ─── Responsive · tablet/mobile breakpoints ─────────────── */
+  /* El handoff es desktop-first (viewport 1440). Estos tweaks hacen el
+     chrome usable en tablet (<1024px) sin reescribir el layout. */
+
+  /* Tablet: sidebar arranca colapsado para liberar espacio. El usuario
+     puede expandir manualmente con Contraer/Expandir; persiste en
+     localStorage como en desktop. */
+  @media (max-width: 1023.98px) {
+    .qb-sidebar:not(.qb-sidebar-expanded) {
+      width: 56px;
+    }
+    .qb-sidebar:not(.qb-sidebar-expanded) [data-qb-sidebar-label] {
+      display: none !important;
+    }
+    .qb-sidebar:not(.qb-sidebar-expanded) nav a,
+    .qb-sidebar:not(.qb-sidebar-expanded) nav button {
+      justify-content: center !important;
+      padding: 0 !important;
+    }
+  }
+
+  /* Tabla densa en mobile: scroll horizontal en lugar de overflow oculto. */
+  @media (max-width: 900px) {
+    body.qb-os table {
+      display: block;
+      overflow-x: auto;
+      white-space: nowrap;
+    }
+    /* Hero strip + KPI strip pasan a 2 columnas en mobile */
+    body.qb-os div[style*="grid-template-columns:repeat(4, 1fr)"],
+    body.qb-os div[style*="grid-template-columns:repeat(5, 1fr)"] {
+      grid-template-columns: repeat(2, 1fr) !important;
+    }
+    /* Two-column body del dashboard pasa a una sola columna */
+    body.qb-os div[style*="grid-template-columns:1.4fr 1fr"],
+    body.qb-os div[style*="grid-template-columns:1.5fr 1fr"] {
+      grid-template-columns: 1fr !important;
+    }
+  }
+
   /* ─── A11y · focus rings consistentes en QB chrome ───────── */
   body.qb-os :focus-visible {
     outline: 2px solid var(--color-accent);
@@ -137,13 +177,22 @@
   }
 
   /* ─── Sidebar collapse ───────────────────────────────────── */
+  /* Three-state model: default (media-query driven), forced-expanded, forced-collapsed.
+     The user's stored preference (qb-sidebar-{collapsed,expanded}) wins over
+     the media query; without preference, desktop = expanded, tablet = collapsed. */
   .qb-sidebar { width: 224px; }
-  .qb-sidebar.qb-sidebar-collapsed { width: 56px; }
+  .qb-sidebar.qb-sidebar-collapsed { width: 56px !important; }
+  .qb-sidebar.qb-sidebar-expanded  { width: 224px !important; }
   .qb-sidebar.qb-sidebar-collapsed [data-qb-sidebar-label] { display: none !important; }
+  .qb-sidebar.qb-sidebar-expanded  [data-qb-sidebar-label] { display: initial !important; }
   .qb-sidebar.qb-sidebar-collapsed nav a,
   .qb-sidebar.qb-sidebar-collapsed nav button {
     justify-content: center !important;
     padding: 0 !important;
+  }
+  .qb-sidebar.qb-sidebar-expanded nav a,
+  .qb-sidebar.qb-sidebar-expanded nav button {
+    justify-content: flex-start !important;
   }
   .qb-sidebar.qb-sidebar-collapsed .qb-collapse-icon { transform: none; }
   .qb-sidebar:not(.qb-sidebar-collapsed) .qb-collapse-icon { transform: rotate(180deg); }
