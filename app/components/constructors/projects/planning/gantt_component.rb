@@ -26,12 +26,17 @@ class Constructors::Projects::Planning::GanttComponent < ViewComponent::Base
     out
   end
 
-  # Derive the chart's time window from the actual stages.
+  # Derive the chart's time window from the actual stages. Both bounds are
+  # Date values so subtraction stays integer-days (TimeWithZone would break
+  # `(rs[1] - rs[0]).to_i` with "can't convert Date into an exact number").
   def date_range
     starts = rows.map { |r| r.stage.start_date }.compact
     ends   = rows.map { |r| r.stage.end_date }.compact
-    return [Date.current.beginning_of_month, 6.months.from_now.end_of_month] if starts.empty?
-    [starts.min.beginning_of_month, [ends.max, Date.current].compact.max.end_of_month]
+    if starts.empty?
+      [Date.current.beginning_of_month, (Date.current >> 6).end_of_month]
+    else
+      [starts.min.beginning_of_month, [ends.max, Date.current].compact.max.end_of_month]
+    end
   end
 
   def total_days
