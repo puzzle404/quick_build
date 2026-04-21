@@ -37,7 +37,12 @@ class Constructors::PeopleController < Constructors::BaseController
       }
     end
 
-    @pagy, @grouped_page = pagy_array(@grouped, limit: 25)
+    # Pagy::Backend's pagy_array isn't always loaded by the array extra; use
+    # Pagy.new directly + Array#slice — same shape (pagy, page_items).
+    page = (params[:page] || 1).to_i.clamp(1, Float::INFINITY).to_i
+    limit = 25
+    @pagy = Pagy.new(count: @grouped.size, page: page, limit: limit)
+    @grouped_page = @grouped.slice((page - 1) * limit, limit) || []
 
     @kpis = compute_kpis(rows)
   end
