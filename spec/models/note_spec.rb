@@ -5,6 +5,8 @@ RSpec.describe Note, type: :model do
     subject { build(:note, :on_project) }
 
     it { is_expected.to validate_presence_of(:body) }
+    it { is_expected.to validate_length_of(:title).is_at_most(255).allow_blank }
+    it { is_expected.to validate_length_of(:body).is_at_most(10_000) }
     it { is_expected.to belong_to(:noteable) }
     it { is_expected.to belong_to(:author).class_name("User") }
   end

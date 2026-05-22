@@ -213,7 +213,6 @@ ActiveRecord::Schema[8.0].define(version: 2026_05_22_215202) do
     t.datetime "updated_at", null: false
     t.index ["author_id"], name: "index_notes_on_author_id"
     t.index ["noteable_type", "noteable_id", "created_at"], name: "idx_notes_on_noteable_and_created"
-    t.index ["noteable_type", "noteable_id"], name: "index_notes_on_noteable"
   end
 
   create_table "orders", force: :cascade do |t|

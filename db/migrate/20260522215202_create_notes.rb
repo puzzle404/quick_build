@@ -1,7 +1,7 @@
 class CreateNotes < ActiveRecord::Migration[8.0]
   def change
     create_table :notes do |t|
-      t.references :noteable, polymorphic: true, null: false
+      t.references :noteable, polymorphic: true, null: false, index: false
       t.references :author, null: false, foreign_key: { to_table: :users }
       t.string :title
       t.text :body, null: false
