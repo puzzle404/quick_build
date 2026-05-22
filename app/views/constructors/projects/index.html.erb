@@ -1,36 +1,88 @@
-<div class="container mx-auto p-4">
-  <div class="mt-2 space-y-6">
-    <%= render Ui::SectionHeaderComponent.new(title: 'Mis obras', subtitle: 'Gestiona tus proyectos activos y crea nuevas obras') do %>
-      <%= render Ui::ButtonComponent.new(
-            label: 'Nueva obra',
-            path: new_constructors_project_path,
-            variant: :primary,
-            size: :sm,
-            turbo_frame: 'project_modal'
-          ) %>
+<%
+  status_tabs = [
+    { k: 'all',         l: 'Todos',         c: @counts_total },
+    { k: 'in_progress', l: 'En obra',       c: @counts['in_progress'].to_i },
+    { k: 'planned',     l: 'Planificados',  c: @counts['planned'].to_i },
+    { k: 'completed',   l: 'Finalizados',   c: @counts['completed'].to_i },
+  ]
+%>
+
+<div data-controller="qb--view-switcher"
+     data-qb--view-switcher-storage-key-value="qb_projects_view"
+     data-qb--view-switcher-default-value="list">
+
+  <%# Header %>
+  <div style="padding:16px 20px;border-bottom:1px solid var(--color-line);display:flex;align-items:flex-end;gap:16px;">
+    <div style="flex:1;">
+      <div style="font-size:11px;font-family:var(--font-mono);color:var(--color-ink-3);text-transform:uppercase;letter-spacing:0.8px;">Proyectos</div>
+      <h1 style="margin:4px 0 0;font-size:20px;font-weight:600;letter-spacing:-0.3px;color:var(--color-ink);">Lista de obras</h1>
+      <div style="font-size:12px;color:var(--color-ink-3);margin-top:2px;"><%= @pagy.count %> obras coinciden · <%= @counts_total %> en total</div>
+    </div>
+    <%= render Qb::BtnComponent.new('Exportar CSV', variant: :secondary, size: :sm, icon: :download) %>
+    <%= render Qb::BtnComponent.new('Nuevo proyecto', variant: :primary, size: :sm, icon: :plus, href: new_constructors_project_path) %>
+  </div>
+
+  <%# Tabs + search + view switch %>
+  <div style="display:flex;align-items:center;padding:0 16px;border-bottom:1px solid var(--color-line);background:var(--color-bg-raised);gap:4px;">
+    <% status_tabs.each do |t| %>
+      <% active = (@status_filter == t[:k]) %>
+      <%= link_to constructors_projects_path(status: (t[:k] == 'all' ? nil : t[:k]), q: @query),
+                  style: "height:40px;padding:0 14px;background:transparent;border:none;border-bottom:2px solid #{active ? 'var(--color-accent)' : 'transparent'};color:#{active ? 'var(--color-ink)' : 'var(--color-ink-3)'};font-size:13px;font-weight:#{active ? 600 : 500};margin-bottom:-1px;display:inline-flex;align-items:center;gap:6px;text-decoration:none;" do %>
+        <%= t[:l] %>
+        <span class="qb-mono" style="font-size:10px;color:<%= active ? 'var(--color-accent)' : 'var(--color-ink-4)' %>;background:<%= active ? 'color-mix(in oklab, var(--color-accent) 14%, transparent)' : 'var(--color-bg-sunken)' %>;padding:1px 6px;border-radius:3px;font-weight:600;"><%= t[:c] %></span>
+      <% end %>
+    <% end %>
+    <div style="flex:1;"></div>
+
+    <%= form_with url: constructors_projects_path, method: :get, data: { turbo_frame: "_top" }, html: { style: 'display:flex;align-items:center;' } do |f| %>
+      <% if @status_filter != 'all' %><%= hidden_field_tag :status, @status_filter %><% end %>
+      <div style="display:flex;align-items:center;gap:6px;padding:0 10px;height:28px;background:var(--color-bg);border:1px solid var(--color-line);border-radius:5px;width:260px;">
+        <%= render Qb::IconComponent.new(name: :search, size: 13, style: 'color:var(--color-ink-4)') %>
+        <%= f.search_field :q, value: @query, placeholder: 'Buscar por nombre, código, cliente…',
+                            style: 'flex:1;border:none;outline:none;background:transparent;font-size:12px;color:var(--color-ink);' %>
+      </div>
     <% end %>
 
-    <%= render Ui::SearchPanelComponent.new(
-          form_action: constructors_projects_path,
-          query_param: :q,
-          query_value: @query,
-          placeholder: 'Buscar obras...',
-          title: 'Buscador de obras',
-          date_filters: {
-            enabled: true,
-            from_param: :from_date,
-            to_param: :to_date,
-            from_value: @from_date,
-            to_value: @to_date,
-            from_label: 'Desde',
-            to_label: 'Hasta'
-          }
-        ) %>
-
-    <div id="projects" class="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
-      <%= render @projects %>
+    <div style="display:flex;background:var(--color-bg);border:1px solid var(--color-line);border-radius:5px;overflow:hidden;margin-left:8px;">
+      <button type="button"
+              data-qb--view-switcher-target="btn" data-view="list"
+              data-action="click->qb--view-switcher#switch"
+              data-qb--view-switcher-view-param="list"
+              style="height:28px;width:30px;border:none;background:transparent;color:var(--color-ink-2);cursor:pointer;display:inline-flex;align-items:center;justify-content:center;">
+        <%= render Qb::IconComponent.new(name: :list, size: 14) %>
+      </button>
+      <button type="button"
+              data-qb--view-switcher-target="btn" data-view="grid"
+              data-action="click->qb--view-switcher#switch"
+              data-qb--view-switcher-view-param="grid"
+              style="height:28px;width:30px;border:none;background:transparent;color:var(--color-ink-2);cursor:pointer;display:inline-flex;align-items:center;justify-content:center;">
+        <%= render Qb::IconComponent.new(name: :grid, size: 14) %>
+      </button>
     </div>
   </div>
+
+  <%# Panels %>
+  <div data-qb--view-switcher-target="panel" data-view="list">
+    <% if @projects_decorated.any? %>
+      <%= render Constructors::Dashboard::ProjectsTableComponent.new(rows: @projects_decorated) %>
+    <% else %>
+      <div style="padding:60px;text-align:center;color:var(--color-ink-3);font-size:13px;">No hay obras que coincidan con los filtros.</div>
+    <% end %>
+  </div>
+
+  <div data-qb--view-switcher-target="panel" data-view="grid" style="display:none;">
+    <% if @projects_decorated.any? %>
+      <div style="padding:16px;display:grid;grid-template-columns:repeat(auto-fill, minmax(300px, 1fr));gap:12px;">
+        <% @projects_decorated.each do |p| %>
+          <%= render Constructors::Projects::List::GridCardComponent.new(project: p) %>
+        <% end %>
+      </div>
+    <% else %>
+      <div style="padding:60px;text-align:center;color:var(--color-ink-3);font-size:13px;">No hay obras que coincidan con los filtros.</div>
+    <% end %>
+  </div>
+
+  <%= render Qb::PaginationComponent.new(pagy: @pagy, label: 'obras') %>
 </div>
 
 <%= turbo_frame_tag "project_modal" %>

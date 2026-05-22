@@ -1,0 +1,29 @@
+<div>
+  <div style="display:grid;grid-template-columns:60px 1fr 140px 140px 90px 110px 130px 110px 40px;padding:8px 16px;background:var(--color-bg-raised);border-bottom:1px solid var(--color-line);font-size:10px;font-family:var(--font-mono);color:var(--color-ink-3);text-transform:uppercase;letter-spacing:0.5px;font-weight:500;position:sticky;top:0;z-index:1;">
+    <span>WBS</span><span>Etapa / sub-etapa</span><span>Inicio</span><span>Fin</span><span style="text-align:right;">Días</span><span style="text-align:right;">Avance</span><span style="text-align:right;">Presupuesto</span><span style="text-align:right;">Adjuntos</span><span></span>
+  </div>
+  <% rows.each do |row| %>
+    <% s = row.stage; depth = row.depth %>
+    <%= link_to constructors_project_stage_path(project, s),
+                style: "display:grid;grid-template-columns:60px 1fr 140px 140px 90px 110px 130px 110px 40px;padding:8px 16px;border-bottom:1px solid var(--color-line);cursor:pointer;align-items:center;font-size:12px;padding-left:#{16 + depth * 24}px;background:#{depth.positive? ? 'var(--color-bg-sunken)' : 'transparent'};text-decoration:none;color:inherit;" do %>
+      <span class="qb-mono" style="font-size:11px;color:<%= depth.zero? ? 'var(--color-ink-2)' : 'var(--color-ink-3)' %>;font-weight:<%= depth.zero? ? 600 : 400 %>;"><%= s.code %></span>
+      <div style="display:flex;align-items:center;gap:8px;min-width:0;">
+        <%= render Qb::StatusDotComponent.new(tone: status_tone(s)) %>
+        <span style="color:var(--color-ink);font-weight:<%= depth.zero? ? 600 : 400 %>;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;"><%= s.name %></span>
+      </div>
+      <span class="qb-mono" style="font-size:11px;color:var(--color-ink-3);"><%= s.start_date ? s.start_label : '—' %></span>
+      <span class="qb-mono" style="font-size:11px;color:var(--color-ink-3);"><%= s.end_date ? s.end_label : '—' %></span>
+      <span class="qb-mono qb-tnum" style="font-size:11px;color:var(--color-ink-3);text-align:right;"><%= s.days_total ? "#{s.days_total}d" : '—' %></span>
+      <div style="display:flex;align-items:center;gap:6px;justify-content:flex-end;">
+        <div style="width:44px;"><%= render Qb::BarComponent.new(value: s.progress_value, tone: s.status == :done ? :ok : s.status == :doing ? :accent : :muted, height: 3) %></div>
+        <span class="qb-mono qb-tnum" style="font-size:11px;color:var(--color-ink-2);min-width:28px;text-align:right;"><%= s.progress_value %>%</span>
+      </div>
+      <span class="qb-mono qb-tnum" style="font-size:11px;color:var(--color-ink-2);text-align:right;"><%= s.budget.positive? ? helpers.qb_fmt_ars(s.budget) : '—' %></span>
+      <span class="qb-mono" style="font-size:11px;color:var(--color-ink-4);text-align:right;">
+        <% counts = "#{s.docs_count}d · #{s.images_count}f · #{s.material_lists_count}m" %>
+        <%= (s.docs_count + s.images_count + s.material_lists_count).positive? ? counts : '—' %>
+      </span>
+      <%= render Qb::IconComponent.new(name: :'chevron-right', size: 13, style: 'color:var(--color-ink-4)') %>
+    <% end %>
+  <% end %>
+</div>

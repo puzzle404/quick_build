@@ -1,0 +1,9 @@
+<div style="display:flex;align-items:baseline;justify-content:space-between;padding:12px 16px;border-bottom:1px solid var(--color-line);">
+  <div>
+    <div style="font-size:11px;letter-spacing:0.8px;color:var(--color-ink-3);text-transform:uppercase;font-family:var(--font-mono);font-weight:500;"><%= title %></div>
+    <% if subtitle %>
+      <div style="font-size:12px;color:var(--color-ink-3);margin-top:2px;"><%= subtitle %></div>
+    <% end %>
+  </div>
+  <% if right? %><%= right %><% end %>
+</div>

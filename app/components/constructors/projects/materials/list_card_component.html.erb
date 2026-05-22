@@ -1,0 +1,56 @@
+<div data-controller="qb--drawer" style="display:contents;">
+<button type="button" data-action="click->qb--drawer#open"
+        style="border:1px solid var(--color-line);border-radius:8px;background:var(--color-bg-raised);padding:14px;cursor:pointer;display:flex;flex-direction:column;gap:10px;min-height:170px;text-align:left;color:inherit;font:inherit;width:100%;">
+  <%# Header %>
+  <div style="display:flex;align-items:flex-start;gap:10px;">
+    <div style="width:32px;height:32px;border-radius:7px;flex-shrink:0;background:<%= is_pdf? ? 'color-mix(in oklab, var(--color-accent) 16%, transparent)' : 'var(--color-bg-sunken)' %>;color:<%= is_pdf? ? 'var(--color-accent)' : 'var(--color-ink-2)' %>;display:flex;align-items:center;justify-content:center;">
+      <%= render Qb::IconComponent.new(name: source_icon, size: 15) %>
+    </div>
+    <div style="flex:1;min-width:0;">
+      <div style="display:flex;align-items:center;gap:6px;flex-wrap:wrap;">
+        <%= render Qb::PillComponent.new(tone: status_tone, compact: true) { status_label } %>
+        <% if private? %><%= render Qb::PillComponent.new('Privada', tone: :muted, compact: true) %><% end %>
+        <% if list.source_type.to_s != 'manual' %>
+          <span class="qb-mono" style="font-size:10px;color:var(--color-ink-4);background:var(--color-bg-sunken);padding:1px 5px;border-radius:3px;"><%= source_label %></span>
+        <% end %>
+      </div>
+      <h3 style="margin:4px 0 2px;font-size:14px;font-weight:600;color:var(--color-ink);line-height:1.3;"><%= list.name %></h3>
+      <% if stage_name %>
+        <div style="font-size:11px;color:var(--color-ink-3);display:inline-flex;align-items:center;gap:4px;">
+          <%= render Qb::IconComponent.new(name: :stages, size: 11) %><%= stage_name %>
+        </div>
+      <% else %>
+        <div style="font-size:11px;color:var(--color-ink-4);font-style:italic;">Sin etapa asociada</div>
+      <% end %>
+    </div>
+  </div>
+
+  <% if list.notes.present? %>
+    <div style="font-size:11.5px;color:var(--color-ink-3);line-height:1.4;padding:8px;background:var(--color-bg-sunken);border-radius:5px;border-left:2px solid var(--color-line-2);"><%= list.notes %></div>
+  <% end %>
+
+  <div style="flex:1;"></div>
+
+  <%# Stats %>
+  <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;">
+    <div>
+      <div class="qb-mono" style="font-size:10px;color:var(--color-ink-4);text-transform:uppercase;letter-spacing:0.7px;">Ítems</div>
+      <div class="qb-tnum" style="font-size:16px;font-weight:600;color:var(--color-ink);"><%= items_count %></div>
+    </div>
+    <div style="text-align:right;">
+      <div class="qb-mono" style="font-size:10px;color:var(--color-ink-4);text-transform:uppercase;letter-spacing:0.7px;">Total est.</div>
+      <div class="qb-mono qb-tnum" style="font-size:14px;font-weight:600;color:var(--color-ink);"><%= helpers.qb_fmt_cents(total_cents) %></div>
+    </div>
+  </div>
+
+  <%# Footer %>
+  <div style="display:flex;align-items:center;gap:8px;padding-top:8px;border-top:1px solid var(--color-line);font-size:11px;color:var(--color-ink-3);">
+    <%= render Qb::AvatarComponent.new(name: author_name, size: 18) %>
+    <span style="flex:1;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;"><%= author_name %></span>
+    <span class="qb-mono" style="color:var(--color-ink-4);"><%= helpers.qb_fmt_date_short(list.created_at) %></span>
+  </div>
+</button>
+
+<%# Detail slide-over · open via the card button above %>
+<%= render Constructors::Projects::Materials::ListDetailComponent.new(project: project, list: list) %>
+</div>

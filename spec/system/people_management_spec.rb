@@ -8,7 +8,8 @@ RSpec.describe 'People management', type: :system do
     sign_in_user(owner)
 
     visit constructors_project_people_path(project)
-    click_link 'Nueva persona'
+    expect(page).to have_text('Invitar persona')
+    visit new_constructors_project_person_path(project)
 
     fill_in 'Nombre y apellido', with: 'Carlos Gómez'
     fill_in 'Rol / oficio', with: 'Herrero'

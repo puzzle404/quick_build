@@ -1,24 +1,97 @@
-<%= render Constructors::Projects::SectionsNavComponent.new(project: @project, current_section: :planning) %>
+<%
+  total = @root_stages.size
+  done = @root_stages.count { |s| s.progress.to_i >= 100 }
+  in_progress_count = @root_stages.count { |s| s.progress.to_i.positive? && s.progress.to_i < 100 }
+  pending_count = @root_stages.count { |s| s.progress.to_i.zero? }
 
-<div class="mt-6 space-y-6">
-  <%= render Ui::SectionHeaderComponent.new(title: 'Planificación', subtitle: 'Definí etapas, hitos y alcance para coordinar la obra') do %>
-    <% if policy(ProjectStage.new(project: @project)).create? %>
-      <div class="flex flex-wrap items-center gap-2">
-        <%= render Ui::ButtonComponent.new(label: 'Nueva etapa', path: constructors_project_planning_path(@project, anchor: 'new_project_stage'), variant: :primary, size: :sm) %>
-        <%= render Ui::ButtonComponent.new(
-              label: 'Aplicar plantilla base',
-              path: apply_template_constructors_project_stages_path(@project),
-              turbo_method: :post,
-              variant: :secondary,
-              turbo: false,
-              data: { turbo_confirm: '¿Querés agregar las etapas sugeridas? No se duplicarán si ya existen.' }
-            ) %>
+  tabs = [
+    { value: :overview,   label: 'Resumen',       icon: :home,      href: constructors_project_path(@project) },
+    { value: :planning,   label: 'Planificación', icon: :planning,  count: total, href: constructors_project_planning_path(@project) },
+    { value: :materials,  label: 'Materiales',    icon: :materials, count: @project.material_lists.count, href: constructors_project_material_lists_path(@project) },
+    { value: :blueprints, label: 'Planos · IA',   icon: :blueprint, count: @project.blueprints.count, href: constructors_project_blueprints_path(@project) },
+    { value: :team,       label: 'Equipo',        icon: :people,    count: @project.project_people.count, href: constructors_project_people_path(@project) },
+    { value: :docs,       label: 'Documentos',    icon: :docs,      count: @project.documents.count, href: constructors_project_documents_path(@project) },
+  ]
+%>
+
+<div data-controller="qb--view-switcher"
+     data-qb--view-switcher-storage-key-value="qb_planning_view"
+     data-qb--view-switcher-default-value="cards">
+
+  <%= render Constructors::Projects::HeaderComponent.new(project: @project) %>
+  <%= render Qb::TabsComponent.new(tabs: tabs, current: :planning) %>
+
+  <%# Page header %>
+  <div style="padding:14px 20px 12px;border-bottom:1px solid var(--color-line);display:flex;align-items:flex-end;gap:16px;">
+    <div style="flex:1;">
+      <div style="font-size:11px;font-family:var(--font-mono);color:var(--color-ink-3);text-transform:uppercase;letter-spacing:0.8px;"><%= @project.code %> · <%= @project.name.to_s.split('·').first&.strip %></div>
+      <h2 style="margin:3px 0 0;font-size:18px;font-weight:600;letter-spacing:-0.3px;">Planificación · Etapas</h2>
+      <div style="font-size:12px;color:var(--color-ink-3);margin-top:2px;">
+        <%= total %> etapas principales · <%= done %> completadas · <%= in_progress_count %> en curso · <%= pending_count %> pendientes
+      </div>
+    </div>
+    <div data-controller="qb--modal" style="display:contents;">
+      <%= render Qb::BtnComponent.new('Aplicar plantilla', variant: :ghost, size: :sm, icon: :layers, data: { action: 'click->qb--modal#open' }) %>
+      <%= render Constructors::Projects::Planning::TemplateModalComponent.new(project: @project) %>
+    </div>
+    <%= render Qb::BtnComponent.new('Exportar', variant: :secondary, size: :sm, icon: :download) %>
+    <div data-controller="qb--modal" style="display:contents;">
+      <%= render Qb::BtnComponent.new('Nueva etapa', variant: :primary, size: :sm, icon: :plus, data: { action: 'click->qb--modal#open' }) %>
+      <%= render Constructors::Projects::Planning::NewStageModalComponent.new(project: @project, root_stages: @root_stages) %>
+    </div>
+  </div>
+
+  <%# View switcher %>
+  <div style="display:flex;align-items:center;padding:0 16px;border-bottom:1px solid var(--color-line);background:var(--color-bg-raised);gap:4px;height:40px;">
+    <% [
+      { k: 'cards', l: 'Etapas',  icon: :stages },
+      { k: 'gantt', l: 'Gantt',   icon: :gantt },
+      { k: 'wbs',   l: 'WBS',     icon: :list },
+    ].each do |t| %>
+      <button type="button"
+              data-qb--view-switcher-target="btn" data-view="<%= t[:k] %>"
+              data-action="click->qb--view-switcher#switch"
+              data-qb--view-switcher-view-param="<%= t[:k] %>"
+              style="height:40px;padding:0 14px;background:transparent;border:none;border-bottom:2px solid transparent;color:var(--color-ink-3);cursor:pointer;font-size:13px;font-weight:500;margin-bottom:-1px;display:inline-flex;align-items:center;gap:6px;">
+        <%= render Qb::IconComponent.new(name: t[:icon], size: 13) %><%= t[:l] %>
+      </button>
+    <% end %>
+    <div style="flex:1;"></div>
+    <span class="qb-mono" style="font-size:11px;color:var(--color-ink-3);">Hoy · <%= Date.current.strftime('%d %b %Y') %></span>
+  </div>
+
+  <%# Cards view %>
+  <div data-qb--view-switcher-target="panel" data-view="cards">
+    <% if @root_stages.any? %>
+      <div style="padding:16px;display:flex;flex-direction:column;gap:12px;">
+        <% @root_stages.each do |stage| %>
+          <%= render Constructors::Projects::Planning::StageCardComponent.new(project: @project, stage: stage, sub_stages: stage.sub_stages.order(:position, :name)) %>
+        <% end %>
+      </div>
+    <% else %>
+      <div style="padding:60px;text-align:center;color:var(--color-ink-3);font-size:13px;">
+        Aún no hay etapas. Aplicá la plantilla base o creá una nueva para empezar.
       </div>
     <% end %>
-  <% end %>
-  <%= render Constructors::Projects::PlanningPanelComponent.new(
-        project: @project,
-        project_stages: @project_stages,
-        new_stage: @new_stage
-      ) %>
+  </div>
+
+  <%# Gantt view %>
+  <div data-qb--view-switcher-target="panel" data-view="gantt" style="display:none;">
+    <% if @root_stages.any? %>
+      <%= render Constructors::Projects::Planning::GanttComponent.new(project: @project, root_stages: @root_stages) %>
+    <% else %>
+      <div style="padding:60px;text-align:center;color:var(--color-ink-3);font-size:13px;">No hay etapas para mostrar en el Gantt.</div>
+    <% end %>
+  </div>
+
+  <%# WBS view %>
+  <div data-qb--view-switcher-target="panel" data-view="wbs" style="display:none;">
+    <% if @root_stages.any? %>
+      <%= render Constructors::Projects::Planning::WbsTableComponent.new(project: @project, root_stages: @root_stages) %>
+    <% else %>
+      <div style="padding:60px;text-align:center;color:var(--color-ink-3);font-size:13px;">Sin etapas cargadas.</div>
+    <% end %>
+  </div>
 </div>
+
+<%= turbo_frame_tag "project_modal" %>

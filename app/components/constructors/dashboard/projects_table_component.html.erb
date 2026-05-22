@@ -1,0 +1,54 @@
+<div style="overflow:auto;">
+  <table style="width:100%;border-collapse:collapse;font-size:12px;">
+    <thead>
+      <tr style="background:var(--color-bg-raised);color:var(--color-ink-3);font-size:10px;font-family:var(--font-mono);letter-spacing:0.6px;text-transform:uppercase;">
+        <% HEADERS.each_with_index do |h, i| %>
+          <th style="padding:8px 12px;text-align:<%= th_align(i) %>;border-bottom:1px solid var(--color-line);font-weight:500;"><%= h %></th>
+        <% end %>
+      </tr>
+    </thead>
+    <tbody>
+      <% rows.each do |p| %>
+        <tr onclick="window.location='<%= helpers.constructors_project_path(p) %>'" style="border-bottom:1px solid var(--color-line);cursor:pointer;">
+          <td style="padding:0 0 0 14px;width:18px;"><%= render Qb::StatusDotComponent.new(tone: p.health) %></td>
+          <td style="padding:10px 12px;">
+            <div style="display:flex;align-items:center;gap:8px;">
+              <span class="qb-mono" style="font-size:10px;color:var(--color-ink-4);"><%= p.code %></span>
+              <div>
+                <div style="font-weight:500;color:var(--color-ink);"><%= p.name %></div>
+                <div style="font-size:11px;color:var(--color-ink-3);"><%= p.client.presence || '—' %> · <%= p.location_label %></div>
+              </div>
+            </div>
+          </td>
+          <td style="padding:10px 12px;">
+            <%= render Qb::PillComponent.new(tone: status_tone(p), compact: true) { status_label(p) } %>
+          </td>
+          <td style="padding:10px 12px;min-width:140px;">
+            <div style="display:flex;align-items:center;gap:8px;">
+              <span class="qb-mono qb-tnum" style="font-size:12px;font-weight:600;min-width:32px;text-align:right;"><%= p.progress %>%</span>
+              <div style="flex:1;">
+                <%= render Qb::BarComponent.new(value: p.progress, plan: p.planned_progress, show_plan: true, tone: bar_tone(p)) %>
+              </div>
+            </div>
+            <div class="qb-mono" style="font-size:10px;color:var(--color-ink-4);margin-top:2px;text-align:right;">
+              plan <%= p.planned_progress %>% · Δ <%= p.progress - p.planned_progress %>
+            </div>
+          </td>
+          <td style="padding:8px 12px;">
+            <%= render Qb::SparkComponent.new(data: p.progress_curve_series, plan: p.progress_plan_series, w: 80, h: 22) %>
+          </td>
+          <td style="padding:10px 12px;text-align:right;">
+            <div class="qb-mono qb-tnum" style="font-weight:500;"><%= helpers.qb_fmt_ars(p.spent) %></div>
+            <div class="qb-mono" style="font-size:10px;color:var(--color-ink-4);">de <%= helpers.qb_fmt_ars(p.budget) %> · <%= used_pct(p) %>%</div>
+          </td>
+          <td class="qb-tnum" style="padding:10px 12px;text-align:right;"><%= p.people_count %></td>
+          <td class="qb-mono qb-tnum" style="padding:10px 12px;text-align:right;"><%= p.stages_done %>/<%= p.stages_count %></td>
+          <td class="qb-mono" style="padding:10px 12px;text-align:right;"><%= p.due_at_label %></td>
+          <td style="padding:10px 14px 10px 0;width:20px;">
+            <%= render Qb::IconComponent.new(name: :'chevron-right', size: 14, style: 'color:var(--color-ink-4)') %>
+          </td>
+        </tr>
+      <% end %>
+    </tbody>
+  </table>
+</div>

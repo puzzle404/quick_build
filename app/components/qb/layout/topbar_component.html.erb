@@ -1,0 +1,51 @@
+<header style="height:48px;display:flex;align-items:center;padding:0 16px;border-bottom:1px solid var(--color-line);background:var(--color-bg-raised);position:sticky;top:0;z-index:10;">
+  <div style="display:flex;align-items:center;gap:6px;font-size:13px;">
+    <% crumbs.each_with_index do |c, i| %>
+      <% if i > 0 %>
+        <%= render Qb::IconComponent.new(name: :'chevron-right', size: 12, style: 'color:var(--color-ink-4)') %>
+      <% end %>
+      <span style="<%= "color:#{i == crumbs.length - 1 ? 'var(--color-ink)' : 'var(--color-ink-3)'};font-weight:#{i == crumbs.length - 1 ? 600 : 500};font-family:#{c[:mono] ? 'var(--font-mono)' : 'inherit'};font-size:#{c[:mono] ? '12px' : '13px'};" %>"><%= c[:label] %></span>
+    <% end %>
+  </div>
+
+  <div style="flex:1;"></div>
+
+  <div style="display:flex;align-items:center;gap:6px;">
+    <% if right_extra? %><%= right_extra %><% end %>
+
+    <% if people_on_site %>
+      <div style="display:flex;align-items:center;gap:6px;padding:0 10px;height:26px;border-radius:999px;background:var(--color-bg-sunken);border:1px solid var(--color-line);">
+        <%= render Qb::StatusDotComponent.new(tone: :ok) %>
+        <span style="font-size:11px;color:var(--color-ink-2);"><%= people_on_site %> personas en obra</span>
+      </div>
+    <% end %>
+
+    <button type="button"
+            aria-label="<%= has_alerts ? 'Notificaciones (hay alertas)' : 'Notificaciones' %>"
+            style="position:relative;height:28px;width:28px;background:transparent;border:none;color:var(--color-ink-2);cursor:pointer;display:inline-flex;align-items:center;justify-content:center;border-radius:5px;">
+      <%= render Qb::IconComponent.new(name: :bell, size: 14) %>
+      <% if has_alerts %>
+        <span aria-hidden="true" style="position:absolute;top:4px;right:6px;width:6px;height:6px;border-radius:999px;background:var(--color-warn);"></span>
+      <% end %>
+    </button>
+
+    <button type="button"
+            aria-label="Ajustes de apariencia"
+            data-action="click->qb--tweaks#open"
+            style="height:28px;width:28px;background:transparent;border:none;color:var(--color-ink-2);cursor:pointer;display:inline-flex;align-items:center;justify-content:center;border-radius:5px;">
+      <%= render Qb::IconComponent.new(name: :settings, size: 14) %>
+    </button>
+
+    <% if user %>
+      <div style="display:flex;align-items:center;gap:8px;padding-left:8px;margin-left:4px;border-left:1px solid var(--color-line);">
+        <%= render Qb::AvatarComponent.new(name: user_short_name, size: 26) %>
+        <div style="line-height:1.1;">
+          <div style="font-size:12px;font-weight:500;"><%= user_short_name %></div>
+          <% if user_role %>
+            <div style="font-size:10px;color:var(--color-ink-3);"><%= user_role %></div>
+          <% end %>
+        </div>
+      </div>
+    <% end %>
+  </div>
+</header>

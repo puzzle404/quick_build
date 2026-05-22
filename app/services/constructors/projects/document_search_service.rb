@@ -32,8 +32,15 @@ module Constructors
       end
 
       def apply_date_filter(scope)
+        return scope if from_date.blank? && to_date.blank?
+
+        # The filter references active_storage_blobs.created_at; force the
+        # LEFT OUTER JOIN so the column resolves. `includes` would only
+        # JOIN if the where touched the joined columns, but the helper
+        # builds raw SQL strings so AR can't see the dependency.
+        scope_with_blobs = scope.left_outer_joins(file_attachment: :blob)
         Support::DateRangeFilter.apply(
-          scope: scope,
+          scope: scope_with_blobs,
           columns: %w[documents.created_at active_storage_blobs.created_at],
           from: from_date,
           to: to_date

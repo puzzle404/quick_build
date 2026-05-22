@@ -5,7 +5,7 @@ module SystemAuthHelpers
     # Asegura un estado limpio de cookies entre ejemplos
     Capybara.reset_sessions!
     visit new_session_path
-    fill_in "Correo electrónico", with: user.email
+    fill_in "Email", with: user.email
     fill_in "Contraseña", with: password
     click_button "Iniciar Sesión"
   end

@@ -1,5 +1,65 @@
 @import "tailwindcss";
 
+/* ============================================================
+ * Quick Build OS — design tokens (Claude Design handoff)
+ * Source: /tmp/qb-handoff/quick-build/project/Quick Build OS.html
+ * ============================================================ */
+@theme {
+  --color-bg:           oklch(98.5% 0.004 90);
+  --color-bg-raised:    oklch(99.5% 0.003 90);
+  --color-bg-sunken:    oklch(96.5% 0.005 85);
+  --color-ink:          oklch(18% 0.012 270);
+  --color-ink-2:        oklch(35% 0.012 270);
+  --color-ink-3:        oklch(55% 0.010 270);
+  --color-ink-4:        oklch(72% 0.008 270);
+  --color-line:         oklch(91% 0.005 270);
+  --color-line-2:       oklch(86% 0.006 270);
+  --color-accent:       oklch(55% 0.22 255);
+  --color-accent-ink:   oklch(99% 0.003 255);
+  --color-accent-soft:  oklch(94% 0.04 255);
+  --color-ok:           oklch(58% 0.14 155);
+  --color-warn:         oklch(72% 0.16 75);
+  --color-bad:          oklch(55% 0.18 25);
+  --color-info:         oklch(60% 0.13 220);
+
+  --font-ui:   'Geist', ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+  --font-mono: 'Geist Mono', ui-monospace, 'SFMono-Regular', Menlo, monospace;
+
+  --radius:    6px;
+  --radius-sm: 4px;
+}
+
+/* Night theme override (data-theme="night") */
+[data-theme="night"] {
+  --color-bg:          oklch(18% 0.015 250);
+  --color-bg-raised:   oklch(22% 0.015 250);
+  --color-bg-sunken:   oklch(15% 0.015 250);
+  --color-ink:         oklch(96% 0.005 250);
+  --color-ink-2:       oklch(80% 0.010 250);
+  --color-ink-3:       oklch(62% 0.010 250);
+  --color-ink-4:       oklch(45% 0.010 250);
+  --color-line:        oklch(28% 0.015 250);
+  --color-line-2:      oklch(34% 0.018 250);
+  --color-accent:      oklch(78% 0.17 75);
+  --color-accent-ink:  oklch(18% 0.05 75);
+  --color-accent-soft: oklch(30% 0.08 75);
+  --color-ok:          oklch(72% 0.15 155);
+  --color-warn:        oklch(78% 0.17 75);
+  --color-bad:         oklch(68% 0.19 25);
+  --color-info:        oklch(72% 0.14 220);
+}
+
+/* QB density tokens — applied to <html data-density="..."> */
+:root {
+  --qb-density-row: 32px;
+  --qb-density-pad: 10px;
+  --qb-density-font: 13px;
+}
+[data-density="compact"] { --qb-density-row: 28px; --qb-density-pad: 8px;  --qb-density-font: 12px; }
+[data-density="cozy"]    { --qb-density-row: 32px; --qb-density-pad: 10px; --qb-density-font: 13px; }
+[data-density="relaxed"] { --qb-density-row: 40px; --qb-density-pad: 14px; --qb-density-font: 13px; }
+
+/* Legacy theme vars preserved for non-redesigned views (marketing layout) */
 @layer base {
   :root {
     --color-indigo-600: oklch(51.1% .262 276.966);
@@ -20,16 +80,20 @@
     --color-yellow-600: #ca8a04;
   }
 
-  html {
-    overflow-x: hidden;
-  }
+  html { overflow-x: hidden; }
+  body { min-height: 100%; width: 100%; }
 
-  body {
-    min-height: 100%;
-    width: 100%;
+  /* Constructor (redesign) body baseline — applied via .qb-os class on <body> */
+  body.qb-os {
+    background: var(--color-bg);
+    color: var(--color-ink);
+    font-family: var(--font-ui);
+    font-size: var(--qb-density-font);
+    font-feature-settings: "cv11", "ss01", "ss03";
+    -webkit-font-smoothing: antialiased;
+    line-height: 1.4;
   }
 }
-
 
 @custom-variant hotwire-native {
   body[data-hotwire-native] & {
@@ -43,8 +107,119 @@
   }
 }
 
+/* ============================================================
+ * QB utilities (cross-cutting)
+ * ============================================================ */
+@layer utilities {
+  .qb-mono { font-family: var(--font-mono); font-feature-settings: "tnum"; }
+  .qb-tnum { font-variant-numeric: tabular-nums; }
+}
+
 @layer components {
   .leaflet-container {
     width: 100% !important;
   }
+
+  /* ─── Responsive · tablet/mobile breakpoints ─────────────── */
+  /* El handoff es desktop-first (viewport 1440). Estos tweaks hacen el
+     chrome usable en tablet (<1024px) sin reescribir el layout. */
+
+  /* Tablet: sidebar arranca colapsado para liberar espacio. El usuario
+     puede expandir manualmente con Contraer/Expandir; persiste en
+     localStorage como en desktop. */
+  @media (max-width: 1023.98px) {
+    .qb-sidebar:not(.qb-sidebar-expanded) {
+      width: 56px;
+    }
+    .qb-sidebar:not(.qb-sidebar-expanded) [data-qb-sidebar-label] {
+      display: none !important;
+    }
+    .qb-sidebar:not(.qb-sidebar-expanded) nav a,
+    .qb-sidebar:not(.qb-sidebar-expanded) nav button {
+      justify-content: center !important;
+      padding: 0 !important;
+    }
+  }
+
+  /* Tabla densa en mobile: scroll horizontal en lugar de overflow oculto. */
+  @media (max-width: 900px) {
+    body.qb-os table {
+      display: block;
+      overflow-x: auto;
+      white-space: nowrap;
+    }
+    /* Hero strip + KPI strip pasan a 2 columnas en mobile */
+    body.qb-os div[style*="grid-template-columns:repeat(4, 1fr)"],
+    body.qb-os div[style*="grid-template-columns:repeat(5, 1fr)"] {
+      grid-template-columns: repeat(2, 1fr) !important;
+    }
+    /* Two-column body del dashboard pasa a una sola columna */
+    body.qb-os div[style*="grid-template-columns:1.4fr 1fr"],
+    body.qb-os div[style*="grid-template-columns:1.5fr 1fr"] {
+      grid-template-columns: 1fr !important;
+    }
+  }
+
+  /* ─── A11y · focus rings consistentes en QB chrome ───────── */
+  body.qb-os :focus-visible {
+    outline: 2px solid var(--color-accent);
+    outline-offset: 2px;
+    border-radius: 4px;
+  }
+  /* No quitar outline en botones — :focus-visible mejora encima */
+  body.qb-os button:focus-visible,
+  body.qb-os a:focus-visible,
+  body.qb-os input:focus-visible,
+  body.qb-os select:focus-visible,
+  body.qb-os textarea:focus-visible {
+    outline: 2px solid var(--color-accent);
+    outline-offset: 2px;
+  }
+
+  /* ─── Sidebar collapse ───────────────────────────────────── */
+  /* Three-state model: default (media-query driven), forced-expanded, forced-collapsed.
+     The user's stored preference (qb-sidebar-{collapsed,expanded}) wins over
+     the media query; without preference, desktop = expanded, tablet = collapsed. */
+  .qb-sidebar { width: 224px; }
+  .qb-sidebar.qb-sidebar-collapsed { width: 56px !important; }
+  .qb-sidebar.qb-sidebar-expanded  { width: 224px !important; }
+  .qb-sidebar.qb-sidebar-collapsed [data-qb-sidebar-label] { display: none !important; }
+  .qb-sidebar.qb-sidebar-expanded  [data-qb-sidebar-label] { display: initial !important; }
+  .qb-sidebar.qb-sidebar-collapsed nav a,
+  .qb-sidebar.qb-sidebar-collapsed nav button {
+    justify-content: center !important;
+    padding: 0 !important;
+  }
+  .qb-sidebar.qb-sidebar-expanded nav a,
+  .qb-sidebar.qb-sidebar-expanded nav button {
+    justify-content: flex-start !important;
+  }
+  .qb-sidebar.qb-sidebar-collapsed .qb-collapse-icon { transform: none; }
+  .qb-sidebar:not(.qb-sidebar-collapsed) .qb-collapse-icon { transform: rotate(180deg); }
+
+  /* ─── Cmd palette + tweaks: active row highlight ─────────── */
+  .qb-active {
+    background: var(--color-bg-sunken) !important;
+  }
+
+  /* Hidden helper used by panels that toggle visibility */
+  .hidden { display: none !important; }
+
+  /* Keyboard chip used by sidebar/cmd palette */
+  .qb-kbd {
+    font-family: var(--font-mono);
+    font-size: 11px;
+    padding: 1px 5px;
+    border: 1px solid var(--color-line-2);
+    border-bottom-width: 2px;
+    border-radius: 4px;
+    color: var(--color-ink-3);
+    background: var(--color-bg-raised);
+  }
+
+  /* Scrollbars in the QB shell */
+  body.qb-os ::-webkit-scrollbar { width: 10px; height: 10px; }
+  body.qb-os ::-webkit-scrollbar-thumb { background: var(--color-line-2); border-radius: 10px; border: 2px solid var(--color-bg); }
+  body.qb-os ::-webkit-scrollbar-track { background: transparent; }
+  body.qb-os ::selection { background: var(--color-accent); color: var(--color-accent-ink); }
 }

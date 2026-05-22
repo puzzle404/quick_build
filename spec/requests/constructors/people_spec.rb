@@ -10,7 +10,7 @@ RSpec.describe 'Constructors::People', type: :request do
     create(:project_person, project: project, full_name: 'Pedro')
     get constructors_project_people_path(project)
     expect(response).to have_http_status(:ok)
-    expect(response.body).to include('Recursos humanos')
+    expect(response.body).to include('Personas asignadas')
     expect(response.body).to include('Pedro')
   end
 

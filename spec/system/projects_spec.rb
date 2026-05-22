@@ -6,11 +6,12 @@ RSpec.describe "Project management", type: :system do
   it "allows a constructor to create a project" do
     sign_in_user(constructor)
     visit new_constructors_project_path
-    fill_in "Name", with: "My Project"
-    fill_in "Location", with: "Town"
-    fill_in "Start date", with: Date.today
-    fill_in "End date", with: Date.today + 1
-    click_button "Crear obra"
+    # Wizard form uses Spanish labels and field IDs derived from project[*].
+    fill_in "project[name]",       with: "My Project"
+    fill_in "project[location]",   with: "Town"
+    fill_in "project[start_date]", with: Date.today
+    fill_in "project[end_date]",   with: Date.today + 1
+    click_button "Crear proyecto"
     expect(page).to have_content("My Project")
   end
 

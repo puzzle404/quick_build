@@ -5,7 +5,11 @@ module Constructors
 
       def show
         authorize @project, :show?
-        redirect_to constructors_project_stages_path(@project)
+        @current_qb_section = :projects
+        @project = @project.decorate
+        @current_qb_project = @project
+        @current_qb_project_sub = :planning
+        @root_stages = @project.project_stages.where(parent_id: nil).order(:position).includes(:sub_stages)
       end
 
       private

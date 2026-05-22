@@ -45,3 +45,7 @@
 /config/credentials/development.key
 
 /config/credentials/production.key
+
+# Quick Build OS redesign — local visual QA artifacts
+.playwright-mcp/
+qb-*.png

@@ -1,0 +1,35 @@
+<div style="padding:16px 20px;border-bottom:1px solid var(--color-line);background:var(--color-bg-raised);">
+  <div style="display:flex;align-items:flex-start;gap:20px;">
+    <div style="flex:1;min-width:0;">
+      <div style="display:flex;align-items:center;gap:10px;margin-bottom:6px;">
+        <span class="qb-mono" style="font-size:11px;color:var(--color-ink-3);background:var(--color-bg-sunken);padding:2px 6px;border-radius:3px;"><%= project.code %></span>
+        <%= render Qb::PillComponent.new(project.status_label, tone: project.status_tone, compact: true) %>
+        <%= render Qb::PillComponent.new(health_label, tone: project.health, compact: true) %>
+      </div>
+      <h1 style="margin:0 0 4px;font-size:20px;font-weight:600;letter-spacing:-0.3px;color:var(--color-ink);"><%= project.name %></h1>
+      <div style="display:flex;gap:14px;color:var(--color-ink-3);font-size:12px;align-items:center;flex-wrap:wrap;">
+        <span><%= render Qb::IconComponent.new(name: :people, size: 12, style: 'vertical-align:-2px;margin-right:4px;') %><%= project.client.presence || '—' %></span>
+        <span><%= render Qb::IconComponent.new(name: :map, size: 12, style: 'vertical-align:-2px;margin-right:4px;') %><%= project.location_label %></span>
+        <span><%= render Qb::IconComponent.new(name: :clock, size: 12, style: 'vertical-align:-2px;margin-right:4px;') %><%= project.started_at_label %> → <%= project.due_at_label %></span>
+      </div>
+    </div>
+    <div style="display:flex;gap:8px;">
+      <%= render Qb::BtnComponent.new('Exportar', variant: :secondary, size: :sm, icon: :download) %>
+      <%= render Qb::BtnComponent.new('', variant: :secondary, size: :sm, icon: :more) %>
+      <%= render Qb::BtnComponent.new('Registrar gasto', variant: :primary, size: :sm, icon: :plus) %>
+    </div>
+  </div>
+
+  <%# 5-cell metric strip %>
+  <div style="display:grid;grid-template-columns:repeat(5, 1fr);margin-top:14px;gap:0;border:1px solid var(--color-line);border-radius:6px;background:var(--color-bg);overflow:hidden;">
+    <%= render Qb::MetricCellComponent.new(label: 'Avance físico', value: "#{project.progress}%", hint: "plan #{project.planned_progress}%") do |c| %>
+      <% c.with_extra { render Qb::BarComponent.new(value: project.progress, plan: project.planned_progress, show_plan: true, tone: bar_tone) } %>
+    <% end %>
+    <%= render Qb::MetricCellComponent.new(label: 'Presupuesto ejecutado', value: helpers.qb_fmt_ars(project.spent), hint: "de #{helpers.qb_fmt_ars(project.budget)}") do |c| %>
+      <% c.with_extra { render Qb::StackedBarComponent.new(spent: project.spent, committed: project.committed, total: project.budget) } %>
+    <% end %>
+    <%= render Qb::MetricCellComponent.new(label: 'Etapas', value: "#{project.stages_done}/#{project.stages_count}", hint: "#{project.stages_count - project.stages_done} pendientes") %>
+    <%= render Qb::MetricCellComponent.new(label: 'Equipo', value: project.people_count, hint: 'activos') %>
+    <%= render Qb::MetricCellComponent.new(label: 'Días a entrega', value: days_to_due_label, hint: days_to_due_hint) %>
+  </div>
+</div>

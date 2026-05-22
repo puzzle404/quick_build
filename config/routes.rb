@@ -5,6 +5,9 @@ Rails.application.routes.draw do
 
   if Rails.env.development?
     mount LetterOpenerWeb::Engine, at: "/letter_opener"
+    namespace :dev do
+      get 'styleguide', to: 'styleguide#show'
+    end
   end
 
   # Home público
@@ -34,6 +37,8 @@ Rails.application.routes.draw do
   namespace :constructors do
     root to: "dashboard#index"
     get 'dashboard/evolution_chart', to: 'dashboard#evolution_chart', as: :evolution_chart
+    resources :people, only: [:index]
+    get 'search', to: 'search#index', defaults: { format: :json }
     resources :projects do
       resources :project_memberships, only: [:create, :destroy, :new]
       resource :planning, only: [:show], module: :projects, controller: :planning

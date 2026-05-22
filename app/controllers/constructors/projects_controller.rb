@@ -4,25 +4,43 @@ class Constructors::ProjectsController < Constructors::BaseController
 
   def show
     authorize @project
+    @current_qb_section = :projects
     @project = @project.decorate
+    @current_qb_project = @project
+    @current_qb_project_sub = :overview
+
     @members = @project.members.order(created_at: :desc)
     @membership = @project.project_memberships.build
+    @stages_root = @project.project_stages.where(parent_id: nil).order(:position)
+    @recent_documents = @project.documents.order(created_at: :desc).limit(6)
   end
 
   def index
+    @current_qb_section = :projects
+
     @query = params[:q].to_s.strip
     @from_date = params[:from_date].presence
     @to_date = params[:to_date].presence
+    @status_filter = params[:status].to_s.presence_in(%w[in_progress planned completed]) || 'all'
 
-    @projects = Constructors::Projects::ProjectSearchService.new(
-      scope: current_user.owned_projects,
+    base_scope = current_user.owned_projects
+    base_scope = base_scope.where(status: Project.statuses[@status_filter]) if @status_filter != 'all'
+
+    @projects_scope = Constructors::Projects::ProjectSearchService.new(
+      scope: base_scope,
       query: @query,
       from_date: @from_date,
       to_date: @to_date
     ).results
+
+    @pagy, @projects = pagy(@projects_scope, limit: 25)
+    @projects_decorated = @projects.map { ProjectDecorator.new(_1) }
+    @counts = current_user.owned_projects.group(:status).count
+    @counts_total = @counts.values.sum
   end
 
   def new
+    @current_qb_section = :projects
     @project = current_user.owned_projects.build
     authorize @project
   end
@@ -32,6 +50,10 @@ class Constructors::ProjectsController < Constructors::BaseController
     authorize @project
 
     if persist_project_with_documents(@project)
+      # Wizard step 3 may request the base stage template — apply it now.
+      if params[:apply_template].to_s == 'template'
+        ::Constructors::Projects::StageTemplateService.call(@project) rescue nil
+      end
       flash[:new_project] = true
       redirect_to constructors_project_path(@project), notice: "¡Obra creada correctamente!"
     else
@@ -63,7 +85,8 @@ class Constructors::ProjectsController < Constructors::BaseController
 
   def project_params
     params.require(:project)
-          .permit(:name, :location, :start_date, :end_date, :status, :latitude, :longitude, document_files: [])
+          .permit(:name, :client, :location, :start_date, :end_date, :status, :budget_cents,
+                  :latitude, :longitude, document_files: [])
   end
 
   def set_project

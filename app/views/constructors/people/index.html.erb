@@ -1,0 +1,128 @@
+<% content_for :qb_crumbs, [{label: 'Inicio'}, {label: 'Personas'}].to_json %>
+
+<div>
+  <%# KPI strip 4-col — refleja team.jsx del handoff %>
+  <div style="display:grid;grid-template-columns:repeat(4, 1fr);border-bottom:1px solid var(--color-line);background:var(--color-bg-raised);">
+    <%= render Qb::MetricCellComponent.new(
+          label: 'Personas asignadas',
+          value: @kpis[:total],
+          hint: "#{@kpis[:active]} activas · #{@kpis[:on_leave]} en licencia"
+        ) %>
+    <%
+      pct = @kpis[:avg_attendance_pct]
+      attn_tone = pct.to_i >= 85 ? :ok : (pct.to_i >= 70 ? :warn : :muted)
+    %>
+    <%= render Qb::MetricCellComponent.new(
+          label: 'Asistencia promedio',
+          value: pct ? "#{pct}%" : '—',
+          hint: pct ? 'últimos 30 días' : 'sin datos',
+          tone: attn_tone
+        ) %>
+    <%= render Qb::MetricCellComponent.new(
+          label: 'Costo MO',
+          value: @kpis[:labor_cost_cents] ? qb_fmt_cents(@kpis[:labor_cost_cents]) : '—',
+          hint: 'este mes'
+        ) %>
+    <%= render Qb::MetricCellComponent.new(
+          label: 'Proyectos activos',
+          value: current_user.owned_projects.in_progress.count,
+          hint: 'donde hay equipo asignado'
+        ) %>
+  </div>
+
+  <%# Page header %>
+  <div style="padding:14px 20px;border-bottom:1px solid var(--color-line);display:flex;align-items:flex-end;gap:16px;">
+    <div style="flex:1;">
+      <div style="font-size:11px;font-family:var(--font-mono);color:var(--color-ink-3);text-transform:uppercase;letter-spacing:0.8px;">Personas · global</div>
+      <h1 style="margin:3px 0 0;font-size:20px;font-weight:600;letter-spacing:-0.3px;">Equipo across proyectos</h1>
+      <div style="font-size:12px;color:var(--color-ink-3);margin-top:2px;">Una fila por persona — agrupada por nombre y teléfono cuando aparece en varias obras.</div>
+    </div>
+  </div>
+
+  <%# Toolbar %>
+  <div style="display:flex;align-items:center;padding:10px 16px;gap:8px;border-bottom:1px solid var(--color-line);background:var(--color-bg-raised);">
+    <form action="<%= constructors_people_path %>" method="get" style="display:flex;align-items:center;gap:8px;flex:1;">
+      <div style="display:flex;align-items:center;gap:6px;padding:0 10px;height:28px;background:var(--color-bg);border:1px solid var(--color-line);border-radius:5px;width:280px;">
+        <%= render Qb::IconComponent.new(name: :search, size: 13, style: 'color:var(--color-ink-4)') %>
+        <input type="search" name="q" value="<%= @query %>" placeholder="Buscar personas…"
+               style="flex:1;border:none;outline:none;background:transparent;font-size:12px;color:var(--color-ink);">
+      </div>
+    </form>
+    <div style="flex:1;"></div>
+    <span class="qb-mono" style="font-size:11px;color:var(--color-ink-3);"><%= @pagy.count %> personas</span>
+  </div>
+
+  <%# Tabla %>
+  <% if @grouped_page.any? %>
+    <table style="width:100%;border-collapse:collapse;font-size:12px;">
+      <thead>
+        <tr style="background:var(--color-bg-raised);">
+          <% ['Persona', 'Rol', 'Asignada a', '$/hora', 'Días este mes', 'Asistencia', 'Estado', ''].each_with_index do |h, i| %>
+            <th style="padding:8px 12px;text-align:<%= [3, 4, 5].include?(i) ? 'right' : 'left' %>;border-bottom:1px solid var(--color-line);font-size:10px;font-family:var(--font-mono);color:var(--color-ink-3);font-weight:500;letter-spacing:0.5px;text-transform:uppercase;"><%= h %></th>
+          <% end %>
+        </tr>
+      </thead>
+      <tbody>
+        <% @grouped_page.each do |row| %>
+          <tr style="height:44px;border-bottom:1px solid var(--color-line);">
+            <td style="padding:0 12px;">
+              <div style="display:flex;align-items:center;gap:10px;">
+                <%= render Qb::AvatarComponent.new(name: row[:full_name], size: 26) %>
+                <div>
+                  <div style="font-weight:500;color:var(--color-ink);"><%= row[:full_name] %></div>
+                  <% if row[:phone].present? %>
+                    <div class="qb-mono" style="font-size:10px;color:var(--color-ink-4);"><%= row[:phone] %></div>
+                  <% end %>
+                </div>
+              </div>
+            </td>
+            <td style="padding:0 12px;color:var(--color-ink-2);"><%= row[:role_title] || '—' %></td>
+            <td style="padding:0 12px;">
+              <div style="display:flex;gap:4px;flex-wrap:wrap;">
+                <% row[:projects].first(3).each do |project| %>
+                  <%= link_to constructors_project_path(project), style: 'text-decoration:none;' do %>
+                    <%= render Qb::PillComponent.new(project.name.to_s.split('·').first&.strip&.first(20), tone: :muted, compact: true) %>
+                  <% end %>
+                <% end %>
+                <% if row[:projects].size > 3 %>
+                  <span class="qb-mono" style="font-size:10px;color:var(--color-ink-4);align-self:center;">+<%= row[:projects].size - 3 %></span>
+                <% end %>
+              </div>
+            </td>
+            <td class="qb-mono qb-tnum" style="padding:0 12px;text-align:right;color:var(--color-ink-2);">
+              <%= row[:hourly_rate_cents] ? qb_fmt_cents(row[:hourly_rate_cents]) : '—' %>
+            </td>
+            <td class="qb-mono qb-tnum" style="padding:0 12px;text-align:right;color:var(--color-ink-2);">
+              <%= row[:attendance_days] %>
+            </td>
+            <td style="padding:0 12px;">
+              <% if row[:attendance_pct] %>
+                <% tone = row[:attendance_pct] < 70 ? :bad : (row[:attendance_pct] < 85 ? :warn : :ok) %>
+                <div style="display:flex;align-items:center;gap:8px;justify-content:flex-end;">
+                  <span class="qb-mono qb-tnum" style="font-size:11px;color:var(--color-<%= tone %>);"><%= row[:attendance_pct] %>%</span>
+                  <div style="width:40px;"><%= render Qb::BarComponent.new(value: row[:attendance_pct], tone: tone, height: 4) %></div>
+                </div>
+              <% else %>
+                <div style="text-align:right;color:var(--color-ink-4);font-size:11px;">—</div>
+              <% end %>
+            </td>
+            <td style="padding:0 12px;">
+              <%= render Qb::PillComponent.new(row[:status] == 'active' ? 'Activa' : 'Licencia', tone: row[:status] == 'active' ? :ok : :muted, compact: true) %>
+            </td>
+            <td style="padding:0 12px;width:24px;color:var(--color-ink-4);">
+              <%= render Qb::IconComponent.new(name: :more, size: 14) %>
+            </td>
+          </tr>
+        <% end %>
+      </tbody>
+    </table>
+  <% else %>
+    <div style="padding:60px;margin:16px;text-align:center;color:var(--color-ink-4);font-size:13px;border:1px dashed var(--color-line);border-radius:10px;">
+      <%= render Qb::IconComponent.new(name: :people, size: 28, style: 'margin-bottom:8px;opacity:0.5;') %>
+      <div>Aún no sumaste personas a ninguna obra.</div>
+      <div style="font-size:11px;color:var(--color-ink-4);margin-top:6px;">Entrá a un proyecto y usá la pestaña Equipo para agregar gente.</div>
+    </div>
+  <% end %>
+
+  <%= render Qb::PaginationComponent.new(pagy: @pagy, label: 'personas') %>
+</div>
