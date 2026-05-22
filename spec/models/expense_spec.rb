@@ -43,12 +43,39 @@ RSpec.describe Expense, type: :model do
     it ".for_project devuelve todas las del proyecto" do
       expect(Expense.for_project(project.id)).to contain_exactly(e1, e2)
     end
+
+    it ".recent_first ordena por incurred_on DESC, id DESC" do
+      ordered = Expense.recent_first.where(project_id: project.id)
+      expect(ordered.first).to eq(e2)  # 1 day ago (más reciente)
+      expect(ordered.last).to  eq(e1)  # 2 days ago
+    end
   end
 
   describe "receipt attachment" do
     it "permite adjuntar un recibo" do
       expense = create(:expense, :with_receipt)
       expect(expense.receipt).to be_attached
+    end
+  end
+
+  describe "receipt content type" do
+    it "rechaza recibos que no son JPG, PNG o PDF" do
+      expense = build(:expense)
+      expense.receipt.attach(
+        io: StringIO.new("fake-bytes"),
+        filename: "evil.exe",
+        content_type: "application/x-msdownload"
+      )
+      expect(expense).not_to be_valid
+      expect(expense.errors[:receipt]).to include(/JPG, PNG o PDF/)
+    end
+
+    it "acepta JPG, PNG y PDF" do
+      %w[image/jpeg image/png application/pdf].each do |ct|
+        expense = build(:expense)
+        expense.receipt.attach(io: StringIO.new("bytes"), filename: "ok", content_type: ct)
+        expect(expense).to be_valid
+      end
     end
   end
 end

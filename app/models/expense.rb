@@ -7,9 +7,12 @@ class Expense < ApplicationRecord
 
   enum :category, { labor: 0, materials_misc: 1, rentals: 2, other: 3 }
 
+  ALLOWED_RECEIPT_TYPES = %w[image/jpeg image/png application/pdf].freeze
+
   validates :amount_cents, presence: true, numericality: { greater_than: 0 }
   validates :incurred_on, presence: true
   validate :stage_belongs_to_same_project
+  validate :acceptable_receipt_type
 
   scope :for_project, ->(project_id) { where(project_id: project_id) }
   scope :for_stage,   ->(stage_id)   { where(project_stage_id: stage_id) }
@@ -22,9 +25,16 @@ class Expense < ApplicationRecord
   private
 
   def stage_belongs_to_same_project
-    return if project_stage.blank?
-    return if project_stage.project_id == project_id
+    return if project_stage_id.blank?
+    return if project_stage&.project_id == project_id
 
     errors.add(:project_stage, "debe pertenecer al mismo proyecto")
+  end
+
+  def acceptable_receipt_type
+    return unless receipt.attached?
+    return if ALLOWED_RECEIPT_TYPES.include?(receipt.content_type)
+
+    errors.add(:receipt, "debe ser JPG, PNG o PDF")
   end
 end
