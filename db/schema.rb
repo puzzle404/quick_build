@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.0].define(version: 2026_05_22_214546) do
+ActiveRecord::Schema[8.0].define(version: 2026_05_22_215202) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
 
@@ -201,6 +201,19 @@ ActiveRecord::Schema[8.0].define(version: 2026_05_22_214546) do
     t.decimal "price", precision: 10, scale: 2
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
+  end
+
+  create_table "notes", force: :cascade do |t|
+    t.string "noteable_type", null: false
+    t.bigint "noteable_id", null: false
+    t.bigint "author_id", null: false
+    t.string "title"
+    t.text "body", null: false
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["author_id"], name: "index_notes_on_author_id"
+    t.index ["noteable_type", "noteable_id", "created_at"], name: "idx_notes_on_noteable_and_created"
+    t.index ["noteable_type", "noteable_id"], name: "index_notes_on_noteable"
   end
 
   create_table "orders", force: :cascade do |t|
@@ -464,6 +477,7 @@ ActiveRecord::Schema[8.0].define(version: 2026_05_22_214546) do
   add_foreign_key "material_lists", "project_stages"
   add_foreign_key "material_lists", "projects"
   add_foreign_key "material_lists", "users", column: "author_id"
+  add_foreign_key "notes", "users", column: "author_id"
   add_foreign_key "orders", "users"
   add_foreign_key "person_attendances", "project_people"
   add_foreign_key "products", "categories"

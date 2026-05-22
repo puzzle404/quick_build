@@ -12,6 +12,7 @@ class Project < ApplicationRecord
   has_many :documents, as: :documentable, dependent: :destroy
   has_many :blueprints, dependent: :destroy
   has_many :expenses, dependent: :destroy
+  has_many :notes, as: :noteable, dependent: :destroy
 
   attr_accessor :document_files
 
