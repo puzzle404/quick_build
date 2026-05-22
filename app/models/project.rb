@@ -11,6 +11,7 @@ class Project < ApplicationRecord
   has_many :images, as: :imageable, dependent: :destroy
   has_many :documents, as: :documentable, dependent: :destroy
   has_many :blueprints, dependent: :destroy
+  has_many :expenses, dependent: :destroy
 
   attr_accessor :document_files
 

@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.0].define(version: 2026_04_21_004417) do
+ActiveRecord::Schema[8.0].define(version: 2026_05_22_214546) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
 
@@ -113,6 +113,24 @@ ActiveRecord::Schema[8.0].define(version: 2026_04_21_004417) do
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
     t.index ["documentable_type", "documentable_id"], name: "index_documents_on_documentable"
+  end
+
+  create_table "expenses", force: :cascade do |t|
+    t.bigint "project_id", null: false
+    t.bigint "project_stage_id"
+    t.bigint "author_id", null: false
+    t.bigint "amount_cents", null: false
+    t.string "currency", default: "ARS", null: false
+    t.integer "category", default: 0, null: false
+    t.date "incurred_on", null: false
+    t.string "description"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["author_id"], name: "index_expenses_on_author_id"
+    t.index ["project_id", "incurred_on"], name: "index_expenses_on_project_id_and_incurred_on"
+    t.index ["project_id"], name: "index_expenses_on_project_id"
+    t.index ["project_stage_id", "incurred_on"], name: "index_expenses_on_project_stage_id_and_incurred_on"
+    t.index ["project_stage_id"], name: "index_expenses_on_project_stage_id"
   end
 
   create_table "images", force: :cascade do |t|
@@ -436,6 +454,9 @@ ActiveRecord::Schema[8.0].define(version: 2026_04_21_004417) do
   add_foreign_key "blueprints", "projects"
   add_foreign_key "construction_item_materials", "construction_items"
   add_foreign_key "construction_item_materials", "materials"
+  add_foreign_key "expenses", "project_stages"
+  add_foreign_key "expenses", "projects"
+  add_foreign_key "expenses", "users", column: "author_id"
   add_foreign_key "line_items", "orders"
   add_foreign_key "line_items", "products"
   add_foreign_key "material_items", "material_lists"

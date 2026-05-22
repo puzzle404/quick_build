@@ -6,6 +6,7 @@ class ProjectStage < ApplicationRecord
 
   has_many :sub_stages, class_name: "ProjectStage", foreign_key: :parent_id, dependent: :destroy
   has_many :material_lists, dependent: :nullify
+  has_many :expenses, dependent: :nullify
   has_many :images, as: :imageable, dependent: :destroy
   has_many :documents, as: :documentable, dependent: :destroy
 
