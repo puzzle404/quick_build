@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.0].define(version: 2026_05_22_215202) do
+ActiveRecord::Schema[8.0].define(version: 2026_05_22_215805) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
 
@@ -292,7 +292,9 @@ ActiveRecord::Schema[8.0].define(version: 2026_05_22_215202) do
     t.string "lead"
     t.bigint "budget_cents"
     t.bigint "spent_cents"
+    t.bigint "predecessor_id"
     t.index ["parent_id"], name: "index_project_stages_on_parent_id"
+    t.index ["predecessor_id"], name: "index_project_stages_on_predecessor_id"
     t.index ["project_id", "start_date"], name: "index_project_stages_on_project_id_and_start_date"
     t.index ["project_id"], name: "index_project_stages_on_project_id"
   end
@@ -485,6 +487,7 @@ ActiveRecord::Schema[8.0].define(version: 2026_05_22_215202) do
   add_foreign_key "project_memberships", "users"
   add_foreign_key "project_people", "projects"
   add_foreign_key "project_stages", "project_stages", column: "parent_id"
+  add_foreign_key "project_stages", "project_stages", column: "predecessor_id"
   add_foreign_key "project_stages", "projects"
   add_foreign_key "projects", "users", column: "owner_id"
   add_foreign_key "sessions", "users"
