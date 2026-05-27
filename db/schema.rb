@@ -141,8 +141,8 @@ ActiveRecord::Schema[8.0].define(version: 2026_05_27_002536) do
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
     t.boolean "featured", default: false, null: false
-    t.index ["imageable_type", "imageable_id", "featured"], name: "index_images_on_imageable_type_and_imageable_id_and_featured"
     t.index ["imageable_type", "imageable_id"], name: "index_images_on_imageable"
+    t.index ["imageable_type", "imageable_id"], name: "index_images_unique_featured_per_imageable", unique: true, where: "featured"
   end
 
   create_table "line_items", force: :cascade do |t|

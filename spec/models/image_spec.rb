@@ -33,5 +33,18 @@ RSpec.describe Image, type: :model do
       create(:image, imageable: project, featured: false)
       expect(project.images.featured).to contain_exactly(destacada)
     end
+
+    it "permite quitar el destacado de una imagen ya destacada" do
+      img = create(:image, imageable: project, featured: true)
+      img.featured = false
+      expect(img).to be_valid
+      expect { img.save! }.not_to raise_error
+    end
+
+    it "permite re-guardar la imagen destacada sin conflicto consigo misma" do
+      img = create(:image, imageable: project, featured: true)
+      img.touch
+      expect(img.reload).to be_valid
+    end
   end
 end

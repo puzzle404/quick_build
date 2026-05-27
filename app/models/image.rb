@@ -27,9 +27,9 @@ class Image < ApplicationRecord
     return unless featured?
 
     exists = self.class
-                  .where(imageable_type: imageable_type, imageable_id: imageable_id, featured: true)
-                  .where.not(id: id)
-                  .exists?
+                 .where(imageable_type: imageable_type, imageable_id: imageable_id, featured: true)
+                 .where.not(id: id)
+                 .exists?
 
     errors.add(:featured, "ya hay una imagen destacada para este recurso") if exists
   end
