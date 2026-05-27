@@ -4,8 +4,12 @@
   <%= render Ui::SectionHeaderComponent.new(title: 'Planificación de la obra', subtitle: 'Organizá las etapas principales, definí subetapas y mantené la documentación al día.') do %>
   <div class="flex justify-end gap-3">
       <div class="flex flex-wrap items-center gap-2">
-        <%= render Ui::ButtonComponent.new(label: 'Aplicar plantilla base', path: apply_template_constructors_project_stages_path(@project), turbo_method: :post, variant: :secondary, turbo_confirm: '¿Quieres cargar la estructura sugerida? Las etapas existentes se conservarán.') %>
-        <%= render Ui::ButtonComponent.new(label: 'Crear nueva etapa', path: new_constructors_project_stage_path(@project), turbo_frame: 'project_modal') %>
+        <%= render Qb::BtnComponent.new('Aplicar plantilla base', variant: :secondary,
+              href: apply_template_constructors_project_stages_path(@project),
+              data: { turbo_method: :post, turbo_confirm: '¿Quieres cargar la estructura sugerida? Las etapas existentes se conservarán.' }) %>
+        <%= render Qb::BtnComponent.new('Crear nueva etapa', variant: :primary,
+              href: new_constructors_project_stage_path(@project),
+              data: { turbo_frame: 'project_modal' }) %>
       </div>
     </div>
   <% end %>
@@ -70,9 +74,13 @@
                     <td class="px-4 py-3 text-slate-600"><%= substage.material_lists.count %></td>
                     <td class="px-4 py-3 text-right">
                       <div class="flex justify-end gap-2">
-                        <%= render Ui::ButtonComponent.new(label: 'Ver', path: constructors_project_stage_path(@project, substage), size: :sm, turbo_frame: '_top') %>
+                        <%= render Qb::BtnComponent.new('Ver', variant: :primary, size: :sm,
+                              href: constructors_project_stage_path(@project, substage),
+                              data: { turbo_frame: '_top' }) %>
                         <% if policy(substage).update? %>
-                          <%= render Ui::ButtonComponent.new(label: 'Editar', path: edit_constructors_project_stage_path(@project, substage), variant: :secondary, size: :sm, turbo_frame: '_top') %>
+                          <%= render Qb::BtnComponent.new('Editar', variant: :secondary, size: :sm,
+                                href: edit_constructors_project_stage_path(@project, substage),
+                                data: { turbo_frame: '_top' }) %>
                         <% end %>
                       </div>
                     </td>
@@ -96,8 +104,12 @@
         <h2 class="text-xl font-semibold text-slate-900">Todavía no cargaste etapas principales</h2>
         <p class="mt-2 text-sm text-slate-500">Podés iniciar con la plantilla sugerida o crear una etapa desde cero según el proceso de tu obra.</p>
         <div class="mt-6 flex flex-wrap justify-center gap-3">
-          <%= render Ui::ButtonComponent.new(label: 'Aplicar plantilla base', path: apply_template_constructors_project_stages_path(@project), turbo_method: :post, variant: :secondary, size: :sm, turbo_confirm: '¿Deseas cargar las etapas recomendadas?') %>
-          <%= render Ui::ButtonComponent.new(label: 'Crear nueva etapa', path: new_constructors_project_stage_path(@project), size: :sm, turbo_frame: 'project_modal') %>
+          <%= render Qb::BtnComponent.new('Aplicar plantilla base', variant: :secondary, size: :sm,
+                href: apply_template_constructors_project_stages_path(@project),
+                data: { turbo_method: :post, turbo_confirm: '¿Deseas cargar las etapas recomendadas?' }) %>
+          <%= render Qb::BtnComponent.new('Crear nueva etapa', variant: :primary, size: :sm,
+                href: new_constructors_project_stage_path(@project),
+                data: { turbo_frame: 'project_modal' }) %>
         </div>
       </div>
     <% end %>

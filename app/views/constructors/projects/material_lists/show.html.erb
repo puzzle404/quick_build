@@ -24,10 +24,13 @@
 
   <div class="flex flex-wrap gap-3">
     <% if policy(@material_list).toggle_publication? %>
-      <%= render Ui::ButtonComponent.new(label: 'Alternar presupuesto', path: toggle_publication_constructors_project_material_list_path(@project, @material_list), turbo_method: :patch, variant: :secondary, size: :sm) %>
+      <%= render Qb::BtnComponent.new('Alternar presupuesto', variant: :secondary, size: :sm,
+            href: toggle_publication_constructors_project_material_list_path(@project, @material_list),
+            data: { turbo_method: :patch }) %>
     <% end %>
     <% if policy(@material_list).update? %>
-      <%= render Ui::ButtonComponent.new(label: "Editar", path: edit_constructors_project_material_list_path(@project, @material_list)) %>
+      <%= render Qb::BtnComponent.new('Editar', variant: :primary,
+            href: edit_constructors_project_material_list_path(@project, @material_list)) %>
     <% end %>
   </div>
 

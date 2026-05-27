@@ -18,8 +18,8 @@ RSpec.describe 'People management', type: :system do
     expect(page).to have_text('Carlos Gómez')
     expect(page).to have_text('Herrero')
 
-    # Register attendance
-    click_button 'Dar presente'
+    # Register attendance — Qb::BtnComponent with href renders as <a>
+    click_link 'Dar presente'
     expect(page).to have_text('Presente registrado').or have_text('Asistencias')
   end
 end

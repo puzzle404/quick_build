@@ -7,10 +7,13 @@
   <%= render Ui::SectionHeaderComponent.new(title: @person.full_name, subtitle: (@person.role_title.presence || 'Sin rol especificado')) %>
   <div class="flex flex-wrap gap-3">
     <% if policy(@person).update? %>
-      <%= render Ui::ButtonComponent.new(label: "Editar", path: edit_constructors_project_person_path(@project, @person), variant: :secondary) %>
+      <%= render Qb::BtnComponent.new('Editar', variant: :secondary,
+            href: edit_constructors_project_person_path(@project, @person)) %>
     <% end %>
     <% if policy(@person).destroy? %>
-      <%= render Ui::ButtonComponent.new(label: "Eliminar", path: constructors_project_person_path(@project, @person), turbo_method: :delete, variant: :danger, turbo_confirm: "¿Seguro que querés eliminar esta persona?") %>
+      <%= render Qb::BtnComponent.new('Eliminar', variant: :danger,
+            href: constructors_project_person_path(@project, @person),
+            data: { turbo_method: :delete, turbo_confirm: '¿Seguro que querés eliminar esta persona?' }) %>
     <% end %>
   </div>
 
@@ -49,7 +52,9 @@
       <div class="rounded-2xl border border-slate-200 bg-white p-4 shadow-sm">
         <div class="flex items-center justify-between">
           <p class="text-sm font-medium text-slate-600 uppercase tracking-wide">Asistencias</p>
-          <%= render Ui::ButtonComponent.new(label: "Dar presente", path: constructors_project_person_attendances_path(@project, @person), turbo_method: :post, variant: :primary) %>
+          <%= render Qb::BtnComponent.new('Dar presente', variant: :primary,
+                href: constructors_project_person_attendances_path(@project, @person),
+                data: { turbo_method: :post }) %>
         </div>
         <ul class="mt-4 divide-y divide-slate-100 text-sm text-slate-700">
           <% @recent_attendances.each do |att| %>

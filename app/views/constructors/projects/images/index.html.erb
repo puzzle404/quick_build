@@ -12,7 +12,7 @@
           Agregar imágenes
           <%= f.file_field :files, multiple: true, accept: 'image/*', class: 'hidden' %>
         </label>
-        <%= render Ui::ButtonComponent.new(label: 'Subir', type: :submit, variant: :primary, size: :sm) %>
+        <%= render Qb::BtnComponent.new('Subir', variant: :primary, size: :sm, type: 'submit') %>
       <% end %>
     </div>
 

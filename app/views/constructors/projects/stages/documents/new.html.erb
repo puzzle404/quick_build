@@ -15,8 +15,8 @@
       </div>
 
       <div class="flex items-center gap-3">
-        <%= render Ui::ButtonComponent.new(label: 'Subir documentos', type: :submit) %>
-        <%= render Ui::ButtonComponent.new(label: 'Cancelar', path: constructors_project_stage_path(@project, @stage), variant: :secondary) %>
+        <%= render Qb::BtnComponent.new('Subir documentos', variant: :primary, type: 'submit') %>
+        <%= render Qb::BtnComponent.new('Cancelar', variant: :secondary, href: constructors_project_stage_path(@project, @stage)) %>
       </div>
     <% end %>
   </section>
