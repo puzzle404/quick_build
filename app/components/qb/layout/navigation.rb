@@ -37,7 +37,7 @@ module Qb
       def project_url(sub_key)
         case sub_key
         when :overview   then helpers.constructors_project_path(project)
-        when :planning   then helpers.constructors_project_planning_path(project)
+        when :planning   then helpers.constructors_project_stages_path(project)
         when :materials  then helpers.constructors_project_material_lists_path(project)
         when :blueprints then helpers.constructors_project_blueprints_path(project)
         when :team       then helpers.constructors_project_people_path(project)

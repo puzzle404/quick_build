@@ -228,7 +228,7 @@
   <div class="right">
     <%= render Qb::BtnComponent.new('Duplicar', variant: :secondary, size: :xs,
           href: duplicate_constructors_project_stage_path(project, stage),
-          data: { turbo_method: :post, turbo_frame: '_top' }) %>
+          data: { turbo_method: :post }) %>
     <%= render Qb::BtnComponent.new('Editar', variant: :secondary, size: :xs,
           href: edit_constructors_project_stage_path(project, stage),
           data: { turbo_frame: 'project_modal' }) %>

@@ -8,7 +8,7 @@
 
   tabs = [
     { value: :overview,   label: 'Resumen',       icon: :home,      href: constructors_project_path(@project) },
-    { value: :planning,   label: 'Planificación', icon: :planning,  count: @project.project_stages.where(parent_id: nil).count, href: constructors_project_planning_path(@project) },
+    { value: :planning,   label: 'Planificación', icon: :planning,  count: @project.project_stages.where(parent_id: nil).count, href: constructors_project_stages_path(@project) },
     { value: :materials,  label: 'Materiales',    icon: :materials, count: all.size, href: constructors_project_material_lists_path(@project) },
     { value: :blueprints, label: 'Planos · IA',   icon: :blueprint, count: @project.blueprints.count, href: constructors_project_blueprints_path(@project) },
     { value: :team,       label: 'Equipo',        icon: :people,    count: @project.project_people.count, href: constructors_project_people_path(@project) },

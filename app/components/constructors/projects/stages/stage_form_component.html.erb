@@ -1,7 +1,6 @@
 <%= form_with model: stage,
               url: form_url,
-              method: form_method,
-              data: { turbo_frame: "_top" } do |form| %>
+              method: form_method do |form| %>
   <%= form.hidden_field :parent_id, value: parent_field_value if parent_field_value.present? %>
   <% if stage.errors.any? %>
     <div class="qb-form-error">

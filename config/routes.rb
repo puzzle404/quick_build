@@ -42,6 +42,7 @@ Rails.application.routes.draw do
     get 'search', to: 'search#index', defaults: { format: :json }
     resources :projects do
       resources :project_memberships, only: [:create, :destroy, :new]
+      # /planning redirige a /stages (la vista de planificación ahora vive en stages#index).
       resource :planning, only: [:show], module: :projects, controller: :planning
       resources :documents, only: [:index, :create, :destroy], module: :projects, controller: :documents
       resources :images, only: [:index, :create, :destroy], module: :projects, controller: :images

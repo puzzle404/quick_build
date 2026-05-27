@@ -6,28 +6,11 @@ module Constructors
 
       def index
         authorize @project, :show?
-
-        @view_mode = params[:view].in?(%w[sub_stages main]) ? params[:view] : "main"
-        @main_query = params[:main_q].to_s.strip
-        @sub_query = params[:sub_q].to_s.strip
-        @query_param = @view_mode == "sub_stages" ? :sub_q : :main_q
-        @query = @view_mode == "sub_stages" ? @sub_query : @main_query
-
-        @from_date = params[:from_date].presence
-        @to_date = params[:to_date].presence
-
-        search = Constructors::Projects::StageSearchService.new(
-          project: @project,
-          query: @query,
-          from_date: @from_date,
-          to_date: @to_date
-        )
-
-        if @view_mode == "sub_stages"
-          @sub_stages = search.sub_stages
-        else
-          @stages = search.main_stages
-        end
+        @current_qb_section = :projects
+        @project = @project.decorate
+        @current_qb_project = @project
+        @current_qb_project_sub = :planning
+        @root_stages = @project.project_stages.where(parent_id: nil).order(:position).includes(:sub_stages)
       end
 
       def show
@@ -52,7 +35,21 @@ module Constructors
         authorize @stage
 
         if @stage.save
-          redirect_to constructors_project_stage_path(@project, @stage), notice: "Etapa creada correctamente."
+          respond_to do |format|
+            format.turbo_stream do
+              decorated_stage = @stage.decorate
+              render turbo_stream: [
+                turbo_stream.update("project_modal", ""),
+                turbo_stream.append("planning_stages",
+                  Constructors::Projects::Planning::StageCardComponent.new(
+                    project: @project.decorate,
+                    stage: decorated_stage,
+                    sub_stages: @stage.sub_stages.order(:position, :name)
+                  ))
+              ]
+            end
+            format.html { redirect_to constructors_project_stages_path(@project), notice: "Etapa creada correctamente." }
+          end
         else
           render :new, status: :unprocessable_entity
         end
@@ -62,7 +59,23 @@ module Constructors
         authorize @stage
 
         if @stage.update(stage_params)
-          redirect_to constructors_project_stage_path(@project, @stage), notice: "Etapa actualizada correctamente."
+          respond_to do |format|
+            format.turbo_stream do
+              @stage.reload
+              decorated_stage = @stage.decorate
+              decorated_project = @project.decorate
+              render turbo_stream: [
+                turbo_stream.update("project_modal", ""),
+                turbo_stream.update("stage_detail",
+                  Constructors::Projects::Planning::StageDetailComponent.new(
+                    project: decorated_project,
+                    stage: decorated_stage,
+                    sub_stages: @stage.sub_stages.order(:position, :name)
+                  ))
+              ]
+            end
+            format.html { redirect_to constructors_project_stages_path(@project), notice: "Etapa actualizada correctamente." }
+          end
         else
           render :edit, status: :unprocessable_entity
         end
@@ -120,9 +133,24 @@ module Constructors
           end
         end
 
-        # Volver a la planificación: la copia aparece en la lista de etapas
-        # (no navegamos al detalle de la etapa nueva).
-        redirect_to constructors_project_stages_path(@project), notice: "Etapa duplicada."
+        # Etapa raíz duplicada: append turbo_stream o redirect html.
+        # Sub-etapas (parent_id present): solo redirect para evitar
+        # agregar un card sub-etapa al listado de etapas raíz.
+        if new_stage.parent_id.nil?
+          respond_to do |format|
+            format.turbo_stream do
+              render turbo_stream: turbo_stream.append("planning_stages",
+                Constructors::Projects::Planning::StageCardComponent.new(
+                  project: @project.decorate,
+                  stage: new_stage.decorate,
+                  sub_stages: []
+                ))
+            end
+            format.html { redirect_to constructors_project_stages_path(@project), notice: "Etapa duplicada." }
+          end
+        else
+          redirect_to constructors_project_stages_path(@project), notice: "Etapa duplicada."
+        end
       end
 
       def complete

@@ -14,15 +14,17 @@
       </button>
     </div>
 
-    <%# data-turbo-frame _top: when this modal is loaded inside the project_modal
-        Turbo Frame, the success redirect must break out to a full-page visit
-        (the show page has no project_modal frame). Harmless when used inline. %>
+    <%# turbo_frame: cuando la modal se abre desde el índice de materiales (sin etapa),
+        se fuerza _top para que el redirect de creación navegue a la lista.
+        Cuando se abre desde el detalle de una etapa (stage presente), NO se fuerza
+        _top: el POST llega como turbo_stream y el controller actualiza el drawer
+        sin navegar. %>
     <%# scope: :material_list → fields post as material_list[...] which is what
         the controller's params.require(:material_list) expects. Sin scope, el
         POST fallaba con ParameterMissing. %>
     <%= form_with url: constructors_project_material_lists_path(project), method: :post,
                   scope: :material_list,
-                  data: { turbo_frame: '_top' },
+                  data: stage ? {} : { turbo_frame: '_top' },
                   html: { style: 'display:flex;flex-direction:column;' } do |f| %>
       <div style="padding:18px;display:flex;flex-direction:column;gap:14px;">
         <label style="display:flex;flex-direction:column;gap:5px;">

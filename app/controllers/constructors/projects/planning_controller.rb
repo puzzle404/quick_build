@@ -1,15 +1,12 @@
 module Constructors
   module Projects
+    # La vista de planificación ahora vive en stages#index.
+    # Este controlador existe solo para 301-redirigir bookmarks antiguos.
     class PlanningController < Constructors::BaseController
       before_action :set_project
 
       def show
-        authorize @project, :show?
-        @current_qb_section = :projects
-        @project = @project.decorate
-        @current_qb_project = @project
-        @current_qb_project_sub = :planning
-        @root_stages = @project.project_stages.where(parent_id: nil).order(:position).includes(:sub_stages)
+        redirect_to constructors_project_stages_path(@project), status: :moved_permanently
       end
 
       private

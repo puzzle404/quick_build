@@ -12,7 +12,7 @@ RSpec.describe "Planning stage drawer", type: :system, js: true do
                                      start_date: Date.current, end_date: Date.current + 10)
 
     sign_in_user(owner)
-    visit constructors_project_planning_path(project)
+    visit constructors_project_stages_path(project)
 
     # Click the stage: loads the detail into the stage_detail frame + opens the drawer.
     click_on "Fundaciones"
