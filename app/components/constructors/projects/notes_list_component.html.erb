@@ -1,16 +1,16 @@
 <div>
-  <div style="font-size:11px;font-family:var(--font-mono);color:var(--color-ink-3);text-transform:uppercase;letter-spacing:0.7px;margin-bottom:8px;">
-    Notas · <%= notes.size %>
+  <div class="qb-section-title">
+    <span>Notas · <%= notes.size %></span>
   </div>
 
   <% if notes.empty? %>
-    <div style="padding:14px;text-align:center;color:var(--color-ink-4);font-size:12px;border:1px dashed var(--color-line);border-radius:6px;">
+    <div class="qb-empty">
       Aún no hay notas.
     </div>
   <% else %>
-    <div style="display:flex;flex-direction:column;gap:8px;">
+    <div style="display:flex;flex-direction:column;gap:6px;">
       <% notes.each do |note| %>
-        <div style="border:1px solid var(--color-line);border-radius:6px;padding:10px 12px;background:var(--color-bg-raised);">
+        <div class="qb-card" style="padding:10px 12px;">
           <div style="display:flex;align-items:flex-start;justify-content:space-between;gap:12px;">
             <div style="flex:1;min-width:0;">
               <% if note.title.present? %>

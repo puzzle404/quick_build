@@ -22,4 +22,3 @@ module Constructors
     end
   end
 end
-

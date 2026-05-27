@@ -15,7 +15,6 @@ RSpec.describe Constructors::Projects::MaterialLists::ItemsTableComponent, type:
   it "renders rows when items exist" do
     render_inline described_class.new(project: project, material_list: list, material_items: list.material_items, editable: true)
     expect(page).to have_text(list.material_items.first.name)
-    expect(page).to have_button("Quitar")
+    expect(page).to have_link("Quitar")
   end
 end
-
