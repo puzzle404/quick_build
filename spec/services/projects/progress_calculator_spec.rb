@@ -42,5 +42,12 @@ RSpec.describe Projects::ProgressCalculator do
              progress: 33)
       expect(calc.percent).to eq(33)
     end
+
+    it "ignora stages con duración no positiva" do
+      create(:project_stage, project: project,
+             start_date: Date.new(2026, 1, 10), end_date: Date.new(2026, 1, 10),
+             progress: 100)
+      expect(calc.percent).to eq(0)
+    end
   end
 end

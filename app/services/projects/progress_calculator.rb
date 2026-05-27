@@ -10,7 +10,7 @@ module Projects
 
       root_stages.each do |stage|
         days = duration_days(stage)
-        next if days.zero?
+        next if days <= 0
 
         total_weight += days
         weighted_sum += days * (stage.progress.to_i / 100.0)
@@ -24,7 +24,7 @@ module Projects
     private
 
     def root_stages
-      @project.project_stages.where(parent_id: nil)
+      @project.project_stages.root
     end
 
     def duration_days(stage)
