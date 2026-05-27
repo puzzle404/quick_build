@@ -130,6 +130,10 @@
 
       <%= render Qb::SectionHeadComponent.new(title: 'Próximas etapas · 14 días') %>
       <%= render Constructors::Dashboard::UpcomingStagesComponent.new(stages: @dashboard[:upcoming_stages]) %>
+
+      <div style="border-top:1px solid var(--color-line);">
+        <%= render Constructors::Dashboard::ExchangeRatesComponent.new(rates: @exchange_rates) %>
+      </div>
     </div>
   </div>
 </div>
