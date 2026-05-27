@@ -51,6 +51,9 @@
       <%= render Qb::SectionHeadComponent.new(title: 'Ubicación') %>
       <%= render Constructors::Projects::Overview::MiniMapComponent.new(lat: @project.latitude, lng: @project.longitude) %>
 
+      <%= render Qb::SectionHeadComponent.new(title: 'Clima') %>
+      <%= render Constructors::Projects::WeatherComponent.new(forecast: @weather_forecast, project: @project) %>
+
       <div data-controller="qb--modal">
         <%= render Qb::SectionHeadComponent.new(title: 'Equipo asignado') do |c| %>
           <% c.with_right { render Qb::BtnComponent.new('Invitar', variant: :ghost, size: :xs, icon: :plus, data: { action: 'click->qb--modal#open' }) } %>

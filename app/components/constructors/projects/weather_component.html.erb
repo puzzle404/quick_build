@@ -1,0 +1,38 @@
+<div style="padding:14px 16px;display:flex;flex-direction:column;gap:10px;">
+  <%# Header row %>
+  <div style="display:flex;align-items:center;justify-content:space-between;">
+    <div style="font-size:11px;font-family:var(--font-mono);color:var(--color-ink-3);text-transform:uppercase;letter-spacing:0.8px;font-weight:500;">
+      Clima en <%= location_title %>
+    </div>
+    <% if stale? %>
+      <span style="font-size:10px;font-family:var(--font-mono);text-transform:uppercase;letter-spacing:0.6px;padding:2px 6px;border-radius:4px;background:var(--color-warn-bg,#fff7e6);color:var(--color-warn);">
+        desactualizado
+      </span>
+    <% end %>
+  </div>
+
+  <div style="display:flex;flex-direction:column;gap:6px;">
+    <% days.each do |day| %>
+      <div style="display:flex;align-items:center;justify-content:space-between;gap:8px;">
+        <div style="font-size:11px;font-family:var(--font-mono);color:var(--color-ink-3);min-width:36px;">
+          <%= fmt_date(day[:date]) %>
+        </div>
+
+        <% if icon_url(day[:icon]) %>
+          <img src="<%= icon_url(day[:icon]) %>" alt="<%= day[:description] %>"
+               style="width:24px;height:24px;flex-shrink:0;">
+        <% end %>
+
+        <div style="flex:1;font-size:11px;color:var(--color-ink-3);overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">
+          <%= day[:description] %>
+        </div>
+
+        <div style="font-family:var(--font-mono);font-size:13px;color:var(--color-ink);white-space:nowrap;">
+          <%= fmt_temp(day[:max]) %> / <%= fmt_temp(day[:min]) %>
+        </div>
+      </div>
+    <% end %>
+  </div>
+
+  <div style="font-size:10px;color:var(--color-ink-4);font-family:var(--font-mono);">openweathermap.org</div>
+</div>

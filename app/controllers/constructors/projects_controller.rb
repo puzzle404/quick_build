@@ -13,6 +13,7 @@ class Constructors::ProjectsController < Constructors::BaseController
     @membership = @project.project_memberships.build
     @stages_root = @project.project_stages.where(parent_id: nil).order(:position)
     @recent_documents = @project.documents.order(created_at: :desc).limit(6)
+    @weather_forecast = External::WeatherFetcher.new(lat: @project.latitude, lng: @project.longitude).call
   end
 
   def index
