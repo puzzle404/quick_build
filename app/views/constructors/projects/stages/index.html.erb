@@ -1,8 +1,8 @@
 <%= render Constructors::Projects::SectionsNavComponent.new(project: @project, current_section: :planning) %>
 
 <div class="mt-6 space-y-6">
-  <%= render Ui::SectionHeaderComponent.new(title: 'Planificación de la obra', subtitle: 'Organizá las etapas principales, definí subetapas y mantené la documentación al día.') do %>
-  <div class="flex justify-end gap-3">
+  <%= render Qb::SectionHeadComponent.new(title: 'Planificación de la obra', subtitle: 'Organizá las etapas principales, definí subetapas y mantené la documentación al día.') do |c| %>
+    <% c.with_right do %>
       <div class="flex flex-wrap items-center gap-2">
         <%= render Qb::BtnComponent.new('Aplicar plantilla base', variant: :secondary,
               href: apply_template_constructors_project_stages_path(@project),
@@ -11,68 +11,67 @@
               href: new_constructors_project_stage_path(@project),
               data: { turbo_frame: 'project_modal' }) %>
       </div>
-    </div>
+    <% end %>
   <% end %>
-
-  <%# Params preservados y placeholder ahora se resuelven dentro del componente %>
 
   <div>
     <div class="flex justify-end">
-      <div class="inline-flex items-center rounded-full border border-slate-200 bg-white p-1 text-sm shadow-sm">
+      <div class="inline-flex items-center p-1 text-sm" style="border-radius:var(--radius);border:1px solid var(--color-line);background:var(--color-bg-raised);">
           <%= link_to 'Etapas principales',
                       constructors_project_stages_path(@project, view: 'main', main_q: @main_query.presence, sub_q: @sub_query.presence, from_date: @from_date.presence, to_date: @to_date.presence),
-                      class: "px-3 py-1 rounded-full font-medium transition #{ @view_mode == 'sub_stages' ? 'text-slate-500 hover:text-slate-700' : 'bg-indigo-600 text-white shadow' }" %>
+                      style: @view_mode == 'sub_stages' ? "padding:4px 12px;border-radius:calc(var(--radius) - 2px);font-weight:500;transition:color 0.1s;color:var(--color-ink-2);" : "padding:4px 12px;border-radius:calc(var(--radius) - 2px);font-weight:500;transition:color 0.1s;background:var(--color-accent);color:var(--color-accent-ink);" %>
           <%= link_to 'Solo subetapas',
                       constructors_project_stages_path(@project, view: 'sub_stages', main_q: @main_query.presence, sub_q: @sub_query.presence, from_date: @from_date.presence, to_date: @to_date.presence),
-                      class: "px-3 py-1 rounded-full font-medium transition #{ @view_mode == 'sub_stages' ? 'bg-indigo-600 text-white shadow' : 'text-slate-500 hover:text-slate-700' }" %>
+                      style: @view_mode == 'sub_stages' ? "padding:4px 12px;border-radius:calc(var(--radius) - 2px);font-weight:500;transition:color 0.1s;background:var(--color-accent);color:var(--color-accent-ink);" : "padding:4px 12px;border-radius:calc(var(--radius) - 2px);font-weight:500;transition:color 0.1s;color:var(--color-ink-2);" %>
         </div>
       </div>
-    <%= render Ui::SearchPanelComponent.new(
-      form_action: constructors_project_stages_path(@project),
-      query_param: @query_param,
-      query_value: @query,
-      preserve_params: [:view, :main_q, :sub_q, :from_date, :to_date],
-      placeholder_rules: { param: :view, map: { 'sub_stages' => 'Buscar subetapas...' }, default: 'Buscar etapas...' },
-      turbo_frame: 'planning_results',
-      date_filters: {
-        enabled: true,
-        from_param: :from_date,
-        to_param: :to_date,
-        from_value: @from_date,
-        to_value: @to_date,
-        from_label: 'Desde',
-        to_label: 'Hasta'
-      }
-    ) %>
+
+    <%= form_with url: constructors_project_stages_path(@project), method: :get,
+                  data: { turbo_frame: 'planning_results' },
+                  class: "mt-3 flex flex-wrap items-end gap-3" do |f| %>
+      <%= f.hidden_field :view, value: @view_mode %>
+      <div class="flex-1 min-w-[200px]">
+        <%= f.search_field @query_param, value: @query,
+              placeholder: @view_mode == 'sub_stages' ? 'Buscar subetapas...' : 'Buscar etapas...',
+              class: "qb-input",
+              "data-action": "input->auto-submit#submit" %>
+      </div>
+      <div class="flex items-center gap-2">
+        <label style="font-size:11px;color:var(--color-ink-3);">Desde</label>
+        <%= f.date_field :from_date, value: @from_date, class: "qb-input", style: "width:auto;" %>
+        <label style="font-size:11px;color:var(--color-ink-3);">Hasta</label>
+        <%= f.date_field :to_date, value: @to_date, class: "qb-input", style: "width:auto;" %>
+      </div>
+    <% end %>
   </div>
 
 
   <%= turbo_frame_tag "planning_results" do %>
     <% if @view_mode == 'sub_stages' %>
       <% if @sub_stages.any? %>
-        <div class="rounded-3xl border border-slate-200 bg-white p-6 shadow-sm">
+        <div class="qb-card" style="padding:0;overflow:hidden;">
           <div class="overflow-x-auto">
-            <table class="min-w-full divide-y divide-slate-100 text-sm">
-              <thead class="bg-slate-50 text-xs uppercase text-slate-500">
+            <table class="qb-table">
+              <thead>
                 <tr>
-                  <th scope="col" class="px-4 py-3 text-left font-semibold">Subetapa</th>
-                  <th scope="col" class="px-4 py-3 text-left font-semibold">Etapa principal</th>
-                  <th scope="col" class="px-4 py-3 text-left font-semibold">Periodo</th>
-                  <th scope="col" class="px-4 py-3 text-left font-semibold">Listas</th>
-                  <th scope="col" class="px-4 py-3"></th>
+                  <th>Subetapa</th>
+                  <th>Etapa principal</th>
+                  <th>Periodo</th>
+                  <th>Listas</th>
+                  <th></th>
                 </tr>
               </thead>
-              <tbody class="divide-y divide-slate-100 bg-white">
+              <tbody>
                 <% @sub_stages.each do |substage| %>
-                  <tr class="hover:bg-slate-50">
-                    <td class="px-4 py-3">
-                      <div class="font-medium text-slate-900"><%= substage.name %></div>
-                      <p class="text-xs text-slate-500"><%= substage.description.presence || 'Sin descripción.' %></p>
+                  <tr>
+                    <td>
+                      <div style="font-weight:500;color:var(--color-ink);"><%= substage.name %></div>
+                      <p style="font-size:11px;color:var(--color-ink-4);"><%= substage.description.presence || 'Sin descripción.' %></p>
                     </td>
-                    <td class="px-4 py-3 text-slate-600"><%= substage.parent&.name || '-' %></td>
-                    <td class="px-4 py-3 text-slate-600"><%= project_stage_period(substage) || 'Sin fechas' %></td>
-                    <td class="px-4 py-3 text-slate-600"><%= substage.material_lists.count %></td>
-                    <td class="px-4 py-3 text-right">
+                    <td><%= substage.parent&.name || '-' %></td>
+                    <td><%= project_stage_period(substage) || 'Sin fechas' %></td>
+                    <td><%= substage.material_lists.count %></td>
+                    <td>
                       <div class="flex justify-end gap-2">
                         <%= render Qb::BtnComponent.new('Ver', variant: :primary, size: :sm,
                               href: constructors_project_stage_path(@project, substage),
@@ -91,7 +90,7 @@
           </div>
         </div>
       <% else %>
-        <p class="text-sm text-slate-500">Aún no cargaste subetapas. Crea una desde alguna etapa principal.</p>
+        <p class="qb-empty">Aún no cargaste subetapas. Crea una desde alguna etapa principal.</p>
       <% end %>
     <% elsif @stages.any? %>
       <div class="grid gap-4 md:grid-cols-2 xl:grid-cols-3">
@@ -100,9 +99,9 @@
         <% end %>
       </div>
     <% else %>
-      <div class="rounded-3xl border border-dashed border-slate-200 bg-white p-10 text-center">
-        <h2 class="text-xl font-semibold text-slate-900">Todavía no cargaste etapas principales</h2>
-        <p class="mt-2 text-sm text-slate-500">Podés iniciar con la plantilla sugerida o crear una etapa desde cero según el proceso de tu obra.</p>
+      <div class="qb-empty" style="border-style:dashed;padding:40px;">
+        <h2 style="font-size:18px;font-weight:600;color:var(--color-ink);margin-bottom:8px;">Todavía no cargaste etapas principales</h2>
+        <p style="font-size:13px;color:var(--color-ink-3);">Podés iniciar con la plantilla sugerida o crear una etapa desde cero según el proceso de tu obra.</p>
         <div class="mt-6 flex flex-wrap justify-center gap-3">
           <%= render Qb::BtnComponent.new('Aplicar plantilla base', variant: :secondary, size: :sm,
                 href: apply_template_constructors_project_stages_path(@project),

@@ -44,23 +44,23 @@
     <aside style="display:flex;flex-direction:column;gap:16px;">
       <div class="qb-card">
         <h2 style="font-size:11px;font-family:var(--font-mono);text-transform:uppercase;letter-spacing:0.7px;color:var(--color-ink-3);margin-bottom:12px;">Resumen operativo</h2>
-        <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;">
-          <%= render Ui::MetricCardComponent.new(
-                title: "Estado",
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:0;border:1px solid var(--color-line);border-radius:var(--radius);overflow:hidden;">
+          <%= render Qb::MetricCellComponent.new(
+                label: "Estado",
                 value: @project_summary.status.humanize,
-                description: "Define cómo se mostrará en tableros y reportes."
+                hint: "Define cómo se mostrará en tableros y reportes."
               ) %>
-          <%= render Ui::MetricCardComponent.new(
-                title: "Duración estimada",
+          <%= render Qb::MetricCellComponent.new(
+                label: "Duración estimada",
                 value: @project_summary.duration_text || "—",
-                description: @project_summary.duration_hint
+                hint: @project_summary.duration_hint
               ) %>
-          <%= render Ui::MetricCardComponent.new(
-                title: "Inicio programado",
+          <%= render Qb::MetricCellComponent.new(
+                label: "Inicio programado",
                 value: formatted_project_date(@project_summary.start_date)
               ) %>
-          <%= render Ui::MetricCardComponent.new(
-                title: "Fin estimado",
+          <%= render Qb::MetricCellComponent.new(
+                label: "Fin estimado",
                 value: formatted_project_date(@project_summary.end_date)
               ) %>
         </div>

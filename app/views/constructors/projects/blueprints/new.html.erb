@@ -1,7 +1,7 @@
 <%= render Constructors::Projects::SectionsNavComponent.new(project: @project, current_section: :blueprints) %>
 
 <div style="margin-top:24px;">
-  <%= render Ui::SectionHeaderComponent.new(title: 'Subir plano', subtitle: 'Cargá un plano arquitectónico en formato JPG o PNG') %>
+  <%= render Qb::SectionHeadComponent.new(title: 'Subir plano', subtitle: 'Cargá un plano arquitectónico en formato JPG o PNG') %>
 
   <div class="qb-card" style="margin-top:16px;">
     <%= form_with model: @blueprint, url: constructors_project_blueprints_path(@project), html: { multipart: true } do |f| %>
