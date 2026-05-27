@@ -13,14 +13,14 @@ RSpec.describe "Adding a note to a stage", type: :system, js: true do
   it "owner adds a note via the Notas tab modal" do
     visit constructors_project_stage_path(project, stage)
 
-    find(".tab", text: /Notas/).click
+    find(".qb-tab", text: /Notas/).click
     click_button("Nueva nota")
 
     fill_in "Nota", with: "Verificar instalación de cañerías"
     click_button "Guardar"
 
     # After submit the frame reloads and the Notas tab count becomes 1 (sync point).
-    expect(page).to have_css(".tab .count", text: "1", wait: 5)
+    expect(page).to have_css(".qb-tab-count", text: "1", wait: 5)
     note = stage.notes.reload.last
     expect(note).to be_present
     expect(note.body).to eq("Verificar instalación de cañerías")

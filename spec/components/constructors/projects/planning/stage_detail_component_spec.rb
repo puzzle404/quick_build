@@ -110,12 +110,12 @@ RSpec.describe Constructors::Projects::Planning::StageDetailComponent, type: :co
     expect(component.send(:progress_number)).to eq(50)
   end
 
-  # ─── ④ TRABALHO — 5 tabs ────────────────────────────────────
+  # ─── ④ TRABAJO — 5 tabs ─────────────────────────────────────
 
   it "renders the 5 tabs in the tabbed panel" do
     rendered
     %w[Materiales Gastos Notas Docs Fotos].each do |label|
-      expect(page).to have_css(".tab", text: label)
+      expect(page).to have_css(".qb-tab", text: label)
     end
   end
 

@@ -12,30 +12,30 @@ RSpec.describe Qb::TabbedPanelComponent, type: :component do
 
   it 'renders a tab button per with_tab' do
     rendered
-    expect(page).to have_css('button.tab', count: 2)
-    expect(page).to have_css('button.tab', text: /A/)
-    expect(page).to have_css('button.tab', text: /B/)
+    expect(page).to have_css('button.qb-tab', count: 2)
+    expect(page).to have_css('button.qb-tab', text: /A/)
+    expect(page).to have_css('button.qb-tab', text: /B/)
   end
 
   it 'renders the count badge when count is given' do
     rendered
-    expect(page).to have_css('button.tab span.count', text: '2')
+    expect(page).to have_css('button.qb-tab span.qb-tab-count', text: '2')
   end
 
   it 'does not render a count badge when count is nil' do
     rendered
     # Second tab has no count, so only one count badge total
-    expect(page).to have_css('span.count', count: 1)
+    expect(page).to have_css('span.qb-tab-count', count: 1)
   end
 
   it 'gives the first tab the active class' do
     rendered
-    expect(page).to have_css('button.tab.active', text: /A/)
+    expect(page).to have_css('button.qb-tab.qb-tab--active', text: /A/)
   end
 
   it 'does not give the second tab the active class' do
     rendered
-    expect(page).not_to have_css('button.tab.active', text: /B/)
+    expect(page).not_to have_css('button.qb-tab.qb-tab--active', text: /B/)
   end
 
   it 'makes the first panel visible (no display:none)' do

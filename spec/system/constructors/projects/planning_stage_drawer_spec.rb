@@ -18,7 +18,7 @@ RSpec.describe "Planning stage drawer", type: :system, js: true do
     click_on "Fundaciones"
     expect(page).to have_text("Fundaciones", wait: 5)
 
-    find(".tab", text: /Gastos/).click
+    find(".qb-tab", text: /Gastos/).click
     click_button("Nuevo gasto")
 
     fill_in "Monto (centavos)", with: "15000"
@@ -27,7 +27,7 @@ RSpec.describe "Planning stage drawer", type: :system, js: true do
     click_button "Guardar gasto"
 
     # After submit the frame reloads and the Gastos tab count becomes 1 (sync point).
-    expect(page).to have_css(".tab .count", text: "1", wait: 5)
+    expect(page).to have_css(".qb-tab-count", text: "1", wait: 5)
     expect(stage.expenses.reload.last&.description).to eq("Jornal del lunes")
   end
 end

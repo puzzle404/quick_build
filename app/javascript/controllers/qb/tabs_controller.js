@@ -6,10 +6,10 @@ import { Controller } from "@hotwired/stimulus"
 // can interact with every panel; this controller hides the non-active ones on
 // connect — same degraded-without-JS pattern as qb--drawer):
 //   <div data-controller="qb--tabs">
-//     <button data-qb--tabs-target="tab" data-action="click->qb--tabs#select" data-index="0" class="tab active">…</button>
-//     <button data-qb--tabs-target="tab" data-action="click->qb--tabs#select" data-index="1" class="tab">…</button>
-//     <div data-qb--tabs-target="panel" data-index="0" class="tab-panel">…</div>
-//     <div data-qb--tabs-target="panel" data-index="1" class="tab-panel">…</div>
+//     <button data-qb--tabs-target="tab" data-action="click->qb--tabs#select" data-index="0" class="qb-tab qb-tab--active">…</button>
+//     <button data-qb--tabs-target="tab" data-action="click->qb--tabs#select" data-index="1" class="qb-tab">…</button>
+//     <div data-qb--tabs-target="panel" data-index="0" class="qb-tab-panel">…</div>
+//     <div data-qb--tabs-target="panel" data-index="1" class="qb-tab-panel">…</div>
 //   </div>
 export default class extends Controller {
   static targets = ["tab", "panel"]
@@ -23,13 +23,13 @@ export default class extends Controller {
   }
 
   _activeIndex() {
-    const active = this.tabTargets.find(tab => tab.classList.contains("active"))
+    const active = this.tabTargets.find(tab => tab.classList.contains("qb-tab--active"))
     return active ? active.dataset.index : (this.tabTargets[0] && this.tabTargets[0].dataset.index) || "0"
   }
 
   _activate(idx) {
     this.tabTargets.forEach(tab => {
-      tab.classList.toggle("active", tab.dataset.index === idx)
+      tab.classList.toggle("qb-tab--active", tab.dataset.index === idx)
     })
     this.panelTargets.forEach(panel => {
       panel.style.display = panel.dataset.index === idx ? "" : "none"
