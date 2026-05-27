@@ -37,10 +37,12 @@
             <span><%= render Qb::IconComponent.new(name: :clock, size: 12, style: 'vertical-align:-2px;margin-right:4px;') %><%= project.started_at_label %> → <%= project.due_at_label %></span>
           </div>
         </div>
-        <div style="display:flex;gap:8px;">
+        <div style="display:flex;gap:8px;" data-controller="qb--modal">
           <%= render Qb::BtnComponent.new('Exportar', variant: :secondary, size: :sm, icon: :download) %>
           <%= render Qb::BtnComponent.new('', variant: :secondary, size: :sm, icon: :more) %>
-          <%= render Qb::BtnComponent.new('Registrar gasto', variant: :primary, size: :sm, icon: :plus) %>
+          <%= render Qb::BtnComponent.new('Registrar gasto', variant: :primary, size: :sm, icon: :plus,
+                                          data: { action: 'click->qb--modal#open' }) %>
+          <%= render Constructors::Projects::ExpenseModalComponent.new(project: project) %>
         </div>
       </div>
 
