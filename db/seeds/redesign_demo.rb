@@ -377,7 +377,7 @@ if prj042
 end
 
 # ─────────────────────────────────────────────────────────────────────
-# Predecessor — etapa Instalaciones sanitarias precede a Estructura
+# Predecessor — Estructura precede a Instalaciones sanitarias
 # Estructura end: 2026-02-20  /  Inst. sanitarias start: 2026-02-25
 # ─────────────────────────────────────────────────────────────────────
 
