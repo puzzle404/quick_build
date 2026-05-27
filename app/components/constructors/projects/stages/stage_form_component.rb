@@ -37,12 +37,14 @@ module Constructors
           stage.parent&.id
         end
 
+        # Solo ofrecemos etapas raíz como predecesoras (las sub-etapas no actúan
+        # como predecesoras de cronograma). El modelo igual valida mismo-proyecto/ciclo.
         def predecessor_candidates
-          project.project_stages
-                 .root
-                 .where.not(id: stage.id.presence)
-                 .order(:position, :name)
-                 .pluck(:name, :id)
+          @predecessor_candidates ||= project.project_stages
+                                             .root
+                                             .where.not(id: stage.id.presence)
+                                             .order(:position, :name)
+                                             .pluck(:name, :id)
         end
       end
     end

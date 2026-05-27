@@ -35,6 +35,6 @@ RSpec.describe "Setting stage predecessor", type: :system do
     select "Fundaciones", from: "Etapa predecesora"
     click_button "Guardar etapa"
 
-    expect(page).to have_text("predecesora")
+    expect(page).to have_text("no puede ser anterior al fin de la etapa predecesora")
   end
 end
