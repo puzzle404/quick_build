@@ -11,7 +11,7 @@ RSpec.describe 'QB OS · Project show + Overview', type: :system do
     expect(page).to have_text('En obra')
     expect(page).to have_text('Aurora')
     expect(page).to have_text('Avance físico')
-    expect(page).to have_text('Presupuesto ejecutado')
+    expect(page).to have_text('Gastos a la fecha')
     expect(page).to have_text('Etapas')
     expect(page).to have_text('Días a entrega')
   end
