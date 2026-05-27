@@ -33,6 +33,15 @@
 
       <%= render Qb::SectionHeadComponent.new(title: 'Actividad en este proyecto') %>
       <%= render Constructors::Dashboard::ActivityFeedComponent.new(entries: @activity_entries) %>
+
+      <div class="px-4 py-4 space-y-4">
+        <%= render Constructors::Projects::NoteFormComponent.new(noteable: @project, project: @project) %>
+        <%= render Constructors::Projects::NotesListComponent.new(
+              notes: @project.notes.recent_first,
+              noteable: @project,
+              project: @project
+            ) %>
+      </div>
     </div>
 
     <div>
