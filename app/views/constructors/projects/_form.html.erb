@@ -1,99 +1,90 @@
-<%= form_with model: [:constructors, project], class: "space-y-8", data: { turbo_frame: "_top" } do |f| %>
-  <section class="rounded-2xl border border-slate-200 bg-slate-50/60 p-5">
-    <h3 class="text-sm font-semibold text-slate-900">Información general</h3>
-    <p class="mt-1 text-xs text-slate-500">Estos datos aparecen en los tableros y reportes compartidos con tu equipo.</p>
-    <div class="mt-4 grid gap-4 md:grid-cols-2">
-      <div>
-        <%= f.label :name, class: "block text-sm font-medium text-slate-700" %>
-        <%= f.text_field :name, class: "mt-2 block w-full rounded-xl border border-slate-200 px-3 py-2 text-sm shadow-sm focus:border-indigo-500 focus:outline-none focus:ring-2 focus:ring-indigo-200" %>
+<%= form_with model: [:constructors, project], data: { turbo_frame: "_top" } do |f| %>
+  <section class="qb-card" style="margin-bottom:16px;">
+    <h3 style="font-size:11px;font-family:var(--font-mono);text-transform:uppercase;letter-spacing:0.7px;color:var(--color-ink-2);margin-bottom:4px;">Información general</h3>
+    <p style="font-size:12px;color:var(--color-ink-3);margin-bottom:14px;">Estos datos aparecen en los tableros y reportes compartidos con tu equipo.</p>
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;">
+      <div class="qb-field" style="margin-bottom:0;">
+        <%= f.label :name, class: "qb-label" %>
+        <%= f.text_field :name, class: "qb-input" %>
       </div>
-      <div>
-        <%= f.label :location, class: "block text-sm font-medium text-slate-700" %>
-        <%= f.text_field :location, class: "mt-2 block w-full rounded-xl border border-slate-200 px-3 py-2 text-sm shadow-sm focus:border-indigo-500 focus:outline-none focus:ring-2 focus:ring-indigo-200" %>
+      <div class="qb-field" style="margin-bottom:0;">
+        <%= f.label :location, class: "qb-label" %>
+        <%= f.text_field :location, class: "qb-input" %>
       </div>
     </div>
   </section>
 
-  <section class="rounded-2xl border border-slate-200 bg-white p-5 shadow-inner">
-    <div class="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
+  <section class="qb-card" style="margin-bottom:16px;">
+    <div style="display:flex;flex-direction:column;gap:4px;margin-bottom:12px;">
       <div>
-        <h3 class="text-sm font-semibold text-slate-900">Ubicación georreferenciada</h3>
-        <p class="text-xs text-slate-500">Posiciona la obra con precisión para habilitar seguimiento logístico.</p>
+        <h3 style="font-size:11px;font-family:var(--font-mono);text-transform:uppercase;letter-spacing:0.7px;color:var(--color-ink-2);">Ubicación georreferenciada</h3>
+        <p style="font-size:12px;color:var(--color-ink-3);">Posiciona la obra con precisión para habilitar seguimiento logístico.</p>
       </div>
-      <span class="text-xs text-slate-400">Arrastra el marcador sobre el plano</span>
+      <span style="font-size:11px;color:var(--color-ink-4);">Arrastra el marcador sobre el plano</span>
     </div>
     <div id="project-map"
-         class="mt-4 w-full overflow-hidden rounded-xl border border-slate-200"
+         style="width:100%;overflow:hidden;border-radius:var(--radius);border:1px solid var(--color-line);height:320px;"
          data-controller="project-map"
-         data-project-map-target="map"
-         style="height: 320px;">
+         data-project-map-target="map">
       <%= f.hidden_field :latitude, data: { project_map_target: "latitude" } %>
       <%= f.hidden_field :longitude, data: { project_map_target: "longitude" } %>
     </div>
   </section>
 
-  <section class="rounded-2xl border border-slate-200 bg-slate-50/60 p-5">
-    <h3 class="text-sm font-semibold text-slate-900">Planificación temporal</h3>
-    <p class="mt-1 text-xs text-slate-500">Estos valores alimentan la curva S y el tablero de hitos.</p>
-    <div class="mt-4 grid gap-4 sm:grid-cols-2">
-      <div>
-        <%= f.label :start_date, class: "block text-sm font-medium text-slate-700" %>
-        <%= f.date_field :start_date, class: "mt-2 block w-full rounded-xl border border-slate-200 px-3 py-2 text-sm shadow-sm focus:border-indigo-500 focus:outline-none focus:ring-2 focus:ring-indigo-200" %>
+  <section class="qb-card" style="margin-bottom:16px;">
+    <h3 style="font-size:11px;font-family:var(--font-mono);text-transform:uppercase;letter-spacing:0.7px;color:var(--color-ink-2);margin-bottom:4px;">Planificación temporal</h3>
+    <p style="font-size:12px;color:var(--color-ink-3);margin-bottom:14px;">Estos valores alimentan la curva S y el tablero de hitos.</p>
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;">
+      <div class="qb-field" style="margin-bottom:0;">
+        <%= f.label :start_date, class: "qb-label" %>
+        <%= f.date_field :start_date, class: "qb-input" %>
       </div>
-      <div>
-        <%= f.label :end_date, class: "block text-sm font-medium text-slate-700" %>
-        <%= f.date_field :end_date, class: "mt-2 block w-full rounded-xl border border-slate-200 px-3 py-2 text-sm shadow-sm focus:border-indigo-500 focus:outline-none focus:ring-2 focus:ring-indigo-200" %>
+      <div class="qb-field" style="margin-bottom:0;">
+        <%= f.label :end_date, class: "qb-label" %>
+        <%= f.date_field :end_date, class: "qb-input" %>
       </div>
-      <div class="sm:col-span-2">
-        <%= f.label :status, class: "block text-sm font-medium text-slate-700" %>
+      <div class="qb-field" style="margin-bottom:0;grid-column:span 2;">
+        <%= f.label :status, class: "qb-label" %>
         <%= f.select :status,
-                     Project.statuses.keys.map { |s| [s.humanize, s] },
+                     Project.statuses.keys.map { |s| [ s.humanize, s ] },
                      {},
-                     class: "mt-2 block w-full rounded-xl border border-slate-200 px-3 py-2 text-sm shadow-sm focus:border-indigo-500 focus:outline-none focus:ring-2 focus:ring-indigo-200" %>
+                     class: "qb-select" %>
       </div>
     </div>
   </section>
 
-  <section class="rounded-2xl border border-slate-200 bg-white p-5 shadow-inner">
-    <h3 class="text-sm font-semibold text-slate-900">Documentación de soporte</h3>
-    <p class="mt-1 text-xs text-slate-500">
+  <section class="qb-card" style="margin-bottom:16px;border-style:dashed;">
+    <h3 style="font-size:11px;font-family:var(--font-mono);text-transform:uppercase;letter-spacing:0.7px;color:var(--color-ink-2);margin-bottom:4px;">Documentación de soporte</h3>
+    <p style="font-size:12px;color:var(--color-ink-3);margin-bottom:14px;">
       Adjunta planos, fotos o reportes relevantes. Puedes seleccionar múltiples archivos a la vez.
     </p>
-    <div class="mt-4 space-y-4 rounded-xl border border-dashed border-slate-300 bg-slate-50 px-4 py-6">
-      <div class="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
-        <div class="space-y-1">
-          <p class="text-sm font-medium text-slate-700">Imágenes del proyecto</p>
-          <p class="text-xs text-slate-500">Formatos recomendados: JPG o PNG (máx. 25 MB c/u)</p>
-        </div>
-        <div class="w-full sm:w-auto">
-          <%= f.file_field :images,
-                           multiple: true,
-                           accept: "image/*",
-                           direct_upload: true,
-                           class: "w-full text-sm text-indigo-600 file:mr-4 file:border-0 file:bg-indigo-600 file:px-4 file:py-2 file:text-sm file:font-semibold file:text-white hover:file:bg-indigo-700 sm:w-auto" %>
-        </div>
-      </div>
 
-      <div class="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
-        <div class="space-y-1">
-          <p class="text-sm font-medium text-slate-700">Documentos (PDF)</p>
-          <p class="text-xs text-slate-500">Adjunta planos, contratos o reportes en PDF (máx. 25 MB c/u)</p>
-        </div>
-        <div class="w-full sm:w-auto">
-          <%= f.file_field :document_files,
-                           multiple: true,
-                           accept: ".pdf,application/pdf",
-                           direct_upload: true,
-                           class: "w-full text-sm text-indigo-600 file:mr-4 file:border-0 file:bg-indigo-600 file:px-4 file:py-2 file:text-sm file:font-semibold file:text-white hover:file:bg-indigo-700 sm:w-auto" %>
-        </div>
-      </div>
+    <div class="qb-field">
+      <p class="qb-label">Imágenes del proyecto</p>
+      <p style="font-size:11px;color:var(--color-ink-4);">Formatos recomendados: JPG o PNG (máx. 25 MB c/u)</p>
+      <%= f.file_field :images,
+                       multiple: true,
+                       accept: "image/*",
+                       direct_upload: true,
+                       style: "font-size:12px;color:var(--color-ink-2);width:100%;" %>
+    </div>
+
+    <div class="qb-field" style="margin-bottom:0;">
+      <p class="qb-label">Documentos (PDF)</p>
+      <p style="font-size:11px;color:var(--color-ink-4);">Adjunta planos, contratos o reportes en PDF (máx. 25 MB c/u)</p>
+      <%= f.file_field :document_files,
+                       multiple: true,
+                       accept: ".pdf,application/pdf",
+                       direct_upload: true,
+                       style: "font-size:12px;color:var(--color-ink-2);width:100%;" %>
     </div>
   </section>
 
-  <div class="flex items-center justify-end gap-3 pt-2">
-    <%= render Ui::ButtonComponent.new(
-          label: project.persisted? ? "Actualizar obra" : "Crear obra",
-          type: :submit
+  <div class="qb-form-actions">
+    <%= render Qb::BtnComponent.new(
+          project.persisted? ? "Actualizar obra" : "Crear obra",
+          variant: :primary,
+          type: 'submit'
         ) %>
   </div>
 <% end %>
