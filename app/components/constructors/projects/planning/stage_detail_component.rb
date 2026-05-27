@@ -2,8 +2,8 @@
 
 # Detail body of a project stage rendered inside a Turbo Frame ("stage_detail").
 # Contains: header, predecessor chip, metrics grid, sub-stages, material lists,
-# expenses, notes, and doc/image sections. The dialog/panel shell (StageDrawerComponent)
-# is built in R2; this component renders only the scrollable content.
+# expenses, notes, and doc/image sections. Rendered inside the shared drawer
+# shell in the planning view (turbo_frame "stage_detail").
 class Constructors::Projects::Planning::StageDetailComponent < ViewComponent::Base
   def initialize(project:, stage:, sub_stages: [])
     @project = project
