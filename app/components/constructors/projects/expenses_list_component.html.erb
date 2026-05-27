@@ -23,7 +23,7 @@
         <tbody class="divide-y divide-slate-100">
           <% expenses.each do |expense| %>
             <tr>
-              <td class="px-4 py-3 text-sm text-slate-700"><%= helpers.l(expense.incurred_on, format: :short) rescue expense.incurred_on.to_s %></td>
+              <td class="px-4 py-3 text-sm text-slate-700"><%= expense.incurred_on.strftime("%d/%m/%Y") %></td>
               <td class="px-4 py-3 text-sm text-slate-700"><%= category_label(expense) %></td>
               <td class="px-4 py-3 text-sm text-slate-700"><%= expense.description %></td>
               <td class="px-4 py-3 text-right text-sm font-medium text-slate-900"><%= helpers.number_to_currency(expense.amount) %></td>

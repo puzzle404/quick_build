@@ -25,7 +25,7 @@ module Constructors
       end
 
       def total_amount
-        expenses.sum(&:amount)
+        expenses.sum(&:amount_cents) / 100.0
       end
 
       def delete_path(expense)

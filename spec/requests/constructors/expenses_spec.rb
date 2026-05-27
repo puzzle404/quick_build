@@ -43,6 +43,8 @@ RSpec.describe "Constructors::Expenses", type: :request do
         expect {
           post constructors_project_stage_expenses_path(project, stage), params: valid_params
         }.not_to change(Expense, :count)
+
+        expect(response).to have_http_status(:not_found)
       end
     end
   end
