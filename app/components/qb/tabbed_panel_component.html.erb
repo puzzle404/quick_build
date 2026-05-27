@@ -1,0 +1,24 @@
+<div data-controller="qb--tabs">
+  <div class="tabs">
+    <% tabs.each_with_index do |tab, i| %>
+      <button class="tab<%= i.zero? ? ' active' : '' %>"
+              data-qb--tabs-target="tab"
+              data-action="click->qb--tabs#select"
+              data-index="<%= i %>">
+        <%= tab.label %>
+        <% if tab.count %>
+          <span class="count"><%= tab.count %></span>
+        <% end %>
+      </button>
+    <% end %>
+  </div>
+
+  <% tabs.each_with_index do |tab, i| %>
+    <div class="tab-panel"
+         data-qb--tabs-target="panel"
+         data-index="<%= i %>"
+         <%= i.zero? ? '' : 'style="display:none;"' %>>
+      <%= tab.body&.call %>
+    </div>
+  <% end %>
+</div>

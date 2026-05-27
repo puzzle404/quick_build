@@ -336,4 +336,23 @@
   body.qb-os ::-webkit-scrollbar-thumb { background: var(--color-line-2); border-radius: 10px; border: 2px solid var(--color-bg); }
   body.qb-os ::-webkit-scrollbar-track { background: transparent; }
   body.qb-os ::selection { background: var(--color-accent); color: var(--color-accent-ink); }
+
+  /* ─── Tabbed panel (Qb::TabbedPanelComponent) ────────────── */
+  .tabs {
+    display: flex; align-items: center; padding: 0 16px; gap: 2px;
+    border-bottom: 1px solid var(--color-line); background: var(--color-bg-raised);
+  }
+  .tab {
+    height: 36px; padding: 0 10px; display: inline-flex; align-items: center; gap: 6px;
+    font-size: 12.5px; color: var(--color-ink-3); border: none; cursor: pointer;
+    background: transparent; border-bottom: 2px solid transparent; margin-bottom: -1px;
+    font-weight: 500;
+  }
+  .tab.active { color: var(--color-ink); border-bottom-color: var(--color-accent); font-weight: 600; }
+  .tab .count {
+    font-family: var(--font-mono); font-size: 10px; color: var(--color-ink-4);
+    background: var(--color-bg-sunken); padding: 1px 5px; border-radius: 3px; font-weight: 600;
+  }
+  .tab.active .count { color: var(--color-accent); background: color-mix(in oklab, var(--color-accent) 14%, transparent); }
+  .tab-panel { padding: 14px 16px; min-height: 130px; }
 }
