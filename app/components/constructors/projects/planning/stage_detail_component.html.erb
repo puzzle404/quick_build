@@ -166,13 +166,13 @@
   <%# Tab: Docs %>
   <% tp.with_tab(label: "Docs", count: stage.docs_count) do %>
     <%= render Constructors::Projects::Stages::AttachmentsSectionComponent.new(
-          project: project, stage: stage.object, kind: :documents) %>
+          project: project, stage: stage.object, kind: :documents, compact: true) %>
   <% end %>
 
   <%# Tab: Fotos %>
   <% tp.with_tab(label: "Fotos", count: stage.images_count) do %>
     <%= render Constructors::Projects::Stages::AttachmentsSectionComponent.new(
-          project: project, stage: stage.object, kind: :images) %>
+          project: project, stage: stage.object, kind: :images, compact: true) %>
   <% end %>
 
 <% end %>

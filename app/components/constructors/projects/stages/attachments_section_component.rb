@@ -4,15 +4,16 @@ module Constructors
   module Projects
     module Stages
       class AttachmentsSectionComponent < ViewComponent::Base
-        def initialize(project:, stage:, kind:)
+        def initialize(project:, stage:, kind:, compact: false)
           @project = project
           @stage = stage
           @kind = kind.to_sym
+          @compact = compact
         end
 
         private
 
-        attr_reader :project, :stage, :kind
+        attr_reader :project, :stage, :kind, :compact
 
         def title
           kind == :documents ? "Documentos" : "Imágenes"

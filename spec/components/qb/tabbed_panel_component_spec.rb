@@ -47,10 +47,11 @@ RSpec.describe Qb::TabbedPanelComponent, type: :component do
     expect(first_panel_tag.to_s).not_to include('display:none')
   end
 
-  it 'hides subsequent panels with display:none' do
+  it 'ships all panels visible (no display:none in markup — qb--tabs hides on connect for rack_test compat)' do
     html = rendered.to_html
     second_panel_tag = html.match(/<div[^>]*data-qb--tabs-target="panel"[^>]*data-index="1"[^>]*>/)
-    expect(second_panel_tag.to_s).to include('display:none')
+    expect(second_panel_tag.to_s).not_to include('display:none')
+    expect(page).to have_css('div[data-qb--tabs-target="panel"]', count: 2)
   end
 
   it 'renders the panel block content' do

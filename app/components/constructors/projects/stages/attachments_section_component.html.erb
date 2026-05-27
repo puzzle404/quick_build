@@ -1,12 +1,23 @@
-<section class="qb-card">
-  <div class="qb-section-title">
-    <span><%= title %></span>
+<%# compact: rendered inside a tab panel — the tab label already names the section,
+    so we drop the qb-card chrome and the internal title (decision #3: sin doble título). %>
+<section class="<%= 'qb-card' unless compact %>">
+  <% if compact %>
     <% if can_manage? %>
-      <%= render Qb::BtnComponent.new("Agregar #{title.downcase}", variant: :primary, size: :xs,
-            href: upload_path) %>
+      <div style="display:flex;justify-content:flex-end;margin-bottom:10px;">
+        <%= render Qb::BtnComponent.new("Agregar #{title.downcase}", variant: :primary, size: :xs,
+              href: upload_path) %>
+      </div>
     <% end %>
-  </div>
-  <p style="font-size:11px;color:var(--color-ink-4);margin-bottom:10px;"><%= description %></p>
+  <% else %>
+    <div class="qb-section-title">
+      <span><%= title %></span>
+      <% if can_manage? %>
+        <%= render Qb::BtnComponent.new("Agregar #{title.downcase}", variant: :primary, size: :xs,
+              href: upload_path) %>
+      <% end %>
+    </div>
+    <p style="font-size:11px;color:var(--color-ink-4);margin-bottom:10px;"><%= description %></p>
+  <% end %>
 
   <% if attachments.any? %>
     <% if kind == :documents %>
