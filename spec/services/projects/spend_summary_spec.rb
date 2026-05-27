@@ -40,4 +40,11 @@ RSpec.describe Projects::SpendSummary do
     create(:expense, project: project, project_stage: stage, amount_cents: 300_00)
     expect(summary.by_stage[stage.id]).to eq(300_00)
   end
+
+  it "ignora items con estimated_cost_cents nulo sin romper" do
+    list = create(:material_list, project: project, status: :approved, add_default_item: false)
+    create(:material_item, material_list: list, quantity: 3, estimated_cost_cents: nil)
+    create(:material_item, material_list: list, quantity: 2, estimated_cost_cents: 100_00)
+    expect(summary.total_cents).to eq(2 * 100_00)
+  end
 end

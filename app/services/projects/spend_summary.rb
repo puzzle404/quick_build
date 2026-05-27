@@ -24,14 +24,15 @@ module Projects
     private
 
     def expenses_total
-      @project.expenses.sum(:amount_cents)
+      @expenses_total ||= @project.expenses.sum(:amount_cents)
     end
 
     def approved_materials_total
-      MaterialItem
+      @approved_materials_total ||= MaterialItem
         .joins(:material_list)
         .where(material_lists: { project_id: @project.id, status: MaterialList.statuses[:approved] })
         .sum("material_items.quantity * material_items.estimated_cost_cents")
+        .round
         .to_i
     end
   end
