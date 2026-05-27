@@ -91,6 +91,18 @@ Blueprint analysis uses OpenAI via `ruby-openai` gem. The `Ai` module lives unde
 - Import maps for JS
 - ViewComponents for reusable UI
 
+### Design System — "QB OS" (MANDATORY for all constructor UI)
+
+Everything under the `Constructors::` namespace (`app/views/constructors/**`, `app/components/constructors/**`) MUST use the single QB OS design system. No exceptions, no parallel styles.
+
+- **Tokens, not palettes:** style with the CSS variables defined in `app/assets/tailwind/application.css` (`var(--color-ink)`, `--color-ink-2/3/4`, `--color-line`, `--color-line-2`, `--color-bg`, `--color-bg-raised`, `--color-bg-sunken`, `--color-accent`, `--color-ok/warn/bad/info`, `--font-mono`, `--radius`). Do **NOT** use raw Tailwind palette classes (`slate-*`, `indigo-*`, `emerald-*`, `rose-*`, `bg-white`, `rounded-2xl`, `shadow-sm`, etc.) in constructor UI.
+- **Primitives:** reuse `Qb::*` components (`Qb::BtnComponent`, `PillComponent`, `BarComponent`, `IconComponent`, `MetricCellComponent`, `SectionHeadComponent`, `TabsComponent`, `StatusDotComponent`, `AvatarComponent`, `PaginationComponent`, `FilterChipComponent`). Build new shared UI as a `Qb::*` primitive rather than ad-hoc markup.
+- **Buttons:** `Qb::BtnComponent` is the ONLY button in constructor UI. `Ui::ButtonComponent` is legacy/marketing — do not use it under `Constructors::`.
+- **Forms:** use the canonical form classes (`.qb-field`, `.qb-label`, `.qb-input`, `.qb-select`, `.qb-textarea`, `.qb-form-error`) from `application.css`. No per-input Tailwind.
+- **Money & dates:** use `qb_fmt_ars` / `qb_fmt_cents` / `qb_fmt_pct` / `qb_fmt_date_short` (`app/helpers/quickbuild_helper.rb`). Never `number_to_currency` in constructor UI.
+- **Out of scope:** the public/marketing layout (`layouts/marketing`, home/products/cart/companies) keeps its own design and the `Ui::*` marketing components. The QB OS rule applies only to the constructor app.
+- The `/dev/styleguide` page catalogs the canonical primitives — check it before inventing UI.
+
 ## Testing
 
 Uses RSpec with:
