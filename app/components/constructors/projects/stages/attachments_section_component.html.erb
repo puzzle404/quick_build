@@ -1,7 +1,10 @@
 <%# compact: rendered inside a tab panel — the tab label already names the section,
-    so we drop the qb-card chrome and the internal title (decision #3: sin doble título). %>
-<section class="<%= 'qb-card' unless compact %>">
-  <% if compact %>
+    so we drop the qb-card chrome and the internal title (decision #3: sin doble título).
+    bare: the tab provides CTA + empty state; render only the attachments grid/list. %>
+<section class="<%= 'qb-card' unless compact || bare %>">
+  <% if bare %>
+    <%# nothing — CTA and empty state are owned by the tab %>
+  <% elsif compact %>
     <% if can_manage? %>
       <div style="display:flex;justify-content:flex-end;margin-bottom:10px;">
         <%= render Qb::BtnComponent.new("Agregar #{title.downcase}", variant: :primary, size: :xs,
@@ -21,18 +24,18 @@
 
   <% if attachments.any? %>
     <% if kind == :documents %>
-      <div style="display:flex;flex-direction:column;gap:6px;">
-        <% attachments.each do |document| %>
-          <div style="border:1px solid var(--color-line);border-radius:var(--radius);padding:10px 12px;background:var(--color-bg-sunken);">
-            <div style="display:flex;flex-wrap:wrap;align-items:flex-start;justify-content:space-between;gap:8px;">
-              <div style="flex:1;min-width:0;">
-                <div style="font-size:12px;font-weight:600;color:var(--color-ink);"><%= document.file_name %></div>
-                <div style="font-size:10px;color:var(--color-ink-4);font-family:var(--font-mono);margin-top:2px;">
+      <% if bare %>
+        <div class="sd-list">
+          <% attachments.each do |document| %>
+            <div class="sd-list-row">
+              <div class="sd-list-main">
+                <div class="sd-list-title"><%= document.file_name %></div>
+                <div class="sd-list-meta">
                   <%= helpers.number_to_human_size(document.file_byte_size) if document.file_byte_size %>
-                  · Hace <%= helpers.time_ago_in_words(document.uploaded_at) %>
+                  · hace <%= helpers.time_ago_in_words(document.uploaded_at) %>
                 </div>
               </div>
-              <div style="display:flex;flex-wrap:wrap;align-items:center;gap:6px;">
+              <div class="sd-list-side">
                 <%= helpers.link_to 'Ver', helpers.rails_blob_url(document.file, disposition: 'inline'),
                       target: '_blank',
                       style: 'font-size:11px;font-weight:500;color:var(--color-ink-2);text-decoration:none;' %>
@@ -41,19 +44,47 @@
                 <% if can_manage? %>
                   <%= render Qb::BtnComponent.new('Eliminar', variant: :danger, size: :xs,
                         href: helpers.constructors_project_stage_document_path(project, stage, document),
-                        data: { turbo_method: :delete, turbo_confirm: '¿Seguro que querés eliminar este documento?' }) %>
+                        data: { turbo_method: :delete, turbo_confirm: '¿Seguro que querés eliminar este documento?', turbo_frame: '_top' }) %>
                 <% end %>
               </div>
             </div>
-            <details style="margin-top:8px;">
-              <summary style="cursor:pointer;font-size:10px;font-family:var(--font-mono);color:var(--color-ink-3);">Ver previsualización</summary>
-              <div style="margin-top:8px;overflow:hidden;border:1px solid var(--color-line);border-radius:var(--radius);">
-                <iframe src="<%= helpers.rails_storage_proxy_path(document.file, disposition: 'inline') %>#view=FitH" style="height:288px;width:100%;" title="Previsualización documento"></iframe>
+          <% end %>
+        </div>
+      <% else %>
+        <div style="display:flex;flex-direction:column;gap:6px;">
+          <% attachments.each do |document| %>
+            <div style="border:1px solid var(--color-line);border-radius:var(--radius);padding:10px 12px;background:var(--color-bg-sunken);">
+              <div style="display:flex;flex-wrap:wrap;align-items:flex-start;justify-content:space-between;gap:8px;">
+                <div style="flex:1;min-width:0;">
+                  <div style="font-size:12px;font-weight:600;color:var(--color-ink);"><%= document.file_name %></div>
+                  <div style="font-size:10px;color:var(--color-ink-4);font-family:var(--font-mono);margin-top:2px;">
+                    <%= helpers.number_to_human_size(document.file_byte_size) if document.file_byte_size %>
+                    · Hace <%= helpers.time_ago_in_words(document.uploaded_at) %>
+                  </div>
+                </div>
+                <div style="display:flex;flex-wrap:wrap;align-items:center;gap:6px;">
+                  <%= helpers.link_to 'Ver', helpers.rails_blob_url(document.file, disposition: 'inline'),
+                        target: '_blank',
+                        style: 'font-size:11px;font-weight:500;color:var(--color-ink-2);text-decoration:none;' %>
+                  <%= helpers.link_to 'Descargar', helpers.url_for(document.file),
+                        style: 'font-size:11px;font-weight:500;color:var(--color-accent);text-decoration:none;' %>
+                  <% if can_manage? %>
+                    <%= render Qb::BtnComponent.new('Eliminar', variant: :danger, size: :xs,
+                          href: helpers.constructors_project_stage_document_path(project, stage, document),
+                          data: { turbo_method: :delete, turbo_confirm: '¿Seguro que querés eliminar este documento?', turbo_frame: '_top' }) %>
+                  <% end %>
+                </div>
               </div>
-            </details>
-          </div>
-        <% end %>
-      </div>
+              <details style="margin-top:8px;">
+                <summary style="cursor:pointer;font-size:10px;font-family:var(--font-mono);color:var(--color-ink-3);">Ver previsualización</summary>
+                <div style="margin-top:8px;overflow:hidden;border:1px solid var(--color-line);border-radius:var(--radius);">
+                  <iframe src="<%= helpers.rails_storage_proxy_path(document.file, disposition: 'inline') %>#view=FitH" style="height:288px;width:100%;" title="Previsualización documento"></iframe>
+                </div>
+              </details>
+            </div>
+          <% end %>
+        </div>
+      <% end %>
     <% else %>
       <div style="display:grid;grid-template-columns:repeat(2,1fr);gap:8px;">
         <% attachments.each do |image| %>
@@ -72,7 +103,7 @@
                 <% if can_manage? %>
                   <%= render Qb::BtnComponent.new('Eliminar', variant: :danger, size: :xs,
                         href: helpers.constructors_project_stage_image_path(project, stage, image),
-                        data: { turbo_method: :delete, turbo_confirm: '¿Seguro que querés eliminar esta imagen?' }) %>
+                        data: { turbo_method: :delete, turbo_confirm: '¿Seguro que querés eliminar esta imagen?', turbo_frame: '_top' }) %>
                 <% end %>
               </div>
             </div>
@@ -80,7 +111,7 @@
         <% end %>
       </div>
     <% end %>
-  <% else %>
+  <% elsif !bare %>
     <div class="qb-empty"><%= empty_text %></div>
   <% end %>
 </section>

@@ -10,15 +10,16 @@ module Constructors
         "other"          => "Otros"
       }.freeze
 
-      def initialize(expenses:, project:, stage: nil)
+      def initialize(expenses:, project:, stage: nil, bare: false)
         @expenses = expenses
         @project  = project
         @stage    = stage
+        @bare     = bare
       end
 
       private
 
-      attr_reader :expenses, :project, :stage
+      attr_reader :expenses, :project, :stage, :bare
 
       def category_label(expense)
         CATEGORY_LABELS[expense.category.to_s] || expense.category.to_s.humanize
