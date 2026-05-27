@@ -16,6 +16,7 @@ class NotePolicy < ApplicationPolicy
   def manage?
     return false unless user
 
+    # Unknown noteable types leave project as nil → manage? returns false (denied by default).
     project = case record.noteable
     when Project      then record.noteable
     when ProjectStage then record.noteable.project

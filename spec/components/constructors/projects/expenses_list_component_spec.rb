@@ -30,8 +30,11 @@ RSpec.describe Constructors::Projects::ExpensesListComponent, type: :component d
 
     expect(page).to have_text("Jornal albañil")
     expect(page).to have_text("Alquiler andamio")
-    # Total = 100.00 + 200.00 = 300.00
-    expect(page).to have_text("300")
+    # Per-row amounts: qb_fmt_cents(10_000) = "$ 100", qb_fmt_cents(20_000) = "$ 200"
+    expect(page).to have_text("$ 100")
+    expect(page).to have_text("$ 200")
+    # Total = 10_000 + 20_000 = 30_000 cents → qb_fmt_cents(30_000) = "$ 300"
+    expect(page).to have_text("$ 300")
   end
 
   it "renders category labels in Spanish" do

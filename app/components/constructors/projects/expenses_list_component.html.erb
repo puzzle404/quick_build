@@ -26,7 +26,7 @@
               <td class="px-4 py-3 text-sm text-slate-700"><%= expense.incurred_on.strftime("%d/%m/%Y") %></td>
               <td class="px-4 py-3 text-sm text-slate-700"><%= category_label(expense) %></td>
               <td class="px-4 py-3 text-sm text-slate-700"><%= expense.description %></td>
-              <td class="px-4 py-3 text-right text-sm font-medium text-slate-900"><%= helpers.number_to_currency(expense.amount) %></td>
+              <td class="px-4 py-3 text-right text-sm font-medium text-slate-900"><%= helpers.qb_fmt_cents(expense.amount_cents) %></td>
               <td class="px-4 py-3 text-right text-sm">
                 <%= render Ui::ButtonComponent.new(
                       label: "Eliminar",
@@ -44,7 +44,7 @@
         <tfoot class="border-t border-slate-200 bg-slate-50">
           <tr>
             <td colspan="3" class="px-4 py-3 text-sm font-semibold text-slate-700">Total</td>
-            <td class="px-4 py-3 text-right text-sm font-semibold text-slate-900"><%= helpers.number_to_currency(total_amount) %></td>
+            <td class="px-4 py-3 text-right text-sm font-semibold text-slate-900"><%= helpers.qb_fmt_cents(total_cents) %></td>
             <td></td>
           </tr>
         </tfoot>

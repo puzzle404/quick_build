@@ -24,8 +24,8 @@ module Constructors
         CATEGORY_LABELS[expense.category.to_s] || expense.category.to_s.humanize
       end
 
-      def total_amount
-        expenses.sum(&:amount_cents) / 100.0
+      def total_cents
+        expenses.sum(&:amount_cents)
       end
 
       def delete_path(expense)
