@@ -28,9 +28,8 @@ RSpec.describe "Project show header", type: :system do
 
   it "shows a budget substring in the header" do
     visit constructors_project_path(project)
-    # budget_cents = 10_000_000_00 → project.budget = 1_000_000_000 → "$ 1.0B" or similar
-    # qb_fmt_ars(1_000_000_000) → "$ 1000.0M"
-    expect(page).to have_text("1000")
+    # budget_cents = 10_000_000_00 → qb_fmt_cents(1_000_000_00) = qb_fmt_ars(10_000_000) → "$ 10.0M"
+    expect(page).to have_text("10.0M")
   end
 
   it "shows días de obra in the metric strip" do
@@ -42,8 +41,8 @@ RSpec.describe "Project show header", type: :system do
   it "shows gastos a la fecha including an expense" do
     create(:expense, project: project, author: owner, amount_cents: 2_000_00)
     visit constructors_project_path(project)
-    # 200_000 cents → qb_fmt_ars → "$ 200k"
-    expect(page).to have_text("200k")
+    # amount_cents: 2_000_00 = 200_000 cents → qb_fmt_cents(200_000) = qb_fmt_ars(2_000) → "$ 2k"
+    expect(page).to have_text("2k")
   end
 
   it "shows avance físico from progress_percent" do

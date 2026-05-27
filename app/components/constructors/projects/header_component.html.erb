@@ -50,7 +50,7 @@
           <% c.with_extra { render Qb::BarComponent.new(value: progress_percent, plan: project.planned_progress, show_plan: true, tone: bar_tone) } %>
         <% end %>
         <%= render Qb::MetricCellComponent.new(label: 'Días de obra', value: days_in_progress, hint: project.started_at_label) %>
-        <%= render Qb::MetricCellComponent.new(label: 'Gastos a la fecha', value: helpers.qb_fmt_ars(spent_to_date_cents), hint: "de #{helpers.qb_fmt_ars(project.budget)}") do |c| %>
+        <%= render Qb::MetricCellComponent.new(label: 'Gastos a la fecha', value: helpers.qb_fmt_cents(spent_to_date_cents), hint: "de #{helpers.qb_fmt_cents(project.budget_cents)}") do |c| %>
           <% c.with_extra { render Qb::StackedBarComponent.new(spent: spent_to_date_cents, committed: project.committed, total: project.budget) } %>
         <% end %>
         <%= render Qb::MetricCellComponent.new(label: 'Etapas', value: "#{project.stages_done}/#{project.stages_count}", hint: "#{project.stages_count - project.stages_done} pendientes") %>

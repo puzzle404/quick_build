@@ -30,10 +30,9 @@ RSpec.describe Constructors::Projects::HeaderComponent, type: :component do
   end
 
   it "shows a substring of the budget in ARS compact format" do
-    # budget_cents = 5_000_000_00 → budget (in cents stored as-is) = 500_000_000
-    # qb_fmt_ars(500_000_000) → "$ 500.0M"
+    # budget_cents = 5_000_000_00 → qb_fmt_cents(500_000_00) = qb_fmt_ars(5_000_000) → "$ 5.0M"
     render_inline(component)
-    expect(page).to have_text("500")
+    expect(page).to have_text("5.0M")
   end
 
   it "shows días de obra based on start_date" do
@@ -44,12 +43,11 @@ RSpec.describe Constructors::Projects::HeaderComponent, type: :component do
   end
 
   it "shows gastos a la fecha including expenses" do
-    # amount_cents: 1_000_00 = 100_000 (cents) → SpendSummary returns cents
-    # qb_fmt_ars(100_000) → "$ 100k"
+    # amount_cents: 1_000_00 = 100_000 cents → qb_fmt_cents(100_000) = qb_fmt_ars(1_000) → "$ 1k"
     create(:expense, project: project, author: owner, amount_cents: 1_000_00)
     project.reload
     render_inline(described_class.new(project: project))
-    expect(page).to have_text("100k")
+    expect(page).to have_text("1k")
   end
 
   it "shows % avance from progress_percent" do
