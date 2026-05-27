@@ -86,6 +86,10 @@ Rails.application.routes.draw do
 
   get "refresh_app" => "hotwire#refresh", as: :refresh_app
 
+  # PWA — manifest + service worker (renderizados desde app/views/pwa/*)
+  get "manifest" => "rails/pwa#manifest", as: :pwa_manifest
+  get "service-worker" => "rails/pwa#service_worker", as: :pwa_service_worker
+
   # Health check y root
   get "up" => "rails/health#show", as: :rails_health_check
 end

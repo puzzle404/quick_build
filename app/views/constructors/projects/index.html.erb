@@ -12,7 +12,7 @@
      data-qb--view-switcher-default-value="list">
 
   <%# Header %>
-  <div style="padding:16px 20px;border-bottom:1px solid var(--color-line);display:flex;align-items:flex-end;gap:16px;">
+  <div class="qb-page-head" style="padding:16px 20px;border-bottom:1px solid var(--color-line);display:flex;align-items:flex-end;gap:16px;">
     <div style="flex:1;">
       <div style="font-size:11px;font-family:var(--font-mono);color:var(--color-ink-3);text-transform:uppercase;letter-spacing:0.8px;">Proyectos</div>
       <h1 style="margin:4px 0 0;font-size:20px;font-weight:600;letter-spacing:-0.3px;color:var(--color-ink);">Lista de obras</h1>
@@ -23,7 +23,7 @@
   </div>
 
   <%# Tabs + search + view switch %>
-  <div style="display:flex;align-items:center;padding:0 16px;border-bottom:1px solid var(--color-line);background:var(--color-bg-raised);gap:4px;">
+  <div class="qb-filter-bar" style="display:flex;align-items:center;padding:0 16px;border-bottom:1px solid var(--color-line);background:var(--color-bg-raised);gap:4px;">
     <% status_tabs.each do |t| %>
       <% active = (@status_filter == t[:k]) %>
       <%= link_to constructors_projects_path(status: (t[:k] == 'all' ? nil : t[:k]), q: @query),
@@ -34,9 +34,9 @@
     <% end %>
     <div style="flex:1;"></div>
 
-    <%= form_with url: constructors_projects_path, method: :get, data: { turbo_frame: "_top" }, html: { style: 'display:flex;align-items:center;' } do |f| %>
+    <%= form_with url: constructors_projects_path, method: :get, data: { turbo_frame: "_top" }, html: { class: "qb-search-form", style: 'display:flex;align-items:center;' } do |f| %>
       <% if @status_filter != 'all' %><%= hidden_field_tag :status, @status_filter %><% end %>
-      <div style="display:flex;align-items:center;gap:6px;padding:0 10px;height:28px;background:var(--color-bg);border:1px solid var(--color-line);border-radius:5px;width:260px;">
+      <div class="qb-search-box" style="display:flex;align-items:center;gap:6px;padding:0 10px;height:28px;background:var(--color-bg);border:1px solid var(--color-line);border-radius:5px;width:260px;">
         <%= render Qb::IconComponent.new(name: :search, size: 13, style: 'color:var(--color-ink-4)') %>
         <%= f.search_field :q, value: @query, placeholder: 'Buscar por nombre, código, cliente…',
                             style: 'flex:1;border:none;outline:none;background:transparent;font-size:12px;color:var(--color-ink);' %>

@@ -148,16 +148,112 @@
       overflow-x: auto;
       white-space: nowrap;
     }
-    /* Hero strip + KPI strip pasan a 2 columnas en mobile */
+    /* Hero strip + KPI strip pasan a 2 columnas en mobile.
+       minmax(0, 1fr) (en vez de 1fr) permite que las columnas se achiquen por
+       debajo del min-content de su contenido; con 1fr el track no baja del
+       min-content y el grid desborda horizontalmente (franja blanca). */
     body.qb-os div[style*="grid-template-columns:repeat(4, 1fr)"],
     body.qb-os div[style*="grid-template-columns:repeat(5, 1fr)"] {
-      grid-template-columns: repeat(2, 1fr) !important;
+      grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
     }
-    /* Two-column body del dashboard pasa a una sola columna */
+    /* Two-column body del dashboard / project show pasa a una sola columna. */
     body.qb-os div[style*="grid-template-columns:1.4fr 1fr"],
     body.qb-os div[style*="grid-template-columns:1.5fr 1fr"] {
-      grid-template-columns: 1fr !important;
+      grid-template-columns: minmax(0, 1fr) !important;
     }
+    /* Los hijos de esos grids deben poder achicarse: sin min-width:0 una tabla
+       o gráfico ancho fuerza el ancho del track y rompe el layout. */
+    body.qb-os div[style*="grid-template-columns:repeat(4, 1fr)"] > *,
+    body.qb-os div[style*="grid-template-columns:repeat(5, 1fr)"] > *,
+    body.qb-os div[style*="grid-template-columns:1.4fr 1fr"] > *,
+    body.qb-os div[style*="grid-template-columns:1.5fr 1fr"] > * {
+      min-width: 0;
+    }
+  }
+
+  /* ─── Chrome mobile · bottom tab bar + sheet "Más" ───────── */
+  /* Por defecto ocultos; el bottom nav aparece sólo en teléfono. */
+  .qb-bottom-nav { display: none; }
+  .qb-sheet-overlay { display: none; }
+
+  @media (max-width: 767.98px) {
+    /* En teléfono el sidebar se va y navegamos con la barra inferior. */
+    body.qb-os .qb-sidebar { display: none !important; }
+
+    .qb-bottom-nav {
+      display: flex;
+      position: fixed;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      z-index: 40;
+      background: var(--color-bg-raised);
+      border-top: 1px solid var(--color-line);
+      padding-bottom: env(safe-area-inset-bottom, 0px);
+    }
+
+    /* Que el contenido no quede tapado por la barra fija. */
+    body.qb-os main { padding-bottom: calc(56px + env(safe-area-inset-bottom, 0px)); }
+  }
+
+  /* Sheet "Más": overlay + panel deslizante. Sólo se dispara desde el bottom
+     nav (mobile-only), por eso no necesita media query propia. */
+  .qb-sheet-overlay[data-open="true"] {
+    display: flex;
+    position: fixed;
+    inset: 0;
+    z-index: 60;
+    align-items: flex-end;
+    justify-content: center;
+    background: color-mix(in oklab, var(--color-ink) 45%, transparent);
+  }
+  .qb-sheet-panel {
+    width: 100%;
+    max-width: 520px;
+    max-height: 85vh;
+    overflow-y: auto;
+    background: var(--color-bg-raised);
+    border: 1px solid var(--color-line);
+    border-top-left-radius: 16px;
+    border-top-right-radius: 16px;
+    padding: 10px 6px calc(14px + env(safe-area-inset-bottom, 0px));
+    box-shadow: 0 -8px 30px rgb(0 0 0 / 18%);
+  }
+  .qb-sheet-handle {
+    width: 36px;
+    height: 4px;
+    border-radius: 999px;
+    background: var(--color-line-2);
+    margin: 2px auto 12px;
+  }
+
+  /* ─── Responsive · pantallas clave (teléfono, ≤767.98px) ─── */
+  @media (max-width: 767.98px) {
+    /* Tabs: scroll horizontal en vez de comprimirse o cortarse. */
+    .qb-tabs-row {
+      overflow-x: auto;
+      -webkit-overflow-scrolling: touch;
+      scrollbar-width: none;
+    }
+    .qb-tabs-row::-webkit-scrollbar { display: none; }
+
+    /* Headers de página (dashboard / listado): las acciones bajan bajo el título. */
+    .qb-page-head { flex-wrap: wrap; }
+
+    /* Header de proyecto: portada full-width arriba, acciones debajo. */
+    .qb-proj-header { flex-direction: column; }
+    .qb-proj-cover {
+      width: 100% !important;
+      min-width: 0 !important;
+      height: 120px;
+    }
+    .qb-proj-titlerow { flex-wrap: wrap; }
+    .qb-proj-actions { width: 100%; }
+
+    /* Barra de filtros del listado: tabs arriba, buscador full-width debajo. */
+    .qb-filter-bar { flex-wrap: wrap; gap: 8px; }
+    .qb-search-form { flex: 1 1 auto; min-width: 0; }
+    .qb-search-box { width: 100% !important; }
   }
 
   /* ─── A11y · focus rings consistentes en QB chrome ───────── */
@@ -392,6 +488,7 @@
   .sd-empty-inline { display: flex; align-items: center; justify-content: space-between; gap: 12px; padding: 12px 14px; background: var(--color-bg-sunken); border: 1px dashed var(--color-line-2); border-radius: 6px; }
   .sd-empty-inline-text { font-size: 12.5px; color: var(--color-ink-3); }
   .sd-empty-inline-text strong { color: var(--color-ink-2); font-weight: 600; }
+  .sd-tab-actions { display: flex; justify-content: flex-end; margin-bottom: 10px; }
   .sd-mat-list { border: 1px solid var(--color-line); border-radius: 6px; overflow: hidden; background: var(--color-bg-raised); }
   .sd-mat-row { display: grid; grid-template-columns: 1fr auto; gap: 8px; padding: 10px 12px; border-bottom: 1px solid var(--color-line); align-items: center; text-decoration: none; color: inherit; }
   .sd-mat-row:last-child { border-bottom: none; }
