@@ -121,7 +121,7 @@ RSpec.describe Constructors::Projects::Planning::StageDetailComponent, type: :co
 
   it "renders the Materiales empty state when no lists are linked" do
     rendered
-    expect(page).to have_css(".sd-empty-inline-text", text: /0 listas de materiales/)
+    expect(page).to have_css(".sd-list-empty", text: /no hay listas de materiales/i)
   end
 
   # ─── Footer ─────────────────────────────────────────────────
