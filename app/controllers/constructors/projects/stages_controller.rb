@@ -2,16 +2,16 @@ module Constructors
   module Projects
     class StagesController < Constructors::BaseController
       before_action :set_project
-      before_action :set_stage, only: [:show, :edit, :update, :destroy]
+      before_action :set_stage, only: [ :show, :edit, :update, :destroy ]
 
       def index
         authorize @project, :show?
 
-        @view_mode = params[:view].in?(%w[sub_stages main]) ? params[:view] : 'main'
+        @view_mode = params[:view].in?(%w[sub_stages main]) ? params[:view] : "main"
         @main_query = params[:main_q].to_s.strip
         @sub_query = params[:sub_q].to_s.strip
-        @query_param = @view_mode == 'sub_stages' ? :sub_q : :main_q
-        @query = @view_mode == 'sub_stages' ? @sub_query : @main_query
+        @query_param = @view_mode == "sub_stages" ? :sub_q : :main_q
+        @query = @view_mode == "sub_stages" ? @sub_query : @main_query
 
         @from_date = params[:from_date].presence
         @to_date = params[:to_date].presence
@@ -23,7 +23,7 @@ module Constructors
           to_date: @to_date
         )
 
-        if @view_mode == 'sub_stages'
+        if @view_mode == "sub_stages"
           @sub_stages = search.sub_stages
         else
           @stages = search.main_stages
@@ -74,7 +74,7 @@ module Constructors
 
         if @stage.destroy
           redirect_to(parent_stage.present? ? constructors_project_stage_path(@project, parent_stage) : constructors_project_stages_path(@project),
-                      notice: "Etapa eliminada." )
+                      notice: "Etapa eliminada.")
         else
           redirect_back fallback_location: constructors_project_stages_path(@project), alert: "No pudimos eliminar la etapa."
         end
@@ -100,7 +100,7 @@ module Constructors
       end
 
       def stage_params
-        params.require(:project_stage).permit(:name, :description, :start_date, :end_date, :parent_id)
+        params.require(:project_stage).permit(:name, :description, :start_date, :end_date, :parent_id, :predecessor_id)
       end
 
       def authorize_stage_access!
@@ -118,10 +118,9 @@ module Constructors
         created << "#{result.skipped} etapa(s) existentes" if result.skipped.positive?
         created << "#{result.sub_skipped} subetapa(s) existentes" if result.sub_skipped.positive?
         created.reject!(&:blank?)
-        created_text = created.presence || ["sin cambios"]
+        created_text = created.presence || [ "sin cambios" ]
         "Plantilla aplicada: #{created_text.join(' · ')}"
       end
-
     end
   end
 end

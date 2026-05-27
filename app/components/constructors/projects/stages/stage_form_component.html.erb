@@ -36,6 +36,15 @@
     <%= form.date_field :end_date,
                         class: "mt-1 block w-full rounded-lg border border-slate-300 px-3 py-2 text-sm shadow-sm focus:border-indigo-500 focus:outline-none focus:ring-2 focus:ring-indigo-200" %>
   </div>
+  <% if predecessor_candidates.any? %>
+    <div class="sm:col-span-2">
+      <%= form.label :predecessor_id, "Etapa predecesora", class: "block text-sm font-medium text-slate-700" %>
+      <%= form.select :predecessor_id,
+                      predecessor_candidates,
+                      { include_blank: "— ninguna —" },
+                      class: "mt-1 block w-full rounded-lg border border-slate-300 px-3 py-2 text-sm shadow-sm focus:border-indigo-500 focus:outline-none focus:ring-2 focus:ring-indigo-200" %>
+    </div>
+  <% end %>
   <div class="sm:col-span-2 flex justify-end">
     <%= render Ui::ButtonComponent.new(label: submit_label, type: :submit, size: :md) %>
   </div>

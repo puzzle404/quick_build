@@ -36,6 +36,14 @@ module Constructors
         def options_parent_id
           stage.parent&.id
         end
+
+        def predecessor_candidates
+          project.project_stages
+                 .root
+                 .where.not(id: stage.id.presence)
+                 .order(:position, :name)
+                 .pluck(:name, :id)
+        end
       end
     end
   end
