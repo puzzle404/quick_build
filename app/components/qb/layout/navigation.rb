@@ -52,7 +52,7 @@ module Qb
         when :dashboard then helpers.constructors_root_path
         when :projects  then helpers.constructors_projects_path
         when :team      then helpers.constructors_people_path
-        when :docs      then helpers.constructors_projects_path
+        when :docs      then helpers.constructors_library_path
         else "#"
         end
       rescue NoMethodError

@@ -1,0 +1,91 @@
+<% content_for :qb_crumbs, [{label: 'Inicio'}, {label: 'Biblioteca'}].to_json %>
+
+<div>
+  <%# Page header %>
+  <div style="padding:14px 20px;border-bottom:1px solid var(--color-line);display:flex;align-items:flex-end;gap:16px;">
+    <div style="flex:1;">
+      <div style="font-size:11px;font-family:var(--font-mono);color:var(--color-ink-3);text-transform:uppercase;letter-spacing:0.8px;">Biblioteca · global</div>
+      <h1 style="margin:3px 0 0;font-size:20px;font-weight:600;letter-spacing:-0.3px;">Documentos de todas las obras</h1>
+      <div style="font-size:12px;color:var(--color-ink-3);margin-top:2px;">Todos los archivos subidos a tus proyectos y etapas, en un solo lugar.</div>
+    </div>
+  </div>
+
+  <%# Toolbar %>
+  <div style="display:flex;align-items:center;padding:10px 16px;gap:8px;border-bottom:1px solid var(--color-line);background:var(--color-bg-raised);">
+    <form action="<%= constructors_library_path %>" method="get" style="display:flex;align-items:center;gap:8px;">
+      <div style="display:flex;align-items:center;gap:6px;padding:0 10px;height:28px;background:var(--color-bg);border:1px solid var(--color-line);border-radius:5px;width:280px;">
+        <%= render Qb::IconComponent.new(name: :search, size: 13, style: 'color:var(--color-ink-4)') %>
+        <input type="search" name="q" value="<%= @query %>" placeholder="Buscar documentos…"
+               style="flex:1;border:none;outline:none;background:transparent;font-size:12px;color:var(--color-ink);">
+      </div>
+    </form>
+    <%= render Qb::BtnComponent.new(variant: :ghost, size: :xs, icon: :filter) { "Tipo" } %>
+    <%= render Qb::BtnComponent.new(variant: :ghost, size: :xs, icon: :filter) { "Obra" } %>
+    <div style="flex:1;"></div>
+    <span class="qb-mono" style="font-size:11px;color:var(--color-ink-3);"><%= @pagy.count %> documentos</span>
+  </div>
+
+  <%# Tabla %>
+  <% if @documents.any? %>
+    <table style="width:100%;border-collapse:collapse;font-size:12px;">
+      <thead>
+        <tr style="background:var(--color-bg-raised);">
+          <% [['Archivo', false], ['Tipo', false], ['Tamaño', true], ['Obra', false], ['Etapa', false], ['Fecha', false], ['', false]].each do |h, right| %>
+            <th style="padding:8px 12px;text-align:<%= right ? 'right' : 'left' %>;border-bottom:1px solid var(--color-line);font-size:10px;font-family:var(--font-mono);color:var(--color-ink-3);font-weight:500;letter-spacing:0.5px;text-transform:uppercase;"><%= h %></th>
+          <% end %>
+        </tr>
+      </thead>
+      <tbody>
+        <% @documents.each do |doc| %>
+          <%
+            ext = doc.file_filename.to_s.split('.').last.to_s.upcase
+            ext = doc.file_content_type.to_s.split('/').last.to_s.upcase.first(4) if ext.blank?
+            ext = '—' if ext.blank?
+
+            if doc.documentable_type == 'ProjectStage'
+              stage   = doc.documentable
+              project = stage&.project
+              etapa   = stage&.name || '—'
+            else
+              project = doc.documentable
+              etapa   = '—'
+            end
+
+            project_name = project&.name || '—'
+          %>
+          <tr style="height:var(--qb-density-row);border-bottom:1px solid var(--color-line);" onmouseover="this.style.background='var(--color-bg-sunken)'" onmouseout="this.style.background=''">
+            <td style="padding:0 12px;">
+              <div style="display:flex;align-items:center;gap:8px;">
+                <span style="font-size:10px;padding:3px 4px;background:var(--color-bg-sunken);border:1px solid var(--color-line);border-radius:3px;color:var(--color-ink-3);font-family:var(--font-mono);text-align:center;min-width:36px;display:inline-block;"><%= ext %></span>
+                <span style="font-weight:500;color:var(--color-ink);"><%= doc.file_filename %></span>
+              </div>
+            </td>
+            <td style="padding:0 12px;">
+              <%= render Qb::PillComponent.new(ext, tone: :muted, compact: true) %>
+            </td>
+            <td class="qb-mono qb-tnum" style="padding:0 12px;text-align:right;color:var(--color-ink-3);">
+              <%= number_to_human_size(doc.file_byte_size) %>
+            </td>
+            <td style="padding:0 12px;color:var(--color-ink-2);"><%= project_name %></td>
+            <td style="padding:0 12px;color:var(--color-ink-2);"><%= etapa %></td>
+            <td class="qb-mono" style="padding:0 12px;color:var(--color-ink-3);">
+              <%= doc.uploaded_at.strftime("%d/%m/%Y") %>
+            </td>
+            <td style="padding:0 12px;white-space:nowrap;">
+              <%= link_to "Ver", rails_blob_url(doc.file, disposition: 'inline'), target: '_blank', rel: 'noopener', style: 'font-size:11px;color:var(--color-accent);text-decoration:none;margin-right:8px;' %>
+              <%= link_to "Descargar", url_for(doc.file), style: 'font-size:11px;color:var(--color-accent);text-decoration:none;' %>
+            </td>
+          </tr>
+        <% end %>
+      </tbody>
+    </table>
+  <% else %>
+    <div style="padding:60px;margin:16px;text-align:center;color:var(--color-ink-4);font-size:13px;border:1px dashed var(--color-line);border-radius:10px;">
+      <%= render Qb::IconComponent.new(name: :docs, size: 28, style: 'margin-bottom:8px;opacity:0.5;') %>
+      <div>Todavía no hay documentos en tus obras.</div>
+      <div style="font-size:11px;color:var(--color-ink-4);margin-top:6px;">Subí archivos desde la pestaña Documentos dentro de cada proyecto o etapa.</div>
+    </div>
+  <% end %>
+
+  <%= render Qb::PaginationComponent.new(pagy: @pagy, label: 'documentos') %>
+</div>
