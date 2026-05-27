@@ -120,7 +120,9 @@ module Constructors
           end
         end
 
-        redirect_to constructors_project_stage_path(@project, new_stage), notice: "Etapa duplicada."
+        # Volver a la planificación: la copia aparece en la lista de etapas
+        # (no navegamos al detalle de la etapa nueva).
+        redirect_to constructors_project_stages_path(@project), notice: "Etapa duplicada."
       end
 
       def complete

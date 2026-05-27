@@ -1,5 +1,11 @@
 <%# ① IDENTIDAD ────────────────────────────────────────────── %>
 <div class="sd-hero">
+  <% if stage.object.parent.present? %>
+    <%= link_to "← Volver a #{stage.object.parent.name}",
+                constructors_project_stage_path(project, stage.object.parent),
+                data: { turbo_frame: "stage_detail" },
+                class: "sd-hero-back" %>
+  <% end %>
   <div class="sd-hero-top">
     <span class="sd-code-pill"><%= stage.code %></span>
     <%= render Qb::PillComponent.new(tone: status_tone) { stage.status_label } %>
@@ -124,7 +130,7 @@
         <div class="sd-list-empty">Todavía no hay listas de materiales en esta etapa.</div>
       <% else %>
         <% linked_lists.each do |list| %>
-          <%= link_to constructors_project_material_list_path(project, list), class: 'sd-list-row' do %>
+          <%= link_to constructors_project_material_list_path(project, list), class: 'sd-list-row', data: { turbo_frame: '_top' } do %>
             <div class="sd-list-main">
               <div class="sd-list-title">
                 <%= "#{list.display_number} #{list.name}".strip %>
@@ -225,9 +231,9 @@
           data: { turbo_method: :post, turbo_frame: '_top' }) %>
     <%= render Qb::BtnComponent.new('Editar', variant: :secondary, size: :xs,
           href: edit_constructors_project_stage_path(project, stage),
-          data: { turbo_frame: '_top' }) %>
+          data: { turbo_frame: 'project_modal' }) %>
     <%= render Qb::BtnComponent.new('Marcar completada', variant: :primary, size: :xs, icon: :check,
           href: complete_constructors_project_stage_path(project, stage),
-          data: { turbo_method: :patch }) %>
+          data: { turbo_method: :patch, turbo_frame: 'stage_detail' }) %>
   </div>
 </div>
