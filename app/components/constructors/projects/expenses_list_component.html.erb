@@ -1,54 +1,47 @@
-<section class="rounded-2xl border border-slate-200 bg-white p-6 shadow-sm">
-  <div class="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
-    <div>
-      <h2 class="text-lg font-semibold text-slate-900">Gastos</h2>
-      <p class="text-sm text-slate-500">Registro de gastos asociados a esta etapa.</p>
-    </div>
+<div>
+  <div style="font-size:11px;font-family:var(--font-mono);color:var(--color-ink-3);text-transform:uppercase;letter-spacing:0.7px;margin-bottom:8px;">
+    Gastos · <%= expenses.size %>
   </div>
 
   <% if expenses.empty? %>
-    <p class="mt-5 text-sm text-slate-500">Todavía no se registraron gastos.</p>
+    <div style="padding:14px;text-align:center;color:var(--color-ink-4);font-size:12px;border:1px dashed var(--color-line);border-radius:6px;">
+      Todavía no se registraron gastos.
+    </div>
   <% else %>
-    <div class="mt-5 overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-sm">
-      <table class="min-w-full divide-y divide-slate-200">
-        <thead class="bg-slate-50">
-          <tr>
-            <th class="px-4 py-3 text-left text-xs font-semibold uppercase tracking-wide text-slate-500">Fecha</th>
-            <th class="px-4 py-3 text-left text-xs font-semibold uppercase tracking-wide text-slate-500">Categoría</th>
-            <th class="px-4 py-3 text-left text-xs font-semibold uppercase tracking-wide text-slate-500">Descripción</th>
-            <th class="px-4 py-3 text-right text-xs font-semibold uppercase tracking-wide text-slate-500">Monto</th>
-            <th class="px-4 py-3 text-left text-xs font-semibold uppercase tracking-wide text-slate-500"></th>
+    <div style="border:1px solid var(--color-line);border-radius:6px;overflow:hidden;">
+      <table style="width:100%;border-collapse:collapse;">
+        <thead>
+          <tr style="background:var(--color-bg-sunken);">
+            <th style="padding:6px 10px;text-align:left;font-size:10px;font-family:var(--font-mono);color:var(--color-ink-4);text-transform:uppercase;letter-spacing:0.5px;font-weight:500;">Fecha</th>
+            <th style="padding:6px 10px;text-align:left;font-size:10px;font-family:var(--font-mono);color:var(--color-ink-4);text-transform:uppercase;letter-spacing:0.5px;font-weight:500;">Categoría</th>
+            <th style="padding:6px 10px;text-align:left;font-size:10px;font-family:var(--font-mono);color:var(--color-ink-4);text-transform:uppercase;letter-spacing:0.5px;font-weight:500;">Descripción</th>
+            <th style="padding:6px 10px;text-align:right;font-size:10px;font-family:var(--font-mono);color:var(--color-ink-4);text-transform:uppercase;letter-spacing:0.5px;font-weight:500;">Monto</th>
+            <th style="padding:6px 10px;"></th>
           </tr>
         </thead>
-        <tbody class="divide-y divide-slate-100">
+        <tbody>
           <% expenses.each do |expense| %>
-            <tr>
-              <td class="px-4 py-3 text-sm text-slate-700"><%= expense.incurred_on.strftime("%d/%m/%Y") %></td>
-              <td class="px-4 py-3 text-sm text-slate-700"><%= category_label(expense) %></td>
-              <td class="px-4 py-3 text-sm text-slate-700"><%= expense.description %></td>
-              <td class="px-4 py-3 text-right text-sm font-medium text-slate-900"><%= helpers.qb_fmt_cents(expense.amount_cents) %></td>
-              <td class="px-4 py-3 text-right text-sm">
-                <%= render Ui::ButtonComponent.new(
-                      label: "Eliminar",
-                      path: delete_path(expense),
-                      turbo_method: :delete,
-                      variant: :danger,
-                      size: :sm,
-                      turbo_confirm: "¿Eliminar este gasto?",
-                      class_name: "!px-2.5 !py-1 !rounded-md"
-                    ) %>
+            <tr style="border-top:1px solid var(--color-line);background:var(--color-bg-raised);">
+              <td style="padding:7px 10px;font-size:12px;color:var(--color-ink-2);font-family:var(--font-mono);white-space:nowrap;"><%= expense.incurred_on.strftime("%d/%m/%Y") %></td>
+              <td style="padding:7px 10px;font-size:12px;color:var(--color-ink-2);"><%= category_label(expense) %></td>
+              <td style="padding:7px 10px;font-size:12px;color:var(--color-ink);"><%= expense.description %></td>
+              <td style="padding:7px 10px;text-align:right;font-size:12px;font-weight:500;color:var(--color-ink);font-family:var(--font-mono);" class="qb-tnum"><%= helpers.qb_fmt_cents(expense.amount_cents) %></td>
+              <td style="padding:7px 10px;text-align:right;">
+                <%= render Qb::BtnComponent.new('Eliminar', variant: :danger, size: :xs,
+                      href: delete_path(expense),
+                      data: { turbo_method: :delete, turbo_confirm: '¿Eliminar este gasto?' }) %>
               </td>
             </tr>
           <% end %>
         </tbody>
-        <tfoot class="border-t border-slate-200 bg-slate-50">
-          <tr>
-            <td colspan="3" class="px-4 py-3 text-sm font-semibold text-slate-700">Total</td>
-            <td class="px-4 py-3 text-right text-sm font-semibold text-slate-900"><%= helpers.qb_fmt_cents(total_cents) %></td>
+        <tfoot>
+          <tr style="border-top:1px solid var(--color-line);background:var(--color-bg-sunken);">
+            <td colspan="3" style="padding:7px 10px;font-size:12px;font-weight:600;color:var(--color-ink);font-family:var(--font-mono);text-transform:uppercase;letter-spacing:0.5px;">Total</td>
+            <td style="padding:7px 10px;text-align:right;font-size:12px;font-weight:600;color:var(--color-ink);font-family:var(--font-mono);" class="qb-tnum"><%= helpers.qb_fmt_cents(total_cents) %></td>
             <td></td>
           </tr>
         </tfoot>
       </table>
     </div>
   <% end %>
-</section>
+</div>

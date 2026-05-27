@@ -13,10 +13,8 @@ module Constructors
       if @note.save
         redirect_to redirect_path, notice: "Nota agregada correctamente."
       else
-        redirect_back(
-          fallback_location: redirect_path,
+        redirect_to redirect_path,
           alert: @note.errors.full_messages.to_sentence
-        )
       end
     end
 
@@ -24,7 +22,7 @@ module Constructors
       authorize @note
 
       @note.destroy
-      redirect_back fallback_location: redirect_path, notice: "Nota eliminada."
+      redirect_to redirect_path, notice: "Nota eliminada."
     end
 
     private

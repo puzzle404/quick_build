@@ -1,22 +1,24 @@
-<details class="rounded-2xl border border-slate-200 bg-white p-6 shadow-sm">
-  <summary class="cursor-pointer select-none text-sm font-semibold text-indigo-600 hover:text-indigo-700">
+<details style="border:1px solid var(--color-line);border-radius:6px;background:var(--color-bg-raised);padding:12px 14px;">
+  <summary style="cursor:pointer;user-select:none;font-size:11px;font-family:var(--font-mono);color:var(--color-ink-3);text-transform:uppercase;letter-spacing:0.7px;list-style:none;">
     Nueva nota
   </summary>
 
-  <div class="mt-5">
-    <%= form_with url: form_url, scope: :note, class: "space-y-4" do |form| %>
-      <div>
-        <%= form.label :title, "Título (opcional)", class: "block text-sm font-medium text-slate-700" %>
-        <%= form.text_field :title, class: "mt-1 block w-full rounded-lg border border-slate-300 px-3 py-2 text-sm shadow-sm focus:border-emerald-500 focus:outline-none focus:ring-emerald-500" %>
+  <div style="margin-top:12px;">
+    <%= form_with url: form_url, scope: :note do |form| %>
+      <div style="margin-bottom:10px;">
+        <%= form.label :title, "Título (opcional)", style: "display:block;font-size:11px;font-family:var(--font-mono);color:var(--color-ink-3);text-transform:uppercase;letter-spacing:0.5px;margin-bottom:4px;" %>
+        <%= form.text_field :title,
+              style: "display:block;width:100%;border:1px solid var(--color-line);border-radius:5px;padding:5px 8px;font-size:12px;background:var(--color-bg);color:var(--color-ink);outline:none;" %>
       </div>
 
-      <div>
-        <%= form.label :body, "Nota", class: "block text-sm font-medium text-slate-700" %>
-        <%= form.text_area :body, rows: 4, required: true, class: "mt-1 block w-full rounded-lg border border-slate-300 px-3 py-2 text-sm shadow-sm focus:border-emerald-500 focus:outline-none focus:ring-emerald-500" %>
+      <div style="margin-bottom:12px;">
+        <%= form.label :body, "Nota", style: "display:block;font-size:11px;font-family:var(--font-mono);color:var(--color-ink-3);text-transform:uppercase;letter-spacing:0.5px;margin-bottom:4px;" %>
+        <%= form.text_area :body, rows: 4, required: true,
+              style: "display:block;width:100%;border:1px solid var(--color-line);border-radius:5px;padding:5px 8px;font-size:12px;background:var(--color-bg);color:var(--color-ink);outline:none;resize:vertical;" %>
       </div>
 
-      <div class="flex justify-end">
-        <%= render Ui::ButtonComponent.new(label: "Agregar nota", type: :submit, size: :md, variant: :primary, class_name: "!rounded-lg") %>
+      <div style="display:flex;justify-content:flex-end;">
+        <%= render Qb::BtnComponent.new('Agregar nota', variant: :primary, size: :sm, type: 'submit') %>
       </div>
     <% end %>
   </div>

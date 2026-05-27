@@ -1,10 +1,10 @@
 # frozen_string_literal: true
 
-# Right-anchored slide-over with the rich detail of a single stage:
-# metrics grid, sub-stages mini-list, linked material lists, document/image
-# counts and footer actions. Purely server-rendered HTML (no Turbo Frame
-# round-trip) — each card embeds its own drawer so the open/close is local.
-class Constructors::Projects::Planning::StageDrawerComponent < ViewComponent::Base
+# Detail body of a project stage rendered inside a Turbo Frame ("stage_detail").
+# Contains: header, predecessor chip, metrics grid, sub-stages, material lists,
+# expenses, notes, and doc/image sections. The dialog/panel shell (StageDrawerComponent)
+# is built in R2; this component renders only the scrollable content.
+class Constructors::Projects::Planning::StageDetailComponent < ViewComponent::Base
   def initialize(project:, stage:, sub_stages: [])
     @project = project
     @stage = stage.is_a?(ProjectStageDecorator) ? stage : ProjectStageDecorator.new(stage)

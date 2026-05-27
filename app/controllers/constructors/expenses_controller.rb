@@ -14,10 +14,8 @@ module Constructors
       if @expense.save
         redirect_to redirect_path, notice: "Gasto registrado correctamente."
       else
-        redirect_back(
-          fallback_location: redirect_path,
+        redirect_to redirect_path,
           alert: @expense.errors.full_messages.to_sentence
-        )
       end
     end
 
@@ -26,7 +24,7 @@ module Constructors
       authorize @expense
 
       @expense.destroy
-      redirect_back fallback_location: redirect_path, notice: "Gasto eliminado."
+      redirect_to redirect_path, notice: "Gasto eliminado."
     end
 
     private
