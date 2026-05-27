@@ -81,7 +81,7 @@ class ProjectStage < ApplicationRecord
 
   def predecessor_must_not_be_self
     return if predecessor.blank?
-    return unless persisted? && predecessor_id == id
+    return unless predecessor.equal?(self) || (persisted? && predecessor_id == id)
 
     errors.add(:predecessor, "no puede ser ella misma")
   end
@@ -103,6 +103,7 @@ class ProjectStage < ApplicationRecord
 
   def start_after_predecessor_end
     return if predecessor.blank? || start_date.blank? || predecessor.end_date.blank?
+    # Finish-to-Start: la etapa puede arrancar el mismo día que termina la predecesora.
     return if start_date >= predecessor.end_date
 
     errors.add(:start_date,

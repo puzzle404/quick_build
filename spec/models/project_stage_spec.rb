@@ -66,5 +66,23 @@ RSpec.describe ProjectStage, type: :model do
       stage_b.predecessor = stage_a
       expect(stage_b).to be_valid
     end
+
+    it "rechaza auto-referencia en un registro nuevo (por objeto)" do
+      fresh = build(:project_stage, project: project)
+      fresh.predecessor = fresh
+      expect(fresh).not_to be_valid
+      expect(fresh.errors[:predecessor]).to include(/no puede ser ella misma/i)
+    end
+
+    it "detecta ciclos de 3 nodos (A -> B -> C -> A)" do
+      a = create(:project_stage, project: project, start_date: Date.new(2026, 3, 1), end_date: Date.new(2026, 3, 5))
+      b = create(:project_stage, project: project, start_date: Date.new(2026, 3, 6), end_date: Date.new(2026, 3, 10))
+      c = create(:project_stage, project: project, start_date: Date.new(2026, 3, 11), end_date: Date.new(2026, 3, 15))
+      b.update_columns(predecessor_id: a.id)
+      c.update_columns(predecessor_id: b.id)
+      a.predecessor = c
+      expect(a).not_to be_valid
+      expect(a.errors[:predecessor]).to include(/ciclo/i)
+    end
   end
 end
