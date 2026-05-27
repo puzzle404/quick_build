@@ -13,7 +13,7 @@ class MaterialList < ApplicationRecord
   has_one_attached :source_file
 
   validates :name, presence: true
-  validates :number, uniqueness: { scope: :project_id }, allow_nil: true
+  validates :number, uniqueness: { scope: :project_id }, allow_nil: true, on: :create
   validate :stage_belongs_to_project
 
   before_create :assign_next_number
@@ -33,15 +33,13 @@ class MaterialList < ApplicationRecord
   def assign_next_number
     return if number.present?
 
-    ActiveRecord::Base.transaction do
-      # advisory lock por proyecto: evita race entre dos creaciones simultáneas
-      self.class.connection.execute(
-        ActiveRecord::Base.sanitize_sql([ "SELECT pg_advisory_xact_lock(?)", project_id.to_i ])
-      )
+    # advisory lock por proyecto: serializa la asignación de número entre
+    # creaciones concurrentes. Se libera al commitear la transacción del save.
+    self.class.connection.execute(
+      ActiveRecord::Base.sanitize_sql([ "SELECT pg_advisory_xact_lock(?)", project_id ])
+    )
 
-      next_number = MaterialList.where(project_id: project_id).maximum(:number).to_i + 1
-      self.number = next_number
-    end
+    self.number = MaterialList.where(project_id: project_id).maximum(:number).to_i + 1
   end
 
   def stage_belongs_to_project
