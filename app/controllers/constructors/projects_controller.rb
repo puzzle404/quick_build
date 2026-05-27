@@ -73,13 +73,13 @@ class Constructors::ProjectsController < Constructors::BaseController
 
     if params[:featured_image].present?
       image = @project.images.new(file: params[:featured_image], featured: true)
-      if image.valid?
+      begin
         ActiveRecord::Base.transaction do
           @project.images.where(featured: true).update_all(featured: false)
           image.save!
         end
         return redirect_to constructors_project_path(@project), notice: "Portada actualizada."
-      else
+      rescue ActiveRecord::RecordInvalid
         return redirect_to constructors_project_path(@project), alert: image.errors.full_messages.to_sentence
       end
     end
