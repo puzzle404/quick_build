@@ -13,6 +13,8 @@ class ProjectStagePolicy < ApplicationPolicy
 
   alias_method :new?, :create?
   alias_method :edit?, :update?
+  alias_method :duplicate?, :create?
+  alias_method :complete?, :update?
 
   private
 

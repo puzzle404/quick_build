@@ -51,6 +51,11 @@ Rails.application.routes.draw do
           post :apply_template
         end
 
+        member do
+          post :duplicate
+          patch :complete
+        end
+
         resources :documents, only: [:new, :create, :destroy], module: :stages
         resources :images, only: [:new, :create, :destroy], module: :stages
         resources :expenses, only: [ :create, :destroy ], module: false, controller: "/constructors/expenses"

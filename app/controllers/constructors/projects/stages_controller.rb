@@ -2,7 +2,7 @@ module Constructors
   module Projects
     class StagesController < Constructors::BaseController
       before_action :set_project
-      before_action :set_stage, only: [ :show, :edit, :update, :destroy ]
+      before_action :set_stage, only: [ :show, :edit, :update, :destroy, :duplicate, :complete ]
 
       def index
         authorize @project, :show?
@@ -85,6 +85,54 @@ module Constructors
 
         result = ::Constructors::Projects::StageTemplateService.call(@project)
         redirect_to constructors_project_stages_path(@project), notice: template_notice(result)
+      end
+
+      def duplicate
+        authorize @stage, :duplicate?
+
+        new_stage = nil
+
+        ProjectStage.transaction do
+          new_stage = @project.project_stages.create!(
+            name: "#{@stage.name} (copia)",
+            description: @stage.description,
+            parent_id: @stage.parent_id,
+            start_date: @stage.start_date,
+            end_date: @stage.end_date,
+            lead: @stage.try(:lead),
+            budget_cents: @stage.budget_cents,
+            progress: 0,
+            spent_cents: 0
+          )
+
+          @stage.sub_stages.each do |sub|
+            @project.project_stages.create!(
+              name: sub.name,
+              description: sub.description,
+              parent_id: new_stage.id,
+              start_date: sub.start_date,
+              end_date: sub.end_date,
+              lead: sub.try(:lead),
+              budget_cents: sub.budget_cents,
+              progress: 0,
+              spent_cents: 0
+            )
+          end
+        end
+
+        redirect_to constructors_project_stage_path(@project, new_stage), notice: "Etapa duplicada."
+      end
+
+      def complete
+        authorize @stage, :complete?
+
+        if @stage.update(progress: 100)
+          redirect_to constructors_project_stage_path(@project, @stage),
+                      notice: "Etapa marcada como completada."
+        else
+          redirect_back fallback_location: constructors_project_stage_path(@project, @stage),
+                        alert: "No pudimos marcar la etapa como completada."
+        end
       end
 
       private

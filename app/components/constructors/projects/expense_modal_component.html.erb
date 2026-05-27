@@ -8,7 +8,11 @@
     <div style="padding:14px 18px;border-bottom:1px solid var(--color-line);display:flex;justify-content:space-between;align-items:center;">
       <div>
         <h3 style="margin:0;font-size:15px;font-weight:600;color:var(--color-ink);">Registrar nuevo gasto</h3>
-        <div style="font-size:12px;color:var(--color-ink-3);margin-top:2px;">Se asocia al proyecto. No necesita estar ligado a una etapa.</div>
+        <% if stage_scoped? %>
+          <div style="font-size:12px;color:var(--color-ink-3);margin-top:2px;">Se asocia a la etapa seleccionada.</div>
+        <% else %>
+          <div style="font-size:12px;color:var(--color-ink-3);margin-top:2px;">Se asocia al proyecto. No necesita estar ligado a una etapa.</div>
+        <% end %>
       </div>
       <%= render Qb::BtnComponent.new('', variant: :ghost, size: :sm, icon: :x, aria_label: 'Cerrar',
                                       data: { action: 'click->qb--modal#close' }) %>
