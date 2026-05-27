@@ -72,7 +72,9 @@
               <%= doc.uploaded_at.strftime("%d/%m/%Y") %>
             </td>
             <td style="padding:0 12px;white-space:nowrap;">
-              <%= link_to "Ver", rails_blob_url(doc.file, disposition: 'inline'), target: '_blank', rel: 'noopener', style: 'font-size:11px;color:var(--color-accent);text-decoration:none;margin-right:8px;' %>
+              <%# url_for(file) da la URL directa del servicio (Cloudinary en dev), igual
+                  que el viewer de planos que anda OK; rails_blob_url(inline) rompía con Cloudinary. %>
+              <%= link_to "Ver", url_for(doc.file), target: '_blank', rel: 'noopener', style: 'font-size:11px;color:var(--color-accent);text-decoration:none;margin-right:8px;' %>
               <%= link_to "Descargar", url_for(doc.file), style: 'font-size:11px;color:var(--color-accent);text-decoration:none;' %>
             </td>
           </tr>
