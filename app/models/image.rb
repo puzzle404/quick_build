@@ -3,11 +3,14 @@ class Image < ApplicationRecord
 
   has_one_attached :file
 
+  ALLOWED_IMAGE_TYPES = %w[image/jpeg image/png image/webp image/gif].freeze
+
   validates :file, presence: true
 
   scope :featured, -> { where(featured: true) }
 
   validate :only_one_featured_per_imageable
+  validate :acceptable_image_type
 
   before_validation :ensure_title
 
@@ -21,6 +24,13 @@ class Image < ApplicationRecord
 
   def ensure_title
     self.title = file_filename.to_s if title.blank? && file.present?
+  end
+
+  def acceptable_image_type
+    return unless file.attached?
+    return if ALLOWED_IMAGE_TYPES.include?(file.content_type)
+
+    errors.add(:file, "debe ser una imagen JPG, PNG, WEBP o GIF")
   end
 
   def only_one_featured_per_imageable

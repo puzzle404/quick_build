@@ -1,6 +1,25 @@
 require 'rails_helper'
 
 RSpec.describe Image, type: :model do
+  describe "content type" do
+    let(:project) { create(:project) }
+
+    it "rechaza archivos que no son imágenes" do
+      img = build(:image, imageable: project)
+      img.file.attach(io: StringIO.new("x"), filename: "doc.pdf", content_type: "application/pdf")
+      expect(img).not_to be_valid
+      expect(img.errors[:file]).to include(/imagen/i)
+    end
+
+    it "acepta JPG y PNG" do
+      %w[image/jpeg image/png].each do |ct|
+        img = build(:image, imageable: project)
+        img.file.attach(io: StringIO.new("x"), filename: "p", content_type: ct)
+        expect(img).to be_valid
+      end
+    end
+  end
+
   describe "featured" do
     let(:project) { create(:project) }
 

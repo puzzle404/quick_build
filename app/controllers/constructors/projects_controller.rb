@@ -71,11 +71,16 @@ class Constructors::ProjectsController < Constructors::BaseController
     authorize @project
 
     if params[:featured_image].present?
-      ActiveRecord::Base.transaction do
-        @project.images.where(featured: true).update_all(featured: false)
-        @project.images.create!(file: params[:featured_image], featured: true)
+      image = @project.images.new(file: params[:featured_image], featured: true)
+      if image.valid?
+        ActiveRecord::Base.transaction do
+          @project.images.where(featured: true).update_all(featured: false)
+          image.save!
+        end
+        return redirect_to constructors_project_path(@project), notice: "Portada actualizada."
+      else
+        return redirect_to constructors_project_path(@project), alert: image.errors.full_messages.to_sentence
       end
-      return redirect_to constructors_project_path(@project), notice: "Portada actualizada."
     end
 
     @project.assign_attributes(project_params)

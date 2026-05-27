@@ -7,7 +7,7 @@
         <img src="<%= cover_photo_url %>" alt="Portada" style="width:100%;height:100%;object-fit:cover;display:block;">
       <% else %>
         <div class="cover-photo-placeholder" style="width:100%;height:100%;min-height:120px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:6px;color:var(--color-ink-4);">
-          <%= render Qb::IconComponent.new(name: :image, size: 28, style: 'opacity:0.4;') rescue nil %>
+          <%= render Qb::IconComponent.new(name: :image, size: 28, style: 'opacity:0.4;') %>
           <span style="font-size:10px;font-family:var(--font-mono);">portada</span>
         </div>
       <% end %>
@@ -15,7 +15,7 @@
       <%# Inline cover photo uploader %>
       <%= form_with(url: constructors_project_path(project), method: :patch, multipart: true, style: "position:absolute;bottom:0;left:0;right:0;background:rgba(0,0,0,0.5);padding:4px 8px;display:flex;align-items:center;justify-content:center;") do |f| %>
         <label style="font-size:10px;color:#fff;cursor:pointer;white-space:nowrap;" title="Cambiar portada">
-          <%= render Qb::IconComponent.new(name: :upload, size: 10, style: 'margin-right:3px;vertical-align:-1px;') rescue nil %>Cambiar portada
+          <%= render Qb::IconComponent.new(name: :upload, size: 10, style: 'margin-right:3px;vertical-align:-1px;') %>Cambiar portada
           <%= f.file_field :featured_image, style: "display:none;", onchange: "this.form.requestSubmit()" %>
         </label>
       <% end %>
@@ -44,7 +44,7 @@
         </div>
       </div>
 
-      <%# 7-cell metric strip — original 5 + días de obra + gastos + % avance %>
+      <%# 5-cell metric strip: avance físico, días de obra, gastos, etapas, días a entrega %>
       <div style="display:grid;grid-template-columns:repeat(5, 1fr);margin-top:14px;gap:0;border:1px solid var(--color-line);border-radius:6px;background:var(--color-bg);overflow:hidden;">
         <%= render Qb::MetricCellComponent.new(label: 'Avance físico', value: "#{progress_percent}%", hint: "plan #{project.planned_progress}%") do |c| %>
           <% c.with_extra { render Qb::BarComponent.new(value: progress_percent, plan: project.planned_progress, show_plan: true, tone: bar_tone) } %>
