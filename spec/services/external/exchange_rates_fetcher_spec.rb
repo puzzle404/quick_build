@@ -53,4 +53,18 @@ RSpec.describe External::ExchangeRatesFetcher do
     rates = fetcher.call
     expect(rates).to eq(stale: true, oficial: {}, blue: {})
   end
+
+  it "no cachea los fallos (reintenta en la siguiente llamada)" do
+    # primera llamada falla
+    stub_request(:get, "https://dolarapi.com/v1/dolares").to_return(status: 500)
+    expect(fetcher.call[:stale]).to eq(true)
+
+    # la API se recupera; la siguiente llamada DEBE reintentar y traer datos frescos
+    stub_request(:get, "https://dolarapi.com/v1/dolares").to_return(
+      status: 200,
+      body: [ { "casa" => "oficial", "compra" => 1, "venta" => 2 } ].to_json,
+      headers: { "Content-Type" => "application/json" }
+    )
+    expect(fetcher.call[:stale]).to eq(false)
+  end
 end

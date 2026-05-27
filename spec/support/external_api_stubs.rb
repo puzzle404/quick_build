@@ -9,8 +9,12 @@
 #
 # Individual specs override these by declaring their own `stub_request` inside
 # the example (the most recently declared matching stub wins in WebMock).
-RSpec.configure do |config|
-  config.before(:each) do
+#
+# Scoped to :request and :system specs only — model/service/component specs
+# that test these APIs directly declare their own stubs and must not be
+# affected by a global default.
+module ExternalApiStubs
+  def stub_external_apis
     stub_request(:get, "https://dolarapi.com/v1/dolares").to_return(
       status: 200,
       body: [
@@ -26,4 +30,10 @@ RSpec.configure do |config|
       headers: { "Content-Type" => "application/json" }
     )
   end
+end
+
+RSpec.configure do |config|
+  config.include ExternalApiStubs
+  config.before(:each, type: :request) { stub_external_apis }
+  config.before(:each, type: :system)  { stub_external_apis }
 end
