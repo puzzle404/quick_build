@@ -21,10 +21,10 @@ class Constructors::ProjectsController < Constructors::BaseController
     @query = params[:q].to_s.strip
     @from_date = params[:from_date].presence
     @to_date = params[:to_date].presence
-    @status_filter = params[:status].to_s.presence_in(%w[in_progress planned completed]) || 'all'
+    @status_filter = params[:status].to_s.presence_in(%w[in_progress planned completed]) || "all"
 
     base_scope = current_user.owned_projects
-    base_scope = base_scope.where(status: Project.statuses[@status_filter]) if @status_filter != 'all'
+    base_scope = base_scope.where(status: Project.statuses[@status_filter]) if @status_filter != "all"
 
     @projects_scope = Constructors::Projects::ProjectSearchService.new(
       scope: base_scope,
@@ -51,7 +51,7 @@ class Constructors::ProjectsController < Constructors::BaseController
 
     if persist_project_with_documents(@project)
       # Wizard step 3 may request the base stage template — apply it now.
-      if params[:apply_template].to_s == 'template'
+      if params[:apply_template].to_s == "template"
         ::Constructors::Projects::StageTemplateService.call(@project) rescue nil
       end
       flash[:new_project] = true
@@ -69,6 +69,14 @@ class Constructors::ProjectsController < Constructors::BaseController
 
   def update
     authorize @project
+
+    if params[:featured_image].present?
+      ActiveRecord::Base.transaction do
+        @project.images.where(featured: true).update_all(featured: false)
+        @project.images.create!(file: params[:featured_image], featured: true)
+      end
+      return redirect_to constructors_project_path(@project), notice: "Portada actualizada."
+    end
 
     @project.assign_attributes(project_params)
 
