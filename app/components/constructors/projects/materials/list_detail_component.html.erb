@@ -17,7 +17,7 @@
           <% if private? %><%= render Qb::PillComponent.new('Privada', tone: :muted, compact: true) %><% end %>
           <% if stage_name %><span class="qb-mono" style="font-size:10px;color:var(--color-ink-4);"><%= stage_name %></span><% end %>
         </div>
-        <h2 style="margin:0;font-size:16px;font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;"><%= list.name %></h2>
+        <h2 style="margin:0;font-size:16px;font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;"><%= "#{list.display_number} #{list.name}".strip %></h2>
       </div>
       <%= render Qb::BtnComponent.new('Exportar', variant: :ghost, size: :sm, icon: :download) %>
       <%= link_to edit_constructors_project_material_list_path(project, list),

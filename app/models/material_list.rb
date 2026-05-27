@@ -13,16 +13,34 @@ class MaterialList < ApplicationRecord
   has_one_attached :source_file
 
   validates :name, presence: true
+  validates :number, uniqueness: { scope: :project_id }, allow_nil: true, on: :create
   validate :stage_belongs_to_project
 
+  before_create :assign_next_number
   before_save :sync_approved_timestamp
 
   pg_search_scope :search_text,
-                  against: [:name, :notes],
-                  associated_against: { project_stage: [:name, :description] },
+                  against: [ :name, :notes ],
+                  associated_against: { project_stage: [ :name, :description ] },
                   using: { tsearch: { prefix: true } }
 
+  def display_number
+    number.present? ? "##{number}" : ""
+  end
+
   private
+
+  def assign_next_number
+    return if number.present?
+
+    # advisory lock por proyecto: serializa la asignación de número entre
+    # creaciones concurrentes. Se libera al commitear la transacción del save.
+    self.class.connection.execute(
+      ActiveRecord::Base.sanitize_sql([ "SELECT pg_advisory_xact_lock(?)", project_id ])
+    )
+
+    self.number = MaterialList.where(project_id: project_id).maximum(:number).to_i + 1
+  end
 
   def stage_belongs_to_project
     return if project_stage.blank?

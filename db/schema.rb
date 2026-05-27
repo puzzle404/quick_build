@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.0].define(version: 2026_04_21_004417) do
+ActiveRecord::Schema[8.0].define(version: 2026_05_27_002536) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
 
@@ -115,6 +115,24 @@ ActiveRecord::Schema[8.0].define(version: 2026_04_21_004417) do
     t.index ["documentable_type", "documentable_id"], name: "index_documents_on_documentable"
   end
 
+  create_table "expenses", force: :cascade do |t|
+    t.bigint "project_id", null: false
+    t.bigint "project_stage_id"
+    t.bigint "author_id", null: false
+    t.bigint "amount_cents", null: false
+    t.string "currency", default: "ARS", null: false
+    t.integer "category", default: 0, null: false
+    t.date "incurred_on", null: false
+    t.string "description"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["author_id"], name: "index_expenses_on_author_id"
+    t.index ["project_id", "incurred_on"], name: "index_expenses_on_project_id_and_incurred_on"
+    t.index ["project_id"], name: "index_expenses_on_project_id"
+    t.index ["project_stage_id", "incurred_on"], name: "index_expenses_on_project_stage_id_and_incurred_on"
+    t.index ["project_stage_id"], name: "index_expenses_on_project_stage_id"
+  end
+
   create_table "images", force: :cascade do |t|
     t.string "imageable_type", null: false
     t.bigint "imageable_id", null: false
@@ -122,7 +140,9 @@ ActiveRecord::Schema[8.0].define(version: 2026_04_21_004417) do
     t.text "description"
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
+    t.boolean "featured", default: false, null: false
     t.index ["imageable_type", "imageable_id"], name: "index_images_on_imageable"
+    t.index ["imageable_type", "imageable_id"], name: "index_images_unique_featured_per_imageable", unique: true, where: "featured"
   end
 
   create_table "line_items", force: :cascade do |t|
@@ -170,7 +190,9 @@ ActiveRecord::Schema[8.0].define(version: 2026_04_21_004417) do
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
     t.bigint "project_stage_id"
+    t.integer "number"
     t.index ["author_id"], name: "index_material_lists_on_author_id"
+    t.index ["project_id", "number"], name: "index_material_lists_on_project_id_and_number", unique: true
     t.index ["project_id", "project_stage_id"], name: "index_material_lists_on_project_id_and_project_stage_id"
     t.index ["project_id", "status"], name: "index_material_lists_on_project_id_and_status"
     t.index ["project_id"], name: "index_material_lists_on_project_id"
@@ -183,6 +205,18 @@ ActiveRecord::Schema[8.0].define(version: 2026_04_21_004417) do
     t.decimal "price", precision: 10, scale: 2
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
+  end
+
+  create_table "notes", force: :cascade do |t|
+    t.string "noteable_type", null: false
+    t.bigint "noteable_id", null: false
+    t.bigint "author_id", null: false
+    t.string "title"
+    t.text "body", null: false
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["author_id"], name: "index_notes_on_author_id"
+    t.index ["noteable_type", "noteable_id", "created_at"], name: "idx_notes_on_noteable_and_created"
   end
 
   create_table "orders", force: :cascade do |t|
@@ -262,7 +296,9 @@ ActiveRecord::Schema[8.0].define(version: 2026_04_21_004417) do
     t.string "lead"
     t.bigint "budget_cents"
     t.bigint "spent_cents"
+    t.bigint "predecessor_id"
     t.index ["parent_id"], name: "index_project_stages_on_parent_id"
+    t.index ["predecessor_id"], name: "index_project_stages_on_predecessor_id"
     t.index ["project_id", "start_date"], name: "index_project_stages_on_project_id_and_start_date"
     t.index ["project_id"], name: "index_project_stages_on_project_id"
   end
@@ -436,6 +472,9 @@ ActiveRecord::Schema[8.0].define(version: 2026_04_21_004417) do
   add_foreign_key "blueprints", "projects"
   add_foreign_key "construction_item_materials", "construction_items"
   add_foreign_key "construction_item_materials", "materials"
+  add_foreign_key "expenses", "project_stages"
+  add_foreign_key "expenses", "projects"
+  add_foreign_key "expenses", "users", column: "author_id"
   add_foreign_key "line_items", "orders"
   add_foreign_key "line_items", "products"
   add_foreign_key "material_items", "material_lists"
@@ -443,6 +482,7 @@ ActiveRecord::Schema[8.0].define(version: 2026_04_21_004417) do
   add_foreign_key "material_lists", "project_stages"
   add_foreign_key "material_lists", "projects"
   add_foreign_key "material_lists", "users", column: "author_id"
+  add_foreign_key "notes", "users", column: "author_id"
   add_foreign_key "orders", "users"
   add_foreign_key "person_attendances", "project_people"
   add_foreign_key "products", "categories"
@@ -451,6 +491,7 @@ ActiveRecord::Schema[8.0].define(version: 2026_04_21_004417) do
   add_foreign_key "project_memberships", "users"
   add_foreign_key "project_people", "projects"
   add_foreign_key "project_stages", "project_stages", column: "parent_id"
+  add_foreign_key "project_stages", "project_stages", column: "predecessor_id"
   add_foreign_key "project_stages", "projects"
   add_foreign_key "projects", "users", column: "owner_id"
   add_foreign_key "sessions", "users"

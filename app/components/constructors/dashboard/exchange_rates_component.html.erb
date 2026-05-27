@@ -1,0 +1,43 @@
+<div style="padding:14px 16px;display:flex;flex-direction:column;gap:10px;">
+  <%# Header row %>
+  <div style="display:flex;align-items:center;justify-content:space-between;">
+    <div style="font-size:11px;font-family:var(--font-mono);color:var(--color-ink-3);text-transform:uppercase;letter-spacing:0.8px;font-weight:500;">
+      Tipo de cambio
+    </div>
+    <% if stale? %>
+      <span style="font-size:10px;font-family:var(--font-mono);text-transform:uppercase;letter-spacing:0.6px;padding:2px 6px;border-radius:4px;background:var(--color-warn-bg,#fff7e6);color:var(--color-warn);">
+        desactualizado
+      </span>
+    <% end %>
+  </div>
+
+  <% if has_data? %>
+    <%# USD Oficial %>
+    <% if oficial.any? %>
+      <div style="display:flex;align-items:baseline;justify-content:space-between;gap:8px;">
+        <div style="font-size:11px;color:var(--color-ink-3);min-width:52px;">Oficial</div>
+        <div style="display:flex;gap:12px;font-family:var(--font-mono);font-size:13px;color:var(--color-ink);">
+          <span><span style="color:var(--color-ink-3);font-size:10px;">C</span> <%= fmt_rate(oficial[:compra]) %></span>
+          <span><span style="color:var(--color-ink-3);font-size:10px;">V</span> <%= fmt_rate(oficial[:venta]) %></span>
+        </div>
+      </div>
+    <% end %>
+
+    <%# USD Blue %>
+    <% if blue.any? %>
+      <div style="display:flex;align-items:baseline;justify-content:space-between;gap:8px;">
+        <div style="font-size:11px;color:var(--color-ink-3);min-width:52px;">Blue</div>
+        <div style="display:flex;gap:12px;font-family:var(--font-mono);font-size:13px;color:var(--color-ink);">
+          <span><span style="color:var(--color-ink-3);font-size:10px;">C</span> <%= fmt_rate(blue[:compra]) %></span>
+          <span><span style="color:var(--color-ink-3);font-size:10px;">V</span> <%= fmt_rate(blue[:venta]) %></span>
+        </div>
+      </div>
+    <% end %>
+  <% else %>
+    <div style="font-size:12px;color:var(--color-ink-4);text-align:center;padding:8px 0;">
+      Sin datos disponibles.
+    </div>
+  <% end %>
+
+  <div style="font-size:10px;color:var(--color-ink-4);font-family:var(--font-mono);">USD · dolarapi.com</div>
+</div>

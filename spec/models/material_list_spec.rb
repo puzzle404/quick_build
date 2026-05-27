@@ -46,6 +46,38 @@ RSpec.describe MaterialList, type: :model do
     end
   end
 
+  describe "numbering" do
+    let(:project)       { create(:project) }
+    let(:other_project) { create(:project) }
+
+    it "asigna #1 a la primera lista del proyecto" do
+      list = create(:material_list, project: project)
+      expect(list.number).to eq(1)
+      expect(list.display_number).to eq("#1")
+    end
+
+    it "asigna correlativo dentro del mismo proyecto" do
+      create(:material_list, project: project)
+      create(:material_list, project: project)
+      list = create(:material_list, project: project)
+      expect(list.number).to eq(3)
+    end
+
+    it "resetea el contador por proyecto" do
+      create(:material_list, project: project)
+      list = create(:material_list, project: other_project)
+      expect(list.number).to eq(1)
+    end
+
+    it "no permite duplicados (project_id, number)" do
+      a = create(:material_list, project: project)
+      duplicate = build(:material_list, project: project)
+      duplicate.number = a.number
+      expect { duplicate.save(validate: false) }
+        .to raise_error(ActiveRecord::RecordNotUnique)
+    end
+  end
+
   describe "aprobación" do
     it "registra la fecha al marcar como aprobada" do
       material_list.status = :approved

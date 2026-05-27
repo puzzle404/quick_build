@@ -3,47 +3,50 @@
 <div class="space-y-6">
   <div>
     <%= link_to "← Volver a las listas", constructors_project_material_lists_path(@project),
-                class: "text-sm font-medium text-indigo-700 hover:text-indigo-600" %>
+                style: "font-size:13px;font-weight:500;color:var(--color-accent);" %>
   </div>
 
-  <%= render Ui::SectionHeaderComponent.new(title: @material_list.name) %>
+  <%= render Qb::SectionHeadComponent.new(title: "#{@material_list.display_number} #{@material_list.name}".strip) %>
 
   <div>
-    <p class="text-sm text-slate-500">
+    <p style="font-size:13px;color:var(--color-ink-3);">
       Actualizada <%= time_ago_in_words(@material_list.updated_at) %> atrás ·
       <%= turbo_frame_tag dom_id(@material_list, :items_counter) do %>
         <%= pluralize(@material_items.size, "ítem") %>
       <% end %>
     </p>
     <% if @material_list.project_stage.present? %>
-      <p class="mt-2 inline-flex items-center gap-2 rounded-full bg-indigo-50 px-3 py-1 text-xs font-semibold uppercase tracking-wide text-indigo-600">
-        Etapa vinculada: <span class="text-slate-800"><%= project_stage_label(@material_list.project_stage) %></span>
+      <p class="mt-2" style="display:inline-flex;align-items:center;gap:8px;border-radius:var(--radius);background:color-mix(in oklab, var(--color-accent) 10%, transparent);padding:4px 12px;font-size:11px;font-weight:600;text-transform:uppercase;letter-spacing:0.05em;color:var(--color-accent);">
+        Etapa vinculada: <span style="color:var(--color-ink);"><%= project_stage_label(@material_list.project_stage) %></span>
       </p>
     <% end %>
   </div>
 
   <div class="flex flex-wrap gap-3">
     <% if policy(@material_list).toggle_publication? %>
-      <%= render Ui::ButtonComponent.new(label: 'Alternar presupuesto', path: toggle_publication_constructors_project_material_list_path(@project, @material_list), turbo_method: :patch, variant: :secondary, size: :sm) %>
+      <%= render Qb::BtnComponent.new('Alternar presupuesto', variant: :secondary, size: :sm,
+            href: toggle_publication_constructors_project_material_list_path(@project, @material_list),
+            data: { turbo_method: :patch }) %>
     <% end %>
     <% if policy(@material_list).update? %>
-      <%= render Ui::ButtonComponent.new(label: "Editar", path: edit_constructors_project_material_list_path(@project, @material_list)) %>
+      <%= render Qb::BtnComponent.new('Editar', variant: :primary,
+            href: edit_constructors_project_material_list_path(@project, @material_list)) %>
     <% end %>
   </div>
 
   <div class="grid gap-6 lg:grid-cols-3">
     <div class="lg:col-span-2 space-y-6">
       <% if policy(@material_list).update? %>
-        <div class="rounded-2xl border border-slate-200 bg-white p-4 shadow-sm"
+        <div class="qb-card"
              data-controller="toggle-form"
              data-toggle-form-open-value="<%= @material_item.errors.any? %>">
           <div class="flex flex-wrap items-center justify-between gap-3">
             <div>
-              <p class="text-sm font-semibold text-slate-700">Cargar materiales</p>
-              <p class="text-xs text-slate-500">Sumá insumos de a uno para construir la lista.</p>
+              <p style="font-size:13px;font-weight:600;color:var(--color-ink);">Cargar materiales</p>
+              <p style="font-size:11px;color:var(--color-ink-4);">Sumá insumos de a uno para construir la lista.</p>
             </div>
             <button type="button"
-                    class="inline-flex items-center rounded-full border border-emerald-200 px-3 py-1.5 text-xs font-semibold uppercase tracking-wide text-emerald-700 transition hover:border-emerald-300 hover:bg-emerald-50"
+                    style="display:inline-flex;align-items:center;border-radius:var(--radius);border:1px solid var(--color-line);padding:6px 12px;font-size:11px;font-weight:600;text-transform:uppercase;letter-spacing:0.05em;color:var(--color-ok);transition:border-color 0.1s,background 0.1s;"
                     data-action="toggle-form#toggle"
                     data-toggle-form-target="button"
                     aria-expanded="false">
@@ -73,23 +76,23 @@
     </div>
 
     <div class="space-y-4">
-      <div class="rounded-2xl border border-slate-200 bg-white p-4 shadow-sm">
-        <p class="text-sm font-medium text-slate-600 uppercase tracking-wide">Estado</p>
-        <p class="mt-2 text-lg font-semibold text-slate-900"><%= @material_list.status.humanize %></p>
+      <div class="qb-card">
+        <p class="qb-section-title">Estado</p>
+        <p class="mt-2" style="font-size:16px;font-weight:600;color:var(--color-ink);"><%= @material_list.status.humanize %></p>
         <% if @material_list.approved_at.present? %>
-          <p class="mt-2 text-sm text-slate-500">Aprobada el <%= l(@material_list.approved_at, format: :long) %>.</p>
+          <p class="mt-2" style="font-size:13px;color:var(--color-ink-3);">Aprobada el <%= l(@material_list.approved_at, format: :long) %>.</p>
         <% else %>
-          <p class="mt-2 text-sm text-slate-500">Actualizá el estado cuando la lista esté validada por tu equipo.</p>
+          <p class="mt-2" style="font-size:13px;color:var(--color-ink-3);">Actualizá el estado cuando la lista esté validada por tu equipo.</p>
         <% end %>
       </div>
 
-      <div class="rounded-2xl border border-slate-200 bg-white p-4 shadow-sm">
-        <p class="text-sm font-medium text-slate-600 uppercase tracking-wide">Visibilidad</p>
+      <div class="qb-card">
+        <p class="qb-section-title">Visibilidad</p>
         <% publication = @material_list.material_list_publication %>
-        <p class="mt-2 text-lg font-semibold text-slate-900">
+        <p class="mt-2" style="font-size:16px;font-weight:600;color:var(--color-ink);">
           <%= publication&.visibility_public? ? "Permitido presupuestar" : "Uso interno" %>
         </p>
-        <p class="mt-2 text-sm text-slate-500">
+        <p class="mt-2" style="font-size:13px;color:var(--color-ink-3);">
           <% if publication&.visibility_public? %>
             Publicada el <%= l(publication.published_at || @material_list.updated_at, format: :long) %>.
           <% else %>
@@ -98,19 +101,20 @@
         </p>
       </div>
 
-      <div class="rounded-2xl border border-slate-200 bg-white p-4 shadow-sm">
-        <p class="text-sm font-medium text-slate-600 uppercase tracking-wide">Notas</p>
-        <p class="mt-2 text-sm text-slate-700 whitespace-pre-line">
+      <div class="qb-card">
+        <p class="qb-section-title">Notas</p>
+        <p class="mt-2" style="font-size:13px;color:var(--color-ink-2);white-space:pre-line;">
           <%= @material_list.notes.presence || "Sin notas por el momento." %>
         </p>
       </div>
 
       <% if @material_list.source_file.attached? %>
-        <div class="rounded-2xl border border-slate-200 bg-white p-4 shadow-sm">
-          <p class="text-sm font-medium text-slate-600 uppercase tracking-wide">Archivo adjunto</p>
+        <div class="qb-card">
+          <p class="qb-section-title">Archivo adjunto</p>
           <%= link_to @material_list.source_file.filename,
                       rails_blob_path(@material_list.source_file, disposition: :attachment),
-                      class: "mt-2 inline-flex items-center text-sm font-semibold text-indigo-700 hover:text-indigo-600" %>
+                      class: "mt-2 inline-flex items-center",
+                      style: "font-size:13px;font-weight:600;color:var(--color-accent);" %>
         </div>
       <% end %>
     </div>

@@ -1,0 +1,36 @@
+<div>
+  <div class="qb-section-title">
+    <span>Notas · <%= notes.size %></span>
+  </div>
+
+  <% if notes.empty? %>
+    <div class="qb-empty">
+      Aún no hay notas.
+    </div>
+  <% else %>
+    <div style="display:flex;flex-direction:column;gap:6px;">
+      <% notes.each do |note| %>
+        <div class="qb-card" style="padding:10px 12px;">
+          <div style="display:flex;align-items:flex-start;justify-content:space-between;gap:12px;">
+            <div style="flex:1;min-width:0;">
+              <% if note.title.present? %>
+                <div style="font-size:12.5px;font-weight:600;color:var(--color-ink);margin-bottom:3px;"><%= note.title %></div>
+              <% end %>
+              <div style="font-size:12px;color:var(--color-ink-2);">
+                <%= simple_format(note.body) %>
+              </div>
+              <div style="margin-top:5px;font-size:10px;color:var(--color-ink-4);font-family:var(--font-mono);">
+                <%= note.author.email %> · <%= time_ago_in_words(note.created_at) %> atrás
+              </div>
+            </div>
+            <div style="flex-shrink:0;">
+              <%= render Qb::BtnComponent.new('Eliminar', variant: :danger, size: :xs,
+                    href: delete_path(note),
+                    data: { turbo_method: :delete, turbo_confirm: '¿Eliminar esta nota?' }) %>
+            </div>
+          </div>
+        </div>
+      <% end %>
+    </div>
+  <% end %>
+</div>

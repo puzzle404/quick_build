@@ -1,42 +1,42 @@
 <%= render Constructors::Projects::SectionsNavComponent.new(project: @project, current_section: :documents) %>
 
 <div class="mt-6 space-y-6">
-  <%= render Ui::SectionHeaderComponent.new(title: 'Imágenes del proyecto', subtitle: 'Fotografías y evidencias visuales de la obra') %>
+  <%= render Qb::SectionHeadComponent.new(title: 'Imágenes del proyecto', subtitle: 'Fotografías y evidencias visuales de la obra') %>
 
-  <section class="rounded-3xl border border-slate-200 bg-white p-6 shadow-sm">
+  <section class="qb-card">
     <div class="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
-      <h2 class="text-lg font-semibold text-slate-900">Subir imágenes</h2>
+      <h2 style="font-size:15px;font-weight:600;color:var(--color-ink);">Subir imágenes</h2>
       <%= form_with scope: :image, url: constructors_project_images_path(@project), html: { multipart: true }, class: "flex items-center gap-3" do |f| %>
-        <label class="inline-flex cursor-pointer items-center gap-2 rounded-full border border-slate-200 bg-white px-4 py-2 text-sm font-semibold text-slate-700 shadow-sm hover:border-slate-300 hover:text-slate-900">
-          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" class="h-4 w-4 fill-current"><path d="M19 13v6a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2v-6H3l9-9l9 9h-2zm-7 5h2v-4h3l-4-4l-4 4h3v4z"/></svg>
+        <label style="display:inline-flex;cursor:pointer;align-items:center;gap:8px;border-radius:var(--radius);border:1px solid var(--color-line);background:var(--color-bg);padding:6px 14px;font-size:13px;font-weight:600;color:var(--color-ink-2);">
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" style="height:16px;width:16px;fill:currentColor;"><path d="M19 13v6a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2v-6H3l9-9l9 9h-2zm-7 5h2v-4h3l-4-4l-4 4h3v4z"/></svg>
           Agregar imágenes
           <%= f.file_field :files, multiple: true, accept: 'image/*', class: 'hidden' %>
         </label>
-        <%= render Ui::ButtonComponent.new(label: 'Subir', type: :submit, variant: :primary, size: :sm) %>
+        <%= render Qb::BtnComponent.new('Subir', variant: :primary, size: :sm, type: 'submit') %>
       <% end %>
     </div>
 
     <% if @images.any? %>
       <div class="mt-5 grid grid-cols-2 gap-4 sm:grid-cols-3 lg:grid-cols-4">
         <% @images.each do |image| %>
-          <div class="overflow-hidden rounded-xl border border-slate-200 bg-slate-50">
+          <div style="overflow:hidden;border-radius:var(--radius);border:1px solid var(--color-line);background:var(--color-bg-sunken);">
             <% if image.file.variable? %>
-              <%= image_tag image.file.variant(resize_to_fill: [480, 320]), class: "h-40 w-full object-cover" %>
+              <%= image_tag image.file.variant(resize_to_fill: [480, 320]), style: "height:160px;width:100%;object-fit:cover;" %>
             <% else %>
-              <div class="flex h-40 w-full items-center justify-center text-xs text-slate-500">Imagen</div>
+              <div style="display:flex;height:160px;width:100%;align-items:center;justify-content:center;font-size:11px;color:var(--color-ink-4);">Imagen</div>
             <% end %>
-            <div class="flex items-center justify-between border-t border-slate-100 p-2 text-xs">
-              <span class="truncate" title="<%= image.title.presence || image.file_filename.to_s %>"><%= image.title.presence || image.file_filename.to_s %></span>
-              <div class="flex items-center gap-2">
-                <%= link_to 'Abrir', url_for(image.file), target: '_blank', class: 'font-medium text-slate-600 hover:text-slate-800' %>
-                <%= button_to 'Eliminar', constructors_project_image_path(@project, image), method: :delete, class: 'font-medium text-red-600 hover:text-red-700', data: { turbo_confirm: '¿Eliminar esta imagen?' } %>
+            <div style="display:flex;align-items:center;justify-content:space-between;border-top:1px solid var(--color-line);padding:6px 8px;font-size:11px;">
+              <span style="overflow:hidden;text-overflow:ellipsis;white-space:nowrap;" title="<%= image.title.presence || image.file_filename.to_s %>"><%= image.title.presence || image.file_filename.to_s %></span>
+              <div style="display:flex;align-items:center;gap:8px;">
+                <%= link_to 'Abrir', url_for(image.file), target: '_blank', style: "font-weight:500;color:var(--color-ink-2);" %>
+                <%= button_to 'Eliminar', constructors_project_image_path(@project, image), method: :delete, style: "font-weight:500;color:var(--color-bad);background:none;border:none;cursor:pointer;padding:0;font-size:inherit;font-family:inherit;", data: { turbo_confirm: '¿Eliminar esta imagen?' } %>
               </div>
             </div>
           </div>
         <% end %>
       </div>
     <% else %>
-      <p class="mt-4 text-sm text-slate-500">Aún no se cargaron imágenes para este proyecto.</p>
+      <p class="mt-4 qb-empty">Aún no se cargaron imágenes para este proyecto.</p>
     <% end %>
   </section>
 </div>

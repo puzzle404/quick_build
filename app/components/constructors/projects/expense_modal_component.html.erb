@@ -1,0 +1,65 @@
+<div data-qb--modal-target="dialog" role="dialog" aria-modal="true"
+     class="hidden"
+     data-action="click->qb--modal#backdrop keydown@window->qb--modal#keydown"
+     style="display:flex;position:fixed;inset:0;z-index:60;background:rgba(0,0,0,0.45);align-items:center;justify-content:center;">
+  <div data-qb--modal-target="panel"
+       style="position:relative;width:480px;max-width:calc(100vw - 32px);background:var(--color-bg);border:1px solid var(--color-line);border-radius:10px;overflow:hidden;box-shadow:0 20px 50px -10px rgba(0,0,0,0.4);text-align:left;">
+
+    <div style="padding:14px 18px;border-bottom:1px solid var(--color-line);display:flex;justify-content:space-between;align-items:center;">
+      <div>
+        <h3 style="margin:0;font-size:15px;font-weight:600;color:var(--color-ink);">Registrar nuevo gasto</h3>
+        <div style="font-size:12px;color:var(--color-ink-3);margin-top:2px;">Se asocia al proyecto. No necesita estar ligado a una etapa.</div>
+      </div>
+      <%= render Qb::BtnComponent.new('', variant: :ghost, size: :sm, icon: :x, aria_label: 'Cerrar',
+                                      data: { action: 'click->qb--modal#close' }) %>
+    </div>
+
+    <%= form_with url: form_url, scope: :expense, multipart: true, html: { style: 'display:flex;flex-direction:column;' } do |form| %>
+      <div style="padding:18px;">
+        <% if expense.errors.any? %>
+          <div class="qb-form-error">
+            <p style="font-weight:600;margin:0 0 4px;">No pudimos guardar el gasto:</p>
+            <ul style="margin:0;padding-left:16px;">
+              <% expense.errors.full_messages.each do |message| %>
+                <li><%= message %></li>
+              <% end %>
+            </ul>
+          </div>
+        <% end %>
+
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;">
+          <div class="qb-field" style="margin-bottom:0;">
+            <%= form.label :incurred_on, "Fecha", class: "qb-label" %>
+            <%= form.date_field :incurred_on, value: expense.incurred_on || Date.today, class: "qb-input" %>
+          </div>
+          <div class="qb-field" style="margin-bottom:0;">
+            <%= form.label :amount_cents, "Monto (centavos)", class: "qb-label" %>
+            <%= form.number_field :amount_cents, min: 1, required: true, value: expense.amount_cents, class: "qb-input" %>
+          </div>
+        </div>
+
+        <div class="qb-field" style="margin-top:12px;">
+          <%= form.label :category, "Categoría", class: "qb-label" %>
+          <%= form.select :category, category_options, { selected: expense.category, prompt: "Seleccionar categoría" }, class: "qb-select" %>
+        </div>
+
+        <div class="qb-field">
+          <%= form.label :description, "Descripción", class: "qb-label" %>
+          <%= form.text_area :description, rows: 2, value: expense.description, class: "qb-textarea" %>
+        </div>
+
+        <div class="qb-field" style="margin-bottom:0;">
+          <%= form.label :receipt, "Comprobante (JPG, PNG, PDF)", class: "qb-label" %>
+          <%= form.file_field :receipt, accept: "image/jpeg,image/png,application/pdf",
+                style: "display:block;font-size:12px;color:var(--color-ink-2);width:100%;" %>
+        </div>
+      </div>
+
+      <div style="padding:12px 18px;border-top:1px solid var(--color-line);display:flex;gap:8px;justify-content:flex-end;background:var(--color-bg-raised);">
+        <%= render Qb::BtnComponent.new('Cancelar', variant: :ghost, size: :sm,
+                                        data: { action: 'click->qb--modal#close' }) %>
+        <%= render Qb::BtnComponent.new('Guardar gasto', variant: :primary, size: :sm, icon: :plus, type: 'submit') %>
+      </div>
+    <% end %>
+  </div>
+</div>

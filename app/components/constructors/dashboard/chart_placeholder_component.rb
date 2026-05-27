@@ -7,7 +7,7 @@ module Constructors
         @title = title
         @evolution = evolution
         @selected_months = selected_months.to_i
-        @selected_months = 6 unless [6, 12].include?(@selected_months)
+        @selected_months = 6 unless [ 6, 12 ].include?(@selected_months)
       end
 
       private
@@ -22,10 +22,6 @@ module Constructors
         vals = evolution.dig(:series, series_key, :values)
         return Array.new((evolution[:labels] || []).size, 0) if vals.blank?
         vals.map(&:to_i)
-      end
-
-      def currency(amount_cents)
-        helpers.number_to_currency((amount_cents.to_i / 100.0), unit: 'ARS ')
       end
     end
   end

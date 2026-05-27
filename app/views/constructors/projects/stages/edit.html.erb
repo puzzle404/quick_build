@@ -2,11 +2,11 @@
 
 <div class="mt-6 space-y-6">
   <header class="space-y-2">
-    <h1 class="text-2xl font-semibold text-slate-900">Editar etapa</h1>
-    <p class="text-sm text-slate-500">Actualizá la información principal y las fechas para mantener a tu equipo alineado.</p>
+    <h1 style="font-size:22px;font-weight:600;color:var(--color-ink);">Editar etapa</h1>
+    <p style="font-size:13px;color:var(--color-ink-3);">Actualizá la información principal y las fechas para mantener a tu equipo alineado.</p>
   </header>
 
-  <section class="rounded-2xl border border-slate-200 bg-white p-6 shadow-sm">
+  <section class="qb-card">
     <%= render Constructors::Projects::Stages::StageFormComponent.new(project: @project, stage: @stage) %>
   </section>
 </div>

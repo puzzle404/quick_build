@@ -26,13 +26,13 @@ end
 # ─────────────────────────────────────────────────────────────────────
 
 PROJECTS = [
-  { code: 'PRJ-042', name: 'Torre Palermo · Edificio Aurora',       client: 'Inmobiliaria Delta S.A.', location: 'Av. Santa Fe 3421, CABA', lat: -34.5895, lng: -58.4113, status: :in_progress, start: '2025-11-04', due: '2026-08-18', planned_progress: 68, budget: 84_500_000, curve: [0,3,8,15,23,31,40,48,55,64], plan: [0,5,10,17,26,34,43,52,60,68] },
-  { code: 'PRJ-039', name: 'Casa Pilar · Lote 14 Altos del Río',    client: 'Familia Ibarra',           location: 'Pilar, Buenos Aires',      lat: -34.4588, lng: -58.9144, status: :in_progress, start: '2026-01-12', due: '2026-07-30', planned_progress: 42, budget: 18_200_000, curve: [0,4,9,14,20,25,28,30,31], plan: [0,6,13,20,27,33,38,40,42] },
-  { code: 'PRJ-037', name: 'Ampliación Depósito Vicente López',     client: 'Logística Norte',          location: 'V. López, BA',             lat: -34.5253, lng: -58.4730, status: :in_progress, start: '2025-09-22', due: '2026-05-10', planned_progress: 80, budget: 32_700_000, curve: [0,8,17,28,40,52,63,71,77,82], plan: [0,7,15,25,38,50,60,70,76,80] },
-  { code: 'PRJ-044', name: 'Local Comercial Recoleta',              client: 'Grupo Estrella',           location: 'Callao 1120, CABA',        lat: -34.5955, lng: -58.3925, status: :planned,     start: '2026-05-01', due: '2026-11-15', planned_progress: 0,  budget: 14_800_000, curve: [0], plan: [0] },
-  { code: 'PRJ-040', name: 'Quincho + Pileta Nordelta',             client: 'Martín Ríos',              location: 'Nordelta, Tigre',          lat: -34.4093, lng: -58.6487, status: :in_progress, start: '2025-12-05', due: '2026-04-22', planned_progress: 72, budget: 9_400_000,  curve: [0,8,18,28,36,42,46,48], plan: [0,12,26,40,52,62,68,72] },
-  { code: 'PRJ-031', name: 'Refuncionalización Oficinas Retiro',    client: 'BancoSur',                 location: 'San Martín 140, CABA',     lat: -34.5968, lng: -58.3738, status: :completed,   start: '2025-05-10', due: '2025-12-20', planned_progress: 100, budget: 27_500_000, curve: [0,11,22,34,48,62,74,85,94,100], plan: [0,10,22,35,48,60,72,84,93,100] },
-  { code: 'PRJ-045', name: 'Loft San Telmo · Reforma integral',     client: 'Lucía Bianchi',            location: 'Defensa 820, CABA',        lat: -34.6187, lng: -58.3712, status: :planned,     start: '2026-04-28', due: '2026-10-10', planned_progress: 8,  budget: 11_300_000, curve: [0,2,4], plan: [0,4,8] }
+  { code: 'PRJ-042', name: 'Torre Palermo · Edificio Aurora',       client: 'Inmobiliaria Delta S.A.', location: 'Av. Santa Fe 3421, CABA', lat: -34.5895, lng: -58.4113, status: :in_progress, start: '2025-11-04', due: '2026-08-18', planned_progress: 68, budget: 84_500_000, curve: [ 0, 3, 8, 15, 23, 31, 40, 48, 55, 64 ], plan: [ 0, 5, 10, 17, 26, 34, 43, 52, 60, 68 ] },
+  { code: 'PRJ-039', name: 'Casa Pilar · Lote 14 Altos del Río',    client: 'Familia Ibarra',           location: 'Pilar, Buenos Aires',      lat: -34.4588, lng: -58.9144, status: :in_progress, start: '2026-01-12', due: '2026-07-30', planned_progress: 42, budget: 18_200_000, curve: [ 0, 4, 9, 14, 20, 25, 28, 30, 31 ], plan: [ 0, 6, 13, 20, 27, 33, 38, 40, 42 ] },
+  { code: 'PRJ-037', name: 'Ampliación Depósito Vicente López',     client: 'Logística Norte',          location: 'V. López, BA',             lat: -34.5253, lng: -58.4730, status: :in_progress, start: '2025-09-22', due: '2026-05-10', planned_progress: 80, budget: 32_700_000, curve: [ 0, 8, 17, 28, 40, 52, 63, 71, 77, 82 ], plan: [ 0, 7, 15, 25, 38, 50, 60, 70, 76, 80 ] },
+  { code: 'PRJ-044', name: 'Local Comercial Recoleta',              client: 'Grupo Estrella',           location: 'Callao 1120, CABA',        lat: -34.5955, lng: -58.3925, status: :planned,     start: '2026-05-01', due: '2026-11-15', planned_progress: 0,  budget: 14_800_000, curve: [ 0 ], plan: [ 0 ] },
+  { code: 'PRJ-040', name: 'Quincho + Pileta Nordelta',             client: 'Martín Ríos',              location: 'Nordelta, Tigre',          lat: -34.4093, lng: -58.6487, status: :in_progress, start: '2025-12-05', due: '2026-04-22', planned_progress: 72, budget: 9_400_000,  curve: [ 0, 8, 18, 28, 36, 42, 46, 48 ], plan: [ 0, 12, 26, 40, 52, 62, 68, 72 ] },
+  { code: 'PRJ-031', name: 'Refuncionalización Oficinas Retiro',    client: 'BancoSur',                 location: 'San Martín 140, CABA',     lat: -34.5968, lng: -58.3738, status: :completed,   start: '2025-05-10', due: '2025-12-20', planned_progress: 100, budget: 27_500_000, curve: [ 0, 11, 22, 34, 48, 62, 74, 85, 94, 100 ], plan: [ 0, 10, 22, 35, 48, 60, 72, 84, 93, 100 ] },
+  { code: 'PRJ-045', name: 'Loft San Telmo · Reforma integral',     client: 'Lucía Bianchi',            location: 'Defensa 820, CABA',        lat: -34.6187, lng: -58.3712, status: :planned,     start: '2026-04-28', due: '2026-10-10', planned_progress: 8,  budget: 11_300_000, curve: [ 0, 2, 4 ], plan: [ 0, 4, 8 ] }
 ].freeze
 
 projects_by_code = {}
@@ -168,7 +168,7 @@ TEAM = [
 people_total = 0
 
 projects_by_code.values.each do |project|
-  count_for_project = project.status.to_s == 'completed' ? 0 : [TEAM.size, project.project_stages.count + 1].min
+  count_for_project = project.status.to_s == 'completed' ? 0 : [ TEAM.size, project.project_stages.count + 1 ].min
   TEAM.first(count_for_project).each do |t|
     person = project.project_people.find_or_initialize_by(full_name: t[:name])
     person.assign_attributes(role_title: t[:role], phone: t[:phone], status: :active, start_date: project.start_date)
@@ -271,5 +271,138 @@ MATERIAL_LISTS.each do |project_code, lists|
 end
 
 puts "[redesign_demo] #{lists_total} listas con #{items_total} ítems."
+
+# ─────────────────────────────────────────────────────────────────────
+# Expenses — gastos demo para PRJ-042
+# ─────────────────────────────────────────────────────────────────────
+
+prj042 = projects_by_code['PRJ-042']
+
+if prj042
+  stage_mamposteria = prj042.project_stages.root.find_by(name: 'Mampostería')
+  stage_estructura   = prj042.project_stages.root.find_by(name: 'Estructura')
+
+  # Gasto 1: Scoped a la etapa de Mampostería
+  if stage_mamposteria
+    Expense.find_or_initialize_by(
+      project:       prj042,
+      project_stage: stage_mamposteria,
+      incurred_on:   Date.parse('2026-03-15')
+    ).tap do |e|
+      e.assign_attributes(
+        amount_cents: 1_850_000_00,
+        category:     :materials_misc,
+        description:  'Compra de ladrillos huecos 18×18×33 para muros interiores — partida 2',
+        author:       constructor
+      )
+      e.save!
+    end
+  end
+
+  # Gasto 2: Scoped solo al proyecto (sin etapa)
+  Expense.find_or_initialize_by(
+    project:       prj042,
+    project_stage: nil,
+    incurred_on:   Date.parse('2026-04-02')
+  ).tap do |e|
+    e.assign_attributes(
+      amount_cents: 3_200_000_00,
+      category:     :labor,
+      description:  'Pago de jornales semana 13 — cuadrilla de mampostería y sanitarios',
+      author:       constructor
+    )
+    e.save!
+  end
+
+  # Gasto 3: Alquiler de andamio (proyecto-scoped)
+  Expense.find_or_initialize_by(
+    project:       prj042,
+    project_stage: nil,
+    incurred_on:   Date.parse('2026-02-28')
+  ).tap do |e|
+    e.assign_attributes(
+      amount_cents: 420_000_00,
+      category:     :rentals,
+      description:  'Alquiler de andamio tubular por 30 días — fachada sur',
+      author:       constructor
+    )
+    e.save!
+  end
+
+  puts "[redesign_demo] Gastos demo sembrados para #{prj042.name}."
+end
+
+# ─────────────────────────────────────────────────────────────────────
+# Notes — notas demo para PRJ-042
+# ─────────────────────────────────────────────────────────────────────
+
+if prj042
+  stage_estructura = prj042.project_stages.root.find_by(name: 'Estructura')
+
+  # Nota 1: sobre el proyecto
+  Note.find_or_initialize_by(
+    noteable: prj042,
+    title:    'Reunión de avance — abril 2026'
+  ).tap do |n|
+    n.assign_attributes(
+      body:   "Se realizó la reunión mensual con el comitente Inmobiliaria Delta S.A.\n\n" \
+              "Puntos clave:\n" \
+              "- El avance de mampostería alcanzó el 78%, levemente por debajo del plan (80%).\n" \
+              "- Se aprobó el cambio de proveedor de ladrillos vistos para la fachada sur.\n" \
+              "- Próxima entrega parcial estimada para el 20 de mayo de 2026.\n\n" \
+              "Acción: M. Fernández coordina actualización del cronograma con F. López.",
+      author: constructor
+    )
+    n.save!
+  end
+
+  # Nota 2: sobre la etapa de Estructura
+  if stage_estructura
+    Note.find_or_initialize_by(
+      noteable: stage_estructura,
+      title:    'Observación de inspector — losas 1°–3°'
+    ).tap do |n|
+      n.assign_attributes(
+        body:   "El inspector de obra constató que las losas de 1° a 3° piso están dentro de " \
+                "tolerancia según plano A-03 rev.1. Se aprobó el hormigonado de losa 3° para el " \
+                "jueves 30/01/2026.\n\n" \
+                "Nota: verificar curado mínimo 7 días antes de cargar andamio superior.",
+        author: constructor
+      )
+      n.save!
+    end
+  end
+
+  puts "[redesign_demo] Notas demo sembradas para #{prj042.name}."
+end
+
+# ─────────────────────────────────────────────────────────────────────
+# Predecessor — Estructura precede a Instalaciones sanitarias
+# Estructura end: 2026-02-20  /  Inst. sanitarias start: 2026-02-25
+# ─────────────────────────────────────────────────────────────────────
+
+if prj042
+  etapa_estructura   = prj042.project_stages.root.find_by(name: 'Estructura')
+  etapa_sanitarias   = prj042.project_stages.root.find_by(name: 'Instalaciones sanitarias')
+
+  if etapa_estructura && etapa_sanitarias && etapa_sanitarias.predecessor_id.nil?
+    etapa_sanitarias.update!(predecessor: etapa_estructura)
+    puts "[redesign_demo] Predecesora: '#{etapa_estructura.name}' → '#{etapa_sanitarias.name}'."
+  end
+end
+
+# ─────────────────────────────────────────────────────────────────────
+# Featured image — si PRJ-042 ya tiene imágenes, marcar la primera
+# ─────────────────────────────────────────────────────────────────────
+
+if prj042
+  first_image = prj042.images.where(featured: false).first || prj042.images.first
+  if first_image && !prj042.images.where(featured: true).exists?
+    first_image.update!(featured: true)
+    puts "[redesign_demo] Imagen destacada asignada para #{prj042.name}."
+  else
+    puts "[redesign_demo] Sin imágenes adjuntas — se omite imagen destacada."
+  end
+end
 
 puts "[redesign_demo] Demo seed completo ✓"

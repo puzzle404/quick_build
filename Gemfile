@@ -74,6 +74,7 @@ group :test do
   gem "selenium-webdriver"
   gem 'shoulda-matchers', require: false
   gem 'cuprite'
+  gem 'webmock', require: false
 end
 
 

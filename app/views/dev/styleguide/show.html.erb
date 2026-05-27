@@ -161,5 +161,69 @@
         <% end %>
       </div>
     </section>
+
+    <%# ─── ExchangeRates widget ──────────────────────── %>
+    <section style="margin-bottom:36px;">
+      <%= render Qb::SectionHeadComponent.new(title: 'ExchangeRatesComponent', subtitle: 'Widget tipo de cambio USD/ARS — con datos') %>
+      <div style="padding:16px;max-width:320px;border:1px solid var(--color-line);border-radius:6px;background:var(--color-bg-raised);">
+        <%= render Constructors::Dashboard::ExchangeRatesComponent.new(
+              rates: {
+                oficial: { compra: 1045, venta: 1085 },
+                blue:    { compra: 1200, venta: 1250 },
+                stale:   false
+              }
+            ) %>
+      </div>
+    </section>
+
+    <%# ─── ExchangeRates widget (stale) ─────────────── %>
+    <section style="margin-bottom:36px;">
+      <%= render Qb::SectionHeadComponent.new(title: 'ExchangeRatesComponent (stale)', subtitle: 'Sin datos / desactualizado') %>
+      <div style="padding:16px;max-width:320px;border:1px solid var(--color-line);border-radius:6px;background:var(--color-bg-raised);">
+        <%= render Constructors::Dashboard::ExchangeRatesComponent.new(rates: nil) %>
+      </div>
+    </section>
+
+    <%# ─── Weather widget ────────────────────────────── %>
+    <section style="margin-bottom:36px;">
+      <%= render Qb::SectionHeadComponent.new(title: 'WeatherComponent', subtitle: 'Widget de clima — 1 día de muestra') %>
+      <div style="padding:16px;max-width:320px;border:1px solid var(--color-line);border-radius:6px;background:var(--color-bg-raised);">
+        <%= render Constructors::Projects::WeatherComponent.new(
+              forecast: {
+                days: [
+                  { date: Date.current.to_s,                  max: 28, min: 19, icon: "01d", description: "soleado" },
+                  { date: (Date.current + 1).to_s,            max: 24, min: 16, icon: "02d", description: "parcialmente nublado" },
+                  { date: (Date.current + 2).to_s,            max: 20, min: 14, icon: "10d", description: "lluvioso" }
+                ],
+                stale: false
+              },
+              project: Project.new(location: "CABA")
+            ) %>
+      </div>
+    </section>
+
+    <%# ─── ExpensesListComponent (empty state) ───────── %>
+    <section style="margin-bottom:36px;">
+      <%= render Qb::SectionHeadComponent.new(title: 'ExpensesListComponent', subtitle: 'Empty state — sin gastos') %>
+      <div style="padding:16px;">
+        <%= render Constructors::Projects::ExpensesListComponent.new(
+              expenses: [],
+              project:  Project.new
+            ) %>
+      </div>
+    </section>
+
+    <%# ─── NotesListComponent (empty state) ─────────── %>
+    <section style="margin-bottom:36px;">
+      <%= render Qb::SectionHeadComponent.new(title: 'NotesListComponent', subtitle: 'Empty state — sin notas') %>
+      <div style="padding:16px;">
+        <%= render Constructors::Projects::NotesListComponent.new(
+              notes:    [],
+              noteable: Project.new,
+              project:  Project.new
+            ) %>
+      </div>
+    </section>
+
   </div>
 </div>
