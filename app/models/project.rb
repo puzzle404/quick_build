@@ -1,8 +1,8 @@
 class Project < ApplicationRecord
   include PgSearch::Model
-  enum :status, [ :planned, :in_progress, :completed]
-  
-  belongs_to :owner, class_name: 'User'
+  enum :status, [ :planned, :in_progress, :completed ]
+
+  belongs_to :owner, class_name: "User"
   has_many :project_memberships, dependent: :destroy
   has_many :members, through: :project_memberships, source: :user
   has_many :project_stages, dependent: :destroy
@@ -19,8 +19,12 @@ class Project < ApplicationRecord
   validates :name, presence: true
 
   pg_search_scope :search_text,
-                  against: [:name, :location],
+                  against: [ :name, :location ],
                   using: { tsearch: { prefix: true } }
+
+  def progress_percent
+    Projects::ProgressCalculator.new(self).percent
+  end
 
   # Helper para saber si el proyecto tiene ubicación
   def located?
