@@ -1,6 +1,19 @@
-<%= render Constructors::Projects::SectionsNavComponent.new(project: @project, current_section: :materials) %>
-
-<div class="mt-6 max-w-4xl space-y-6">
-  <%= render Qb::SectionHeadComponent.new(title: 'Nueva lista de materiales', subtitle: 'Cargá manualmente tus ítems o adjuntá archivos que quieras mantener junto a la obra.') %>
-  <%= render "form" %>
-</div>
+<%# Nueva lista de materiales.
+    - turbo_frame_request (desde un botón con data-turbo-frame="project_modal"):
+      renderiza el modal QB OS dentro del frame project_modal; qb--modal lo
+      auto-abre al cargarse. Mismo approach que stages/new (sidebar de etapa).
+    - full page (acceso directo): el mismo modal, visible sobre la pantalla. %>
+<% if turbo_frame_request? %>
+  <%= turbo_frame_tag "project_modal" do %>
+    <div data-controller="qb--modal" data-qb--modal-open-on-connect-value="true">
+      <%= render Constructors::Projects::Materials::NewListModalComponent.new(
+            project: @project, stage: @material_list.project_stage) %>
+    </div>
+  <% end %>
+<% else %>
+  <%= render Constructors::Projects::SectionsNavComponent.new(project: @project, current_section: :materials) %>
+  <div data-controller="qb--modal" data-qb--modal-open-on-connect-value="true">
+    <%= render Constructors::Projects::Materials::NewListModalComponent.new(
+          project: @project, stage: @material_list.project_stage) %>
+  </div>
+<% end %>

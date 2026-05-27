@@ -14,7 +14,16 @@
       </button>
     </div>
 
-    <%= form_with url: constructors_project_material_lists_path(project), method: :post, html: { style: 'display:flex;flex-direction:column;' } do |f| %>
+    <%# data-turbo-frame _top: when this modal is loaded inside the project_modal
+        Turbo Frame, the success redirect must break out to a full-page visit
+        (the show page has no project_modal frame). Harmless when used inline. %>
+    <%# scope: :material_list → fields post as material_list[...] which is what
+        the controller's params.require(:material_list) expects. Sin scope, el
+        POST fallaba con ParameterMissing. %>
+    <%= form_with url: constructors_project_material_lists_path(project), method: :post,
+                  scope: :material_list,
+                  data: { turbo_frame: '_top' },
+                  html: { style: 'display:flex;flex-direction:column;' } do |f| %>
       <div style="padding:18px;display:flex;flex-direction:column;gap:14px;">
         <label style="display:flex;flex-direction:column;gap:5px;">
           <span style="font-size:11px;font-weight:500;color:var(--color-ink-2);">Nombre <span style="color:var(--color-accent);">*</span></span>
@@ -24,7 +33,7 @@
 
         <label style="display:flex;flex-direction:column;gap:5px;">
           <span style="font-size:11px;font-weight:500;color:var(--color-ink-2);">Etapa asociada (opcional)</span>
-          <%= f.select :project_stage_id, [['— Sin etapa asociada —', '']] + stage_options, {},
+          <%= f.select :project_stage_id, [['— Sin etapa asociada —', '']] + stage_options, { selected: selected_stage_id },
                         style: 'width:100%;padding:8px 10px;font-size:13px;border:1px solid var(--color-line);border-radius:5px;background:var(--color-bg);color:var(--color-ink);outline:none;font-family:inherit;' %>
         </label>
 
