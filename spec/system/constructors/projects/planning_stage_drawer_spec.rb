@@ -21,13 +21,16 @@ RSpec.describe "Planning stage drawer", type: :system do
     # Esperar que el frame haya cargado el detalle de la etapa
     expect(page).to have_text("Fundaciones", wait: 5)
 
-    # El form de gasto está dentro del frame cargado — abrir el disclosure
-    find("summary", text: /Nuevo gasto/i).click
+    # Hacer click en el tab "Gastos" del panel de trabajo
+    find(".tab", text: /Gastos/).click
+
+    # Abrir el modal de nuevo gasto
+    find("button", text: /Nuevo gasto/i).click
 
     fill_in "Monto (centavos)", with: "15000"
     select "Mano de obra", from: "Categoría"
     fill_in "Descripción", with: "Jornal del lunes"
-    click_button "Registrar gasto"
+    click_button "Guardar gasto"
 
     expect(page).to have_text("Gasto registrado correctamente")
     expect(page).to have_text("Jornal del lunes")

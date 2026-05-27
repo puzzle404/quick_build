@@ -9,18 +9,21 @@ RSpec.describe "Adding an expense to a stage", type: :system do
 
   before { sign_in_user(owner) }
 
-  it "owner can add an expense and see it in the list" do
+  it "owner can add an expense via the Gastos tab modal and see it in the list" do
     visit constructors_project_stage_path(project, stage)
 
-    # Open the expense form disclosure
-    find("summary", text: "Nuevo gasto").click
+    # Click the "Gastos" tab in the tabbed panel
+    find(".tab", text: /Gastos/).click
 
-    # Fill in the form fields
+    # Click the "Nuevo gasto" button to open the modal
+    find("button", text: /Nuevo gasto/i).click
+
+    # Fill in the form fields inside the modal
     fill_in "Monto (centavos)", with: "250000"
     select "Mano de obra", from: "Categoría"
     fill_in "Descripción", with: "Pago de jornales semana 1"
 
-    click_button "Registrar gasto"
+    click_button "Guardar gasto"
 
     expect(page).to have_text("Gasto registrado correctamente")
     expect(page).to have_text("Pago de jornales semana 1")
