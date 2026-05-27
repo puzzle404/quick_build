@@ -1,0 +1,58 @@
+# frozen_string_literal: true
+
+module Constructors
+  class ExpensesController < Constructors::BaseController
+    before_action :set_project
+    before_action :set_stage, only: [ :create, :destroy ]
+
+    def create
+      @expense = @project.expenses.new(expense_params)
+      @expense.project_stage = @stage if @stage
+      @expense.author = current_user
+      authorize @expense
+
+      if @expense.save
+        redirect_to redirect_path, notice: "Gasto registrado correctamente."
+      else
+        redirect_back(
+          fallback_location: redirect_path,
+          alert: @expense.errors.full_messages.to_sentence
+        )
+      end
+    end
+
+    def destroy
+      @expense = @project.expenses.find(params[:id])
+      authorize @expense
+
+      @expense.destroy
+      redirect_back fallback_location: redirect_path, notice: "Gasto eliminado."
+    end
+
+    private
+
+    def set_project
+      @project = current_user.owned_projects.find(params[:project_id])
+    end
+
+    def set_stage
+      return unless params[:stage_id].present?
+
+      @stage = @project.project_stages.find(params[:stage_id])
+    end
+
+    def expense_params
+      params.require(:expense).permit(
+        :amount_cents, :currency, :category, :incurred_on, :description, :receipt
+      )
+    end
+
+    def redirect_path
+      if @stage
+        constructors_project_stage_path(@project, @stage)
+      else
+        constructors_project_path(@project)
+      end
+    end
+  end
+end

@@ -33,4 +33,11 @@
   </div>
 
     <%= render Constructors::Projects::Stages::SubstageTableComponent.new(project: @project, stage: @stage, substages: @sub_stages) if @stage.parent.nil? %>
+
+  <%= render Constructors::Projects::ExpenseFormComponent.new(project: @project, stage: @stage) %>
+  <%= render Constructors::Projects::ExpensesListComponent.new(
+        expenses: @stage.expenses.recent_first,
+        project: @project,
+        stage: @stage
+      ) %>
 </div>
