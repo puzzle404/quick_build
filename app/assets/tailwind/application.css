@@ -281,6 +281,15 @@
     color: var(--color-ink-4);
   }
 
+  /* ─── Blueprint viewer toolbar · active tool ─────────────── */
+  /* The blueprint-viewer Stimulus controller sets data-active="true" on the
+     active scale/measure tool button. */
+  .bp-tool[data-active] {
+    background: color-mix(in oklab, var(--color-accent) 12%, transparent) !important;
+    border-color: var(--color-accent) !important;
+    color: var(--color-accent) !important;
+  }
+
   /* ─── Sidebar collapse ───────────────────────────────────── */
   /* Three-state model: default (media-query driven), forced-expanded, forced-collapsed.
      The user's stored preference (qb-sidebar-{collapsed,expanded}) wins over

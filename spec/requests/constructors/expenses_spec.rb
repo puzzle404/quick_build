@@ -49,6 +49,36 @@ RSpec.describe "Constructors::Expenses", type: :request do
     end
   end
 
+  describe "POST project-scoped /constructors/projects/:project_id/expenses" do
+    context "as project owner" do
+      before { sign_in(owner) }
+
+      it "creates an expense with no stage and redirects to the project" do
+        expect {
+          post constructors_project_expenses_path(project), params: valid_params
+        }.to change(Expense, :count).by(1)
+
+        expense = Expense.last
+        expect(expense.project).to eq(project)
+        expect(expense.project_stage).to be_nil
+        expect(expense.author).to eq(owner)
+        expect(response).to redirect_to(constructors_project_path(project))
+      end
+    end
+
+    context "as non-owner" do
+      before { sign_in(other) }
+
+      it "is blocked (project scope raises RecordNotFound) and creates nothing" do
+        expect {
+          post constructors_project_expenses_path(project), params: valid_params
+        }.not_to change(Expense, :count)
+
+        expect(response).to have_http_status(:not_found)
+      end
+    end
+  end
+
   describe "DELETE project-scoped /constructors/projects/:project_id/expenses/:id" do
     before { sign_in(owner) }
 
