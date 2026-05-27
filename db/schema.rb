@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.0].define(version: 2026_05_22_215805) do
+ActiveRecord::Schema[8.0].define(version: 2026_05_27_002013) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
 
@@ -188,7 +188,9 @@ ActiveRecord::Schema[8.0].define(version: 2026_05_22_215805) do
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
     t.bigint "project_stage_id"
+    t.integer "number"
     t.index ["author_id"], name: "index_material_lists_on_author_id"
+    t.index ["project_id", "number"], name: "index_material_lists_on_project_id_and_number", unique: true
     t.index ["project_id", "project_stage_id"], name: "index_material_lists_on_project_id_and_project_stage_id"
     t.index ["project_id", "status"], name: "index_material_lists_on_project_id_and_status"
     t.index ["project_id"], name: "index_material_lists_on_project_id"

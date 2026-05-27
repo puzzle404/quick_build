@@ -102,7 +102,7 @@
               <%= link_to constructors_project_material_list_path(project, list),
                           style: 'border:1px solid var(--color-line);border-radius:6px;padding:8px 10px;background:var(--color-bg-raised);text-decoration:none;color:inherit;display:block;' do %>
                 <div style="display:flex;align-items:center;gap:8px;margin-bottom:2px;">
-                  <span style="font-size:12.5px;font-weight:500;"><%= list.name %></span>
+                  <span style="font-size:12.5px;font-weight:500;"><%= "#{list.display_number} #{list.name}".strip %></span>
                   <%= render Qb::PillComponent.new(tone: list_status_tone(list), compact: true) { list_status_label(list) } %>
                 </div>
                 <div style="font-size:11px;color:var(--color-ink-3);display:flex;justify-content:space-between;">
