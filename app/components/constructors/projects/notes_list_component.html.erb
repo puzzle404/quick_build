@@ -17,8 +17,8 @@
               <% if note.title.present? %>
                 <h3 class="text-sm font-semibold text-slate-900"><%= note.title %></h3>
               <% end %>
-              <div class="mt-1 text-sm text-slate-700">
-                <%= simple_format(note.body, class: "prose-sm") %>
+              <div class="prose-sm mt-1 text-sm text-slate-700">
+                <%= simple_format(note.body) %>
               </div>
               <p class="mt-2 text-xs text-slate-400">
                 <%= note.author.email %> &middot; <%= time_ago_in_words(note.created_at) %> atrás

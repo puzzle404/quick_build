@@ -43,7 +43,7 @@
 
   <%= render Constructors::Projects::NoteFormComponent.new(noteable: @stage, project: @project) %>
   <%= render Constructors::Projects::NotesListComponent.new(
-        notes: @stage.notes.recent_first,
+        notes: @stage.notes.recent_first.includes(:author),
         noteable: @stage,
         project: @project
       ) %>

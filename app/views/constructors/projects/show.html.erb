@@ -37,7 +37,7 @@
       <div class="px-4 py-4 space-y-4">
         <%= render Constructors::Projects::NoteFormComponent.new(noteable: @project, project: @project) %>
         <%= render Constructors::Projects::NotesListComponent.new(
-              notes: @project.notes.recent_first,
+              notes: @project.notes.recent_first.includes(:author),
               noteable: @project,
               project: @project
             ) %>

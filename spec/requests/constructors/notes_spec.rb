@@ -73,4 +73,15 @@ RSpec.describe "Constructors::Notes", type: :request do
       }.to change(Note, :count).by(-1)
     end
   end
+
+  describe "DELETE stage-scoped /constructors/projects/:project_id/stages/:stage_id/notes/:id" do
+    before { sign_in(owner) }
+
+    it "borra una nota del stage" do
+      note = create(:note, noteable: stage, author: owner)
+      expect {
+        delete constructors_project_stage_note_path(project, stage, note)
+      }.to change(Note, :count).by(-1)
+    end
+  end
 end
