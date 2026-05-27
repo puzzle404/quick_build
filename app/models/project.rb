@@ -30,4 +30,8 @@ class Project < ApplicationRecord
   def located?
     latitude.present? && longitude.present?
   end
+
+  def spent_to_date_cents
+    Projects::SpendSummary.new(self).total_cents
+  end
 end
