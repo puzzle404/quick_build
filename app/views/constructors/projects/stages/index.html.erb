@@ -65,7 +65,8 @@
     <% if @root_stages.any? %>
       <div id="planning_stages" style="padding:16px;display:flex;flex-direction:column;gap:12px;">
         <% @root_stages.each do |stage| %>
-          <%= render Constructors::Projects::Planning::StageCardComponent.new(project: @project, stage: stage, sub_stages: stage.sub_stages.order(:position, :name)) %>
+          <%# sort_by sobre la asociación eager-loaded (.order dispararía 1 query por etapa) %>
+          <%= render Constructors::Projects::Planning::StageCardComponent.new(project: @project, stage: stage, sub_stages: stage.sub_stages.sort_by { |s| [s.position.to_i, s.name.to_s] }) %>
         <% end %>
       </div>
     <% else %>

@@ -1,6 +1,8 @@
-<div data-controller="qb--drawer" style="display:contents;">
-<button type="button" data-action="click->qb--drawer#open"
-        style="border:1px solid var(--color-line);border-radius:8px;background:var(--color-bg-raised);padding:14px;cursor:pointer;display:flex;flex-direction:column;gap:10px;min-height:170px;text-align:left;color:inherit;font:inherit;width:100%;">
+<%# El detalle se carga lazy en el frame project_modal (ya no se embebe un
+    drawer por cada card, que era lo que volvía pesado el índice). %>
+<%= link_to constructors_project_material_list_path(project, list),
+        data: { turbo_frame: 'project_modal' },
+        style: "border:1px solid var(--color-line);border-radius:8px;background:var(--color-bg-raised);padding:14px;cursor:pointer;display:flex;flex-direction:column;gap:10px;min-height:170px;text-align:left;color:inherit;font:inherit;width:100%;text-decoration:none;" do %>
   <%# Header %>
   <div style="display:flex;align-items:flex-start;gap:10px;">
     <div style="width:32px;height:32px;border-radius:7px;flex-shrink:0;background:<%= is_pdf? ? 'color-mix(in oklab, var(--color-accent) 16%, transparent)' : 'var(--color-bg-sunken)' %>;color:<%= is_pdf? ? 'var(--color-accent)' : 'var(--color-ink-2)' %>;display:flex;align-items:center;justify-content:center;">
@@ -49,8 +51,4 @@
     <span style="flex:1;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;"><%= author_name %></span>
     <span class="qb-mono" style="color:var(--color-ink-4);"><%= helpers.qb_fmt_date_short(list.created_at) %></span>
   </div>
-</button>
-
-<%# Detail slide-over · open via the card button above %>
-<%= render Constructors::Projects::Materials::ListDetailComponent.new(project: project, list: list) %>
-</div>
+<% end %>

@@ -8,8 +8,14 @@ class Constructors::Dashboard::ExchangeRatesComponent < ViewComponent::Base
 
   DEFAULT_RATES = { oficial: {}, blue: {}, stale: true }.freeze
 
-  def initialize(rates: nil)
+  # compact: una sola línea horizontal para la barra superior del dashboard.
+  def initialize(rates: nil, compact: false)
     @rates = rates&.is_a?(Hash) ? rates : DEFAULT_RATES
+    @compact = compact
+  end
+
+  def compact?
+    @compact
   end
 
   def stale?

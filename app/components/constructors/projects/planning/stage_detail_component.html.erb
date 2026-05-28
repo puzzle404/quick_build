@@ -130,7 +130,7 @@
         <div class="sd-list-empty">Todavía no hay listas de materiales en esta etapa.</div>
       <% else %>
         <% linked_lists.each do |list| %>
-          <%= link_to constructors_project_material_list_path(project, list), class: 'sd-list-row', data: { turbo_frame: '_top' } do %>
+          <%= link_to constructors_project_material_list_path(project, list), class: 'sd-list-row', data: { turbo_frame: 'project_modal' } do %>
             <div class="sd-list-main">
               <div class="sd-list-title">
                 <%= "#{list.display_number} #{list.name}".strip %>

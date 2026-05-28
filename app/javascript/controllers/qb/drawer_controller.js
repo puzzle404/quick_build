@@ -16,12 +16,18 @@ import { Controller } from "@hotwired/stimulus"
 // Click on the backdrop (outside `panel`) closes; ESC also closes.
 export default class extends Controller {
   static targets = ["dialog", "panel"]
+  // openOnConnect: true for drawers lazily loaded into the project_modal Turbo
+  // Frame (e.g. the material-list detail). They must appear as soon as the
+  // frame swaps them in. Inline drawers leave it false (open via their trigger).
+  static values = { openOnConnect: Boolean }
 
   // Hide the dialog on connect — markup ships without inline display:none
   // so rack_test specs can interact with the form fields. Without JS the
-  // drawer stays visible (degraded UX but functional).
+  // drawer stays visible (degraded UX but functional). A drawer rendered
+  // inside the project_modal frame opens immediately.
   connect() {
-    this._setOpen(false)
+    const inProjectModalFrame = this.element.closest("turbo-frame#project_modal") != null
+    this._setOpen(this.openOnConnectValue === true || inProjectModalFrame)
   }
 
   open()  { this._setOpen(true) }

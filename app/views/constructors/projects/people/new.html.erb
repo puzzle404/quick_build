@@ -1,6 +1,42 @@
-<%= render Constructors::Projects::SectionsNavComponent.new(project: @project, current_section: :people) %>
+<%# Nueva persona.
+    - turbo_frame_request (botón con data-turbo-frame="project_modal"): modal QB OS
+      dentro del frame project_modal; qb--modal lo auto-abre. Mismo approach que stages/new.
+    - full page (acceso directo): el mismo formulario sobre la pantalla. %>
+<% if turbo_frame_request? %>
+  <%= turbo_frame_tag "project_modal" do %>
+    <div data-controller="qb--modal" data-qb--modal-open-on-connect-value="true">
+    <div data-qb--modal-target="dialog" role="dialog" aria-modal="true"
+         class="hidden"
+         data-action="click->qb--modal#backdrop keydown@window->qb--modal#keydown"
+         style="display:flex;position:fixed;inset:0;z-index:60;background:rgba(0,0,0,0.45);align-items:center;justify-content:center;">
+      <div data-qb--modal-target="panel"
+           style="position:relative;width:640px;max-height:86vh;background:var(--color-bg);border:1px solid var(--color-line);border-radius:10px;overflow:hidden;display:flex;flex-direction:column;box-shadow:0 20px 50px -10px rgba(0,0,0,0.4);">
 
-<div class="mt-6 max-w-3xl space-y-6">
-  <%= render Qb::SectionHeadComponent.new(title: 'Nueva persona', subtitle: 'Cargá los datos básicos del trabajador u oficio.') %>
-  <%= render Constructors::Projects::People::PersonFormComponent.new(project: @project, person: @person) %>
-</div>
+        <div style="padding:14px 18px;border-bottom:1px solid var(--color-line);display:flex;justify-content:space-between;align-items:center;">
+          <div>
+            <div style="font-size:10px;font-family:var(--font-mono);text-transform:uppercase;letter-spacing:0.7px;color:var(--color-accent);margin-bottom:4px;">Equipo</div>
+            <h3 style="margin:0;font-size:15px;font-weight:600;color:var(--color-ink);">Nueva persona</h3>
+            <div style="font-size:12px;color:var(--color-ink-3);margin-top:2px;">Cargá los datos básicos del trabajador u oficio.</div>
+          </div>
+          <button type="button" data-action="click->qb--modal#close" aria-label="Cerrar"
+                  style="background:transparent;border:none;color:var(--color-ink-3);cursor:pointer;">
+            <%= render Qb::IconComponent.new(name: :x, size: 16) %>
+          </button>
+        </div>
+
+        <div style="flex:1;overflow:auto;padding:18px;">
+          <div class="qb-card" style="padding:16px;">
+            <%= render Constructors::Projects::People::PersonFormComponent.new(project: @project, person: @person) %>
+          </div>
+        </div>
+      </div>
+    </div>
+    </div>
+  <% end %>
+<% else %>
+  <%= render Constructors::Projects::SectionsNavComponent.new(project: @project, current_section: :people) %>
+  <div class="mt-6 max-w-3xl space-y-6">
+    <%= render Qb::SectionHeadComponent.new(title: 'Nueva persona', subtitle: 'Cargá los datos básicos del trabajador u oficio.') %>
+    <%= render Constructors::Projects::People::PersonFormComponent.new(project: @project, person: @person) %>
+  </div>
+<% end %>

@@ -38,7 +38,8 @@
   </div>
 
   <div class="qb-form-actions">
-    <%= render Qb::BtnComponent.new("Cancelar", variant: :secondary, size: :md, href: helpers.constructors_project_people_path(project)) %>
+    <%# _top: dentro del modal (project_modal) navega al índice en vez de cargarlo dentro del frame. %>
+    <%= render Qb::BtnComponent.new("Cancelar", variant: :secondary, size: :md, href: helpers.constructors_project_people_path(project), data: { turbo_frame: '_top' }) %>
     <%= render Qb::BtnComponent.new(person.persisted? ? "Guardar cambios" : "Crear persona", variant: :primary, size: :md, type: 'submit') %>
   </div>
 <% end %>

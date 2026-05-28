@@ -15,27 +15,35 @@ class Constructors::Projects::Planning::GanttComponent < ViewComponent::Base
 
   attr_reader :project
 
+  # Memoized: `rows` is read repeatedly (date_range, total_days, months_grid,
+  # today_pct + the template), and `sub_stages` is sorted in Ruby on the
+  # eager-loaded association — using `.order` here would fire one query per
+  # root every time rows is recomputed (the planning N+1).
   def rows
-    out = []
-    @root_stages.each do |root|
-      out << Row.new(stage: ProjectStageDecorator.new(root), depth: 0)
-      root.sub_stages.order(:position, :name).each do |sub|
-        out << Row.new(stage: ProjectStageDecorator.new(sub), depth: 1)
+    @rows ||= begin
+      out = []
+      @root_stages.each do |root|
+        out << Row.new(stage: ProjectStageDecorator.new(root), depth: 0)
+        root.sub_stages.sort_by { |s| [s.position.to_i, s.name.to_s] }.each do |sub|
+          out << Row.new(stage: ProjectStageDecorator.new(sub), depth: 1)
+        end
       end
+      out
     end
-    out
   end
 
   # Derive the chart's time window from the actual stages. Both bounds are
   # Date values so subtraction stays integer-days (TimeWithZone would break
   # `(rs[1] - rs[0]).to_i` with "can't convert Date into an exact number").
   def date_range
-    starts = rows.map { |r| r.stage.start_date }.compact
-    ends   = rows.map { |r| r.stage.end_date }.compact
-    if starts.empty?
-      [Date.current.beginning_of_month, (Date.current >> 6).end_of_month]
-    else
-      [starts.min.beginning_of_month, [ends.max, Date.current].compact.max.end_of_month]
+    @date_range ||= begin
+      starts = rows.map { |r| r.stage.start_date }.compact
+      ends   = rows.map { |r| r.stage.end_date }.compact
+      if starts.empty?
+        [Date.current.beginning_of_month, (Date.current >> 6).end_of_month]
+      else
+        [starts.min.beginning_of_month, [ends.max, Date.current].compact.max.end_of_month]
+      end
     end
   end
 

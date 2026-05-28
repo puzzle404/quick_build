@@ -1,3 +1,14 @@
+<%# Turbo Frame (clic en una card o en una fila de lista dentro del sidebar de
+    etapa, con data-turbo-frame="project_modal"): el detalle se abre como
+    slide-over QB OS dentro del frame, sin recargar la página ni embeber un
+    drawer por cada lista en el índice. qb--drawer auto-abre al cargarse. %>
+<% if turbo_frame_request? %>
+  <%= turbo_frame_tag "project_modal" do %>
+    <div data-controller="qb--drawer">
+      <%= render Constructors::Projects::Materials::ListDetailComponent.new(project: @project, list: @material_list) %>
+    </div>
+  <% end %>
+<% else %>
 <%= render Constructors::Projects::SectionsNavComponent.new(project: @project, current_section: :materials) %>
 
 <div class="space-y-6">
@@ -120,3 +131,4 @@
     </div>
   </div>
 </div>
+<% end %>
