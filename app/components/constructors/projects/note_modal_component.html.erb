@@ -1,0 +1,45 @@
+<div data-qb--modal-target="dialog" role="dialog" aria-modal="true"
+     class="hidden"
+     data-action="click->qb--modal#backdrop keydown@window->qb--modal#keydown"
+     style="display:flex;position:fixed;inset:0;z-index:60;background:rgba(0,0,0,0.45);align-items:center;justify-content:center;">
+  <div data-qb--modal-target="panel"
+       style="position:relative;width:480px;max-width:calc(100vw - 32px);background:var(--color-bg);border:1px solid var(--color-line);border-radius:10px;overflow:hidden;box-shadow:0 20px 50px -10px rgba(0,0,0,0.4);text-align:left;">
+
+    <div style="padding:14px 18px;border-bottom:1px solid var(--color-line);display:flex;justify-content:space-between;align-items:center;">
+      <div>
+        <h3 style="margin:0;font-size:15px;font-weight:600;color:var(--color-ink);">Nueva nota</h3>
+        <% if stage_scoped? %>
+          <div style="font-size:12px;color:var(--color-ink-3);margin-top:2px;">Se asocia a la etapa seleccionada.</div>
+        <% else %>
+          <div style="font-size:12px;color:var(--color-ink-3);margin-top:2px;">Se asocia al proyecto.</div>
+        <% end %>
+      </div>
+      <%= render Qb::BtnComponent.new('', variant: :ghost, size: :sm, icon: :x, aria_label: 'Cerrar',
+                                      data: { action: 'click->qb--modal#close' }) %>
+    </div>
+
+    <%# turbo:submit-end -> cierra la modal y resetea el form si la creación
+        fue exitosa; si hay validation error, queda abierta. %>
+    <%= form_with url: form_url, scope: :note,
+                  data: { action: 'turbo:submit-end->qb--modal#closeOnSuccess' },
+                  html: { style: 'display:flex;flex-direction:column;' } do |form| %>
+      <div style="padding:18px;">
+        <div class="qb-field">
+          <%= form.label :title, "Título (opcional)", class: "qb-label" %>
+          <%= form.text_field :title, class: "qb-input" %>
+        </div>
+
+        <div class="qb-field">
+          <%= form.label :body, "Nota", class: "qb-label" %>
+          <%= form.text_area :body, rows: 4, required: true, class: "qb-textarea" %>
+        </div>
+      </div>
+
+      <div style="padding:12px 18px;border-top:1px solid var(--color-line);display:flex;gap:8px;justify-content:flex-end;background:var(--color-bg-raised);">
+        <%= render Qb::BtnComponent.new('Cancelar', variant: :ghost, size: :sm,
+                                        data: { action: 'click->qb--modal#close' }) %>
+        <%= render Qb::BtnComponent.new('Guardar', variant: :primary, size: :sm, icon: :plus, type: 'submit') %>
+      </div>
+    <% end %>
+  </div>
+</div>

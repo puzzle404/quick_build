@@ -1,0 +1,2 @@
+module HotwireHelper
+end

@@ -1,0 +1,61 @@
+<% content_for :title, "Crear cuenta · Quick Build" %>
+
+<%= render Qb::Mobile::NavBarComponent.new(title: "Crear cuenta", back: true, back_href: new_session_path) %>
+
+<div style="padding: 12px 24px 24px;">
+  <h1 style="margin: 0 0 8px; font-size: 28px; font-weight: 700; letter-spacing: -0.6px;">Empezá en 60 segundos</h1>
+  <p style="margin: 0 0 24px; color: var(--color-ink-3); font-size: 14.5px; line-height: 1.45;">
+    Después podés invitar a tu equipo y vincular tu primer proyecto.
+  </p>
+
+  <%= form_with model: @user, url: registration_path, local: true do |f| %>
+    <% if flash[:alert] %>
+      <div role="alert" style="margin-bottom:14px;padding:10px 12px;border-radius:10px;background:color-mix(in oklab, var(--color-bad) 12%, transparent);color:var(--color-bad);font-size:13px;">
+        <%= flash[:alert] %>
+      </div>
+    <% end %>
+
+    <%= render Qb::Mobile::FormGroupComponent.new do %>
+      <%= render Qb::Mobile::FormRowComponent.new(
+            label: "Email de trabajo",
+            name: "user[email]",
+            type: "email",
+            value: @user.email,
+            placeholder: "tu@empresa.com.ar",
+            autocomplete: "email",
+            required: true) %>
+      <%= render Qb::Mobile::FormRowComponent.new(
+            label: "Contraseña",
+            name: "user[password]",
+            type: "password",
+            placeholder: "••••••••",
+            autocomplete: "new-password",
+            helper: "Mín. 6 caracteres.",
+            required: true) %>
+      <%= render Qb::Mobile::FormRowComponent.new(
+            label: "Repetir contraseña",
+            name: "user[password_confirmation]",
+            type: "password",
+            placeholder: "••••••••",
+            autocomplete: "new-password",
+            required: true) %>
+    <% end %>
+
+    <% if @user.errors.any? %>
+      <div role="alert" style="margin-bottom:14px;padding:10px 12px;border-radius:10px;background:color-mix(in oklab, var(--color-bad) 12%, transparent);color:var(--color-bad);font-size:13px;">
+        <%= @user.errors.full_messages.to_sentence %>
+      </div>
+    <% end %>
+
+    <label style="display:flex;gap:10px;margin: 4px 0 20px;font-size:12.5px;color:var(--color-ink-2);line-height:1.4;">
+      <input type="checkbox" checked style="accent-color: var(--color-accent); margin-top: 2px; flex-shrink: 0;"/>
+      <span>Acepto los <a href="#" style="color: var(--color-accent);">Términos</a> y la <a href="#" style="color: var(--color-accent);">Política de privacidad</a>.</span>
+    </label>
+
+    <%= render Qb::Mobile::ButtonComponent.new("Crear cuenta", variant: :primary, size: :lg, full: true, icon_right: 'arrow-right', type: 'submit') %>
+  <% end %>
+
+  <p style="margin: 20px 0 0; text-align: center; font-size: 13px; color: var(--color-ink-3);">
+    ¿Ya tenés cuenta? <%= link_to "Iniciar sesión", new_session_path, style: "color: var(--color-accent); font-weight: 600; text-decoration: none;", data: { turbo_frame: "_top" } %>
+  </p>
+</div>

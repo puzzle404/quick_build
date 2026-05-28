@@ -1,0 +1,45 @@
+<%= form_with model: person,
+              url: person.persisted? ? helpers.constructors_project_person_path(project, person) : helpers.constructors_project_people_path(project),
+              method: person.persisted? ? :patch : :post do |form| %>
+  <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;">
+    <div class="qb-field" style="margin-bottom:0;grid-column:span 2;">
+      <%= form.label :full_name, "Nombre y apellido", class: "qb-label" %>
+      <%= form.text_field :full_name, class: "qb-input" %>
+    </div>
+    <div class="qb-field" style="margin-bottom:0;">
+      <%= form.label :role_title, "Rol / oficio", class: "qb-label" %>
+      <%= form.text_field :role_title, class: "qb-input" %>
+    </div>
+    <div class="qb-field" style="margin-bottom:0;">
+      <%= form.label :document_id, "Documento", class: "qb-label" %>
+      <%= form.text_field :document_id, class: "qb-input" %>
+    </div>
+    <div class="qb-field" style="margin-bottom:0;">
+      <%= form.label :phone, "Teléfono", class: "qb-label" %>
+      <%= form.text_field :phone, class: "qb-input" %>
+    </div>
+    <div class="qb-field" style="margin-bottom:0;">
+      <%= form.label :status, "Estado", class: "qb-label" %>
+      <%= form.select :status, ProjectPerson.statuses.keys.map { |k| [ k.humanize, k ] }, {}, class: "qb-select" %>
+    </div>
+    <div class="qb-field" style="margin-bottom:0;">
+      <%= form.label :start_date, "Inicio", class: "qb-label" %>
+      <%= form.date_field :start_date, class: "qb-input" %>
+    </div>
+    <div class="qb-field" style="margin-bottom:0;">
+      <%= form.label :end_date, "Fin", class: "qb-label" %>
+      <%= form.date_field :end_date, class: "qb-input" %>
+    </div>
+  </div>
+
+  <div class="qb-field" style="margin-top:14px;">
+    <%= form.label :notes, "Notas", class: "qb-label" %>
+    <%= form.text_area :notes, rows: 3, class: "qb-textarea" %>
+  </div>
+
+  <div class="qb-form-actions">
+    <%# _top: dentro del modal (project_modal) navega al índice en vez de cargarlo dentro del frame. %>
+    <%= render Qb::BtnComponent.new("Cancelar", variant: :secondary, size: :md, href: helpers.constructors_project_people_path(project), data: { turbo_frame: '_top' }) %>
+    <%= render Qb::BtnComponent.new(person.persisted? ? "Guardar cambios" : "Crear persona", variant: :primary, size: :md, type: 'submit') %>
+  </div>
+<% end %>

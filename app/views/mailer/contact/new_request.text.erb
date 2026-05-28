@@ -1,0 +1,9 @@
+Nuevo contacto recibido
+
+Nombre: <%= @contact_message.name %>
+Email: <%= @contact_message.email %>
+WhatsApp/Teléfono: <%= @contact_message.phone.presence || "No especificado" %>
+Empresa: <%= @contact_message.company.presence || "No especificada" %>
+
+Mensaje:
+<%= @contact_message.message %>

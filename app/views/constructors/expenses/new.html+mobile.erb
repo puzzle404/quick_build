@@ -1,0 +1,49 @@
+<% content_for :title, "Nuevo gasto · #{@project.name}" %>
+<%
+  back = @stage ? constructors_project_stage_path(@project, @stage) : constructors_project_path(@project)
+  form_url = @stage ? constructors_project_stage_expenses_path(@project, @stage) : constructors_project_expenses_path(@project)
+  category_options = Expense.categories.keys.map { |k|
+    label = { 'labor' => 'Mano de obra', 'materials_misc' => 'Materiales / varios', 'rentals' => 'Alquileres', 'other' => 'Otro' }[k]
+    [label, k]
+  }
+%>
+
+<%= render Qb::Mobile::NavBarComponent.new(title: "Nuevo gasto", back: true, back_href: back) %>
+
+<div style="padding: 4px 20px 12px;">
+  <h1 style="margin: 0; font-size: 22px; font-weight: 700; letter-spacing: -0.4px;">Registrar gasto</h1>
+  <p style="margin: 4px 0 0; font-size: 13.5px; color: var(--color-ink-3); line-height: 1.4;">
+    <%= @stage ? "Se asocia a la etapa #{@stage.name}." : "Se asocia al proyecto." %>
+  </p>
+</div>
+
+<%= form_with model: @expense, url: form_url, local: true, html: { multipart: true, style: "padding: 0 16px;" } do |f| %>
+  <%= render Qb::Mobile::FormGroupComponent.new(title: "Monto") do %>
+    <%= render Qb::Mobile::FormAmountRowComponent.new(label: "Total", name: "expense[amount_cents]", value: @expense.amount_cents) %>
+    <%= render Qb::Mobile::FormRowComponent.new(label: "Moneda", name: "expense[currency]", select: true, options: [['ARS', 'ARS'], ['USD', 'USD']], value: @expense.currency || 'ARS') %>
+  <% end %>
+
+  <%= render Qb::Mobile::FormGroupComponent.new(title: "Datos") do %>
+    <%= render Qb::Mobile::FormRowComponent.new(
+          label: "Categoría", name: "expense[category]", select: true,
+          options: category_options, value: @expense.category) %>
+    <%= render Qb::Mobile::FormRowComponent.new(
+          label: "Fecha", name: "expense[incurred_on]", type: 'date',
+          value: @expense.incurred_on, required: true) %>
+    <%= render Qb::Mobile::FormRowComponent.new(
+          label: "Descripción", name: "expense[description]", value: @expense.description, textarea: true,
+          placeholder: "¿Qué se compró / pagó?") %>
+  <% end %>
+
+  <%= render Qb::Mobile::FormGroupComponent.new(title: "Comprobante (opcional)") do %>
+    <div class="m-frow">
+      <label class="m-frow-label">Archivo</label>
+      <%= f.file_field :receipt, accept: "image/*,application/pdf", class: "m-frow-input" %>
+    </div>
+  <% end %>
+
+  <div style="display:flex;gap:10px;padding-bottom:24px;">
+    <%= link_to "Cancelar", back, class: "m-btn m-btn--secondary m-btn--md", style: "flex:1;text-decoration:none;" %>
+    <%= f.submit "Registrar gasto", class: "m-btn m-btn--md", style: "flex:1.4;" %>
+  </div>
+<% end %>

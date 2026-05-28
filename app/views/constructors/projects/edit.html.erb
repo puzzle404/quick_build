@@ -1,0 +1,118 @@
+<div class="w-full" style="padding-bottom:56px;">
+  <section class="qb-card" style="margin-bottom:24px;">
+    <div style="display:flex;flex-direction:column;gap:24px;">
+      <div>
+        <p style="font-size:11px;font-family:var(--font-mono);text-transform:uppercase;letter-spacing:0.7px;color:var(--color-accent);margin-bottom:8px;">
+          Edición de obra
+        </p>
+        <div>
+          <h1 style="font-size:24px;font-weight:600;color:var(--color-ink);margin-bottom:4px;">Actualizar información del proyecto</h1>
+          <p style="font-size:13px;color:var(--color-ink-2);">
+            Ajusta los datos clave de la obra para mantener al equipo sincronizado. Los cambios se reflejan en los tableros y reportes en tiempo real.
+          </p>
+        </div>
+      </div>
+      <div style="display:flex;gap:8px;">
+        <%= render Qb::BtnComponent.new("Ver resumen", variant: :secondary, size: :sm, href: constructors_project_path(@project)) %>
+        <%= render Qb::BtnComponent.new("Volver al listado", variant: :ghost, size: :sm, href: constructors_projects_path) %>
+      </div>
+    </div>
+  </section>
+
+  <div style="display:grid;grid-template-columns:minmax(0,2fr) minmax(0,1fr);gap:24px;">
+    <section class="qb-card">
+      <div style="display:flex;flex-direction:column;gap:8px;border-bottom:1px solid var(--color-line);padding-bottom:20px;margin-bottom:24px;">
+        <div>
+          <h2 style="font-size:15px;font-weight:600;color:var(--color-ink);margin-bottom:2px;">Datos del proyecto</h2>
+          <p style="font-size:12px;color:var(--color-ink-3);">Completa la información operativa para planificar y coordinar actividades.</p>
+        </div>
+        <span style="font-size:11px;font-family:var(--font-mono);color:var(--color-ink-3);">
+          Última edición <%= time_ago_in_words(@project.updated_at || @project.created_at) %>
+        </span>
+      </div>
+
+      <%= render "form", project: @project %>
+
+      <div class="qb-card" style="margin-top:16px;border-style:dashed;">
+        <p style="font-size:12px;font-weight:600;color:var(--color-ink-2);margin-bottom:4px;">Consejo:</p>
+        <p style="font-size:12px;color:var(--color-ink-2);line-height:1.5;">
+          Mantén las fechas actualizadas para desbloquear los tableros de Gantt y la curva S. Si aún no conoces el fin estimado, déjalo en blanco y podrás completarlo más adelante.
+        </p>
+      </div>
+    </section>
+
+    <aside style="display:flex;flex-direction:column;gap:16px;">
+      <div class="qb-card">
+        <h2 style="font-size:11px;font-family:var(--font-mono);text-transform:uppercase;letter-spacing:0.7px;color:var(--color-ink-3);margin-bottom:12px;">Resumen operativo</h2>
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:0;border:1px solid var(--color-line);border-radius:var(--radius);overflow:hidden;">
+          <%= render Qb::MetricCellComponent.new(
+                label: "Estado",
+                value: @project_summary.status.humanize,
+                hint: "Define cómo se mostrará en tableros y reportes."
+              ) %>
+          <%= render Qb::MetricCellComponent.new(
+                label: "Duración estimada",
+                value: @project_summary.duration_text || "—",
+                hint: @project_summary.duration_hint
+              ) %>
+          <%= render Qb::MetricCellComponent.new(
+                label: "Inicio programado",
+                value: formatted_project_date(@project_summary.start_date)
+              ) %>
+          <%= render Qb::MetricCellComponent.new(
+                label: "Fin estimado",
+                value: formatted_project_date(@project_summary.end_date)
+              ) %>
+        </div>
+      </div>
+
+      <div class="qb-card">
+        <h2 style="font-size:11px;font-family:var(--font-mono);text-transform:uppercase;letter-spacing:0.7px;color:var(--color-ink-3);margin-bottom:12px;">Accesos rápidos</h2>
+        <ul style="display:flex;flex-direction:column;gap:10px;list-style:none;margin:0;padding:0;">
+          <li style="display:flex;align-items:center;justify-content:space-between;border-radius:var(--radius);background:var(--color-bg-raised);border:1px solid var(--color-line);padding:10px 12px;">
+            <div>
+              <p style="font-size:12px;font-weight:600;color:var(--color-ink);margin-bottom:2px;">Equipo y permisos</p>
+              <p style="font-size:11px;color:var(--color-ink-3);">Gestiona administradores, responsables y observadores.</p>
+            </div>
+            <%= link_to constructors_project_path(@project, anchor: "project-team-members"), style: "color:var(--color-accent);" do %>
+              <span class="sr-only">Ir al equipo</span>
+              <svg xmlns="http://www.w3.org/2000/svg" style="height:16px;width:16px;" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="m9 5 7 7-7 7" />
+              </svg>
+            <% end %>
+          </li>
+          <li style="display:flex;align-items:center;justify-content:space-between;border-radius:var(--radius);border:1px solid var(--color-line);padding:10px 12px;">
+            <div>
+              <p style="font-size:12px;font-weight:600;color:var(--color-ink);margin-bottom:2px;">Documentos y evidencia</p>
+              <p style="font-size:11px;color:var(--color-ink-3);">Agrega planos, fotos y respaldos clave del proyecto.</p>
+            </div>
+            <span style="font-size:11px;font-family:var(--font-mono);color:var(--color-ink-3);"><%= @project_summary.attachments_count %> archivos</span>
+          </li>
+          <li style="display:flex;align-items:center;justify-content:space-between;border-radius:var(--radius);border:1px solid var(--color-line);padding:10px 12px;">
+            <div>
+              <p style="font-size:12px;font-weight:600;color:var(--color-ink);margin-bottom:2px;">Responsable principal</p>
+              <p style="font-size:11px;color:var(--color-ink-3);"><%= @project_summary.owner.email %></p>
+            </div>
+            <span style="display:inline-flex;height:8px;width:8px;border-radius:50%;background:var(--color-accent);"></span>
+          </li>
+        </ul>
+      </div>
+
+      <div class="qb-card">
+        <h2 style="font-size:11px;font-family:var(--font-mono);text-transform:uppercase;letter-spacing:0.7px;color:var(--color-ink-3);margin-bottom:12px;">Vista previa de imágenes</h2>
+        <% if @project.images.any? %>
+          <div style="display:flex;gap:10px;overflow-x:auto;padding-bottom:4px;">
+            <% @project.images.limit(8).each do |image| %>
+              <% preview = image.file.variable? ? image.file.variant(resize_to_fill: [180, 120]) : image.file %>
+              <div style="height:96px;width:144px;flex-shrink:0;overflow:hidden;border-radius:var(--radius);border:1px solid var(--color-line);background:var(--color-bg-raised);">
+                <%= image_tag preview, style: "height:100%;width:100%;object-fit:cover;", alt: image.title || image.file_filename.to_s %>
+              </div>
+            <% end %>
+          </div>
+        <% else %>
+          <p style="font-size:12px;color:var(--color-ink-3);">Aún no se subieron imágenes. Podés cargarlas desde la sección Imágenes del proyecto.</p>
+        <% end %>
+      </div>
+    </aside>
+  </div>
+</div>

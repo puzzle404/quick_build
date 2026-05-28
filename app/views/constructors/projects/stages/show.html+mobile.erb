@@ -1,0 +1,167 @@
+<% content_for :title, "#{@stage.name} · #{@project.name}" %>
+<%
+  s = @stage.decorate
+  bar_tone = case s.status
+             when :done  then :ok
+             when :doing then :accent
+             else             :muted
+             end
+  end_warn = s.overdue?
+  expense_count = (s.respond_to?(:expenses) ? s.expenses.count : 0)
+  note_count    = (s.respond_to?(:notes) ? s.notes.count : 0)
+  docs_count    = s.docs_count
+  images_count  = s.images_count
+  materials_count = (s.try(:material_lists)&.size || 0)
+%>
+
+<%= render Qb::Mobile::NavBarComponent.new(title: nil, back: true, back_href: constructors_project_stages_path(@project)) do |c| %>
+  <% c.with_right do %>
+    <%= link_to edit_constructors_project_stage_path(@project, s), aria: { label: 'Más' }, style: 'background:transparent;border:none;display:flex;color:var(--color-ink-2);padding:8px;' do %>
+      <%= render Qb::Mobile::IconComponent.new(name: 'more', size: 22) %>
+    <% end %>
+  <% end %>
+<% end %>
+
+<%# Identity %>
+<div style="padding: 4px 20px 14px;">
+  <div style="display:flex;align-items:center;gap:10px;margin-bottom:10px;flex-wrap:wrap;">
+    <span class="mono" style="font-size:12px;color:var(--color-ink-2);background:var(--color-bg-sunken);padding:3px 9px;border-radius:4px;font-weight:700;"><%= s.code %></span>
+    <%= render Qb::Mobile::PillComponent.new(s.status_label, tone: s.status_tone, dense: true) %>
+    <% if end_warn %>
+      <%= render Qb::Mobile::PillComponent.new("Atrasada", tone: :warn, dense: true) %>
+    <% end %>
+  </div>
+  <h1 style="margin: 0 0 6px; font-size: 24px; font-weight: 700; letter-spacing: -0.4px; line-height: 1.15;"><%= s.name %></h1>
+  <% if s.description.present? %>
+    <p style="margin: 0; font-size: 13.5px; color: var(--color-ink-3); line-height: 1.45;"><%= s.description %></p>
+  <% end %>
+</div>
+
+<%# Big progress %>
+<div style="padding: 0 16px 14px;">
+  <%= render Qb::Mobile::CardComponent.new(padding: 14) do %>
+    <div style="display:flex;align-items:center;gap:12px;margin-bottom:10px;">
+      <div class="mono tnum" style="font-size:36px;font-weight:700;letter-spacing:-1px;line-height:1;color:<%= bar_tone == :ok ? 'var(--color-ok)' : (bar_tone == :accent ? 'var(--color-accent)' : 'var(--color-ink-3)') %>;"><%= s.progress_value %>%</div>
+      <div style="flex:1;">
+        <div style="font-size:11px;font-family:var(--font-mono);color:var(--color-ink-3);text-transform:uppercase;letter-spacing:0.7px;font-weight:600;">Avance</div>
+        <div style="font-size:12px;color:var(--color-ink-2);margin-top:2px;">
+          <%
+            if s.days_total && s.start_date
+              elapsed = [(Date.current - s.start_date).to_i, 0].max
+              if s.status == :done
+                progress_text = "Completada en #{s.days_total} días"
+              elsif elapsed > s.days_total
+                progress_text = "#{s.days_total} días planificados (#{elapsed - s.days_total}d de atraso)"
+              else
+                progress_text = "#{elapsed} de #{s.days_total} días"
+              end
+            else
+              progress_text = "Sin fechas cargadas"
+            end
+          %>
+          <%= progress_text %>
+        </div>
+      </div>
+    </div>
+    <%= render Qb::Mobile::BarComponent.new(value: s.progress_value, tone: bar_tone, height: 6) %>
+  <% end %>
+</div>
+
+<%# 3-col metrics %>
+<div style="padding: 0 16px 16px; display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 8px;">
+  <%= render "constructors/projects/stages/mobile_metric_mini", label: "Inicio", value: s.start_label %>
+  <%= render "constructors/projects/stages/mobile_metric_mini", label: "Fin", value: s.end_label, warn: end_warn %>
+  <%= render "constructors/projects/stages/mobile_metric_mini", label: "Equipo", value: pluralize(s.people_count, 'pers') %>
+</div>
+
+<%# Lead %>
+<% if s.try(:lead).present? %>
+  <div style="padding: 0 16px 16px;">
+    <%= render Qb::Mobile::CardComponent.new(padding: 14) do %>
+      <div style="font-size:11px;font-family:var(--font-mono);color:var(--color-ink-3);text-transform:uppercase;letter-spacing:0.7px;font-weight:600;margin-bottom:6px;">Responsable</div>
+      <div style="display:flex;align-items:center;gap:10px;">
+        <%= render Qb::Mobile::AvatarComponent.new(name: s.lead.to_s, size: 36) %>
+        <div style="flex:1;">
+          <div style="font-size:14px;font-weight:600;"><%= s.lead %></div>
+          <div style="font-size:12px;color:var(--color-ink-3);"><%= s.name %></div>
+        </div>
+      </div>
+    <% end %>
+  </div>
+<% end %>
+
+<%# Sub-stages list %>
+<% if @sub_stages.any? %>
+  <%= render Qb::Mobile::SectionComponent.new(title: "Sub-etapas · #{@sub_stages.size}") do %>
+    <%= render Qb::Mobile::CardComponent.new(bleed: true) do %>
+      <% @sub_stages.each do |sub| %>
+        <% sd = sub.decorate %>
+        <%= render Qb::Mobile::RowComponent.new(
+              icon: :stages,
+              title: sd.name,
+              subtitle: "#{sd.progress_value}% · #{sd.status_label}",
+              value: sd.budget.positive? ? qb_fmt_cents(sd.spent) : nil,
+              value_mono: true,
+              href: constructors_project_stage_path(@project, sub)) %>
+      <% end %>
+    <% end %>
+  <% end %>
+<% end %>
+
+<%# Quick actions over related content. Each row deep-links to the right
+    `new` action — Rails has singular helpers like
+    `new_constructors_project_stage_expense_path`, not `expense_path`. %>
+<%= render Qb::Mobile::SectionComponent.new(title: "Agregar") do %>
+  <%= render Qb::Mobile::CardComponent.new(bleed: true) do %>
+    <%= render Qb::Mobile::RowComponent.new(
+          icon: :materials,
+          title: "Materiales (#{materials_count})",
+          subtitle: "Ver listas vinculadas",
+          href: constructors_project_material_lists_path(@project)) %>
+    <%= render Qb::Mobile::RowComponent.new(
+          icon: :money,
+          title: "Gasto",
+          subtitle: "#{expense_count} registrado".pluralize(expense_count),
+          href: new_constructors_project_stage_expense_path(@project, s)) %>
+    <%= render Qb::Mobile::RowComponent.new(
+          icon: :note,
+          title: "Nota",
+          subtitle: "#{note_count} cargada".pluralize(note_count),
+          href: new_constructors_project_stage_note_path(@project, s)) %>
+    <%= render Qb::Mobile::RowComponent.new(
+          icon: :doc,
+          title: "Documento",
+          subtitle: "#{docs_count} archivo".pluralize(docs_count),
+          href: new_constructors_project_stage_document_path(@project, s)) %>
+    <%= render Qb::Mobile::RowComponent.new(
+          icon: :image,
+          title: "Foto",
+          subtitle: "#{images_count} subida".pluralize(images_count),
+          href: new_constructors_project_stage_image_path(@project, s)) %>
+  <% end %>
+<% end %>
+
+<%# Inline action bar — renders within the flow so it doesn't collide with
+    the bottom tab bar. The Native iOS shell will hide this and surface
+    these actions in the UINavigationBar / a context menu instead. %>
+<% unless hotwire_native_app? %>
+  <div style="padding: 4px 16px 24px;">
+    <div style="display:flex;gap:8px;align-items:stretch;">
+      <%= button_to constructors_project_stage_path(@project, s), method: :delete,
+            form: { data: { turbo_confirm: "¿Eliminar etapa?" }, style: "margin:0;" },
+            style: "width:44px;height:44px;border-radius:999px;background:var(--color-bg-raised);border:1px solid color-mix(in oklab, var(--color-bad) 30%, var(--color-line));color:var(--color-bad);display:inline-flex;align-items:center;justify-content:center;flex-shrink:0;",
+            aria: { label: "Eliminar etapa" } do %>
+        <%= render Qb::Mobile::IconComponent.new(name: 'x', size: 18) %>
+      <% end %>
+      <%= link_to "Editar", edit_constructors_project_stage_path(@project, s),
+            class: "m-btn m-btn--secondary m-btn--md",
+            style: "flex:1;text-decoration:none;" %>
+      <% unless s.status == :done %>
+        <%= button_to "Completar", complete_constructors_project_stage_path(@project, s),
+              method: :patch,
+              class: "m-btn m-btn--md",
+              form: { style: "flex:1.4;margin:0;display:flex;", data: { turbo_confirm: "¿Marcar como completada?" } } %>
+      <% end %>
+    </div>
+  </div>
+<% end %>

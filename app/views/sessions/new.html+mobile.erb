@@ -1,0 +1,49 @@
+<% content_for :title, "Ingresar · Quick Build" %>
+
+<%= render Qb::Mobile::NavBarComponent.new(title: "Ingresar", back: false) %>
+
+<div style="padding: 20px 24px 24px;">
+  <h1 style="margin: 0 0 8px; font-size: 30px; font-weight: 700; letter-spacing: -0.6px;">Hola de nuevo</h1>
+  <p style="margin: 0 0 28px; color: var(--color-ink-3); font-size: 15px;">Ingresá con tu email y contraseña.</p>
+
+  <%= form_with url: session_path, scope: :session, method: :post, data: { turbo_frame: "_top" } do |f| %>
+    <% if flash[:alert] %>
+      <div role="alert" style="margin-bottom:14px;padding:10px 12px;border-radius:10px;background:color-mix(in oklab, var(--color-bad) 12%, transparent);color:var(--color-bad);font-size:13px;">
+        <%= flash[:alert] %>
+      </div>
+    <% end %>
+
+    <%= render Qb::Mobile::FormGroupComponent.new do %>
+      <%= render Qb::Mobile::FormRowComponent.new(
+            label: "Email",
+            name: "session[email]",
+            type: "email",
+            placeholder: "tu@email.com",
+            autocomplete: "email",
+            required: true) %>
+      <%= render Qb::Mobile::FormRowComponent.new(
+            label: "Contraseña",
+            name: "session[password]",
+            type: "password",
+            placeholder: "••••••••",
+            autocomplete: "current-password",
+            required: true) %>
+    <% end %>
+
+    <div style="text-align: right; margin: -8px 0 18px;">
+      <a href="#" style="font-size: 13px; color: var(--color-accent); text-decoration: none; font-weight: 500;">¿Olvidaste tu contraseña?</a>
+    </div>
+
+    <%= render Qb::Mobile::ButtonComponent.new("Ingresar", variant: :primary, size: :lg, full: true, type: 'submit') %>
+  <% end %>
+
+  <div style="display: flex; align-items: center; gap: 10px; margin: 28px 0 20px;">
+    <div style="flex: 1; height: 1px; background: var(--color-line);"></div>
+    <span style="font-size: 12px; color: var(--color-ink-3); letter-spacing: 0.4px;">o registrate</span>
+    <div style="flex: 1; height: 1px; background: var(--color-line);"></div>
+  </div>
+
+  <%= link_to new_registration_path, data: { turbo_frame: "_top" }, class: "m-btn m-btn--secondary m-btn--lg m-btn--full", style: "text-decoration:none;" do %>
+    Crear cuenta nueva
+  <% end %>
+</div>

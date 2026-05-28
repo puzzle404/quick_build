@@ -1,0 +1,70 @@
+<%= form_with(model: [:constructors, @project, @material_list],
+              class: "space-y-6",
+              data: { turbo: false }) do |form| %>
+  <% if @material_list.errors.any? %>
+    <div class="qb-form-error">
+      <p class="font-semibold">Revisá los siguientes errores:</p>
+      <ul class="mt-2 list-disc pl-5">
+        <% @material_list.errors.full_messages.each do |message| %>
+          <li><%= message %></li>
+        <% end %>
+      </ul>
+    </div>
+  <% end %>
+
+  <div class="grid gap-4 sm:grid-cols-3">
+    <div class="sm:col-span-2">
+      <div class="qb-field">
+        <%= form.label :name, "Nombre de la lista", class: "qb-label" %>
+        <%= form.text_field :name, class: "qb-input" %>
+      </div>
+    </div>
+
+    <div>
+      <div class="qb-field">
+        <%= form.label :project_stage_id, "Etapa de la obra", class: "qb-label" %>
+        <%= form.select :project_stage_id,
+                        @project_stages.map { |stage| [project_stage_label(stage), stage.id] },
+                        { include_blank: "Sin etapa" },
+                        class: "qb-select" %>
+        <p style="margin-top:4px;font-size:11px;color:var(--color-ink-3);">Usá este campo para vincular la lista a una etapa específica.</p>
+      </div>
+    </div>
+
+    <div>
+      <div class="qb-field">
+        <%= form.label :status, "Estado", class: "qb-label" %>
+        <%= form.select :status, MaterialList.statuses.keys.map { |key| [I18n.t("activerecord.enums.material_list.status.#{key}", default: key.humanize), key] },
+                        {}, class: "qb-select" %>
+      </div>
+    </div>
+
+    <div>
+      <div class="qb-field">
+        <%= form.label :source_type, "Origen", class: "qb-label" %>
+        <%= form.select :source_type, MaterialList.source_types.keys.map { |key| [I18n.t("activerecord.enums.material_list.source_type.#{key}", default: key.humanize), key] },
+                        {}, class: "qb-select" %>
+      </div>
+    </div>
+  </div>
+
+  <div class="qb-field">
+    <%= form.label :notes, "Notas", class: "qb-label" %>
+    <%= form.text_area :notes, rows: 3, class: "qb-textarea" %>
+    <p style="margin-top:4px;font-size:11px;color:var(--color-ink-3);">Podés describir el alcance, etapa o cualquier detalle relevante.</p>
+  </div>
+
+  <div class="qb-field">
+    <%= form.label :source_file, "Archivo de referencia", class: "qb-label" %>
+    <%= form.file_field :source_file, direct_upload: true,
+                        style: "font-size:12px;color:var(--color-ink-2);width:100%;" %>
+    <p style="margin-top:4px;font-size:11px;color:var(--color-ink-3);">PDF, Excel u otros archivos que quieras conservar junto a la lista.</p>
+  </div>
+
+  <div class="qb-form-actions">
+    <%= render Qb::BtnComponent.new('Cancelar', variant: :secondary,
+                                    href: constructors_project_material_lists_path(@project)) %>
+    <%= form.submit(form.object.new_record? ? 'Crear lista' : 'Guardar cambios',
+                    style: "display:inline-flex;align-items:center;gap:6px;font-weight:500;border-radius:5px;border-width:1px;border-style:solid;font-size:12px;height:28px;padding:0 10px;cursor:pointer;background:var(--color-accent);color:var(--color-accent-ink);border-color:var(--color-accent);") %>
+  </div>
+<% end %>

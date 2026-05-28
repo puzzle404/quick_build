@@ -1,0 +1,83 @@
+<% content_for :title, "Planos · #{@project.name}" %>
+<%
+  all = @blueprints
+  with_measurements    = all.select { |b| b.measurements.present? && b.measurements != '{}' }
+  without_measurements = all.reject { |b| b.measurements.present? && b.measurements != '{}' }
+%>
+
+<%= render Qb::Mobile::NavBarComponent.new(title: @project.name, back: true, back_href: constructors_project_path(@project)) do |c| %>
+  <% c.with_right do %>
+    <%= link_to new_constructors_project_blueprint_path(@project), aria: { label: 'Nuevo plano' }, style: 'color:var(--color-accent);display:inline-flex;padding:8px;' do %>
+      <%= render Qb::Mobile::IconComponent.new(name: 'plus', size: 22) %>
+    <% end %>
+  <% end %>
+<% end %>
+
+<div style="padding: 4px 20px 12px;">
+  <h1 style="margin: 0; font-size: 24px; font-weight: 700; letter-spacing: -0.5px;">Planos · IA</h1>
+  <div style="font-size: 13px; color: var(--color-ink-3); margin-top: 4px;">
+    <%= pluralize(all.size, 'plano') %> · <%= with_measurements.size %> con análisis
+  </div>
+</div>
+
+<%# Upload card %>
+<div style="padding: 0 16px 14px;">
+  <%= link_to new_constructors_project_blueprint_path(@project), style: "text-decoration:none;color:inherit;display:block;" do %>
+    <%= render Qb::Mobile::CardComponent.new do %>
+      <div style="display:flex;align-items:center;gap:12px;">
+        <div style="width:48px;height:48px;border-radius:12px;background:color-mix(in oklab, var(--color-accent) 14%, transparent);color:var(--color-accent);display:flex;align-items:center;justify-content:center;flex-shrink:0;">
+          <%= render Qb::Mobile::IconComponent.new(name: 'upload', size: 22, stroke: 2) %>
+        </div>
+        <div style="flex:1;min-width:0;">
+          <div style="font-size:15px;font-weight:600;">Subir nuevo plano</div>
+          <div style="font-size:12.5px;color:var(--color-ink-3);">PDF o imagen. Después podés definir escala y mediciones.</div>
+        </div>
+        <%= render Qb::Mobile::IconComponent.new(name: 'chev-right', size: 16, stroke: 2.2) %>
+      </div>
+    <% end %>
+  <% end %>
+</div>
+
+<% if with_measurements.any? %>
+  <%= render Qb::Mobile::SectionComponent.new(title: "Con análisis · #{with_measurements.size}") do %>
+    <%= render Qb::Mobile::CardComponent.new(bleed: true) do %>
+      <% with_measurements.each do |bp| %>
+        <%
+          groups_count = (bp.measurements.is_a?(Hash) ? (bp.measurements['groups'] || bp.measurements[:groups] || []).size : 0)
+        %>
+        <%= render Qb::Mobile::RowComponent.new(
+              icon: :blueprint,
+              icon_bg: 'color-mix(in oklab, var(--color-accent) 14%, transparent)',
+              title: bp.name.presence || "Plano ##{bp.id}",
+              subtitle: "#{pluralize(groups_count, 'grupo')} medidos · #{qb_fmt_date_short(bp.created_at)}",
+              value: bp.scale_ratio.present? ? "1:#{bp.scale_ratio}" : nil,
+              value_mono: true,
+              href: constructors_project_blueprint_path(@project, bp)) %>
+      <% end %>
+    <% end %>
+  <% end %>
+<% end %>
+
+<% if without_measurements.any? %>
+  <%= render Qb::Mobile::SectionComponent.new(title: "Pendientes · #{without_measurements.size}") do %>
+    <%= render Qb::Mobile::CardComponent.new(bleed: true) do %>
+      <% without_measurements.each do |bp| %>
+        <%= render Qb::Mobile::RowComponent.new(
+              icon: :blueprint,
+              title: bp.name.presence || "Plano ##{bp.id}",
+              subtitle: "Subido #{qb_fmt_date_short(bp.created_at)}#{bp.scale_ratio.blank? ? ' · sin escala' : ''}",
+              href: constructors_project_blueprint_path(@project, bp)) %>
+      <% end %>
+    <% end %>
+  <% end %>
+<% end %>
+
+<% if all.empty? %>
+  <div style="padding: 8px 16px;">
+    <%= render Qb::Mobile::CardComponent.new do %>
+      <div style="text-align:center;padding:14px 8px;color:var(--color-ink-3);font-size:13.5px;">Sin planos cargados. Subí el primero arriba.</div>
+    <% end %>
+  </div>
+<% end %>
+
+<div style="height: 24px;"></div>

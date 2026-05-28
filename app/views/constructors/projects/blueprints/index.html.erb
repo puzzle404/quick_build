@@ -1,0 +1,35 @@
+<%
+  tabs = [
+    { value: :overview,   label: 'Resumen',       icon: :home,      href: constructors_project_path(@project) },
+    { value: :planning,   label: 'Planificación', icon: :planning,  count: @project.project_stages.where(parent_id: nil).count, href: constructors_project_stages_path(@project) },
+    { value: :materials,  label: 'Materiales',    icon: :materials, count: @project.material_lists.count, href: constructors_project_material_lists_path(@project) },
+    { value: :blueprints, label: 'Planos · IA',   icon: :blueprint, count: @blueprints.size, href: constructors_project_blueprints_path(@project) },
+    { value: :team,       label: 'Equipo',        icon: :people,    count: @project.project_people.count, href: constructors_project_people_path(@project) },
+    { value: :docs,       label: 'Documentos',    icon: :docs,      count: @project.documents.count, href: constructors_project_documents_path(@project) },
+  ]
+%>
+
+<div>
+  <%= render Constructors::Projects::HeaderComponent.new(project: @project) %>
+  <%= render Qb::TabsComponent.new(tabs: tabs, current: :blueprints) %>
+
+  <%# Header strip %>
+  <div style="padding:14px 20px;border-bottom:1px solid var(--color-line);display:flex;align-items:flex-end;gap:16px;">
+    <div style="flex:1;">
+      <div style="font-size:11px;font-family:var(--font-mono);color:var(--color-ink-3);text-transform:uppercase;letter-spacing:0.8px;"><%= @project.code %></div>
+      <h2 style="margin:3px 0 0;font-size:18px;font-weight:600;letter-spacing:-0.3px;">Planos · IA</h2>
+      <div style="font-size:12px;color:var(--color-ink-3);margin-top:2px;"><%= @blueprints.size %> planos cargados · análisis con IA</div>
+    </div>
+    <%= render Qb::BtnComponent.new('Subir plano', variant: :primary, size: :sm, icon: :upload, href: new_constructors_project_blueprint_path(@project)) %>
+  </div>
+
+  <% if @blueprints.any? %>
+    <%= render Constructors::Projects::Blueprints::WorkspaceComponent.new(project: @project, blueprints: @blueprints, selected: @selected_blueprint) %>
+  <% else %>
+    <div style="padding:60px;margin:16px;text-align:center;color:var(--color-ink-4);font-size:13px;border:1px dashed var(--color-line);border-radius:10px;">
+      <%= render Qb::IconComponent.new(name: :blueprint, size: 32, style: 'margin-bottom:8px;opacity:0.5;') %>
+      <div>Aún no se cargaron planos.</div>
+      <div style="font-size:11px;color:var(--color-ink-4);margin-top:6px;">Subí planos arquitectónicos para comenzar a medir y calcular materiales.</div>
+    </div>
+  <% end %>
+</div>

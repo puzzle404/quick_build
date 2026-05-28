@@ -1,0 +1,77 @@
+<%# Evolution Chart Section %>
+<section style="position:relative;overflow:hidden;border:1px solid var(--color-line);border-radius:var(--radius);background:var(--color-bg-raised);">
+  <%# Header %>
+  <header style="position:relative;display:flex;flex-wrap:wrap;align-items:center;justify-content:space-between;gap:12px;border-bottom:1px solid var(--color-line);padding:14px 16px;">
+    <div>
+      <div style="font-size:13px;font-weight:600;color:var(--color-ink);">Evolución de Obras</div>
+      <div style="font-size:11px;color:var(--color-ink-3);font-family:var(--font-mono);margin-top:2px;">Últimos <%= selected_months %> meses de actividad</div>
+    </div>
+    <div data-controller="time-range"
+         data-time-range-url-value="<%= helpers.constructors_evolution_chart_path %>"
+         data-time-range-frame-value="evolution-chart">
+      <select style="border:1px solid var(--color-line-2);border-radius:var(--radius);background:var(--color-bg-raised);color:var(--color-ink);font-size:12px;padding:4px 28px 4px 8px;font-family:var(--font-ui);cursor:pointer;"
+              data-action="change->time-range#change">
+        <option value="6" <%= 'selected' if selected_months == 6 %>>Últimos 6 meses</option>
+        <option value="12" <%= 'selected' if selected_months == 12 %>>Este año</option>
+      </select>
+    </div>
+  </header>
+
+  <% if present? %>
+    <% s = evolution[:summary] %>
+
+    <%# Metric cards %>
+    <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:0;border-bottom:1px solid var(--color-line);">
+      <%# Etapas completadas %>
+      <div style="padding:14px 16px;border-right:1px solid var(--color-line);">
+        <div style="font-size:10px;font-family:var(--font-mono);text-transform:uppercase;letter-spacing:0.6px;color:var(--color-ink-3);">Etapas finalizadas</div>
+        <div style="display:flex;align-items:baseline;gap:8px;margin-top:4px;">
+          <span style="font-size:22px;font-weight:700;color:var(--color-ink);"><%= s[:completed][:current] %></span>
+          <% if s[:completed][:delta_pct] %>
+            <span style="font-size:10px;font-weight:600;font-family:var(--font-mono);color:<%= s[:completed][:delta_pct] >= 0 ? 'var(--color-ok)' : 'var(--color-bad)' %>;">
+              <%= s[:completed][:delta_pct] >= 0 ? '+' : '' %><%= s[:completed][:delta_pct] %>%
+            </span>
+          <% end %>
+        </div>
+      </div>
+
+      <%# Asistencias %>
+      <div style="padding:14px 16px;border-right:1px solid var(--color-line);">
+        <div style="font-size:10px;font-family:var(--font-mono);text-transform:uppercase;letter-spacing:0.6px;color:var(--color-ink-3);">Asistencias</div>
+        <div style="display:flex;align-items:baseline;gap:8px;margin-top:4px;">
+          <span style="font-size:22px;font-weight:700;color:var(--color-ink);"><%= s[:attendances][:current] %></span>
+          <% if s[:attendances][:delta_pct] %>
+            <span style="font-size:10px;font-weight:600;font-family:var(--font-mono);color:<%= s[:attendances][:delta_pct] >= 0 ? 'var(--color-ok)' : 'var(--color-bad)' %>;">
+              <%= s[:attendances][:delta_pct] >= 0 ? '+' : '' %><%= s[:attendances][:delta_pct] %>%
+            </span>
+          <% end %>
+        </div>
+      </div>
+
+      <%# Costo estimado %>
+      <div style="padding:14px 16px;">
+        <div style="font-size:10px;font-family:var(--font-mono);text-transform:uppercase;letter-spacing:0.6px;color:var(--color-ink-3);">Costo estimado</div>
+        <div style="display:flex;align-items:baseline;gap:8px;margin-top:4px;">
+          <span style="font-size:16px;font-weight:700;color:var(--color-ink);font-family:var(--font-mono);"><%= helpers.qb_fmt_cents(s[:estimated_cents][:current]) %></span>
+          <% if s[:estimated_cents][:delta_pct] %>
+            <span style="font-size:10px;font-weight:600;font-family:var(--font-mono);color:<%= s[:estimated_cents][:delta_pct] >= 0 ? 'var(--color-ok)' : 'var(--color-bad)' %>;">
+              <%= s[:estimated_cents][:delta_pct] >= 0 ? '+' : '' %><%= s[:estimated_cents][:delta_pct] %>%
+            </span>
+          <% end %>
+        </div>
+      </div>
+    </div>
+
+    <%# Chart area %>
+    <div style="padding:16px;">
+      <div style="height:192px;">
+        <%= render Constructors::Dashboard::TwoLinesChartComponent.new(evolution: evolution) %>
+      </div>
+    </div>
+  <% else %>
+    <%# Empty state %>
+    <div class="qb-empty" style="margin:16px;">
+      Sin datos suficientes — los gráficos aparecerán cuando tengas más actividad.
+    </div>
+  <% end %>
+</section>

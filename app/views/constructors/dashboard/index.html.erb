@@ -1,0 +1,142 @@
+<%
+  m = @dashboard[:metrics]
+  total = m[:total_projects].to_i
+  in_progress = m[:in_progress_projects].to_i
+  planned = m[:planned_projects].to_i
+  completed = m[:completed_projects].to_i
+  at_risk = @projects_decorated.count { |p| p.health != :ok && p.status.to_s != 'completed' }
+  ev = @dashboard[:evolution]
+  ev_labels = (ev[:labels] || []).map { |l| l.to_s.split(' ').first }  # 'Apr 2026' → 'Apr'
+  ev_progress = ev.dig(:series, :stages_started, :values) || []
+  ev_completed = ev.dig(:series, :stages_completed, :values) || []
+  ev_estimated = ev.dig(:series, :estimated_cents, :values) || []
+%>
+
+<div style="display:flex;flex-direction:column;background:var(--color-bg);">
+
+  <%# Greeting strip %>
+  <div class="qb-page-head" style="padding:18px 20px 12px;border-bottom:1px solid var(--color-line);display:flex;align-items:flex-end;gap:20px;">
+    <div style="flex:1;">
+      <div style="font-size:11px;font-family:var(--font-mono);color:var(--color-ink-3);text-transform:uppercase;letter-spacing:0.8px;">Dashboard · global</div>
+      <h1 style="margin:4px 0 0;font-size:22px;font-weight:600;letter-spacing:-0.4px;color:var(--color-ink);">
+        <%= greeting_for_time_of_day %>, <%= current_user.email.split('@').first.capitalize %>.
+      </h1>
+      <div style="font-size:13px;color:var(--color-ink-3);margin-top:2px;">
+        Resumen de <%= total %> obras · <%= in_progress %> en ejecución ·
+        <% if at_risk.positive? %>
+          <span style="color:var(--color-warn);"><%= at_risk %> requieren atención</span>
+        <% else %>
+          todo en plan
+        <% end %>
+      </div>
+    </div>
+    <div style="display:flex;align-items:center;gap:12px;">
+      <%# Tipo de cambio + clima — visibles arriba, compactos. %>
+      <%= render Constructors::Dashboard::ExchangeRatesComponent.new(rates: @exchange_rates, compact: true) %>
+      <%= render Constructors::Projects::WeatherComponent.new(
+            forecast: @reference_weather,
+            project: @reference_weather_project,
+            compact: true,
+            location_override: @reference_weather_location) %>
+      <%= render Qb::BtnComponent.new('Reporte', variant: :secondary, size: :sm, icon: :download) %>
+      <%= render Qb::BtnComponent.new('Nuevo proyecto', variant: :primary, size: :sm, icon: :plus, href: new_constructors_project_path) %>
+    </div>
+  </div>
+
+  <%# Hero strip — 4 colourful gradient cards %>
+  <div style="display:grid;grid-template-columns:repeat(4, 1fr);gap:12px;padding:16px;border-bottom:1px solid var(--color-line);">
+    <%= render Constructors::Dashboard::HeroCardComponent.new(
+          variant: :violet, icon: :projects, label: 'Obras totales',
+          value: total, hint: "#{in_progress + planned} activas · #{completed} finalizadas",
+          cta_label: 'Ver proyectos', cta_href: constructors_projects_path
+        ) %>
+    <%= render Constructors::Dashboard::HeroCardComponent.new(
+          variant: :amber, icon: :zap, label: 'En progreso',
+          value: in_progress,
+          hint: "#{(in_progress.to_f / [total, 1].max * 100).round}% del total",
+          progress: (in_progress.to_f / [total, 1].max * 100).round,
+          cta_label: 'Ver en progreso', cta_href: constructors_projects_path(status: :in_progress)
+        ) %>
+    <%= render Constructors::Dashboard::HeroCardComponent.new(
+          variant: :sky, icon: :planning, label: 'Planificadas',
+          value: planned, hint: 'próximas a iniciar',
+          cta_label: 'Ver planificadas', cta_href: constructors_projects_path(status: :planned)
+        ) %>
+    <%= render Constructors::Dashboard::HeroCardComponent.new(
+          variant: :emerald, icon: :check, label: 'Completadas',
+          value: completed,
+          hint: "#{(completed.to_f / [total, 1].max * 100).round}% de entrega global",
+          progress: (completed.to_f / [total, 1].max * 100).round,
+          cta_label: 'Ver completadas', cta_href: constructors_projects_path(status: :completed)
+        ) %>
+  </div>
+
+  <%# Operational KPI strip — 4 dense cells %>
+  <div style="display:grid;grid-template-columns:repeat(4, 1fr);border-bottom:1px solid var(--color-line);background:var(--color-bg-raised);">
+    <%= render Constructors::Dashboard::KpiBlockComponent.new(
+          label: 'Etapas iniciadas',
+          value: ev_progress.last.to_i,
+          hint: "este mes · #{ev_progress.last(2).first.to_i} mes anterior",
+          tone: :ok, data: ev_progress.any? ? ev_progress : [0]
+        ) %>
+    <%= render Constructors::Dashboard::KpiBlockComponent.new(
+          label: 'Etapas finalizadas',
+          value: ev_completed.last.to_i,
+          hint: 'cerradas este mes',
+          tone: :info, data: ev_completed.any? ? ev_completed : [0]
+        ) %>
+    <%= render Constructors::Dashboard::KpiBlockComponent.new(
+          label: 'Ítems materiales',
+          value: m[:material_items].to_i,
+          hint: "en #{m[:material_lists]} listas",
+          tone: :accent, data: ev_estimated.any? ? ev_estimated : [0]
+        ) %>
+    <%= render Constructors::Dashboard::KpiBlockComponent.new(
+          label: 'Costo estimado',
+          value: qb_fmt_cents(m[:total_estimated_cents]),
+          hint: 'acumulado en listas',
+          tone: :info, data: ev_estimated.any? ? ev_estimated : [0]
+        ) %>
+  </div>
+
+  <%# Two-column body %>
+  <div style="display:grid;grid-template-columns:1.4fr 1fr;gap:0;">
+    <div style="border-right:1px solid var(--color-line);">
+      <%= render Qb::SectionHeadComponent.new(title: 'Evolución · 6 meses', subtitle: 'Avance físico real vs plan · Gasto mensual') %>
+      <%= render Constructors::Dashboard::EvolutionChartComponent.new(
+            months: ev_labels,
+            spend: ev_estimated.map { |c| (c.to_f / 100).round },
+            progress: ev_progress.map(&:to_f),
+            plan: ev_completed.map(&:to_f)
+          ) %>
+
+      <%= render Qb::SectionHeadComponent.new(
+            title: 'Obras activas',
+            subtitle: "#{@active_projects.size} proyectos · click para abrir"
+          ) do |c| %>
+        <% c.with_right do %>
+          <div style="display:flex;gap:4px;align-items:center;">
+            <%= render Qb::BtnComponent.new('Filtros', variant: :ghost, size: :xs, icon: :filter) %>
+            <%= render Qb::BtnComponent.new('Ver todos →', variant: :ghost, size: :xs, href: constructors_projects_path) %>
+          </div>
+        <% end %>
+      <% end %>
+      <%= render Constructors::Dashboard::ProjectsTableComponent.new(rows: @active_projects) %>
+    </div>
+
+    <div style="display:flex;flex-direction:column;">
+      <%= render Qb::SectionHeadComponent.new(title: 'Alertas · hoy', subtitle: "#{@projects_decorated.count { |p| p.health != :ok && p.status.to_s != 'completed' }} activas · ordenadas por impacto") do |c| %>
+        <% c.with_right { render Qb::BtnComponent.new('Ver todas', variant: :ghost, size: :xs) } %>
+      <% end %>
+      <%= render Constructors::Dashboard::AlertStripComponent.new(projects: @projects_decorated) %>
+
+      <%= render Qb::SectionHeadComponent.new(title: 'Actividad reciente') do |c| %>
+        <% c.with_right { render Qb::BtnComponent.new('Stream', variant: :ghost, size: :xs) } %>
+      <% end %>
+      <%= render Constructors::Dashboard::ActivityFeedComponent.new(entries: @dashboard[:recent_activity]) %>
+
+      <%= render Qb::SectionHeadComponent.new(title: 'Próximas etapas · 14 días') %>
+      <%= render Constructors::Dashboard::UpcomingStagesComponent.new(stages: @dashboard[:upcoming_stages]) %>
+    </div>
+  </div>
+</div>

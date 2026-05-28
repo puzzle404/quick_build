@@ -1,0 +1,149 @@
+<% content_for :title, "Inicio · Quick Build" %>
+<%
+  m = @dashboard[:metrics]
+  total       = m[:total_projects].to_i
+  in_progress = m[:in_progress_projects].to_i
+  planned     = m[:planned_projects].to_i
+  completed   = m[:completed_projects].to_i
+  at_risk     = @kpis[:stages_at_risk].to_i
+  people_now  = @kpis[:people_on_site].to_i
+  budget_pct  = @kpis[:budget_total_cents].to_i.positive? ? (@kpis[:budget_spent_cents].to_f / @kpis[:budget_total_cents] * 100).round : 0
+%>
+
+<%# Greeting strip — avatar, salutation, alerts pill %>
+<div style="padding: 10px 20px 8px; display: flex; align-items: center; gap: 12px;">
+  <%= render Qb::Mobile::AvatarComponent.new(name: current_user.email.to_s.split('@').first, size: 36) %>
+  <div style="flex: 1; min-width: 0;">
+    <div style="font-size: 12px; color: var(--color-ink-3);"><%= greeting_for_time_of_day %>,</div>
+    <div style="font-size: 15px; font-weight: 600;"><%= current_user.email.to_s.split('@').first.capitalize %></div>
+  </div>
+  <button type="button" aria-label="Notificaciones" style="width:36px;height:36px;border-radius:999px;background:var(--color-bg-raised);border:1px solid var(--color-line);display:flex;align-items:center;justify-content:center;position:relative;">
+    <%= render Qb::Mobile::IconComponent.new(name: 'bell', size: 18) %>
+    <% if @kpis[:has_alerts] %>
+      <span style="position:absolute;top:6px;right:6px;width:8px;height:8px;border-radius:999px;background:var(--color-warn);border:1.5px solid var(--color-bg-raised);"></span>
+    <% end %>
+  </button>
+</div>
+
+<%# Headline %>
+<div style="padding: 10px 20px 18px;">
+  <h1 style="margin:0;font-size:28px;font-weight:700;letter-spacing:-0.5px;line-height:1.1;">
+    <span style="color:var(--color-ink-3);"><%= pluralize(total, 'obra') %> totales ·</span><br>
+    <% if at_risk.positive? %>
+      <span style="color:var(--color-warn);"><%= pluralize(at_risk, 'etapa') %> en atraso</span>
+    <% elsif in_progress.positive? %>
+      <span style="color:var(--color-ok);"><%= pluralize(in_progress, 'obra') %> en marcha</span>
+    <% else %>
+      <span style="color:var(--color-ink-3);">sin obras activas</span>
+    <% end %>
+  </h1>
+</div>
+
+<%# 4 hero KPIs (2x2) — gradient cards %>
+<div style="padding: 0 16px; display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 18px;">
+  <%= render Qb::Mobile::KpiComponent.new(
+        label: "Obras totales", value: total, icon: :projects, gradient: :violet,
+        hint: "#{in_progress + planned} activas · #{completed} finalizadas") %>
+  <%= render Qb::Mobile::KpiComponent.new(
+        label: "En curso", value: in_progress, icon: :stages, gradient: :amber,
+        hint: total.positive? ? "#{(in_progress.to_f / total * 100).round}% del total" : "—") %>
+  <%= render Qb::Mobile::KpiComponent.new(
+        label: "Planificadas", value: planned, icon: :calendar, gradient: :sky,
+        hint: "próximas a iniciar") %>
+  <%= render Qb::Mobile::KpiComponent.new(
+        label: "Completadas", value: completed, icon: :check, gradient: :emerald,
+        hint: total.positive? ? "#{(completed.to_f / total * 100).round}% del total" : "—") %>
+</div>
+
+<%# Operational metrics %>
+<%= render Qb::Mobile::SectionComponent.new(title: "Operativo") do %>
+  <%= render Qb::Mobile::CardComponent.new(bleed: true) do %>
+    <%= render Qb::Mobile::RowComponent.new(
+          icon: :people,
+          icon_bg: 'color-mix(in oklab, var(--color-info) 14%, transparent)',
+          title: "#{pluralize(people_now, 'persona')} en obra",
+          subtitle: in_progress == 1 ? "1 obra activa" : "#{in_progress} obras activas",
+          value: people_now.zero? ? "—" : people_now.to_s) %>
+    <%= render Qb::Mobile::RowComponent.new(
+          icon: :money,
+          icon_bg: 'color-mix(in oklab, var(--color-accent) 14%, transparent)',
+          title: "Presupuesto comprometido",
+          subtitle: "#{budget_pct}% ejecutado del total",
+          value: qb_fmt_cents(@kpis[:budget_spent_cents]),
+          value_mono: true) %>
+    <%= render Qb::Mobile::RowComponent.new(
+          icon: :stages,
+          icon_bg: 'color-mix(in oklab, var(--color-warn) 14%, transparent)',
+          title: "#{pluralize(at_risk, 'etapa')} con atraso",
+          subtitle: at_risk.zero? ? "Todo en plan" : "Revisar planificación",
+          value: at_risk.zero? ? "—" : at_risk.to_s,
+          href: constructors_projects_path) %>
+  <% end %>
+<% end %>
+
+<%# Active projects %>
+<%= render Qb::Mobile::SectionComponent.new(title: "Obras activas · #{@active_projects.size}") do |s| %>
+  <% s.with_action { link_to "Ver todas", constructors_projects_path, style: "font-size:13px;color:var(--color-accent);font-weight:600;text-decoration:none;" } %>
+  <% if @active_projects.any? %>
+    <div style="display:flex;flex-direction:column;gap:10px;">
+      <% @active_projects.each do |p| %>
+        <%= render "constructors/projects/mobile_card", p: p %>
+      <% end %>
+    </div>
+  <% else %>
+    <%= render Qb::Mobile::CardComponent.new do %>
+      <div style="text-align:center;padding:8px 4px;color:var(--color-ink-3);font-size:13.5px;">
+        Sin obras activas. <%= link_to "Crear la primera", new_constructors_project_path, style: "color:var(--color-accent);font-weight:600;text-decoration:none;" %>.
+      </div>
+    <% end %>
+  <% end %>
+<% end %>
+
+<%# Recent activity %>
+<%= render Qb::Mobile::SectionComponent.new(title: "Actividad reciente") do %>
+  <% activities = @dashboard[:recent_activity] %>
+  <% if activities.any? %>
+    <%= render Qb::Mobile::CardComponent.new(bleed: true) do %>
+      <% activities.first(5).each_with_index do |a, i| %>
+        <div style="display:flex;align-items:flex-start;gap:12px;padding:12px 14px;<%= 'border-bottom:1px solid var(--color-line);' unless i == activities.first(5).size - 1 %>">
+          <div style="width:28px;height:28px;border-radius:8px;background:var(--color-bg-sunken);display:flex;align-items:center;justify-content:center;color:var(--color-ink-2);flex-shrink:0;">
+            <%= render Qb::Mobile::IconComponent.new(name: 'clock', size: 14) %>
+          </div>
+          <div style="flex:1;min-width:0;">
+            <div style="font-size:13.5px;color:var(--color-ink);font-weight:500;line-height:1.35;"><%= a[:title] %></div>
+            <% if a[:description].present? %>
+              <div style="font-size:12px;color:var(--color-ink-3);margin-top:2px;line-height:1.4;"><%= truncate(a[:description].to_s, length: 80) %></div>
+            <% end %>
+            <div style="font-size:11px;color:var(--color-ink-4);margin-top:3px;font-family:var(--font-mono);">
+              <% if a[:timestamp] %>hace <%= time_ago_in_words(a[:timestamp]) %><% end %>
+            </div>
+          </div>
+        </div>
+      <% end %>
+    <% end %>
+  <% else %>
+    <%= render Qb::Mobile::CardComponent.new do %>
+      <div style="text-align:center;padding:8px 4px;color:var(--color-ink-3);font-size:13.5px;">Sin actividad reciente.</div>
+    <% end %>
+  <% end %>
+<% end %>
+
+<%# Upcoming stages %>
+<% upcoming = @dashboard[:upcoming_stages] %>
+<% if upcoming.any? %>
+  <%= render Qb::Mobile::SectionComponent.new(title: "Próximas etapas") do %>
+    <%= render Qb::Mobile::CardComponent.new(bleed: true) do %>
+      <% upcoming.first(4).each do |stage| %>
+        <%= render Qb::Mobile::RowComponent.new(
+              icon: :stages,
+              title: stage.name,
+              subtitle: "#{stage.project.name} · #{qb_fmt_date_short(stage.start_date)}",
+              value: stage.respond_to?(:budget_cents) ? qb_fmt_cents(stage.budget_cents.to_i) : nil,
+              value_mono: true,
+              href: constructors_project_stage_path(stage.project, stage)) %>
+      <% end %>
+    <% end %>
+  <% end %>
+<% end %>
+
+<div style="height: 24px;"></div>

@@ -1,0 +1,45 @@
+<%= render Constructors::Projects::SectionsNavComponent.new(project: @project, current_section: :blueprints) %>
+
+<div style="margin-top:24px;">
+  <%= render Qb::SectionHeadComponent.new(title: 'Subir plano', subtitle: 'Cargá un plano arquitectónico en formato JPG o PNG') %>
+
+  <div class="qb-card" style="margin-top:16px;">
+    <%= form_with model: @blueprint, url: constructors_project_blueprints_path(@project), html: { multipart: true } do |f| %>
+
+      <% if @blueprint.errors.any? %>
+        <div class="qb-form-error">
+          <p style="font-weight:600;margin:0 0 4px;">Hay <%= pluralize(@blueprint.errors.count, "error") %> que impiden guardar el plano:</p>
+          <ul style="margin:0;padding-left:16px;">
+            <% @blueprint.errors.full_messages.each do |message| %>
+              <li><%= message %></li>
+            <% end %>
+          </ul>
+        </div>
+      <% end %>
+
+      <div class="qb-field">
+        <%= f.label :name, "Nombre del plano", class: "qb-label" %>
+        <%= f.text_field :name, placeholder: "Ej: Planta baja - Arquitectura", class: "qb-input" %>
+      </div>
+
+      <div class="qb-field">
+        <%= f.label :description, "Descripción (opcional)", class: "qb-label" %>
+        <%= f.text_area :description, rows: 3, placeholder: "Ej: Plano de arquitectura con distribución de ambientes", class: "qb-textarea" %>
+      </div>
+
+      <div class="qb-field">
+        <%= f.label :file, "Archivo del plano", class: "qb-label" %>
+        <%= f.file_field :file,
+              accept: "image/jpeg,image/png,image/jpg",
+              direct_upload: true,
+              style: "display:block;font-size:12px;color:var(--color-ink-2);width:100%;" %>
+        <p style="font-size:11px;color:var(--color-ink-4);">Formatos aceptados: JPG, PNG. Tamaño máximo: 10MB</p>
+      </div>
+
+      <div class="qb-form-actions">
+        <%= render Qb::BtnComponent.new("Cancelar", variant: :secondary, size: :sm, href: constructors_project_blueprints_path(@project)) %>
+        <%= render Qb::BtnComponent.new("Subir plano", variant: :primary, size: :sm, type: 'submit') %>
+      </div>
+    <% end %>
+  </div>
+</div>

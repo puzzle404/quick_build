@@ -1,0 +1,26 @@
+<div data-controller="qb--tabs">
+  <div class="qb-tabs">
+    <% tabs.each_with_index do |tab, i| %>
+      <button class="qb-tab<%= i.zero? ? ' qb-tab--active' : '' %>"
+              type="button"
+              data-qb--tabs-target="tab"
+              data-action="click->qb--tabs#select"
+              data-index="<%= i %>">
+        <%= tab.label %>
+        <% if tab.count %>
+          <span class="qb-tab-count"><%= tab.count %></span>
+        <% end %>
+      </button>
+    <% end %>
+  </div>
+
+  <%# Panels ship visible (no display:none) so rack_test specs can reach every
+      panel; qb--tabs hides the non-active ones on connect when JS is present. %>
+  <% tabs.each_with_index do |tab, i| %>
+    <div class="qb-tab-panel"
+         data-qb--tabs-target="panel"
+         data-index="<%= i %>">
+      <%= tab %>
+    </div>
+  <% end %>
+</div>

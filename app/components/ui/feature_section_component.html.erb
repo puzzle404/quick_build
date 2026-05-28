@@ -1,0 +1,19 @@
+<div class="overflow-hidden py-24 sm:py-32">
+  <div class="mx-auto max-w-7xl px-6 lg:px-8">
+    <div class="mx-auto grid max-w-2xl grid-cols-1 gap-x-8 gap-y-16 sm:gap-y-20 lg:mx-0 lg:max-w-none lg:grid-cols-2 lg:items-center">
+      <div class="<%= @reversed ? 'lg:order-2' : 'lg:order-1' %>">
+        <div class="lg:max-w-lg">
+          <%# <h2 class="text-base font-semibold leading-7 text-indigo-600">Quick Build</h2> %>
+          <p class="mt-2 text-3xl font-bold tracking-tight text-slate-900 sm:text-4xl"><%= @title %></p>
+          <p class="mt-6 text-lg leading-8 text-slate-600"><%= @description %></p>
+          <div class="mt-8">
+            <%= content %>
+          </div>
+        </div>
+      </div>
+      <div class="<%= @reversed ? 'lg:order-1' : 'lg:order-2' %>">
+        <img src="<%= @image_url %>" alt="<%= @image_alt %>" class="w-full rounded-xl shadow-xl ring-1 ring-slate-400/10" loading="lazy">
+      </div>
+    </div>
+  </div>
+</div>

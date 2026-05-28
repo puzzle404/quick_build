@@ -1,0 +1,229 @@
+<% content_for :title, 'QB · Styleguide' %>
+
+<div style="background:var(--color-bg);color:var(--color-ink);font-family:var(--font-ui);min-height:100vh;padding:32px;">
+  <div style="max-width:1200px;margin:0 auto;">
+    <header style="margin-bottom:32px;display:flex;align-items:flex-end;gap:16px;border-bottom:1px solid var(--color-line);padding-bottom:16px;">
+      <div style="flex:1;">
+        <div style="font-family:var(--font-mono);font-size:11px;color:var(--color-ink-3);text-transform:uppercase;letter-spacing:0.8px;">Dev · interno</div>
+        <h1 style="margin:4px 0 0;font-size:24px;font-weight:600;letter-spacing:-0.4px;">Quick Build OS · Styleguide</h1>
+        <div style="font-size:12px;color:var(--color-ink-3);margin-top:4px;">Catálogo de primitives QB. No accesible en producción.</div>
+      </div>
+      <span class="qb-mono" style="font-size:11px;color:var(--color-ink-4);"><%= Rails.env %> · <%= Time.current.strftime('%Y-%m-%d %H:%M') %></span>
+    </header>
+
+    <%# ─── Pills ───────────────────────────────────────── %>
+    <section style="margin-bottom:36px;">
+      <%= render Qb::SectionHeadComponent.new(title: 'Pills', subtitle: 'Status badges en 6 tones × normal/compact') %>
+      <div style="padding:16px;display:flex;gap:8px;flex-wrap:wrap;">
+        <% %i[ok warn bad info accent muted].each do |t| %>
+          <%= render Qb::PillComponent.new(t.to_s.capitalize, tone: t) %>
+        <% end %>
+      </div>
+      <div style="padding:0 16px 16px;display:flex;gap:8px;flex-wrap:wrap;">
+        <% %i[ok warn bad info accent muted].each do |t| %>
+          <%= render Qb::PillComponent.new("#{t} (compact)", tone: t, compact: true) %>
+        <% end %>
+      </div>
+    </section>
+
+    <%# ─── Status dots ─────────────────────────────────── %>
+    <section style="margin-bottom:36px;">
+      <%= render Qb::SectionHeadComponent.new(title: 'Status dots') %>
+      <div style="padding:16px;display:flex;gap:24px;align-items:center;">
+        <% %i[ok warn bad info muted].each do |t| %>
+          <span style="display:inline-flex;align-items:center;gap:8px;font-size:12px;color:var(--color-ink-2);">
+            <%= render Qb::StatusDotComponent.new(tone: t) %>
+            <%= t %>
+          </span>
+        <% end %>
+      </div>
+    </section>
+
+    <%# ─── Bars ───────────────────────────────────────── %>
+    <section style="margin-bottom:36px;">
+      <%= render Qb::SectionHeadComponent.new(title: 'Bars', subtitle: 'Progress simple, con plan marker, stacked') %>
+      <div style="padding:16px;display:grid;grid-template-columns:repeat(2, 1fr);gap:24px;max-width:600px;">
+        <div>
+          <div style="font-size:11px;color:var(--color-ink-3);margin-bottom:6px;">accent · 35%</div>
+          <%= render Qb::BarComponent.new(value: 35) %>
+        </div>
+        <div>
+          <div style="font-size:11px;color:var(--color-ink-3);margin-bottom:6px;">accent · 60% (plan 75)</div>
+          <%= render Qb::BarComponent.new(value: 60, plan: 75, show_plan: true) %>
+        </div>
+        <div>
+          <div style="font-size:11px;color:var(--color-ink-3);margin-bottom:6px;">ok · 100%</div>
+          <%= render Qb::BarComponent.new(value: 100, tone: :ok) %>
+        </div>
+        <div>
+          <div style="font-size:11px;color:var(--color-ink-3);margin-bottom:6px;">bad · 110%</div>
+          <%= render Qb::BarComponent.new(value: 110, tone: :bad) %>
+        </div>
+        <div>
+          <div style="font-size:11px;color:var(--color-ink-3);margin-bottom:6px;">stacked · spent 30 / committed 20 / total 100</div>
+          <%= render Qb::StackedBarComponent.new(spent: 30, committed: 20, total: 100) %>
+        </div>
+      </div>
+    </section>
+
+    <%# ─── Avatars ───────────────────────────────────── %>
+    <section style="margin-bottom:36px;">
+      <%= render Qb::SectionHeadComponent.new(title: 'Avatars') %>
+      <div style="padding:16px;display:flex;gap:14px;align-items:center;">
+        <% ['María Fernández', 'Rodrigo Díaz', 'Federico López', 'Ana Ruiz', 'JS', '?'].each do |n| %>
+          <%= render Qb::AvatarComponent.new(name: n, size: 32) %>
+        <% end %>
+      </div>
+    </section>
+
+    <%# ─── Sparks ─────────────────────────────────────── %>
+    <section style="margin-bottom:36px;">
+      <%= render Qb::SectionHeadComponent.new(title: 'Sparklines', subtitle: 'SVG inline, con plan opcional') %>
+      <div style="padding:16px;display:grid;grid-template-columns:repeat(4, 1fr);gap:24px;align-items:center;">
+        <div>
+          <div style="font-size:11px;color:var(--color-ink-3);margin-bottom:6px;">accent</div>
+          <%= render Qb::SparkComponent.new(data: [3, 5, 8, 6, 11, 14, 18], w: 100, h: 28) %>
+        </div>
+        <div>
+          <div style="font-size:11px;color:var(--color-ink-3);margin-bottom:6px;">accent + plan</div>
+          <%= render Qb::SparkComponent.new(data: [3, 5, 8, 6, 11, 14, 18], plan: [4, 7, 10, 12, 14, 16, 20], w: 100, h: 28) %>
+        </div>
+        <div>
+          <div style="font-size:11px;color:var(--color-ink-3);margin-bottom:6px;">ok</div>
+          <%= render Qb::SparkComponent.new(data: [10, 12, 15, 18, 20, 22, 24], tone: :ok, w: 100, h: 28) %>
+        </div>
+        <div>
+          <div style="font-size:11px;color:var(--color-ink-3);margin-bottom:6px;">warn</div>
+          <%= render Qb::SparkComponent.new(data: [8, 6, 5, 4, 3, 2, 1], tone: :warn, w: 100, h: 28) %>
+        </div>
+      </div>
+    </section>
+
+    <%# ─── Btns ───────────────────────────────────────── %>
+    <section style="margin-bottom:36px;">
+      <%= render Qb::SectionHeadComponent.new(title: 'Buttons', subtitle: 'variants × sizes × icon opcional') %>
+      <div style="padding:16px;display:flex;flex-direction:column;gap:12px;">
+        <% %i[xs sm md].each do |size| %>
+          <div style="display:flex;gap:8px;align-items:center;">
+            <span style="width:32px;font-size:10px;color:var(--color-ink-4);font-family:var(--font-mono);"><%= size %></span>
+            <%= render Qb::BtnComponent.new('Primary', variant: :primary, size: size, icon: :plus) %>
+            <%= render Qb::BtnComponent.new('Secondary', variant: :secondary, size: size, icon: :download) %>
+            <%= render Qb::BtnComponent.new('Ghost', variant: :ghost, size: size, icon: :filter) %>
+            <%= render Qb::BtnComponent.new('Danger', variant: :danger, size: size, icon: :trash) %>
+            <%= render Qb::BtnComponent.new('Active ghost', variant: :ghost, size: size, active: true) %>
+            <%= render Qb::BtnComponent.new('Sin icon', variant: :primary, size: size) %>
+          </div>
+        <% end %>
+      </div>
+    </section>
+
+    <%# ─── Tabs ───────────────────────────────────────── %>
+    <section style="margin-bottom:36px;">
+      <%= render Qb::SectionHeadComponent.new(title: 'Tabs') %>
+      <div style="padding:0;border:1px solid var(--color-line);border-radius:6px;overflow:hidden;background:var(--color-bg-raised);">
+        <%= render Qb::TabsComponent.new(tabs: [
+              { value: :a, label: 'Resumen',   icon: :home,      href: '#a' },
+              { value: :b, label: 'Materiales', icon: :materials, count: 12, href: '#b' },
+              { value: :c, label: 'Equipo',    icon: :people,    href: '#c' }
+            ], current: :a) %>
+      </div>
+    </section>
+
+    <%# ─── Metric cells ───────────────────────────────── %>
+    <section style="margin-bottom:36px;">
+      <%= render Qb::SectionHeadComponent.new(title: 'Metric cells') %>
+      <div style="border:1px solid var(--color-line);border-radius:6px;display:grid;grid-template-columns:repeat(4, 1fr);background:var(--color-bg-raised);overflow:hidden;">
+        <%= render Qb::MetricCellComponent.new(label: 'Avance físico', value: '64%', hint: 'plan 68%') %>
+        <%= render Qb::MetricCellComponent.new(label: 'Asistencia', value: '92%', hint: '+4 vs ayer', tone: :ok) %>
+        <%= render Qb::MetricCellComponent.new(label: 'Etapas en riesgo', value: 4, hint: '2 con retraso', tone: :warn) %>
+        <%= render Qb::MetricCellComponent.new(label: 'Sobrecosto', value: '+18%', hint: 'crítico', tone: :bad) %>
+      </div>
+    </section>
+
+    <%# ─── Filter chip ───────────────────────────────── %>
+    <section style="margin-bottom:36px;">
+      <%= render Qb::SectionHeadComponent.new(title: 'Filter chip', subtitle: 'Dropdown link-based · cobalto cuando active') %>
+      <div style="padding:16px;display:flex;gap:8px;">
+        <%= render Qb::FilterChipComponent.new(label: 'Estado', param: :status, value: 'all',      options: [['all', 'Todos'], ['approved', 'Aprobada'], ['draft', 'Borrador']], base_path: '#') %>
+        <%= render Qb::FilterChipComponent.new(label: 'Estado', param: :status, value: 'approved', options: [['all', 'Todos'], ['approved', 'Aprobada'], ['draft', 'Borrador']], base_path: '#') %>
+      </div>
+    </section>
+
+    <%# ─── Icons ──────────────────────────────────────── %>
+    <section style="margin-bottom:36px;">
+      <%= render Qb::SectionHeadComponent.new(title: 'Icons', subtitle: "#{Qb::IconComponent::ICONS.size} glifos del handoff") %>
+      <div style="padding:16px;display:grid;grid-template-columns:repeat(8, 1fr);gap:12px;">
+        <% Qb::IconComponent::ICONS.keys.sort.each do |name| %>
+          <div style="display:flex;flex-direction:column;align-items:center;gap:6px;padding:10px;border:1px solid var(--color-line);border-radius:5px;background:var(--color-bg-raised);">
+            <%= render Qb::IconComponent.new(name: name, size: 22) %>
+            <span class="qb-mono" style="font-size:10px;color:var(--color-ink-3);"><%= name %></span>
+          </div>
+        <% end %>
+      </div>
+    </section>
+
+    <%# ─── ExchangeRates widget ──────────────────────── %>
+    <section style="margin-bottom:36px;">
+      <%= render Qb::SectionHeadComponent.new(title: 'ExchangeRatesComponent', subtitle: 'Widget tipo de cambio USD/ARS — con datos') %>
+      <div style="padding:16px;max-width:320px;border:1px solid var(--color-line);border-radius:6px;background:var(--color-bg-raised);">
+        <%= render Constructors::Dashboard::ExchangeRatesComponent.new(
+              rates: {
+                oficial: { compra: 1045, venta: 1085 },
+                blue:    { compra: 1200, venta: 1250 },
+                stale:   false
+              }
+            ) %>
+      </div>
+    </section>
+
+    <%# ─── ExchangeRates widget (stale) ─────────────── %>
+    <section style="margin-bottom:36px;">
+      <%= render Qb::SectionHeadComponent.new(title: 'ExchangeRatesComponent (stale)', subtitle: 'Sin datos / desactualizado') %>
+      <div style="padding:16px;max-width:320px;border:1px solid var(--color-line);border-radius:6px;background:var(--color-bg-raised);">
+        <%= render Constructors::Dashboard::ExchangeRatesComponent.new(rates: nil) %>
+      </div>
+    </section>
+
+    <%# ─── Weather widget ────────────────────────────── %>
+    <section style="margin-bottom:36px;">
+      <%= render Qb::SectionHeadComponent.new(title: 'WeatherComponent', subtitle: 'Widget de clima — 1 día de muestra') %>
+      <div style="padding:16px;max-width:320px;border:1px solid var(--color-line);border-radius:6px;background:var(--color-bg-raised);">
+        <%= render Constructors::Projects::WeatherComponent.new(
+              forecast: {
+                days: [
+                  { date: Date.current.to_s,                  max: 28, min: 19, icon: "01d", description: "soleado" },
+                  { date: (Date.current + 1).to_s,            max: 24, min: 16, icon: "02d", description: "parcialmente nublado" },
+                  { date: (Date.current + 2).to_s,            max: 20, min: 14, icon: "10d", description: "lluvioso" }
+                ],
+                stale: false
+              },
+              project: Project.new(location: "CABA")
+            ) %>
+      </div>
+    </section>
+
+    <%# ─── ExpensesListComponent (empty state) ───────── %>
+    <section style="margin-bottom:36px;">
+      <%= render Qb::SectionHeadComponent.new(title: 'ExpensesListComponent', subtitle: 'Empty state — sin gastos') %>
+      <div style="padding:16px;">
+        <%= render Constructors::Projects::ExpensesListComponent.new(
+              expenses: [],
+              project:  Project.new
+            ) %>
+      </div>
+    </section>
+
+    <%# ─── NotesListComponent (empty state) ─────────── %>
+    <section style="margin-bottom:36px;">
+      <%= render Qb::SectionHeadComponent.new(title: 'NotesListComponent', subtitle: 'Empty state — sin notas') %>
+      <div style="padding:16px;">
+        <%= render Constructors::Projects::NotesListComponent.new(
+              notes:    [],
+              noteable: Project.new,
+              project:  Project.new
+            ) %>
+      </div>
+    </section>
+
+  </div>
+</div>

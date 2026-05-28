@@ -1,0 +1,63 @@
+<div data-qb--modal-target="dialog" role="dialog" aria-modal="true"
+     class="hidden"
+     data-action="click->qb--modal#backdrop keydown@window->qb--modal#keydown"
+     style="display:flex;position:fixed;inset:0;z-index:60;background:rgba(0,0,0,0.45);align-items:center;justify-content:center;">
+  <div data-qb--modal-target="panel"
+       style="position:relative;width:520px;background:var(--color-bg);border:1px solid var(--color-line);border-radius:10px;overflow:hidden;box-shadow:0 20px 50px -10px rgba(0,0,0,0.4);">
+
+    <div style="padding:14px 18px;border-bottom:1px solid var(--color-line);display:flex;justify-content:space-between;align-items:center;">
+      <h3 style="margin:0;font-size:15px;font-weight:600;">Nueva etapa</h3>
+      <button type="button" data-action="click->qb--modal#close" aria-label="Cerrar"
+              style="background:transparent;border:none;color:var(--color-ink-3);cursor:pointer;">
+        <%= render Qb::IconComponent.new(name: :x, size: 16) %>
+      </button>
+    </div>
+
+    <%= form_with url: constructors_project_stages_path(project), method: :post, scope: :project_stage,
+                  html: { style: 'display:flex;flex-direction:column;' } do |f| %>
+      <div style="padding:18px;display:flex;flex-direction:column;gap:12px;">
+        <label style="display:flex;flex-direction:column;gap:5px;">
+          <span style="font-size:11px;font-weight:500;color:var(--color-ink-2);">Etapa padre (opcional)</span>
+          <%= f.select :parent_id, parent_options, {},
+                        style: 'width:100%;padding:8px 10px;font-size:13px;border:1px solid var(--color-line);border-radius:5px;background:var(--color-bg);color:var(--color-ink);outline:none;font-family:inherit;' %>
+          <span style="font-size:10.5px;color:var(--color-ink-4);">Dejá vacío para crear una etapa raíz</span>
+        </label>
+
+        <label style="display:flex;flex-direction:column;gap:5px;">
+          <span style="font-size:11px;font-weight:500;color:var(--color-ink-2);">Nombre <span style="color:var(--color-accent);">*</span></span>
+          <%= f.text_field :name, required: true, placeholder: 'Ej: Revoque grueso exterior',
+                            style: 'width:100%;padding:8px 10px;font-size:13px;border:1px solid var(--color-line);border-radius:5px;background:var(--color-bg);color:var(--color-ink);outline:none;font-family:inherit;' %>
+        </label>
+
+        <label style="display:flex;flex-direction:column;gap:5px;">
+          <span style="font-size:11px;font-weight:500;color:var(--color-ink-2);">Descripción</span>
+          <%= f.text_area :description, rows: 3, placeholder: 'Descripción breve de la etapa…',
+                          style: 'width:100%;padding:8px 10px;font-size:13px;border:1px solid var(--color-line);border-radius:5px;background:var(--color-bg);color:var(--color-ink);outline:none;font-family:inherit;resize:vertical;' %>
+        </label>
+
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;">
+          <label style="display:flex;flex-direction:column;gap:5px;">
+            <span style="font-size:11px;font-weight:500;color:var(--color-ink-2);">Fecha inicio</span>
+            <%= f.date_field :start_date,
+                              style: 'width:100%;padding:8px 10px;font-size:13px;border:1px solid var(--color-line);border-radius:5px;background:var(--color-bg);color:var(--color-ink);outline:none;font-family:inherit;' %>
+          </label>
+          <label style="display:flex;flex-direction:column;gap:5px;">
+            <span style="font-size:11px;font-weight:500;color:var(--color-ink-2);">Fecha fin</span>
+            <%= f.date_field :end_date,
+                              style: 'width:100%;padding:8px 10px;font-size:13px;border:1px solid var(--color-line);border-radius:5px;background:var(--color-bg);color:var(--color-ink);outline:none;font-family:inherit;' %>
+          </label>
+        </div>
+      </div>
+
+      <div style="padding:12px 18px;border-top:1px solid var(--color-line);display:flex;gap:8px;justify-content:flex-end;background:var(--color-bg-raised);">
+        <button type="button" data-action="click->qb--modal#close" aria-label="Cerrar"
+                style="height:28px;padding:0 10px;background:transparent;color:var(--color-ink-2);border:1px solid transparent;border-radius:5px;font-size:12px;cursor:pointer;">Cancelar</button>
+        <button type="submit"
+                style="display:inline-flex;align-items:center;gap:6px;height:28px;padding:0 10px;background:var(--color-accent);color:var(--color-accent-ink);border:1px solid var(--color-accent);border-radius:5px;font-size:12px;font-weight:500;cursor:pointer;">
+          <%= render Qb::IconComponent.new(name: :check, size: 13) %>
+          Guardar etapa
+        </button>
+      </div>
+    <% end %>
+  </div>
+</div>

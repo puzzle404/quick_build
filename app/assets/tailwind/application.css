@@ -1,5 +1,65 @@
 @import "tailwindcss";
 
+/* ============================================================
+ * Quick Build OS — design tokens (Claude Design handoff)
+ * Source: /tmp/qb-handoff/quick-build/project/Quick Build OS.html
+ * ============================================================ */
+@theme {
+  --color-bg:           oklch(98.5% 0.004 90);
+  --color-bg-raised:    oklch(99.5% 0.003 90);
+  --color-bg-sunken:    oklch(96.5% 0.005 85);
+  --color-ink:          oklch(18% 0.012 270);
+  --color-ink-2:        oklch(35% 0.012 270);
+  --color-ink-3:        oklch(55% 0.010 270);
+  --color-ink-4:        oklch(72% 0.008 270);
+  --color-line:         oklch(91% 0.005 270);
+  --color-line-2:       oklch(86% 0.006 270);
+  --color-accent:       oklch(55% 0.22 255);
+  --color-accent-ink:   oklch(99% 0.003 255);
+  --color-accent-soft:  oklch(94% 0.04 255);
+  --color-ok:           oklch(58% 0.14 155);
+  --color-warn:         oklch(72% 0.16 75);
+  --color-bad:          oklch(55% 0.18 25);
+  --color-info:         oklch(60% 0.13 220);
+
+  --font-ui:   'Geist', ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+  --font-mono: 'Geist Mono', ui-monospace, 'SFMono-Regular', Menlo, monospace;
+
+  --radius:    6px;
+  --radius-sm: 4px;
+}
+
+/* Night theme override (data-theme="night") */
+[data-theme="night"] {
+  --color-bg:          oklch(18% 0.015 250);
+  --color-bg-raised:   oklch(22% 0.015 250);
+  --color-bg-sunken:   oklch(15% 0.015 250);
+  --color-ink:         oklch(96% 0.005 250);
+  --color-ink-2:       oklch(80% 0.010 250);
+  --color-ink-3:       oklch(62% 0.010 250);
+  --color-ink-4:       oklch(45% 0.010 250);
+  --color-line:        oklch(28% 0.015 250);
+  --color-line-2:      oklch(34% 0.018 250);
+  --color-accent:      oklch(78% 0.17 75);
+  --color-accent-ink:  oklch(18% 0.05 75);
+  --color-accent-soft: oklch(30% 0.08 75);
+  --color-ok:          oklch(72% 0.15 155);
+  --color-warn:        oklch(78% 0.17 75);
+  --color-bad:         oklch(68% 0.19 25);
+  --color-info:        oklch(72% 0.14 220);
+}
+
+/* QB density tokens — applied to <html data-density="..."> */
+:root {
+  --qb-density-row: 32px;
+  --qb-density-pad: 10px;
+  --qb-density-font: 13px;
+}
+[data-density="compact"] { --qb-density-row: 28px; --qb-density-pad: 8px;  --qb-density-font: 12px; }
+[data-density="cozy"]    { --qb-density-row: 32px; --qb-density-pad: 10px; --qb-density-font: 13px; }
+[data-density="relaxed"] { --qb-density-row: 40px; --qb-density-pad: 14px; --qb-density-font: 13px; }
+
+/* Legacy theme vars preserved for non-redesigned views (marketing layout) */
 @layer base {
   :root {
     --color-indigo-600: oklch(51.1% .262 276.966);
@@ -18,5 +78,811 @@
     --color-green-700: #15803d;
     --color-yellow-500: #eab308;
     --color-yellow-600: #ca8a04;
+  }
+
+  html { overflow-x: hidden; }
+  body { min-height: 100%; width: 100%; }
+
+  /* Constructor (redesign) body baseline — applied via .qb-os class on <body> */
+  body.qb-os {
+    background: var(--color-bg);
+    color: var(--color-ink);
+    font-family: var(--font-ui);
+    font-size: var(--qb-density-font);
+    font-feature-settings: "cv11", "ss01", "ss03";
+    -webkit-font-smoothing: antialiased;
+    line-height: 1.4;
+  }
+}
+
+@custom-variant hotwire-native {
+  body[data-hotwire-native] & {
+    @slot;
+  }
+}
+
+@custom-variant not-hotwire-native {
+  body:not([data-hotwire-native]) & {
+    @slot;
+  }
+}
+
+/* ============================================================
+ * QB utilities (cross-cutting)
+ * ============================================================ */
+@layer utilities {
+  .qb-mono { font-family: var(--font-mono); font-feature-settings: "tnum"; }
+  .qb-tnum { font-variant-numeric: tabular-nums; }
+}
+
+@layer components {
+  .leaflet-container {
+    width: 100% !important;
+  }
+
+  /* ─── Responsive · tablet/mobile breakpoints ─────────────── */
+  /* El handoff es desktop-first (viewport 1440). Estos tweaks hacen el
+     chrome usable en tablet (<1024px) sin reescribir el layout. */
+
+  /* Tablet: sidebar arranca colapsado para liberar espacio. El usuario
+     puede expandir manualmente con Contraer/Expandir; persiste en
+     localStorage como en desktop. */
+  @media (max-width: 1023.98px) {
+    .qb-sidebar:not(.qb-sidebar-expanded) {
+      width: 56px;
+    }
+    .qb-sidebar:not(.qb-sidebar-expanded) [data-qb-sidebar-label] {
+      display: none !important;
+    }
+    .qb-sidebar:not(.qb-sidebar-expanded) nav a,
+    .qb-sidebar:not(.qb-sidebar-expanded) nav button {
+      justify-content: center !important;
+      padding: 0 !important;
+    }
+  }
+
+  /* Tabla densa en mobile: scroll horizontal en lugar de overflow oculto. */
+  @media (max-width: 900px) {
+    body.qb-os table {
+      display: block;
+      overflow-x: auto;
+      white-space: nowrap;
+    }
+    /* Hero strip + KPI strip pasan a 2 columnas en mobile.
+       minmax(0, 1fr) (en vez de 1fr) permite que las columnas se achiquen por
+       debajo del min-content de su contenido; con 1fr el track no baja del
+       min-content y el grid desborda horizontalmente (franja blanca). */
+    body.qb-os div[style*="grid-template-columns:repeat(4, 1fr)"],
+    body.qb-os div[style*="grid-template-columns:repeat(5, 1fr)"] {
+      grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
+    }
+    /* Two-column body del dashboard / project show pasa a una sola columna. */
+    body.qb-os div[style*="grid-template-columns:1.4fr 1fr"],
+    body.qb-os div[style*="grid-template-columns:1.5fr 1fr"] {
+      grid-template-columns: minmax(0, 1fr) !important;
+    }
+    /* Los hijos de esos grids deben poder achicarse: sin min-width:0 una tabla
+       o gráfico ancho fuerza el ancho del track y rompe el layout. */
+    body.qb-os div[style*="grid-template-columns:repeat(4, 1fr)"] > *,
+    body.qb-os div[style*="grid-template-columns:repeat(5, 1fr)"] > *,
+    body.qb-os div[style*="grid-template-columns:1.4fr 1fr"] > *,
+    body.qb-os div[style*="grid-template-columns:1.5fr 1fr"] > * {
+      min-width: 0;
+    }
+  }
+
+  /* ─── Chrome mobile · bottom tab bar + sheet "Más" ───────── */
+  /* Por defecto ocultos; el bottom nav aparece sólo en teléfono. */
+  .qb-bottom-nav { display: none; }
+  .qb-sheet-overlay { display: none; }
+
+  @media (max-width: 767.98px) {
+    /* En teléfono el sidebar se va y navegamos con la barra inferior. */
+    body.qb-os .qb-sidebar { display: none !important; }
+
+    .qb-bottom-nav {
+      display: flex;
+      position: fixed;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      z-index: 40;
+      background: var(--color-bg-raised);
+      border-top: 1px solid var(--color-line);
+      padding-bottom: env(safe-area-inset-bottom, 0px);
+    }
+
+    /* Que el contenido no quede tapado por la barra fija. */
+    body.qb-os main { padding-bottom: calc(56px + env(safe-area-inset-bottom, 0px)); }
+  }
+
+  /* Sheet "Más": overlay + panel deslizante. Sólo se dispara desde el bottom
+     nav (mobile-only), por eso no necesita media query propia. */
+  .qb-sheet-overlay[data-open="true"] {
+    display: flex;
+    position: fixed;
+    inset: 0;
+    z-index: 60;
+    align-items: flex-end;
+    justify-content: center;
+    background: color-mix(in oklab, var(--color-ink) 45%, transparent);
+  }
+  .qb-sheet-panel {
+    width: 100%;
+    max-width: 520px;
+    max-height: 85vh;
+    overflow-y: auto;
+    background: var(--color-bg-raised);
+    border: 1px solid var(--color-line);
+    border-top-left-radius: 16px;
+    border-top-right-radius: 16px;
+    padding: 10px 6px calc(14px + env(safe-area-inset-bottom, 0px));
+    box-shadow: 0 -8px 30px rgb(0 0 0 / 18%);
+  }
+  .qb-sheet-handle {
+    width: 36px;
+    height: 4px;
+    border-radius: 999px;
+    background: var(--color-line-2);
+    margin: 2px auto 12px;
+  }
+
+  /* ─── Responsive · pantallas clave (teléfono, ≤767.98px) ─── */
+  @media (max-width: 767.98px) {
+    /* Tabs: scroll horizontal en vez de comprimirse o cortarse. */
+    .qb-tabs-row {
+      overflow-x: auto;
+      -webkit-overflow-scrolling: touch;
+      scrollbar-width: none;
+    }
+    .qb-tabs-row::-webkit-scrollbar { display: none; }
+
+    /* Headers de página (dashboard / listado): las acciones bajan bajo el título. */
+    .qb-page-head { flex-wrap: wrap; }
+
+    /* Header de proyecto: portada full-width arriba, acciones debajo. */
+    .qb-proj-header { flex-direction: column; }
+    .qb-proj-cover {
+      width: 100% !important;
+      min-width: 0 !important;
+      height: 120px;
+    }
+    .qb-proj-titlerow { flex-wrap: wrap; }
+    .qb-proj-actions { width: 100%; }
+
+    /* Barra de filtros del listado: tabs arriba, buscador full-width debajo. */
+    .qb-filter-bar { flex-wrap: wrap; gap: 8px; }
+    .qb-search-form { flex: 1 1 auto; min-width: 0; }
+    .qb-search-box { width: 100% !important; }
+  }
+
+  /* ─── A11y · focus rings consistentes en QB chrome ───────── */
+  body.qb-os :focus-visible {
+    outline: 2px solid var(--color-accent);
+    outline-offset: 2px;
+    border-radius: 4px;
+  }
+  /* No quitar outline en botones — :focus-visible mejora encima */
+  body.qb-os button:focus-visible,
+  body.qb-os a:focus-visible,
+  body.qb-os input:focus-visible,
+  body.qb-os select:focus-visible,
+  body.qb-os textarea:focus-visible {
+    outline: 2px solid var(--color-accent);
+    outline-offset: 2px;
+  }
+
+  /* ─── Forms · canonical QB OS fields ─────────────────────── */
+  /* Single source of truth for constructor form styling. Use these
+     instead of per-input Tailwind (slate/indigo) classes. */
+  .qb-field { display: flex; flex-direction: column; gap: 4px; margin-bottom: 14px; }
+  .qb-label {
+    font-size: 11px;
+    font-family: var(--font-mono);
+    text-transform: uppercase;
+    letter-spacing: 0.6px;
+    color: var(--color-ink-3);
+  }
+  .qb-input, .qb-select, .qb-textarea {
+    width: 100%;
+    font-family: var(--font-ui);
+    font-size: 13px;
+    color: var(--color-ink);
+    background: var(--color-bg-raised);
+    border: 1px solid var(--color-line-2);
+    border-radius: var(--radius);
+    padding: 8px 10px;
+    transition: border-color 0.15s ease;
+  }
+  .qb-input::placeholder, .qb-textarea::placeholder { color: var(--color-ink-4); }
+  .qb-input:focus, .qb-select:focus, .qb-textarea:focus {
+    border-color: var(--color-accent);
+    outline: none;
+  }
+  .qb-textarea { resize: vertical; min-height: 64px; }
+  .qb-input:disabled, .qb-select:disabled { opacity: 0.6; cursor: not-allowed; }
+  .qb-form-error {
+    border: 1px solid color-mix(in oklab, var(--color-bad) 40%, var(--color-line));
+    background: color-mix(in oklab, var(--color-bad) 8%, transparent);
+    color: var(--color-bad);
+    border-radius: var(--radius);
+    padding: 10px 12px;
+    font-size: 12.5px;
+    margin-bottom: 14px;
+  }
+  .qb-form-actions { display: flex; gap: 8px; justify-content: flex-end; margin-top: 4px; }
+
+  /* ─── Cards / sections / tables · QB OS shells ───────────── */
+  .qb-card {
+    border: 1px solid var(--color-line);
+    border-radius: var(--radius);
+    background: var(--color-bg-raised);
+    padding: 16px;
+  }
+  .qb-section-title {
+    font-size: 11px;
+    font-family: var(--font-mono);
+    text-transform: uppercase;
+    letter-spacing: 0.7px;
+    color: var(--color-ink-3);
+    margin-bottom: 8px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+  }
+  .qb-empty {
+    padding: 16px;
+    text-align: center;
+    color: var(--color-ink-4);
+    font-size: 12px;
+    border: 1px dashed var(--color-line);
+    border-radius: var(--radius);
+  }
+  .qb-table { width: 100%; border-collapse: collapse; font-size: 13px; }
+  .qb-table th {
+    text-align: left;
+    font-size: 10px;
+    font-family: var(--font-mono);
+    text-transform: uppercase;
+    letter-spacing: 0.6px;
+    color: var(--color-ink-3);
+    padding: 8px 10px;
+    border-bottom: 1px solid var(--color-line);
+  }
+  .qb-table td {
+    padding: 8px 10px;
+    border-bottom: 1px solid var(--color-line);
+    color: var(--color-ink);
+  }
+  .qb-table tbody tr:last-child td { border-bottom: none; }
+
+  /* ─── Section nav pills ──────────────────────────────────── */
+  .qb-nav-item {
+    border: 1px solid var(--color-line);
+    background: var(--color-bg);
+    color: var(--color-ink-2);
+  }
+  .qb-nav-item:hover {
+    border-color: color-mix(in oklab, var(--color-accent) 40%, transparent);
+    color: var(--color-accent);
+  }
+  .qb-nav-item--active {
+    border: 1px solid color-mix(in oklab, var(--color-accent) 50%, transparent);
+    background: color-mix(in oklab, var(--color-accent) 10%, transparent);
+    color: var(--color-accent);
+  }
+  .qb-nav-item--disabled {
+    border-color: var(--color-line);
+    background: var(--color-bg-sunken);
+    color: var(--color-ink-4);
+  }
+
+  /* ─── Blueprint viewer toolbar · active tool ─────────────── */
+  /* The blueprint-viewer Stimulus controller sets data-active="true" on the
+     active scale/measure tool button. */
+  .bp-tool[data-active] {
+    background: color-mix(in oklab, var(--color-accent) 12%, transparent) !important;
+    border-color: var(--color-accent) !important;
+    color: var(--color-accent) !important;
+  }
+
+  /* ─── Sidebar collapse ───────────────────────────────────── */
+  /* Three-state model: default (media-query driven), forced-expanded, forced-collapsed.
+     The user's stored preference (qb-sidebar-{collapsed,expanded}) wins over
+     the media query; without preference, desktop = expanded, tablet = collapsed. */
+  .qb-sidebar { width: 224px; }
+  .qb-sidebar.qb-sidebar-collapsed { width: 56px !important; }
+  .qb-sidebar.qb-sidebar-expanded  { width: 224px !important; }
+  .qb-sidebar.qb-sidebar-collapsed [data-qb-sidebar-label] { display: none !important; }
+  .qb-sidebar.qb-sidebar-expanded  [data-qb-sidebar-label] { display: initial !important; }
+  .qb-sidebar.qb-sidebar-collapsed nav a,
+  .qb-sidebar.qb-sidebar-collapsed nav button {
+    justify-content: center !important;
+    padding: 0 !important;
+  }
+  .qb-sidebar.qb-sidebar-expanded nav a,
+  .qb-sidebar.qb-sidebar-expanded nav button {
+    justify-content: flex-start !important;
+  }
+  .qb-sidebar.qb-sidebar-collapsed .qb-collapse-icon { transform: none; }
+  .qb-sidebar:not(.qb-sidebar-collapsed) .qb-collapse-icon { transform: rotate(180deg); }
+
+  /* ─── Cmd palette + tweaks: active row highlight ─────────── */
+  .qb-active {
+    background: var(--color-bg-sunken) !important;
+  }
+
+  /* Hidden helper used by panels that toggle visibility */
+  .hidden { display: none !important; }
+
+  /* Keyboard chip used by sidebar/cmd palette */
+  .qb-kbd {
+    font-family: var(--font-mono);
+    font-size: 11px;
+    padding: 1px 5px;
+    border: 1px solid var(--color-line-2);
+    border-bottom-width: 2px;
+    border-radius: 4px;
+    color: var(--color-ink-3);
+    background: var(--color-bg-raised);
+  }
+
+  /* Scrollbars in the QB shell */
+  body.qb-os ::-webkit-scrollbar { width: 10px; height: 10px; }
+  body.qb-os ::-webkit-scrollbar-thumb { background: var(--color-line-2); border-radius: 10px; border: 2px solid var(--color-bg); }
+  body.qb-os ::-webkit-scrollbar-track { background: transparent; }
+  body.qb-os ::selection { background: var(--color-accent); color: var(--color-accent-ink); }
+
+  /* ─── Tabbed panel (Qb::TabbedPanelComponent) ────────────── */
+  /* Prefixed qb-tab* to avoid colliding with daisyUI's .tab/.tabs component
+     classes (daisyUI is loaded from CDN after this file and would otherwise
+     win the cascade — making the label translucent/invisible in night theme). */
+  .qb-tabs {
+    display: flex; align-items: center; padding: 0 16px; gap: 2px;
+    border-bottom: 1px solid var(--color-line); background: var(--color-bg-raised);
+  }
+  .qb-tab {
+    height: 36px; padding: 0 10px; display: inline-flex; align-items: center; gap: 6px;
+    font-size: 12.5px; color: var(--color-ink-3); border: none; cursor: pointer;
+    background: transparent; border-bottom: 2px solid transparent; margin-bottom: -1px;
+    font-weight: 500;
+  }
+  .qb-tab--active { color: var(--color-ink); border-bottom-color: var(--color-accent); font-weight: 600; }
+  .qb-tab-count {
+    font-family: var(--font-mono); font-size: 10px; color: var(--color-ink-4);
+    background: var(--color-bg-sunken); padding: 1px 5px; border-radius: 3px; font-weight: 600;
+  }
+  .qb-tab--active .qb-tab-count { color: var(--color-accent); background: color-mix(in oklab, var(--color-accent) 14%, transparent); }
+  .qb-tab-panel { padding: 14px 16px; min-height: 130px; }
+
+  /* ─── Stage Detail (drawer) redesign ─────────────────────── */
+  .sd-hero { padding: 16px 18px; background: var(--color-bg); border-bottom: 1px solid var(--color-line); display: flex; flex-direction: column; gap: 12px; }
+  .sd-hero-top { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; }
+  .sd-code-pill { font-family: var(--font-mono); font-size: 11px; font-weight: 600; letter-spacing: 0.5px; padding: 3px 8px; border-radius: 4px; background: var(--color-bg-sunken); color: var(--color-ink-2); }
+  .sd-hero-title h1 { margin: 0; font-size: 20px; font-weight: 600; letter-spacing: -0.3px; color: var(--color-ink); line-height: 1.25; }
+  .sd-hero-desc { font-size: 12.5px; color: var(--color-ink-2); line-height: 1.45; }
+  .sd-hero-predecessor { font-size: 11px; color: var(--color-ink-3); display: inline-flex; align-items: center; gap: 4px; }
+  .sd-progress { display: flex; align-items: center; gap: 12px; padding: 10px 12px; background: var(--color-bg-sunken); border-radius: 7px; }
+  .sd-progress-num { font-family: var(--font-mono); font-variant-numeric: tabular-nums; font-size: 22px; font-weight: 600; letter-spacing: -0.5px; color: var(--color-ink); line-height: 1; }
+  .sd-progress-info { flex: 1; }
+  .sd-progress-info .top { font-size: 11px; color: var(--color-ink-3); margin-bottom: 4px; display: flex; justify-content: space-between; }
+  .sd-bar { position: relative; width: 100%; height: 6px; background: var(--color-line); border-radius: 999px; overflow: hidden; }
+  .sd-bar > div { position: absolute; inset: 0; background: var(--color-accent); border-radius: 999px; }
+  .sd-metrics { display: grid; grid-template-columns: 1fr 1fr 1fr; border-bottom: 1px solid var(--color-line); background: var(--color-bg-raised); }
+  .sd-metric { padding: 10px 14px; border-right: 1px solid var(--color-line); }
+  .sd-metric:last-child { border-right: none; }
+  .sd-metric .lbl { font-family: var(--font-mono); font-size: 10px; letter-spacing: 0.7px; text-transform: uppercase; color: var(--color-ink-4); font-weight: 500; margin-bottom: 2px; }
+  .sd-metric .val { font-size: 13px; font-weight: 600; color: var(--color-ink); }
+  .sd-metric .sub { font-size: 11px; color: var(--color-ink-3); margin-top: 1px; }
+  .sd-group { border-bottom: 1px solid var(--color-line); }
+  .sd-group-head { display: flex; align-items: center; padding: 10px 16px; background: var(--color-bg-raised); }
+  .sd-group-head-label { flex: 1; font-family: var(--font-mono); font-size: 11px; text-transform: uppercase; letter-spacing: 0.7px; color: var(--color-ink-3); font-weight: 500; }
+  .sd-group-head-label strong { color: var(--color-ink); font-weight: 600; font-family: var(--font-ui); }
+  .sd-sub-row { display: grid; grid-template-columns: 50px 1fr 70px 50px; gap: 10px; padding: 8px 16px; border-bottom: 1px solid var(--color-line); align-items: center; text-decoration: none; color: inherit; }
+  .sd-sub-row:last-child { border-bottom: none; }
+  .sd-sub-row:hover { background: var(--color-bg-sunken); }
+  .sd-sub-code { font-family: var(--font-mono); font-variant-numeric: tabular-nums; font-size: 11px; color: var(--color-ink-3); font-weight: 600; }
+  .sd-sub-name { font-size: 12.5px; color: var(--color-ink); font-weight: 500; }
+  .sd-sub-dates { font-family: var(--font-mono); font-size: 10.5px; color: var(--color-ink-4); margin-top: 1px; }
+  .sd-sub-pct { font-family: var(--font-mono); font-variant-numeric: tabular-nums; font-size: 11px; color: var(--color-ink-2); font-weight: 500; min-width: 30px; text-align: right; }
+  .sd-empty-inline { display: flex; align-items: center; justify-content: space-between; gap: 12px; padding: 12px 14px; background: var(--color-bg-sunken); border: 1px dashed var(--color-line-2); border-radius: 6px; }
+  .sd-empty-inline-text { font-size: 12.5px; color: var(--color-ink-3); }
+  .sd-empty-inline-text strong { color: var(--color-ink-2); font-weight: 600; }
+  .sd-tab-actions { display: flex; justify-content: flex-end; margin-bottom: 10px; }
+  /* ─── Stage Detail · unified list rows (todos los tabs) ───── */
+  .sd-list { border: 1px solid var(--color-line); border-radius: var(--radius); overflow: hidden; background: var(--color-bg-raised); }
+  .sd-list-row { display: grid; grid-template-columns: 1fr auto; gap: 10px; padding: 10px 12px; border-bottom: 1px solid var(--color-line); align-items: center; text-decoration: none; color: inherit; }
+  .sd-list-row:last-child { border-bottom: none; }
+  a.sd-list-row:hover { background: var(--color-bg-sunken); }
+  .sd-list-main { min-width: 0; }
+  .sd-list-title { display: flex; align-items: center; gap: 8px; font-size: 12.5px; font-weight: 500; color: var(--color-ink); }
+  .sd-list-body { font-size: 12px; color: var(--color-ink-2); margin-top: 2px; }
+  .sd-list-meta { font-size: 10.5px; color: var(--color-ink-4); font-family: var(--font-mono); margin-top: 3px; }
+  .sd-list-side { display: flex; align-items: center; gap: 8px; flex-shrink: 0; }
+  .sd-list-value { font-family: var(--font-mono); font-variant-numeric: tabular-nums; font-size: 13px; font-weight: 600; color: var(--color-ink); }
+  .sd-list-foot { display: flex; align-items: center; justify-content: space-between; padding: 8px 12px; background: var(--color-bg-sunken); font-family: var(--font-mono); font-size: 11px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.5px; color: var(--color-ink); }
+  .sd-list-empty { padding: 22px 16px; text-align: center; color: var(--color-ink-4); font-size: 12.5px; }
+  .sd-hero-back { display: inline-flex; align-items: center; gap: 4px; font-size: 11.5px; color: var(--color-ink-3); text-decoration: none; margin-bottom: 4px; width: fit-content; }
+  .sd-hero-back:hover { color: var(--color-accent); }
+  .sd-footer { padding: 12px 16px; border-top: 1px solid var(--color-line); display: flex; align-items: center; justify-content: space-between; background: var(--color-bg-raised); }
+  .sd-footer .right { display: flex; gap: 8px; }
+}
+
+/* ============================================================
+ * QB Mobile · Hotwire Native (iOS) primitives
+ * Scoped under `.m-screen` (set on <body> by `layouts/mobile.html.erb`).
+ * Reuses the same oklch tokens as the desktop OS so dark/accent overrides
+ * (data-theme/data-accent) carry over without duplication.
+ * ============================================================ */
+@layer components {
+  .m-screen {
+    background: var(--color-bg);
+    color: var(--color-ink);
+    font-family: var(--font-ui);
+    font-size: 15px;
+    -webkit-font-smoothing: antialiased;
+    min-height: 100vh;
+    min-height: 100dvh;
+    display: flex;
+    flex-direction: column;
+    padding-top: env(safe-area-inset-top, 0px);
+  }
+  .m-screen * { box-sizing: border-box; }
+  .m-screen button { font-family: inherit; cursor: pointer; }
+  .m-screen .mono { font-family: var(--font-mono); }
+  .m-screen .tnum { font-variant-numeric: tabular-nums; }
+
+  /* Scrollable area between nav and tab bar */
+  .m-body { flex: 1; min-height: 0; overflow-y: auto; -webkit-overflow-scrolling: touch; }
+
+  /* ── Large title page header (iOS) ──────────────────────── */
+  .m-page-head { padding: 8px 20px 20px; }
+  .m-page-head[data-dense] { padding: 8px 20px 12px; }
+  .m-eyebrow {
+    font-size: 12px; font-family: var(--font-mono);
+    text-transform: uppercase; letter-spacing: 0.8px;
+    color: var(--color-ink-3); font-weight: 600;
+    margin-bottom: 6px;
+  }
+  .m-title {
+    margin: 0; font-size: 32px; font-weight: 700;
+    letter-spacing: -0.6px; color: var(--color-ink); line-height: 1.1;
+  }
+  .m-page-head[data-dense] .m-title { font-size: 24px; }
+  .m-subtitle { font-size: 14px; color: var(--color-ink-3); margin-top: 6px; line-height: 1.4; }
+  .m-page-head-row { display: flex; align-items: flex-start; gap: 12px; }
+  .m-page-head-row .m-title { flex: 1; }
+
+  /* ── iOS-style nav bar (centred title + back/right) ─────── */
+  .m-nav {
+    display: flex; align-items: center; gap: 8px;
+    padding: 8px 12px 6px; min-height: 48px;
+    background: color-mix(in oklab, var(--color-bg) 92%, transparent);
+    backdrop-filter: blur(20px) saturate(180%);
+    -webkit-backdrop-filter: blur(20px) saturate(180%);
+    position: sticky; top: 0; z-index: 10;
+  }
+  .m-nav-side { min-width: 36px; display: flex; justify-content: flex-start; }
+  .m-nav-side--right { justify-content: flex-end; }
+  .m-nav-title { flex: 1; text-align: center; font-size: 16px; font-weight: 600; color: var(--color-ink); }
+  .m-nav-back {
+    width: 36px; height: 36px; display: inline-flex; align-items: center; justify-content: center;
+    background: transparent; border: none; color: var(--color-accent); padding: 0;
+  }
+
+  /* ── Section (mono uppercase eyebrow over a card) ───────── */
+  .m-section { margin-bottom: 18px; }
+  .m-section-head {
+    display: flex; align-items: center; justify-content: space-between;
+    padding: 0 20px 8px;
+  }
+  .m-section-title {
+    font-size: 12px; font-family: var(--font-mono);
+    color: var(--color-ink-3); text-transform: uppercase;
+    letter-spacing: 0.8px; font-weight: 600;
+  }
+  .m-section-body { padding: 0 16px; }
+  .m-section-body--bleed { padding: 0; }
+
+  /* ── Card / Row (iOS grouped list) ──────────────────────── */
+  .m-card {
+    background: var(--color-bg-raised);
+    border: 1px solid var(--color-line);
+    border-radius: 14px;
+    padding: 14px;
+  }
+  .m-card--bleed { padding: 0; overflow: hidden; }
+
+  .m-row {
+    display: flex; align-items: center; min-height: 56px;
+    padding: 10px 14px;
+    border-bottom: 1px solid var(--color-line);
+    background: transparent;
+    text-decoration: none; color: inherit;
+  }
+  .m-row:last-child { border-bottom: none; }
+  .m-row--tap { cursor: pointer; }
+  .m-row-icon {
+    width: 32px; height: 32px; border-radius: 8px;
+    background: var(--color-bg-sunken);
+    color: var(--color-ink-2);
+    display: flex; align-items: center; justify-content: center;
+    margin-right: 12px; flex-shrink: 0;
+  }
+  .m-row-main { flex: 1; min-width: 0; }
+  .m-row-title { font-size: 15px; font-weight: 500; color: var(--color-ink); }
+  .m-row-subtitle { font-size: 12.5px; color: var(--color-ink-3); margin-top: 2px; }
+  .m-row-value {
+    font-size: 14px; color: var(--color-ink-3);
+    margin-right: 8px; font-variant-numeric: tabular-nums;
+  }
+  .m-row-value--mono { font-family: var(--font-mono); }
+  .m-row-chevron { color: var(--color-ink-4); flex-shrink: 0; }
+
+  /* ── Pill / Dot / Bar / Avatar ──────────────────────────── */
+  .m-pill {
+    display: inline-flex; align-items: center; gap: 4px;
+    padding: 3px 10px; font-size: 12px; font-weight: 600;
+    letter-spacing: 0.2px; border-radius: 999px;
+    background: var(--color-bg-sunken); color: var(--color-ink-3);
+    white-space: nowrap; line-height: 1.3;
+  }
+  .m-pill[data-dense] { padding: 2px 8px; }
+  .m-pill[data-mono] { font-family: var(--font-mono); }
+  .m-pill[data-tone="ok"]     { background: color-mix(in oklab, var(--color-ok) 14%, transparent);     color: var(--color-ok); }
+  .m-pill[data-tone="warn"]   { background: color-mix(in oklab, var(--color-warn) 18%, transparent);   color: var(--color-warn); }
+  .m-pill[data-tone="bad"]    { background: color-mix(in oklab, var(--color-bad) 16%, transparent);    color: var(--color-bad); }
+  .m-pill[data-tone="info"]   { background: color-mix(in oklab, var(--color-info) 14%, transparent);   color: var(--color-info); }
+  .m-pill[data-tone="accent"] { background: color-mix(in oklab, var(--color-accent) 14%, transparent); color: var(--color-accent); }
+
+  .m-dot { display: inline-block; width: 8px; height: 8px; border-radius: 999px; background: var(--color-ink-4); }
+  .m-dot[data-tone="ok"]     { background: var(--color-ok);     box-shadow: 0 0 0 3px color-mix(in oklab, var(--color-ok) 13%, transparent); }
+  .m-dot[data-tone="warn"]   { background: var(--color-warn);   box-shadow: 0 0 0 3px color-mix(in oklab, var(--color-warn) 13%, transparent); }
+  .m-dot[data-tone="bad"]    { background: var(--color-bad);    box-shadow: 0 0 0 3px color-mix(in oklab, var(--color-bad) 13%, transparent); }
+  .m-dot[data-tone="info"]   { background: var(--color-info);   box-shadow: 0 0 0 3px color-mix(in oklab, var(--color-info) 13%, transparent); }
+  .m-dot[data-tone="accent"] { background: var(--color-accent); box-shadow: 0 0 0 3px color-mix(in oklab, var(--color-accent) 13%, transparent); }
+
+  .m-bar {
+    position: relative; width: 100%; height: 6px;
+    background: var(--color-line); border-radius: 999px; overflow: hidden;
+  }
+  .m-bar-fill { position: absolute; inset: 0; background: var(--color-accent); border-radius: 999px; }
+  .m-bar-fill[data-tone="ok"]   { background: var(--color-ok); }
+  .m-bar-fill[data-tone="warn"] { background: var(--color-warn); }
+  .m-bar-fill[data-tone="bad"]  { background: var(--color-bad); }
+  .m-bar-fill[data-tone="info"] { background: var(--color-info); }
+  .m-bar-fill[data-tone="ink"]  { background: var(--color-ink-2); }
+  .m-bar-plan { position: absolute; top: -2px; bottom: -2px; width: 1px; background: var(--color-ink-2); }
+
+  .m-avatar {
+    display: inline-flex; align-items: center; justify-content: center;
+    width: 32px; height: 32px; border-radius: 999px;
+    font-size: 12.8px; font-weight: 600; letter-spacing: 0.2px;
+    font-family: var(--font-ui); flex-shrink: 0;
+  }
+
+  /* ── Buttons (pill, 3 sizes, 5 variants) ────────────────── */
+  .m-btn {
+    display: inline-flex; align-items: center; justify-content: center; gap: 8px;
+    height: 44px; padding: 0 18px; font-size: 15px;
+    background: var(--color-accent); color: var(--color-accent-ink);
+    border: 1px solid var(--color-accent);
+    border-radius: 999px; font-weight: 600; letter-spacing: -0.2px;
+    text-decoration: none; cursor: pointer; line-height: 1;
+    transition: background .15s, border-color .15s, color .15s;
+  }
+  .m-btn--sm { height: 36px; padding: 0 14px; font-size: 13px; }
+  .m-btn--lg { height: 52px; padding: 0 22px; font-size: 16px; }
+  .m-btn--full { width: 100%; }
+  .m-btn--secondary { background: var(--color-bg-raised); color: var(--color-ink); border-color: var(--color-line-2); }
+  .m-btn--ghost     { background: transparent; color: var(--color-accent); border-color: transparent; }
+  .m-btn--danger    { background: transparent; color: var(--color-bad); border-color: color-mix(in oklab, var(--color-bad) 30%, var(--color-line)); }
+  .m-btn--fill      { background: var(--color-accent-soft); color: var(--color-accent); border-color: transparent; }
+
+  /* ── KPI hero cards (4 gradients) ───────────────────────── */
+  .m-kpi {
+    background: var(--color-bg-raised);
+    border: 1px solid var(--color-line);
+    border-radius: 16px; padding: 14px;
+    color: var(--color-ink);
+    position: relative; overflow: hidden;
+    min-height: 96px;
+    display: flex; flex-direction: column; justify-content: space-between;
+  }
+  .m-kpi--violet  { background: linear-gradient(135deg, oklch(42% 0.22 295) 0%, oklch(55% 0.24 285) 100%); color: #fff; border-color: transparent; }
+  .m-kpi--amber   { background: linear-gradient(135deg, oklch(62% 0.22 45)  0%, oklch(72% 0.21 55)  100%); color: #fff; border-color: transparent; }
+  .m-kpi--sky     { background: linear-gradient(135deg, oklch(50% 0.20 250) 0%, oklch(62% 0.22 230) 100%); color: #fff; border-color: transparent; }
+  .m-kpi--emerald { background: linear-gradient(135deg, oklch(45% 0.15 165) 0%, oklch(58% 0.15 155) 100%); color: #fff; border-color: transparent; }
+  .m-kpi--gradient::after {
+    content: ''; position: absolute; top: -30px; right: -30px;
+    width: 120px; height: 120px; border-radius: 999px;
+    border: 1.5px solid rgba(255,255,255,0.16); pointer-events: none;
+  }
+  .m-kpi-head { display: flex; align-items: center; gap: 8px; position: relative; }
+  .m-kpi-iconbox {
+    width: 28px; height: 28px; border-radius: 8px;
+    background: var(--color-bg-sunken); color: var(--color-ink);
+    display: flex; align-items: center; justify-content: center;
+  }
+  .m-kpi--gradient .m-kpi-iconbox { background: rgba(255,255,255,0.18); color: #fff; }
+  .m-kpi-label {
+    font-size: 11px; font-family: var(--font-mono); letter-spacing: 0.7px;
+    text-transform: uppercase; font-weight: 600; color: var(--color-ink-3);
+  }
+  .m-kpi--gradient .m-kpi-label { color: rgba(255,255,255,0.78); }
+  .m-kpi-value {
+    font-family: var(--font-mono); font-variant-numeric: tabular-nums;
+    font-size: 30px; font-weight: 600; letter-spacing: -1px; line-height: 1;
+  }
+  .m-kpi-hint { font-size: 11px; margin-top: 4px; color: var(--color-ink-3); }
+  .m-kpi--gradient .m-kpi-hint { color: rgba(255,255,255,0.78); }
+  .m-kpi-delta { font-size: 11.5px; margin-top: 4px; font-weight: 600; color: var(--color-ink-3); }
+  .m-kpi-delta[data-tone="ok"]   { color: var(--color-ok); }
+  .m-kpi-delta[data-tone="warn"] { color: var(--color-warn); }
+  .m-kpi--gradient .m-kpi-delta { color: rgba(255,255,255,0.85); }
+
+  /* ── Underline tabs (new filter pattern, replaces pills) ── */
+  .m-tabs {
+    padding: 0 16px;
+    border-bottom: 1px solid var(--color-line);
+    display: flex; gap: 18px;
+    overflow-x: auto; scrollbar-width: none;
+    -webkit-overflow-scrolling: touch;
+  }
+  .m-tabs::-webkit-scrollbar { display: none; }
+  .m-tab {
+    padding: 10px 0; border: none; background: transparent;
+    border-bottom: 2px solid transparent; margin-bottom: -1px;
+    color: var(--color-ink-3); font-weight: 500; font-size: 13.5px;
+    display: inline-flex; align-items: center; gap: 6px;
+    white-space: nowrap; letter-spacing: -0.1px; text-decoration: none;
+  }
+  .m-tab[aria-current="page"], .m-tab[data-active="true"] {
+    color: var(--color-ink); font-weight: 700;
+    border-bottom-color: var(--color-accent);
+  }
+  .m-tab-count {
+    font-family: var(--font-mono); font-size: 10.5px; font-weight: 700;
+    padding: 1px 6px; border-radius: 4px;
+    background: var(--color-bg-sunken); color: var(--color-ink-4);
+  }
+  .m-tab[aria-current="page"] .m-tab-count,
+  .m-tab[data-active="true"] .m-tab-count {
+    background: color-mix(in oklab, var(--color-accent) 14%, transparent);
+    color: var(--color-accent);
+  }
+
+  /* ── Segmented control (Cards/Gantt/WBS style) ──────────── */
+  .m-seg {
+    background: var(--color-bg-sunken);
+    border-radius: 10px; padding: 3px;
+    display: inline-flex; position: relative;
+  }
+  .m-seg-btn {
+    padding: 7px 14px; font-size: 13px; font-weight: 500;
+    background: transparent; color: var(--color-ink-3);
+    border: none; border-radius: 8px;
+    transition: all .15s;
+  }
+  .m-seg-btn[data-active="true"], .m-seg-btn[aria-current="page"] {
+    background: var(--color-bg-raised); color: var(--color-ink); font-weight: 600;
+    box-shadow: 0 1px 2px rgba(0,0,0,0.08);
+  }
+
+  /* ── Bottom tab bar (5 tabs, blurred) ───────────────────── */
+  /* Fixed instead of sticky so the bar floats over scrolling content;
+     the parent .m-body adds its own bottom-padding so nothing ends up
+     trapped behind the bar. */
+  .m-tabbar {
+    position: fixed; bottom: 0; left: 0; right: 0;
+    padding-top: 8px; padding-bottom: max(16px, env(safe-area-inset-bottom, 0px));
+    background: color-mix(in oklab, var(--color-bg) 88%, transparent);
+    backdrop-filter: blur(20px) saturate(180%);
+    -webkit-backdrop-filter: blur(20px) saturate(180%);
+    border-top: 0.5px solid var(--color-line);
+    display: flex; justify-content: space-around; align-items: flex-start;
+    z-index: 20;
+  }
+  .m-tabbar-item {
+    background: transparent; border: none; padding: 4px 6px;
+    display: flex; flex-direction: column; align-items: center; gap: 2px;
+    color: var(--color-ink-3);
+    min-width: 56px; text-decoration: none;
+    font-size: 10px; font-weight: 500; letter-spacing: 0.1px;
+  }
+  .m-tabbar-item[aria-current="page"], .m-tabbar-item[data-active="true"] {
+    color: var(--color-accent); font-weight: 600;
+  }
+
+  /* ── iOS grouped forms (mono uppercase title + card) ────── */
+  .m-fg { margin-bottom: 18px; }
+  .m-fg-title {
+    padding: 0 4px 8px; font-size: 11.5px; font-weight: 600;
+    color: var(--color-ink-3); text-transform: uppercase;
+    letter-spacing: 0.6px; font-family: var(--font-mono);
+  }
+  .m-fg-body {
+    background: var(--color-bg-raised);
+    border: 1px solid var(--color-line);
+    border-radius: 14px; overflow: hidden;
+  }
+  .m-fg-foot { padding: 8px 4px 0; font-size: 11.5px; color: var(--color-ink-3); line-height: 1.4; }
+
+  .m-frow { padding: 12px 14px; border-bottom: 1px solid var(--color-line); }
+  .m-fg-body > .m-frow:last-child,
+  .m-fg-body > .m-frow-picker:last-child,
+  .m-fg-body > .m-frow-toggle:last-child { border-bottom: none; }
+  .m-frow-label {
+    display: flex; align-items: center; gap: 4px;
+    font-size: 11px; font-weight: 600; color: var(--color-ink-3);
+    margin-bottom: 6px; letter-spacing: 0.4px;
+    text-transform: uppercase; font-family: var(--font-mono);
+  }
+  .m-frow-required { color: var(--color-bad); }
+  .m-frow-input,
+  .m-frow-select,
+  .m-frow-textarea {
+    width: 100%; padding: 10px 12px; min-height: 42px;
+    background: var(--color-bg-sunken);
+    border: 1px solid var(--color-line); border-radius: 10px;
+    font-size: 15.5px; color: var(--color-ink);
+    font-family: inherit; font-weight: 500;
+    outline: none; box-sizing: border-box;
+    transition: border-color .15s, background .15s;
+  }
+  .m-frow-textarea { resize: vertical; line-height: 1.5; min-height: 80px; }
+  .m-frow-input:focus,
+  .m-frow-select:focus,
+  .m-frow-textarea:focus { border-color: var(--color-accent); }
+  .m-frow-helper { font-size: 11.5px; color: var(--color-ink-3); margin-top: 5px; line-height: 1.4; }
+
+  .m-frow-picker {
+    display: flex; align-items: center; gap: 10px; width: 100%;
+    padding: 14px 16px; background: transparent; border: none; cursor: pointer; text-align: left;
+    border-bottom: 1px solid var(--color-line);
+    color: inherit; text-decoration: none;
+  }
+  .m-frow-picker-label { flex: 0 0 auto; font-size: 15px; font-weight: 500; color: var(--color-ink); }
+  .m-frow-picker-value {
+    flex: 1; text-align: right; font-size: 15px; color: var(--color-ink-2);
+    white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+  }
+  .m-frow-picker-value[data-empty="true"] { color: var(--color-ink-4); }
+
+  .m-frow-toggle {
+    display: flex; align-items: center; gap: 12px;
+    padding: 12px 14px; border-bottom: 1px solid var(--color-line);
+    cursor: pointer;
+  }
+  .m-frow-toggle-main { flex: 1; min-width: 0; }
+  .m-frow-toggle-title { font-size: 14.5px; font-weight: 500; color: var(--color-ink); }
+  .m-frow-toggle-sub { font-size: 12px; color: var(--color-ink-3); margin-top: 2px; }
+  .m-frow-toggle-switch {
+    appearance: none; -webkit-appearance: none;
+    width: 44px; height: 26px; border-radius: 999px;
+    background: var(--color-line-2);
+    position: relative; cursor: pointer; transition: background .2s;
+    flex-shrink: 0;
+  }
+  .m-frow-toggle-switch::after {
+    content: ''; position: absolute; top: 2px; left: 2px;
+    width: 22px; height: 22px; border-radius: 999px; background: #fff;
+    box-shadow: 0 1px 2px rgba(0,0,0,0.2);
+    transition: transform .2s;
+  }
+  .m-frow-toggle-switch:checked { background: var(--color-ok); }
+  .m-frow-toggle-switch:checked::after { transform: translateX(18px); }
+
+  .m-frow-amount {
+    display: flex; align-items: baseline; gap: 4px; padding: 8px 12px;
+    background: var(--color-bg-sunken);
+    border: 1px solid var(--color-line); border-radius: 10px;
+  }
+  .m-frow-amount-currency { font-size: 17px; color: var(--color-ink-3); font-weight: 500; }
+  .m-frow-amount-input {
+    flex: 1; border: none; outline: none; background: transparent;
+    font-size: 22px; font-family: var(--font-mono);
+    font-variant-numeric: tabular-nums; font-weight: 700;
+    letter-spacing: -0.5px; color: var(--color-ink); padding: 0;
   }
 }

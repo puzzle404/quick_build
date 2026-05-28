@@ -1,0 +1,51 @@
+<%# Editar etapa.
+    - turbo_frame_request (lápiz/Editar con data-turbo-frame="project_modal"):
+      modal QB OS dentro del frame project_modal (auto-abre dentro de #project_modal).
+    - full page (acceso directo): el form en una card. %>
+<% unless turbo_frame_request? %>
+  <%= render Constructors::Projects::SectionsNavComponent.new(project: @project, current_section: :planning) %>
+<% end %>
+
+<% if turbo_frame_request? %>
+  <%= turbo_frame_tag "project_modal" do %>
+    <div data-controller="qb--modal" data-qb--modal-open-on-connect-value="true">
+    <div data-qb--modal-target="dialog" role="dialog" aria-modal="true"
+         class="hidden"
+         data-action="click->qb--modal#backdrop keydown@window->qb--modal#keydown"
+         style="display:flex;position:fixed;inset:0;z-index:60;background:rgba(0,0,0,0.45);align-items:center;justify-content:center;">
+      <div data-qb--modal-target="panel"
+           style="position:relative;width:640px;max-height:86vh;background:var(--color-bg);border:1px solid var(--color-line);border-radius:10px;overflow:hidden;display:flex;flex-direction:column;box-shadow:0 20px 50px -10px rgba(0,0,0,0.4);">
+
+        <div style="padding:14px 18px;border-bottom:1px solid var(--color-line);display:flex;justify-content:space-between;align-items:center;">
+          <div>
+            <div style="font-size:10px;font-family:var(--font-mono);text-transform:uppercase;letter-spacing:0.7px;color:var(--color-accent);margin-bottom:4px;">Planificación</div>
+            <h3 style="margin:0;font-size:15px;font-weight:600;color:var(--color-ink);">Editar etapa</h3>
+            <div style="font-size:12px;color:var(--color-ink-3);margin-top:2px;">Actualizá la información principal y las fechas.</div>
+          </div>
+          <button type="button" data-action="click->qb--modal#close" aria-label="Cerrar"
+                  style="background:transparent;border:none;color:var(--color-ink-3);cursor:pointer;">
+            <%= render Qb::IconComponent.new(name: :x, size: 16) %>
+          </button>
+        </div>
+
+        <div style="flex:1;overflow:auto;padding:18px;">
+          <div class="qb-card" style="padding:16px;">
+            <%= render Constructors::Projects::Stages::StageFormComponent.new(project: @project, stage: @stage) %>
+          </div>
+        </div>
+      </div>
+    </div>
+    </div>
+  <% end %>
+<% else %>
+  <div class="mt-6 space-y-6">
+    <header class="space-y-2">
+      <h1 style="font-size:22px;font-weight:600;color:var(--color-ink);">Editar etapa</h1>
+      <p style="font-size:13px;color:var(--color-ink-3);">Actualizá la información principal y las fechas para mantener a tu equipo alineado.</p>
+    </header>
+
+    <section class="qb-card">
+      <%= render Constructors::Projects::Stages::StageFormComponent.new(project: @project, stage: @stage) %>
+    </section>
+  </div>
+<% end %>

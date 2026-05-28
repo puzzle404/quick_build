@@ -1,0 +1,14 @@
+<% body = capture do %>
+  <span class="m-frow-picker-label">
+    <%= @label %><% if @required %><span class="m-frow-required">*</span><% end %>
+  </span>
+  <span class="m-frow-picker-value" data-empty="<%= @value.blank? %>">
+    <%= @value.presence || @placeholder %>
+  </span>
+  <%= render Qb::Mobile::IconComponent.new(name: 'chev-right', size: 15, stroke: 2.2) %>
+<% end %>
+<% if @href %>
+  <%= link_to body, @href, class: 'm-frow-picker' %>
+<% else %>
+  <button class="m-frow-picker" type="button"><%= body %></button>
+<% end %>

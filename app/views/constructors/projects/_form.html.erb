@@ -1,0 +1,90 @@
+<%= form_with model: [:constructors, project], data: { turbo_frame: "_top" } do |f| %>
+  <section class="qb-card" style="margin-bottom:16px;">
+    <h3 style="font-size:11px;font-family:var(--font-mono);text-transform:uppercase;letter-spacing:0.7px;color:var(--color-ink-2);margin-bottom:4px;">Información general</h3>
+    <p style="font-size:12px;color:var(--color-ink-3);margin-bottom:14px;">Estos datos aparecen en los tableros y reportes compartidos con tu equipo.</p>
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;">
+      <div class="qb-field" style="margin-bottom:0;">
+        <%= f.label :name, class: "qb-label" %>
+        <%= f.text_field :name, class: "qb-input" %>
+      </div>
+      <div class="qb-field" style="margin-bottom:0;">
+        <%= f.label :location, class: "qb-label" %>
+        <%= f.text_field :location, class: "qb-input" %>
+      </div>
+    </div>
+  </section>
+
+  <section class="qb-card" style="margin-bottom:16px;">
+    <div style="display:flex;flex-direction:column;gap:4px;margin-bottom:12px;">
+      <div>
+        <h3 style="font-size:11px;font-family:var(--font-mono);text-transform:uppercase;letter-spacing:0.7px;color:var(--color-ink-2);">Ubicación georreferenciada</h3>
+        <p style="font-size:12px;color:var(--color-ink-3);">Posiciona la obra con precisión para habilitar seguimiento logístico.</p>
+      </div>
+      <span style="font-size:11px;color:var(--color-ink-4);">Arrastra el marcador sobre el plano</span>
+    </div>
+    <div id="project-map"
+         style="width:100%;overflow:hidden;border-radius:var(--radius);border:1px solid var(--color-line);height:320px;"
+         data-controller="project-map"
+         data-project-map-target="map">
+      <%= f.hidden_field :latitude, data: { project_map_target: "latitude" } %>
+      <%= f.hidden_field :longitude, data: { project_map_target: "longitude" } %>
+    </div>
+  </section>
+
+  <section class="qb-card" style="margin-bottom:16px;">
+    <h3 style="font-size:11px;font-family:var(--font-mono);text-transform:uppercase;letter-spacing:0.7px;color:var(--color-ink-2);margin-bottom:4px;">Planificación temporal</h3>
+    <p style="font-size:12px;color:var(--color-ink-3);margin-bottom:14px;">Estos valores alimentan la curva S y el tablero de hitos.</p>
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;">
+      <div class="qb-field" style="margin-bottom:0;">
+        <%= f.label :start_date, class: "qb-label" %>
+        <%= f.date_field :start_date, class: "qb-input" %>
+      </div>
+      <div class="qb-field" style="margin-bottom:0;">
+        <%= f.label :end_date, class: "qb-label" %>
+        <%= f.date_field :end_date, class: "qb-input" %>
+      </div>
+      <div class="qb-field" style="margin-bottom:0;grid-column:span 2;">
+        <%= f.label :status, class: "qb-label" %>
+        <%= f.select :status,
+                     Project.statuses.keys.map { |s| [ s.humanize, s ] },
+                     {},
+                     class: "qb-select" %>
+      </div>
+    </div>
+  </section>
+
+  <section class="qb-card" style="margin-bottom:16px;border-style:dashed;">
+    <h3 style="font-size:11px;font-family:var(--font-mono);text-transform:uppercase;letter-spacing:0.7px;color:var(--color-ink-2);margin-bottom:4px;">Documentación de soporte</h3>
+    <p style="font-size:12px;color:var(--color-ink-3);margin-bottom:14px;">
+      Adjunta planos, fotos o reportes relevantes. Puedes seleccionar múltiples archivos a la vez.
+    </p>
+
+    <div class="qb-field">
+      <p class="qb-label">Imágenes del proyecto</p>
+      <p style="font-size:11px;color:var(--color-ink-4);">Formatos recomendados: JPG o PNG (máx. 25 MB c/u)</p>
+      <%= f.file_field :images,
+                       multiple: true,
+                       accept: "image/*",
+                       direct_upload: true,
+                       style: "font-size:12px;color:var(--color-ink-2);width:100%;" %>
+    </div>
+
+    <div class="qb-field" style="margin-bottom:0;">
+      <p class="qb-label">Documentos (PDF)</p>
+      <p style="font-size:11px;color:var(--color-ink-4);">Adjunta planos, contratos o reportes en PDF (máx. 25 MB c/u)</p>
+      <%= f.file_field :document_files,
+                       multiple: true,
+                       accept: ".pdf,application/pdf",
+                       direct_upload: true,
+                       style: "font-size:12px;color:var(--color-ink-2);width:100%;" %>
+    </div>
+  </section>
+
+  <div class="qb-form-actions">
+    <%= render Qb::BtnComponent.new(
+          project.persisted? ? "Actualizar obra" : "Crear obra",
+          variant: :primary,
+          type: 'submit'
+        ) %>
+  </div>
+<% end %>

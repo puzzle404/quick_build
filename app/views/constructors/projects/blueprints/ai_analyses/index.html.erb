@@ -1,0 +1,107 @@
+<div class="container mx-auto px-4 py-8">
+  <div class="max-w-5xl mx-auto">
+    <!-- Header -->
+    <div class="mb-6 flex items-center justify-between">
+      <div>
+        <%= render Qb::BtnComponent.new('← Volver al plano', variant: :ghost,
+                                        href: constructors_project_blueprint_path(@project.id, @blueprint.id)) %>
+        <h1 style="margin-top:16px;font-size:22px;font-weight:700;color:var(--color-ink);">Historial de Análisis IA</h1>
+        <p style="margin-top:4px;font-size:13px;color:var(--color-ink-2);">
+          Todos los análisis realizados para este plano
+        </p>
+      </div>
+
+      <%= render Qb::BtnComponent.new('Nuevo Análisis', variant: :primary,
+                                      href: constructors_project_blueprint_ai_analyses_path(@project.id, @blueprint.id),
+                                      data: { turbo: false, "turbo-method": :post }) %>
+    </div>
+
+    <!-- Analyses List -->
+    <% if @analyses.any? %>
+      <div class="qb-card" style="overflow:hidden;padding:0;">
+        <div style="divide-y:1px solid var(--color-line);">
+          <% @analyses.each do |analysis| %>
+            <div style="padding:16px;border-bottom:1px solid var(--color-line);">
+              <div class="flex items-start justify-between">
+                <div class="flex-1">
+                  <div class="flex items-center gap-3 mb-2">
+                    <%
+                      pill_tone = case analysis.status
+                      when 'completed' then :ok
+                      when 'processing', 'queued' then :info
+                      when 'failed' then :bad
+                      else :muted
+                      end
+                      pill_label = case analysis.status
+                      when 'completed' then 'Completado'
+                      when 'processing' then 'Procesando...'
+                      when 'queued' then 'En cola'
+                      when 'failed' then 'Fallido'
+                      else analysis.status
+                      end
+                    %>
+                    <%= render Qb::PillComponent.new(pill_label, tone: pill_tone) %>
+                    <span style="font-size:13px;color:var(--color-ink-3);">
+                      <%= time_ago_in_words(analysis.created_at) %> atrás
+                    </span>
+                    <% if analysis.applied? %>
+                      <%= render Qb::PillComponent.new('✓ Aplicado', tone: :accent) %>
+                    <% end %>
+                  </div>
+
+                  <% if analysis.completed? %>
+                    <p style="font-size:13px;color:var(--color-ink);">
+                      Análisis completado exitosamente
+                    </p>
+                  <% elsif analysis.failed? %>
+                    <p style="font-size:13px;color:var(--color-bad);">
+                      <%= analysis.error_message&.truncate(150) || "Error desconocido" %>
+                    </p>
+                  <% elsif analysis.processing? %>
+                    <p style="font-size:13px;color:var(--color-info);">
+                      Analizando plano con IA...
+                    </p>
+                  <% else %>
+                    <p style="font-size:13px;color:var(--color-ink-2);">
+                      En espera de procesamiento
+                    </p>
+                  <% end %>
+                </div>
+
+                <div class="flex items-center gap-2 ml-4">
+                  <% if analysis.completed? %>
+                    <%= render Qb::BtnComponent.new('Ver resultados', variant: :secondary,
+                                                    href: constructors_project_blueprint_ai_analysis_path(@project.id, @blueprint.id, analysis.id)) %>
+                  <% elsif analysis.processing? || analysis.status == 'queued' %>
+                    <%= render Qb::BtnComponent.new('Ver estado', variant: :secondary,
+                                                    href: constructors_project_blueprint_ai_analysis_path(@project.id, @blueprint.id, analysis.id)) %>
+                  <% end %>
+
+                  <%= render Qb::BtnComponent.new(variant: :danger, icon: :trash,
+                                                  href: constructors_project_blueprint_ai_analysis_path(@project.id, @blueprint.id, analysis.id),
+                                                  data: { confirm: "¿Eliminar este análisis?", "turbo-method": :delete }) %>
+                </div>
+              </div>
+            </div>
+          <% end %>
+        </div>
+      </div>
+    <% else %>
+      <!-- Empty State -->
+      <div class="qb-empty">
+        <svg style="margin:0 auto;height:48px;width:48px;color:var(--color-ink-4);" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"/>
+        </svg>
+        <h3 style="margin-top:16px;font-size:16px;font-weight:500;color:var(--color-ink);">No hay análisis todavía</h3>
+        <p style="margin-top:8px;font-size:13px;color:var(--color-ink-2);">
+          Comenzá creando tu primer análisis con IA
+        </p>
+        <div style="margin-top:24px;">
+          <%= render Qb::BtnComponent.new('Crear primer análisis', variant: :primary,
+                                          href: constructors_project_blueprint_ai_analyses_path(@project.id, @blueprint.id),
+                                          data: { turbo: false, "turbo-method": :post }) %>
+        </div>
+      </div>
+    <% end %>
+  </div>
+</div>

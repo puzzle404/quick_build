@@ -1,0 +1,88 @@
+<%
+  tabs = [
+    { value: :overview,   label: 'Resumen',       icon: :home,      href: constructors_project_path(@project) },
+    { value: :planning,   label: 'Planificación', icon: :planning,  count: @project.project_stages.where(parent_id: nil).count, href: constructors_project_stages_path(@project) },
+    { value: :materials,  label: 'Materiales',    icon: :materials, count: @project.material_lists.count, href: constructors_project_material_lists_path(@project) },
+    { value: :blueprints, label: 'Planos · IA',   icon: :blueprint, count: @project.blueprints.count, href: constructors_project_blueprints_path(@project) },
+    { value: :team,       label: 'Equipo',        icon: :people,    count: @project.project_people.count, href: constructors_project_people_path(@project) },
+    { value: :docs,       label: 'Documentos',    icon: :docs,      count: @documents.size, href: constructors_project_documents_path(@project) },
+  ]
+
+  doc_kind = ->(d) {
+    return 'PDF' unless d.respond_to?(:file) && d.file.attached?
+    ext = d.file.filename.to_s.split('.').last.to_s.upcase
+    ext.presence || 'DOC'
+  }
+%>
+
+<div>
+  <%= render Constructors::Projects::HeaderComponent.new(project: @project) %>
+  <%= render Qb::TabsComponent.new(tabs: tabs, current: :docs) %>
+
+  <%# Toolbar %>
+  <div style="display:flex;align-items:center;padding:10px 16px;gap:8px;border-bottom:1px solid var(--color-line);background:var(--color-bg-raised);">
+    <%= form_with url: constructors_project_documents_path(@project), method: :get, html: { style: 'display:flex;align-items:center;gap:8px;flex:1;' } do |f| %>
+      <div style="display:flex;align-items:center;gap:6px;padding:0 10px;height:28px;background:var(--color-bg);border:1px solid var(--color-line);border-radius:5px;width:280px;">
+        <%= render Qb::IconComponent.new(name: :search, size: 13, style: 'color:var(--color-ink-4)') %>
+        <%= f.search_field :q, value: @query, placeholder: 'Buscar documentos…',
+                            style: 'flex:1;border:none;outline:none;background:transparent;font-size:12px;color:var(--color-ink);' %>
+      </div>
+    <% end %>
+    <div style="flex:1;"></div>
+    <%= form_with scope: :document, url: constructors_project_documents_path(@project), html: { multipart: true, style: 'display:flex;align-items:center;gap:6px;' } do |f| %>
+      <%= f.file_field :files, multiple: true, accept: '.pdf,application/pdf', direct_upload: true,
+                       style: 'font-size:11px;color:var(--color-ink-2);' %>
+      <%= render Qb::BtnComponent.new('Subir', variant: :primary, size: :xs, icon: :upload, type: 'submit') %>
+    <% end %>
+  </div>
+
+  <%# Table %>
+  <% if @documents.any? %>
+    <table style="width:100%;border-collapse:collapse;font-size:12px;">
+      <thead>
+        <tr style="background:var(--color-bg-raised);">
+          <% ['', 'Archivo', 'Tipo', 'Tamaño', 'Subido', ''].each_with_index do |h, i| %>
+            <th style="padding:8px 12px;text-align:<%= [2, 3].include?(i) ? 'right' : 'left' %>;border-bottom:1px solid var(--color-line);font-size:10px;font-family:var(--font-mono);color:var(--color-ink-3);font-weight:500;letter-spacing:0.5px;text-transform:uppercase;"><%= h %></th>
+          <% end %>
+        </tr>
+      </thead>
+      <tbody>
+        <% @documents.each do |doc| %>
+          <tr style="height:40px;border-bottom:1px solid var(--color-line);">
+            <td style="padding:0 0 0 14px;width:22px;"></td>
+            <td style="padding:0 12px;">
+              <div style="display:flex;align-items:center;gap:10px;">
+                <span class="qb-mono" style="font-size:10px;width:36px;padding:3px 4px;background:var(--color-bg-sunken);border:1px solid var(--color-line);border-radius:3px;text-align:center;color:var(--color-ink-3);font-weight:500;"><%= doc_kind.call(doc) %></span>
+                <span style="font-weight:500;color:var(--color-ink);"><%= doc.try(:file_name) || (doc.respond_to?(:file) && doc.file.attached? && doc.file.filename.to_s) || 'Documento' %></span>
+              </div>
+            </td>
+            <td style="padding:0 12px;text-align:right;"><%= render Qb::PillComponent.new(tone: :muted, compact: true) { doc_kind.call(doc) } %></td>
+            <td class="qb-mono qb-tnum" style="padding:0 12px;text-align:right;color:var(--color-ink-3);">
+              <%= number_to_human_size(doc.try(:file_byte_size).to_i) if doc.try(:file_byte_size).to_i.positive? %>
+            </td>
+            <td class="qb-mono" style="padding:0 12px;color:var(--color-ink-3);"><%= qb_fmt_date_short(doc.try(:created_at)) %></td>
+            <td style="padding:0 12px;width:24px;">
+              <% if doc.respond_to?(:file) && doc.file.attached? %>
+                <%= link_to rails_blob_url(doc.file, disposition: 'inline'), target: '_blank', style: 'color:var(--color-ink-4);text-decoration:none;' do %>
+                  <%= render Qb::IconComponent.new(name: :'arrow-right', size: 14) %>
+                <% end %>
+              <% end %>
+            </td>
+          </tr>
+        <% end %>
+      </tbody>
+    </table>
+  <% else %>
+    <div style="padding:60px;margin:16px;text-align:center;color:var(--color-ink-4);font-size:13px;border:1px dashed var(--color-line);border-radius:10px;">
+      <%= render Qb::IconComponent.new(name: :docs, size: 28, style: 'margin-bottom:8px;opacity:0.5;') %>
+      <% if @query.present? %>
+        <div>Sin resultados para «<strong style="color:var(--color-ink-2);"><%= @query %></strong>».</div>
+        <div style="font-size:11px;color:var(--color-ink-4);margin-top:6px;">
+          <%= link_to 'Limpiar búsqueda', constructors_project_documents_path(@project), style: 'color:var(--color-accent);text-decoration:none;' %>
+        </div>
+      <% else %>
+        <div>Aún no se cargaron documentos.</div>
+      <% end %>
+    </div>
+  <% end %>
+</div>

@@ -1,0 +1,51 @@
+<%= form_with model: stage,
+              url: form_url,
+              method: form_method do |form| %>
+  <%= form.hidden_field :parent_id, value: parent_field_value if parent_field_value.present? %>
+  <% if stage.errors.any? %>
+    <div class="qb-form-error">
+      <p style="font-weight:600;margin:0 0 4px;">No pudimos guardar la etapa:</p>
+      <ul style="margin:0;padding-left:16px;">
+        <% stage.errors.full_messages.each do |message| %>
+          <li><%= message %></li>
+        <% end %>
+      </ul>
+    </div>
+  <% end %>
+
+  <div class="qb-field">
+    <%= form.label :name, "Nombre de la etapa", class: "qb-label" %>
+    <%= form.text_field :name, class: "qb-input" %>
+  </div>
+
+  <div class="qb-field">
+    <%= form.label :description, "Descripción", class: "qb-label" %>
+    <%= form.text_area :description, rows: 3, class: "qb-textarea" %>
+    <p style="font-size:11px;color:var(--color-ink-4);">Anotá los entregables o alcance clave de la etapa.</p>
+  </div>
+
+  <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;">
+    <div class="qb-field" style="margin-bottom:0;">
+      <%= form.label :start_date, "Fecha de inicio", class: "qb-label" %>
+      <%= form.date_field :start_date, class: "qb-input" %>
+    </div>
+    <div class="qb-field" style="margin-bottom:0;">
+      <%= form.label :end_date, "Fecha de finalización", class: "qb-label" %>
+      <%= form.date_field :end_date, class: "qb-input" %>
+    </div>
+  </div>
+
+  <% if predecessor_candidates.any? %>
+    <div class="qb-field" style="margin-top:14px;">
+      <%= form.label :predecessor_id, "Etapa predecesora", class: "qb-label" %>
+      <%= form.select :predecessor_id,
+                      predecessor_candidates,
+                      { include_blank: "— ninguna —" },
+                      class: "qb-select" %>
+    </div>
+  <% end %>
+
+  <div class="qb-form-actions">
+    <%= render Qb::BtnComponent.new(submit_label, variant: :primary, size: :md, type: 'submit') %>
+  </div>
+<% end %>

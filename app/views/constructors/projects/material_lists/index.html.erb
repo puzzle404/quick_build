@@ -1,0 +1,112 @@
+<%
+  all = @project.material_lists.includes(:material_items).to_a
+  approved = all.count { |l| l.status.to_s == 'approved' }
+  pending = all.count { |l| l.status.to_s == 'ready_for_review' }
+  drafts = all.count { |l| l.status.to_s == 'draft' }
+  total_value_cents = all.sum { |l| l.material_items.sum { |i| (i.quantity.to_f * i.estimated_cost_cents.to_i).round } }
+  approved_value_cents = all.select { |l| l.status.to_s == 'approved' }.sum { |l| l.material_items.sum { |i| (i.quantity.to_f * i.estimated_cost_cents.to_i).round } }
+
+  tabs = [
+    { value: :overview,   label: 'Resumen',       icon: :home,      href: constructors_project_path(@project) },
+    { value: :planning,   label: 'Planificación', icon: :planning,  count: @project.project_stages.where(parent_id: nil).count, href: constructors_project_stages_path(@project) },
+    { value: :materials,  label: 'Materiales',    icon: :materials, count: all.size, href: constructors_project_material_lists_path(@project) },
+    { value: :blueprints, label: 'Planos · IA',   icon: :blueprint, count: @project.blueprints.count, href: constructors_project_blueprints_path(@project) },
+    { value: :team,       label: 'Equipo',        icon: :people,    count: @project.project_people.count, href: constructors_project_people_path(@project) },
+    { value: :docs,       label: 'Documentos',    icon: :docs,      count: @project.documents.count, href: constructors_project_documents_path(@project) },
+  ]
+%>
+
+<div>
+  <%= render Constructors::Projects::HeaderComponent.new(project: @project) %>
+  <%= render Qb::TabsComponent.new(tabs: tabs, current: :materials) %>
+
+  <%# KPI strip %>
+  <div style="display:grid;grid-template-columns:repeat(5, 1fr);border-bottom:1px solid var(--color-line);background:var(--color-bg-raised);">
+    <%= render Qb::MetricCellComponent.new(label: 'Listas totales', value: all.size, hint: "#{approved} aprobadas · #{pending} en revisión · #{drafts} borradores") %>
+    <%= render Qb::MetricCellComponent.new(label: 'Valor acumulado', value: qb_fmt_cents(total_value_cents), hint: 'suma de todas las listas') %>
+    <%= render Qb::MetricCellComponent.new(label: 'Aprobadas', value: approved, hint: qb_fmt_cents(approved_value_cents), tone: :ok) %>
+    <%= render Qb::MetricCellComponent.new(label: 'En revisión', value: pending, hint: pending.positive? ? 'requieren aprobación' : 'sin pendientes', tone: pending.positive? ? :warn : :ok) %>
+    <%= render Qb::MetricCellComponent.new(label: 'Borradores', value: drafts, hint: 'sin publicar') %>
+  </div>
+
+  <%# Page header %>
+  <div style="padding:14px 20px 8px;display:flex;align-items:flex-end;gap:16px;">
+    <div style="flex:1;">
+      <div style="font-size:11px;font-family:var(--font-mono);color:var(--color-ink-3);text-transform:uppercase;letter-spacing:0.8px;"><%= @project.code %> · <%= @project.name.to_s.split('·').first&.strip %></div>
+      <h2 style="margin:3px 0 0;font-size:18px;font-weight:600;letter-spacing:-0.3px;">Listas de materiales</h2>
+      <div style="font-size:12px;color:var(--color-ink-3);margin-top:2px;">Creá listas por etapa o generales, manualmente o desde PDF/Excel.</div>
+    </div>
+    <%# Nueva lista / Importar abren el modal vía Turbo Frame (project_modal),
+        no inline — mismo approach que el sidebar de etapa. %>
+    <div style="display:contents;">
+      <%= render Qb::BtnComponent.new('Importar PDF/Excel', variant: :ghost, size: :sm, icon: :upload,
+            href: new_constructors_project_material_list_path(@project), data: { turbo_frame: 'project_modal' }) %>
+      <%= render Qb::BtnComponent.new('Generar con IA', variant: :secondary, size: :sm, icon: :ai) %>
+      <%= render Qb::BtnComponent.new('Nueva lista', variant: :primary, size: :sm, icon: :plus,
+            href: new_constructors_project_material_list_path(@project), data: { turbo_frame: 'project_modal' }) %>
+    </div>
+  </div>
+
+  <%# Toolbar — search + filter chips %>
+  <%
+    base_path = constructors_project_material_lists_path(@project)
+    extra = { q: @query.presence, status: @status_filter == 'all' ? nil : @status_filter, source: @source_filter == 'all' ? nil : @source_filter, stage: @stage_filter.presence }
+    status_options = [['all', 'Todos'], ['approved', 'Aprobada'], ['ready_for_review', 'En revisión'], ['draft', 'Borrador']]
+    source_options = [['all', 'Todos'], ['manual', 'Manual'], ['pdf_upload', 'PDF'], ['excel_upload', 'Excel']]
+    stage_options  = [['all', 'Todas'], ['none', 'Sin etapa']] +
+                      @project.project_stages.where(parent_id: nil).order(:position).pluck(:id, :name).map { |id, name| [id.to_s, name] }
+  %>
+  <div style="display:flex;align-items:center;padding:10px 16px;gap:8px;border-bottom:1px solid var(--color-line);background:var(--color-bg-raised);">
+    <%= form_with url: base_path, method: :get, html: { style: 'display:flex;align-items:center;gap:8px;' } do |f| %>
+      <% if @status_filter != 'all' %><%= hidden_field_tag :status, @status_filter %><% end %>
+      <% if @source_filter != 'all' %><%= hidden_field_tag :source, @source_filter %><% end %>
+      <% if @stage_filter.present? && @stage_filter != 'all' %><%= hidden_field_tag :stage, @stage_filter %><% end %>
+      <div style="display:flex;align-items:center;gap:6px;padding:0 10px;height:28px;background:var(--color-bg);border:1px solid var(--color-line);border-radius:5px;width:280px;">
+        <%= render Qb::IconComponent.new(name: :search, size: 13, style: 'color:var(--color-ink-4)') %>
+        <%= f.search_field :q, value: @query, placeholder: 'Buscar lista, etapa o autor…',
+                            style: 'flex:1;border:none;outline:none;background:transparent;font-size:12px;color:var(--color-ink);' %>
+      </div>
+    <% end %>
+
+    <%= render Qb::FilterChipComponent.new(label: 'Estado', param: :status, value: @status_filter, options: status_options, base_path: base_path, extra_params: extra.except(:status)) %>
+    <%= render Qb::FilterChipComponent.new(label: 'Etapa',  param: :stage,  value: (@stage_filter.presence || 'all'), options: stage_options, base_path: base_path, extra_params: extra.except(:stage)) %>
+    <%= render Qb::FilterChipComponent.new(label: 'Origen', param: :source, value: @source_filter, options: source_options, base_path: base_path, extra_params: extra.except(:source)) %>
+
+    <div style="flex:1;"></div>
+    <span class="qb-mono" style="font-size:11px;color:var(--color-ink-3);"><%= @pagy.count %> / <%= all.size %> listas</span>
+  </div>
+
+  <%# Cards grid %>
+  <% if @material_lists.any? %>
+    <div style="padding:16px;display:grid;grid-template-columns:repeat(auto-fill, minmax(340px, 1fr));gap:12px;">
+      <% @material_lists.each do |list| %>
+        <%= render Constructors::Projects::Materials::ListCardComponent.new(project: @project, list: list) %>
+      <% end %>
+    </div>
+  <% else %>
+    <%
+      any_filter = @query.present? ||
+                    @status_filter != 'all' ||
+                    @source_filter != 'all' ||
+                    (@stage_filter.present? && @stage_filter != 'all')
+    %>
+    <div style="padding:60px;margin:16px;text-align:center;color:var(--color-ink-4);font-size:13px;border:1px dashed var(--color-line);border-radius:10px;">
+      <%= render Qb::IconComponent.new(name: :materials, size: 28, style: 'margin-bottom:8px;opacity:0.5;') %>
+      <% if any_filter %>
+        <div>
+          Sin resultados<% if @query.present? %> para «<strong style="color:var(--color-ink-2);"><%= @query %></strong>»<% end %>.
+        </div>
+        <div style="font-size:11px;color:var(--color-ink-4);margin-top:6px;">
+          <%= link_to 'Limpiar búsqueda y filtros', constructors_project_material_lists_path(@project), style: 'color:var(--color-accent);text-decoration:none;' %>
+        </div>
+      <% else %>
+        <div>Todavía no generaste listas de materiales para esta obra.</div>
+      <% end %>
+    </div>
+  <% end %>
+
+  <%= render Qb::PaginationComponent.new(pagy: @pagy, label: 'listas') %>
+</div>
+
+<%# Destino del modal "Nueva lista" / "Importar" (Turbo Frame). %>
+<%= turbo_frame_tag "project_modal" %>

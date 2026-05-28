@@ -17,6 +17,9 @@
   </div>
 
   <div>
-    <%= render Ui::FormButtonComponent.new(form: form, label: category.persisted? ? 'Update Category' : 'Create Category') %>
+    <%= render Ui::ButtonComponent.new(
+          label: category.persisted? ? "Update Category" : "Create Category",
+          type: :submit
+        ) %>
   </div>
 <% end %>

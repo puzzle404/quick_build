@@ -1,0 +1,31 @@
+<div class="m-frow">
+  <label class="m-frow-label">
+    <%= @label %><% if @required %><span class="m-frow-required">*</span><% end %>
+  </label>
+  <% if @textarea %>
+    <textarea class="m-frow-textarea"
+              name="<%= @name %>"
+              placeholder="<%= @placeholder %>"
+              rows="3"
+              <%= 'required' if @required %>><%= @value %></textarea>
+  <% elsif @select %>
+    <select class="m-frow-select" name="<%= @name %>" <%= 'required' if @required %>>
+      <% Array(@options).each do |opt| %>
+        <% if opt.is_a?(Array) %>
+          <option value="<%= opt[1] %>" <%= 'selected' if opt[1].to_s == @value.to_s %>><%= opt[0] %></option>
+        <% else %>
+          <option value="<%= opt %>" <%= 'selected' if opt.to_s == @value.to_s %>><%= opt %></option>
+        <% end %>
+      <% end %>
+    </select>
+  <% else %>
+    <input class="m-frow-input"
+           type="<%= @type %>"
+           name="<%= @name %>"
+           value="<%= @value %>"
+           placeholder="<%= @placeholder %>"
+           <%= "autocomplete=\"#{@autocomplete}\"".html_safe if @autocomplete %>
+           <%= 'required' if @required %>/>
+  <% end %>
+  <% if @helper.present? %><div class="m-frow-helper"><%= @helper %></div><% end %>
+</div>

@@ -1,0 +1,5 @@
+<%= turbo_frame_tag "stage_detail" do %>
+  <%= render Constructors::Projects::Planning::StageDetailComponent.new(
+        project: @project, stage: @stage, sub_stages: @sub_stages) %>
+<% end %>
+<%= turbo_frame_tag "project_modal" %>

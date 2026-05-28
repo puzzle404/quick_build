@@ -1,0 +1,56 @@
+<%= form_with(model: [:constructors, project, material_list, material_item],
+              data: { turbo_frame: dom_id(material_list, :new_item_frame) }) do |form| %>
+  <% if material_item.errors.any? %>
+    <div class="qb-form-error">
+      <p style="font-weight:600;margin:0 0 4px;">No pudimos guardar el material:</p>
+      <ul style="margin:0;padding-left:16px;">
+        <% material_item.errors.full_messages.each do |message| %>
+          <li><%= message %></li>
+        <% end %>
+      </ul>
+    </div>
+  <% end %>
+
+  <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;">
+    <div class="qb-field" style="margin-bottom:0;">
+      <%= form.label :name, "Material", class: "qb-label" %>
+      <%= form.text_field :name, class: "qb-input" %>
+    </div>
+
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;">
+      <div class="qb-field" style="margin-bottom:0;">
+        <%= form.label :quantity, "Cantidad", class: "qb-label" %>
+        <%= form.number_field :quantity, step: 0.01, class: "qb-input" %>
+      </div>
+      <div class="qb-field" style="margin-bottom:0;">
+        <%= form.label :unit, "Unidad", class: "qb-label" %>
+        <%= form.text_field :unit, class: "qb-input" %>
+      </div>
+    </div>
+  </div>
+
+  <div class="qb-field" style="margin-top:14px;">
+    <%= form.label :description, "Descripción", class: "qb-label" %>
+    <%= form.text_area :description, rows: 2, class: "qb-textarea" %>
+  </div>
+
+  <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;">
+    <div class="qb-field" style="margin-bottom:0;">
+      <%= form.label :estimated_cost_cents, "Costo estimado (centavos)", class: "qb-label" %>
+      <%= form.number_field :estimated_cost_cents, class: "qb-input" %>
+    </div>
+    <div class="qb-field" style="margin-bottom:0;">
+      <%= form.label :confidence_label, "Confianza / fuente", class: "qb-label" %>
+      <%= form.text_field :confidence_label, placeholder: "p.ej. Catálogo A, cálculo propio", class: "qb-input" %>
+    </div>
+  </div>
+
+  <div class="qb-field" style="margin-top:14px;">
+    <%= form.label :notes, "Notas internas", class: "qb-label" %>
+    <%= form.text_area :notes, rows: 2, class: "qb-textarea" %>
+  </div>
+
+  <div class="qb-form-actions">
+    <%= render Qb::BtnComponent.new("Agregar material", variant: :primary, size: :md, type: 'submit') %>
+  </div>
+<% end %>

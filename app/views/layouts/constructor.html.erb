@@ -1,0 +1,96 @@
+<!DOCTYPE html>
+<html lang="es"
+      data-theme="<%= current_user&.theme || 'graphite' %>"
+      data-density="<%= current_user&.density || 'cozy' %>"
+      data-accent="<%= current_user&.accent || 'cobalt' %>"
+      data-layout="sidebar">
+  <head>
+    <title><%= content_for(:title) || "Quick Build · OS" %></title>
+    <meta name="viewport" content="width=device-width,initial-scale=1">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="mobile-web-app-capable" content="yes">
+    <%= csrf_meta_tags %>
+    <%= csp_meta_tag %>
+
+    <%= yield :head %>
+
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Geist:wght@300;400;500;600;700&family=Geist+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+
+    <%= render "layouts/pwa_head" %>
+
+    <%= stylesheet_link_tag :app, "data-turbo-track": "reload" %>
+    <%= javascript_importmap_tags %>
+    <%= render "layouts/ui_kit_head" %>
+    <%= stylesheet_link_tag "https://unpkg.com/leaflet/dist/leaflet.css" %>
+  </head>
+
+  <body class="qb-os" <%= "data-hotwire-native" if hotwire_native_app? %>
+        data-controller="qb--keyboard qb--tweaks qb--mobile-detect"
+        data-qb--tweaks-persist-value="<%= current_user.present? %>"
+        data-qb--tweaks-initial-value='<%= { theme: current_user&.theme || "graphite", accent: current_user&.accent || "cobalt", density: current_user&.density || "cozy", layout: "sidebar" }.to_json %>'>
+    <div style="display:flex;min-height:100vh;">
+      <%= render Qb::Layout::SidebarComponent.new(
+            current: current_qb_section || :dashboard,
+            user: current_user,
+            project: current_qb_project,
+            project_sub: current_qb_project_sub,
+            project_count: (current_user.owned_projects.count rescue nil),
+            pinned_projects: (current_user.owned_projects.order(updated_at: :desc).limit(4).map { ProjectDecorator.new(_1) } rescue []),
+            company_name: (current_user.try(:company)&.name rescue nil)
+          ) %>
+
+      <main style="flex:1;min-width:0;display:flex;flex-direction:column;">
+        <%
+          # Topbar values come from DashboardKpis so the chip stays consistent
+          # with the dashboard hero strip. Reuse @kpis when set by the
+          # dashboard controller; compute lazily otherwise.
+          qb_topbar_kpis = (defined?(@kpis) && @kpis.is_a?(Hash)) ? @kpis : (DashboardKpis.new(current_user.owned_projects.includes(:project_stages).map { ProjectDecorator.new(_1) }).call rescue {})
+          qb_people_on_site = qb_topbar_kpis[:people_on_site].to_i
+          qb_people_on_site = nil if qb_people_on_site.zero?
+          qb_has_alerts = qb_topbar_kpis[:has_alerts] == true
+        %>
+        <%= render Qb::Layout::TopbarComponent.new(
+              crumbs: (content_for(:qb_crumbs).present? ? JSON.parse(CGI.unescapeHTML(content_for(:qb_crumbs).to_s), symbolize_names: true) : [{label: 'Inicio'}]),
+              user: current_user,
+              people_on_site: qb_people_on_site,
+              has_alerts: qb_has_alerts
+            ) %>
+
+        <% if notice %>
+          <div role="status" style="margin:12px 16px;padding:8px 12px;background:color-mix(in oklab, var(--color-ok) 14%, transparent);color:var(--color-ok);border-radius:5px;font-size:13px;"><%= notice %></div>
+        <% end %>
+        <% if alert %>
+          <div role="alert" style="margin:12px 16px;padding:8px 12px;background:color-mix(in oklab, var(--color-bad) 14%, transparent);color:var(--color-bad);border-radius:5px;font-size:13px;"><%= alert %></div>
+        <% end %>
+
+        <div style="flex:1;min-width:0;">
+          <%= yield %>
+        </div>
+      </main>
+    </div>
+
+    <%# Chrome mobile: bottom tab bar + sheet "Más". En Hotwire Native lo provee
+        la app nativa, así que no se renderiza. %>
+    <% unless hotwire_native_app? %>
+      <div data-controller="qb--bottom-sheet"
+           data-action="keydown@window->qb--bottom-sheet#closeOnEsc">
+        <%= render Qb::Layout::BottomNavComponent.new(
+              current: current_qb_section || :dashboard,
+              project: current_qb_project,
+              project_sub: current_qb_project_sub
+            ) %>
+        <%= render Qb::Layout::MobileSheetComponent.new(
+              project: current_qb_project,
+              project_sub: current_qb_project_sub,
+              user: current_user,
+              company_name: (current_user.try(:company)&.name rescue nil)
+            ) %>
+      </div>
+    <% end %>
+
+    <%= render Qb::Layout::CmdPaletteComponent.new %>
+    <%= render Qb::Layout::TweaksPanelComponent.new %>
+  </body>
+</html>

@@ -1,0 +1,35 @@
+<article class="qb-card" style="display:flex;flex-direction:column;justify-content:space-between;transition:transform .15s;">
+  <header style="margin-bottom:8px;">
+    <p style="font-size:10px;font-family:var(--font-mono);text-transform:uppercase;letter-spacing:0.6px;color:var(--color-ink-3);margin-bottom:4px;">Etapa principal</p>
+    <h3 style="font-size:15px;font-weight:600;color:var(--color-ink);margin-bottom:4px;"><%= stage.name %></h3>
+    <p style="font-size:12px;color:var(--color-ink-3);"><%= stage.description.presence || "Sin descripción todavía." %></p>
+  </header>
+
+  <dl style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:12px;">
+    <div style="background:var(--color-bg-sunken);border-radius:var(--radius);padding:10px;">
+      <dt style="font-size:10px;font-family:var(--font-mono);text-transform:uppercase;letter-spacing:0.5px;color:var(--color-ink-3);font-weight:500;">Horizonte</dt>
+      <dd style="margin-top:3px;font-size:12px;color:var(--color-ink);"><%= status_label %></dd>
+    </div>
+    <div style="background:var(--color-bg-sunken);border-radius:var(--radius);padding:10px;">
+      <dt style="font-size:10px;font-family:var(--font-mono);text-transform:uppercase;letter-spacing:0.5px;color:var(--color-ink-3);font-weight:500;">Subetapas</dt>
+      <dd style="margin-top:3px;font-size:12px;color:var(--color-ink);"><%= sub_stage_count %></dd>
+    </div>
+    <div style="background:var(--color-bg-sunken);border-radius:var(--radius);padding:10px;">
+      <dt style="font-size:10px;font-family:var(--font-mono);text-transform:uppercase;letter-spacing:0.5px;color:var(--color-ink-3);font-weight:500;">Listas de materiales</dt>
+      <dd style="margin-top:3px;font-size:12px;color:var(--color-ink);"><%= material_list_count %></dd>
+    </div>
+    <div style="background:var(--color-bg-sunken);border-radius:var(--radius);padding:10px;">
+      <dt style="font-size:10px;font-family:var(--font-mono);text-transform:uppercase;letter-spacing:0.5px;color:var(--color-ink-3);font-weight:500;">Periodo</dt>
+      <dd style="margin-top:3px;font-size:12px;color:var(--color-ink);"><%= period || "Sin especificar" %></dd>
+    </div>
+  </dl>
+
+  <footer style="margin-top:16px;display:flex;flex-wrap:wrap;align-items:center;gap:8px;">
+    <%= render Qb::BtnComponent.new('Ver detalle', variant: :primary, size: :sm,
+          href: show_path, data: { turbo_frame: '_top' }) %>
+    <% if helpers.policy(stage).update? %>
+      <%= render Qb::BtnComponent.new('Editar', variant: :secondary, size: :sm,
+            href: edit_path, data: { turbo_frame: '_top' }) %>
+    <% end %>
+  </footer>
+</article>

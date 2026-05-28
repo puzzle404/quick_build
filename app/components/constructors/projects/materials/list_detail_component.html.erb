@@ -1,0 +1,152 @@
+<div data-qb--drawer-target="dialog" role="dialog" aria-modal="true"
+     class="hidden"
+     data-action="click->qb--drawer#backdrop keydown@window->qb--drawer#keydown"
+     style="display:none;position:fixed;inset:0;z-index:50;background:rgba(0,0,0,0.40);justify-content:flex-end;">
+  <div data-qb--drawer-target="panel"
+       style="position:relative;width:880px;max-width:100vw;background:var(--color-bg);border-left:1px solid var(--color-line);display:flex;flex-direction:column;overflow:hidden;height:100vh;">
+
+    <%# Header strip %>
+    <div style="padding:14px 20px;border-bottom:1px solid var(--color-line);display:flex;align-items:center;gap:10px;">
+      <button type="button" data-action="click->qb--drawer#close" aria-label="Cerrar"
+              style="background:transparent;border:none;color:var(--color-ink-3);cursor:pointer;padding:4px;">
+        <%= render Qb::IconComponent.new(name: :x, size: 16) %>
+      </button>
+      <div style="flex:1;min-width:0;">
+        <div style="display:flex;align-items:center;gap:8px;margin-bottom:2px;">
+          <%= render Qb::PillComponent.new(tone: status_tone, compact: true) { status_label } %>
+          <% if private? %><%= render Qb::PillComponent.new('Privada', tone: :muted, compact: true) %><% end %>
+          <% if stage_name %><span class="qb-mono" style="font-size:10px;color:var(--color-ink-4);"><%= stage_name %></span><% end %>
+        </div>
+        <h2 style="margin:0;font-size:16px;font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;"><%= "#{list.display_number} #{list.name}".strip %></h2>
+      </div>
+      <%= render Qb::BtnComponent.new('Exportar', variant: :ghost, size: :sm, icon: :download) %>
+      <%= link_to edit_constructors_project_material_list_path(project, list),
+                  data: { turbo_frame: 'project_modal' },
+                  style: 'display:inline-flex;align-items:center;gap:6px;height:28px;padding:0 10px;background:var(--color-bg-raised);color:var(--color-ink);border:1px solid var(--color-line-2);border-radius:5px;font-size:12px;font-weight:500;text-decoration:none;' do %>
+        <%= render Qb::IconComponent.new(name: :edit, size: 13) %>
+        Editar
+      <% end %>
+      <% if list.status.to_s != 'approved' %>
+        <%= button_to constructors_project_material_list_path(project, list, material_list: { status: :approved }),
+                      method: :patch,
+                      style: 'display:inline-flex;align-items:center;gap:6px;height:28px;padding:0 10px;background:var(--color-accent);color:var(--color-accent-ink);border:1px solid var(--color-accent);border-radius:5px;font-size:12px;font-weight:500;cursor:pointer;' do %>
+          <%= render Qb::IconComponent.new(name: :check, size: 13) %>
+          Aprobar lista
+        <% end %>
+      <% end %>
+    </div>
+
+    <%# Metadata strip 4-col %>
+    <div style="padding:10px 20px;border-bottom:1px solid var(--color-line);background:var(--color-bg-raised);display:grid;grid-template-columns:repeat(4, 1fr);gap:16px;font-size:12px;">
+      <div>
+        <div style="font-size:10px;font-family:var(--font-mono);color:var(--color-ink-4);text-transform:uppercase;letter-spacing:0.7px;margin-bottom:2px;">Autor</div>
+        <div style="display:flex;align-items:center;gap:6px;">
+          <%= render Qb::AvatarComponent.new(name: author_name, size: 18) %>
+          <span><%= author_name %></span>
+        </div>
+      </div>
+      <div>
+        <div style="font-size:10px;font-family:var(--font-mono);color:var(--color-ink-4);text-transform:uppercase;letter-spacing:0.7px;margin-bottom:2px;">Origen</div>
+        <div style="display:flex;align-items:center;gap:4px;">
+          <%= render Qb::IconComponent.new(name: source_icon, size: 12, style: 'color:var(--color-ink-3)') %>
+          <span><%= source_label %></span>
+        </div>
+      </div>
+      <div>
+        <div style="font-size:10px;font-family:var(--font-mono);color:var(--color-ink-4);text-transform:uppercase;letter-spacing:0.7px;margin-bottom:2px;">Creada</div>
+        <div class="qb-mono">
+          <%= helpers.qb_fmt_date_short(list.created_at) %>
+          <% if list.try(:approved_at) %> · aprob. <%= helpers.qb_fmt_date_short(list.approved_at) %><% end %>
+        </div>
+      </div>
+      <div style="text-align:right;">
+        <div style="font-size:10px;font-family:var(--font-mono);color:var(--color-ink-4);text-transform:uppercase;letter-spacing:0.7px;margin-bottom:2px;">Total estimado</div>
+        <div class="qb-mono qb-tnum" style="font-size:14px;font-weight:600;color:var(--color-ink);"><%= helpers.qb_fmt_cents(total_cents) %></div>
+      </div>
+    </div>
+
+    <%# Notes (if any) %>
+    <% if list.notes.present? %>
+      <div style="padding:10px 20px;border-bottom:1px solid var(--color-line);background:var(--color-bg);font-size:12px;color:var(--color-ink-2);display:flex;gap:8px;align-items:flex-start;">
+        <%= render Qb::IconComponent.new(name: :pin, size: 13, style: 'color:var(--color-ink-3);margin-top:1px;flex-shrink:0;') %>
+        <div><%= list.notes %></div>
+      </div>
+    <% end %>
+
+    <%# Items table (scrollable body) %>
+    <div style="flex:1;overflow:auto;">
+      <div style="position:sticky;top:0;z-index:1;display:grid;grid-template-columns:32px 1fr 100px 90px 130px 110px 90px 40px;padding:8px 16px;background:var(--color-bg-raised);border-bottom:1px solid var(--color-line);font-size:10px;font-family:var(--font-mono);color:var(--color-ink-3);text-transform:uppercase;letter-spacing:0.5px;font-weight:500;">
+        <span>#</span><span>Material · Descripción</span>
+        <span style="text-align:right;">Cant.</span><span>Unidad</span>
+        <span style="text-align:right;">Precio est.</span><span style="text-align:right;">Subtotal</span>
+        <span>Confianza</span><span></span>
+      </div>
+
+      <% items.each_with_index do |item, idx| %>
+        <% subtotal = (item.quantity.to_f * item.estimated_cost_cents.to_i).round %>
+        <div style="display:grid;grid-template-columns:32px 1fr 100px 90px 130px 110px 90px 40px;padding:10px 16px;border-bottom:1px solid var(--color-line);align-items:center;font-size:12px;">
+          <span class="qb-mono" style="font-size:10px;color:var(--color-ink-4);"><%= sprintf('%02d', idx + 1) %></span>
+          <div style="min-width:0;">
+            <div style="font-weight:500;color:var(--color-ink);"><%= item.name %></div>
+            <% if item.description.present? %>
+              <div style="font-size:11px;color:var(--color-ink-3);margin-top:1px;"><%= item.description %></div>
+            <% end %>
+            <% if item.try(:notes).present? %>
+              <div style="font-size:10.5px;color:var(--color-warn);margin-top:2px;display:inline-flex;align-items:center;gap:3px;">
+                <%= render Qb::IconComponent.new(name: :alert, size: 10) %><%= item.notes %>
+              </div>
+            <% end %>
+          </div>
+          <span class="qb-mono qb-tnum" style="text-align:right;color:var(--color-ink);font-weight:500;"><%= number_with_delimiter(item.quantity) %></span>
+          <span style="color:var(--color-ink-3);font-size:11px;"><%= item.unit %></span>
+          <span class="qb-mono qb-tnum" style="text-align:right;color:var(--color-ink-2);"><%= helpers.qb_fmt_cents(item.estimated_cost_cents) %></span>
+          <span class="qb-mono qb-tnum" style="text-align:right;color:var(--color-ink);font-weight:600;"><%= helpers.qb_fmt_cents(subtotal) %></span>
+          <div>
+            <%= render Qb::PillComponent.new(tone: confidence_for(item), compact: true) { confidence_label(item) } %>
+          </div>
+          <%= button_to constructors_project_material_list_material_item_path(project, list, item),
+                        method: :delete,
+                        data: { turbo_confirm: '¿Eliminar este ítem?' },
+                        style: 'background:transparent;border:none;color:var(--color-ink-4);cursor:pointer;' do %>
+            <%= render Qb::IconComponent.new(name: :trash, size: 13) %>
+          <% end %>
+        </div>
+      <% end %>
+
+      <%# Inline add — Turbo-submit form to existing material_items#create %>
+      <%= form_with url: constructors_project_material_list_material_items_path(project, list),
+                    method: :post,
+                    data: { turbo_frame: '_top' },
+                    html: { style: 'display:grid;grid-template-columns:32px 1fr 100px 90px 130px 110px 90px 40px;padding:10px 16px;border-bottom:1px solid var(--color-line);align-items:center;background:color-mix(in oklab, var(--color-accent) 4%, var(--color-bg));' } do |f| %>
+        <%= f.hidden_field :material_list_id, value: list.id %>
+        <%= render Qb::IconComponent.new(name: :plus, size: 12, style: 'color:var(--color-accent)') %>
+        <%= f.text_field :name, required: true, placeholder: 'Nombre del material',
+                         style: 'border:none;outline:none;background:transparent;color:var(--color-ink);font-size:12px;width:100%;padding:0;' %>
+        <%= f.number_field :quantity, step: 'any', required: true, placeholder: '0',
+                            style: 'border:none;outline:none;background:transparent;color:var(--color-ink);font-size:12px;text-align:right;font-family:var(--font-mono);width:100%;padding:0;' %>
+        <%= f.select :unit, %w[u kg m³ m² m lt bolsa barra placa set rollo tacho],
+                      { selected: 'u' },
+                      style: 'border:none;outline:none;background:transparent;font-size:11px;color:var(--color-ink-3);width:100%;padding:0;' %>
+        <%= f.number_field :estimated_cost_cents, step: 1, placeholder: '0',
+                            style: 'border:none;outline:none;background:transparent;color:var(--color-ink);font-size:12px;text-align:right;font-family:var(--font-mono);width:100%;padding:0;' %>
+        <span class="qb-mono qb-tnum" style="text-align:right;color:var(--color-ink-4);">—</span>
+        <span style="font-size:10px;color:var(--color-ink-4);">—</span>
+        <button type="submit" style="background:transparent;border:none;color:var(--color-ok);cursor:pointer;padding:2px;" title="Agregar">
+          <%= render Qb::IconComponent.new(name: :check, size: 13) %>
+        </button>
+      <% end %>
+
+      <% if items.empty? %>
+        <div style="padding:40px;text-align:center;color:var(--color-ink-4);font-size:13px;">Esta lista no tiene ítems todavía.</div>
+      <% end %>
+    </div>
+
+    <%# Footer with totals %>
+    <div style="padding:12px 20px;border-top:1px solid var(--color-line);background:var(--color-bg-raised);display:flex;align-items:center;gap:12px;">
+      <span style="font-size:12px;color:var(--color-ink-3);"><%= items.size %> ítems</span>
+      <div style="flex:1;"></div>
+      <span style="font-size:12px;color:var(--color-ink-3);">Total estimado</span>
+      <span class="qb-mono qb-tnum" style="font-size:16px;font-weight:600;color:var(--color-ink);"><%= helpers.qb_fmt_cents(total_cents) %></span>
+    </div>
+  </div>
+</div>

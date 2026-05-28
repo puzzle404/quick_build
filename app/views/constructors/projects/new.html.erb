@@ -1,0 +1,160 @@
+<% content_for :qb_crumbs, [{label: 'Inicio'}, {label: 'Proyectos'}, {label: 'Nuevo'}].to_json %>
+
+<div data-controller="qb--wizard" data-qb--wizard-current-value="1"
+     style="max-width:880px;margin:24px auto;border:1px solid var(--color-line);border-radius:8px;background:var(--color-bg-raised);overflow:hidden;">
+
+  <%# Header %>
+  <div style="display:flex;align-items:center;padding:14px 18px;border-bottom:1px solid var(--color-line);">
+    <div>
+      <div style="font-size:10px;font-family:var(--font-mono);color:var(--color-ink-3);text-transform:uppercase;letter-spacing:0.8px;">Nuevo proyecto</div>
+      <h2 style="margin:2px 0 0;font-size:18px;font-weight:600;">Crear una obra en 3 pasos</h2>
+    </div>
+    <div style="flex:1;"></div>
+    <%= render Qb::BtnComponent.new('', variant: :ghost, size: :sm, icon: :close, href: constructors_projects_path) %>
+  </div>
+
+  <%# Step indicators %>
+  <div style="padding:0 18px;border-bottom:1px solid var(--color-line);">
+    <div style="display:flex;gap:4px;padding:10px 0;">
+      <% [
+        [1, 'Datos básicos'],
+        [2, 'Planos y ubicación'],
+        [3, 'Plantilla de etapas']
+      ].each do |n, label| %>
+        <button type="button"
+                data-qb--wizard-target="indicator" data-step="<%= n %>"
+                data-action="click->qb--wizard#goto"
+                data-qb--wizard-step-param="<%= n %>"
+                style="cursor:pointer;display:flex;align-items:center;gap:8px;padding:6px 12px;border-radius:5px;background:transparent;border:none;">
+          <span data-qb-wizard-dot
+                style="width:20px;height:20px;border-radius:999px;display:inline-flex;align-items:center;justify-content:center;background:var(--color-line);color:var(--color-ink-3);font-size:11px;font-weight:600;"><%= n %></span>
+          <span data-qb-wizard-label style="font-size:13px;color:var(--color-ink-3);font-weight:500;"><%= label %></span>
+        </button>
+      <% end %>
+    </div>
+  </div>
+
+  <%= form_with model: [:constructors, @project], html: { multipart: true, style: 'display:flex;flex-direction:column;' } do |f| %>
+    <div style="padding:20px;min-height:380px;">
+
+      <%# Step 1 — Datos básicos %>
+      <div data-qb--wizard-target="step" data-step="1">
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px;">
+          <label style="display:flex;flex-direction:column;gap:4px;">
+            <span style="font-size:11px;color:var(--color-ink-3);font-family:var(--font-mono);text-transform:uppercase;letter-spacing:0.6px;">Nombre del proyecto</span>
+            <%= f.text_field :name, required: true, placeholder: 'Ej. Torre Palermo · Edificio Aurora',
+                              style: 'width:100%;height:34px;padding:0 10px;border:1px solid var(--color-line);border-radius:5px;background:var(--color-bg);color:var(--color-ink);font-size:13px;outline:none;' %>
+          </label>
+          <label style="display:flex;flex-direction:column;gap:4px;">
+            <span style="font-size:11px;color:var(--color-ink-3);font-family:var(--font-mono);text-transform:uppercase;letter-spacing:0.6px;">Cliente</span>
+            <%= f.text_field :client, placeholder: 'Razón social',
+                              style: 'width:100%;height:34px;padding:0 10px;border:1px solid var(--color-line);border-radius:5px;background:var(--color-bg);color:var(--color-ink);font-size:13px;outline:none;' %>
+          </label>
+          <label style="display:flex;flex-direction:column;gap:4px;grid-column:1 / -1;">
+            <span style="font-size:11px;color:var(--color-ink-3);font-family:var(--font-mono);text-transform:uppercase;letter-spacing:0.6px;">Ubicación</span>
+            <%= f.text_field :location, placeholder: 'Dirección',
+                              style: 'width:100%;height:34px;padding:0 10px;border:1px solid var(--color-line);border-radius:5px;background:var(--color-bg);color:var(--color-ink);font-size:13px;outline:none;' %>
+          </label>
+          <label style="display:flex;flex-direction:column;gap:4px;">
+            <span style="font-size:11px;color:var(--color-ink-3);font-family:var(--font-mono);text-transform:uppercase;letter-spacing:0.6px;">Fecha de inicio</span>
+            <%= f.date_field :start_date,
+                              style: 'width:100%;height:34px;padding:0 10px;border:1px solid var(--color-line);border-radius:5px;background:var(--color-bg);color:var(--color-ink);font-size:13px;outline:none;' %>
+          </label>
+          <label style="display:flex;flex-direction:column;gap:4px;">
+            <span style="font-size:11px;color:var(--color-ink-3);font-family:var(--font-mono);text-transform:uppercase;letter-spacing:0.6px;">Fecha de entrega</span>
+            <%= f.date_field :end_date,
+                              style: 'width:100%;height:34px;padding:0 10px;border:1px solid var(--color-line);border-radius:5px;background:var(--color-bg);color:var(--color-ink);font-size:13px;outline:none;' %>
+          </label>
+          <label style="display:flex;flex-direction:column;gap:4px;">
+            <span style="font-size:11px;color:var(--color-ink-3);font-family:var(--font-mono);text-transform:uppercase;letter-spacing:0.6px;">Presupuesto estimado (centavos)</span>
+            <%= f.number_field :budget_cents, step: 100, placeholder: '0',
+                                style: 'width:100%;height:34px;padding:0 10px;border:1px solid var(--color-line);border-radius:5px;background:var(--color-bg);color:var(--color-ink);font-size:13px;outline:none;font-family:var(--font-mono);' %>
+            <span style="font-size:10.5px;color:var(--color-ink-4);">$ 1.500.000 → 150000000</span>
+          </label>
+          <label style="display:flex;flex-direction:column;gap:4px;">
+            <span style="font-size:11px;color:var(--color-ink-3);font-family:var(--font-mono);text-transform:uppercase;letter-spacing:0.6px;">Estado inicial</span>
+            <%= f.select :status, Project.statuses.keys.map { |s| [{ 'planned' => 'Planificado', 'in_progress' => 'En obra', 'completed' => 'Finalizado' }[s] || s.humanize, s] }, { selected: 'planned' },
+                          style: 'width:100%;height:34px;padding:0 10px;border:1px solid var(--color-line);border-radius:5px;background:var(--color-bg);color:var(--color-ink);font-size:13px;outline:none;' %>
+          </label>
+        </div>
+      </div>
+
+      <%# Step 2 — Planos y ubicación · qb--wizard hides non-active steps on connect.
+          Without JS (rack_test), all steps stay visible so the form remains
+          fully functional and all fields/submit are reachable. %>
+      <div data-qb--wizard-target="step" data-step="2">
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px;">
+          <div>
+            <div style="font-size:11px;color:var(--color-ink-3);font-family:var(--font-mono);text-transform:uppercase;letter-spacing:0.6px;margin-bottom:6px;">Documentos / planos iniciales</div>
+            <div style="border:1.5px dashed var(--color-line-2);border-radius:8px;padding:28px;text-align:center;background:var(--color-bg-sunken);">
+              <%= render Qb::IconComponent.new(name: :upload, size: 28, style: 'color:var(--color-ink-4)') %>
+              <div style="font-size:13px;font-weight:500;margin-top:8px;">Arrastrá PDF / DWG / imágenes</div>
+              <div style="font-size:11px;color:var(--color-ink-3);margin-top:4px;">Después podés correr análisis IA por plano</div>
+              <div style="margin-top:12px;display:inline-block;">
+                <%= f.file_field :document_files, multiple: true, accept: '.pdf,.dwg,image/*', direct_upload: true,
+                                  style: 'font-size:11px;color:var(--color-ink-2);' %>
+              </div>
+            </div>
+          </div>
+          <div>
+            <div style="font-size:11px;color:var(--color-ink-3);font-family:var(--font-mono);text-transform:uppercase;letter-spacing:0.6px;margin-bottom:6px;">Coordenadas (opcional)</div>
+            <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;">
+              <label style="display:flex;flex-direction:column;gap:4px;">
+                <span style="font-size:10px;color:var(--color-ink-4);">Latitud</span>
+                <%= f.number_field :latitude, step: 'any', placeholder: '-34.5895',
+                                    style: 'width:100%;height:34px;padding:0 10px;border:1px solid var(--color-line);border-radius:5px;background:var(--color-bg);color:var(--color-ink);font-size:13px;outline:none;font-family:var(--font-mono);' %>
+              </label>
+              <label style="display:flex;flex-direction:column;gap:4px;">
+                <span style="font-size:10px;color:var(--color-ink-4);">Longitud</span>
+                <%= f.number_field :longitude, step: 'any', placeholder: '-58.4113',
+                                    style: 'width:100%;height:34px;padding:0 10px;border:1px solid var(--color-line);border-radius:5px;background:var(--color-bg);color:var(--color-ink);font-size:13px;outline:none;font-family:var(--font-mono);' %>
+              </label>
+            </div>
+            <div style="height:200px;margin-top:8px;border-radius:6px;border:1px solid var(--color-line);background:var(--color-bg-sunken);position:relative;background-image: linear-gradient(var(--color-line) 1px, transparent 1px), linear-gradient(90deg, var(--color-line) 1px, transparent 1px);background-size:20px 20px;">
+              <div style="position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);width:14px;height:14px;border-radius:999px;background:var(--color-accent);box-shadow:0 0 0 3px var(--color-bg-raised), 0 0 0 5px var(--color-accent);"></div>
+            </div>
+            <div style="font-size:10.5px;color:var(--color-ink-4);margin-top:4px;">Mini-map placeholder · el picker Leaflet completo está en la edición.</div>
+          </div>
+        </div>
+      </div>
+
+      <%# Step 3 — Plantilla %>
+      <div data-qb--wizard-target="step" data-step="3">
+        <div style="font-size:11px;color:var(--color-ink-3);font-family:var(--font-mono);text-transform:uppercase;letter-spacing:0.6px;margin-bottom:10px;">Plantilla de etapas inicial</div>
+        <div style="display:grid;grid-template-columns:repeat(2, 1fr);gap:10px;">
+          <% [
+            ['none',     'Sin plantilla',   'Empezás con el proyecto vacío y vas creando etapas a mano.', false],
+            ['template', 'Plantilla base (3 grupos)', 'Aplica las etapas sugeridas tras crear el proyecto: Proyecto y gestión, Dirección de obra, Administración.', true]
+          ].each do |val, label, hint, checked| %>
+            <label style="border:1px solid <%= checked ? 'var(--color-accent)' : 'var(--color-line)' %>;border-radius:8px;padding:12px;cursor:pointer;background:<%= checked ? 'color-mix(in oklab, var(--color-accent) 4%, transparent)' : 'transparent' %>;">
+              <input type="radio" name="apply_template" value="<%= val %>" <%= 'checked' if checked %>>
+              <div style="font-size:13px;font-weight:600;margin-top:6px;"><%= label %></div>
+              <div style="font-size:11px;color:var(--color-ink-3);margin-top:4px;line-height:1.4;"><%= hint %></div>
+            </label>
+          <% end %>
+        </div>
+        <div style="font-size:11px;color:var(--color-ink-4);margin-top:14px;line-height:1.5;">
+          Tras crear la obra podés aplicar/cambiar la plantilla en la pestaña <strong style="color:var(--color-ink-3);">Planificación</strong>, agregar sub-etapas o cargar un cronograma propio.
+        </div>
+      </div>
+    </div>
+
+    <%# Footer %>
+    <div style="display:flex;align-items:center;padding:14px 18px;border-top:1px solid var(--color-line);gap:8px;">
+      <%= render Qb::BtnComponent.new('Cancelar', variant: :ghost, size: :sm, href: constructors_projects_path) %>
+      <div style="flex:1;"></div>
+      <button type="button" data-qb--wizard-target="prevBtn" data-action="click->qb--wizard#prev"
+              style="height:28px;padding:0 10px;background:var(--color-bg-raised);color:var(--color-ink);border:1px solid var(--color-line-2);border-radius:5px;font-size:12px;font-weight:500;cursor:pointer;">Atrás</button>
+      <button type="button" data-qb--wizard-target="nextBtn" data-action="click->qb--wizard#next"
+              style="display:inline-flex;align-items:center;gap:6px;height:28px;padding:0 10px;background:var(--color-accent);color:var(--color-accent-ink);border:1px solid var(--color-accent);border-radius:5px;font-size:12px;font-weight:500;cursor:pointer;">
+        Continuar
+        <%= render Qb::IconComponent.new(name: :'arrow-right', size: 13) %>
+      </button>
+      <button type="submit" data-qb--wizard-target="submitBtn"
+              style="display:inline-flex;align-items:center;gap:6px;height:28px;padding:0 10px;background:var(--color-accent);color:var(--color-accent-ink);border:1px solid var(--color-accent);border-radius:5px;font-size:12px;font-weight:500;cursor:pointer;">
+        <%= render Qb::IconComponent.new(name: :check, size: 13) %>
+        Crear proyecto
+      </button>
+    </div>
+  <% end %>
+</div>

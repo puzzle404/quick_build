@@ -1,0 +1,14 @@
+<div class="m-seg" role="tablist" <%= "data-name=\"#{@name}\"".html_safe if @name %>>
+  <% @options.each do |opt| %>
+    <% active = (opt[:key].to_s == @value.to_s) %>
+    <% if opt[:href] %>
+      <%= link_to opt[:label], opt[:href],
+            class: 'm-seg-btn',
+            role: 'tab',
+            data: { active: active.to_s, key: opt[:key] },
+            aria: (active ? { current: 'page' } : {}) %>
+    <% else %>
+      <button class="m-seg-btn" type="button" role="tab" data-active="<%= active %>" data-key="<%= opt[:key] %>"><%= opt[:label] %></button>
+    <% end %>
+  <% end %>
+</div>

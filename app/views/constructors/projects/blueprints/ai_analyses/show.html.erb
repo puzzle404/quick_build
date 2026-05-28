@@ -1,0 +1,145 @@
+<%
+  status_bg = case @analysis.status
+  when 'completed' then "background:color-mix(in oklab,var(--color-ok) 12%,transparent);border:1px solid color-mix(in oklab,var(--color-ok) 30%,transparent);"
+  when 'processing', 'queued' then "background:color-mix(in oklab,var(--color-info) 12%,transparent);border:1px solid color-mix(in oklab,var(--color-info) 30%,transparent);"
+  when 'failed' then "background:color-mix(in oklab,var(--color-bad) 12%,transparent);border:1px solid color-mix(in oklab,var(--color-bad) 30%,transparent);"
+  else "background:var(--color-bg-sunken);border:1px solid var(--color-line);"
+  end
+
+  status_text_color = case @analysis.status
+  when 'completed' then 'color:var(--color-ok);'
+  when 'processing', 'queued' then 'color:var(--color-info);'
+  when 'failed' then 'color:var(--color-bad);'
+  else 'color:var(--color-ink);'
+  end
+
+  status_icon_html = case @analysis.status
+  when 'completed'
+    '<svg style="height:20px;width:20px;color:var(--color-ok);" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"/></svg>'.html_safe
+  when 'processing', 'queued'
+    '<svg class="animate-spin" style="height:20px;width:20px;color:var(--color-info);" fill="none" viewBox="0 0 24 24"><circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle><path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path></svg>'.html_safe
+  when 'failed'
+    '<svg style="height:20px;width:20px;color:var(--color-bad);" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z" clip-rule="evenodd"/></svg>'.html_safe
+  end
+
+  status_text_display = case @analysis.status
+  when 'completed' then 'Análisis completado'
+  when 'processing' then 'Procesando...'
+  when 'queued' then 'En cola...'
+  when 'failed' then 'Error en el análisis'
+  else @analysis.status.titleize
+  end
+%>
+
+<div class="container mx-auto px-4 py-8">
+  <div class="max-w-4xl mx-auto">
+    <!-- Header -->
+    <div class="mb-6">
+      <%= render Qb::BtnComponent.new('← Volver al plano', variant: :ghost,
+                                      href: constructors_project_blueprint_path(@project, @blueprint)) %>
+      <h1 style="margin-top:16px;font-size:22px;font-weight:700;color:var(--color-ink);">Resultados del Análisis IA</h1>
+      <p style="margin-top:4px;font-size:13px;color:var(--color-ink-2);">
+        Revisá las mediciones sugeridas por la IA y seleccioná cuáles querés aplicar
+      </p>
+    </div>
+
+    <!-- Status -->
+    <div style="margin-bottom:24px;padding:16px;border-radius:var(--radius);<%= status_bg %>">
+      <div class="flex items-center gap-2">
+        <%= status_icon_html %>
+        <span style="font-weight:500;<%= status_text_color %>"><%= status_text_display %></span>
+      </div>
+      <% if @analysis.failed? && @analysis.error_message.present? %>
+        <p style="margin-top:8px;font-size:13px;color:var(--color-bad);"><%= @analysis.error_message %></p>
+      <% end %>
+    </div>
+
+    <% if @analysis.completed? %>
+      <!-- Results Form -->
+      <%= form_with url: apply_constructors_project_blueprint_ai_analysis_path(@project, @blueprint, @analysis),
+                    method: :post,
+                    local: true do |f| %>
+
+        <!-- Suggested Measurements List -->
+        <div class="qb-card" style="overflow:hidden;padding:0;">
+          <div style="padding:12px 16px;background:var(--color-bg-sunken);border-bottom:1px solid var(--color-line);">
+            <h2 style="font-weight:500;color:var(--color-ink);font-size:14px;">
+              <%= pluralize(@analysis.suggested_count, 'elemento detectado') %>
+            </h2>
+          </div>
+
+          <div style="divide-y:1px solid var(--color-line);">
+            <% elements = @analysis.suggested_measurements['elements'] || [] %>
+            <% elements.each_with_index do |element, index| %>
+              <%
+                confidence = element['confidence'].to_i
+                conf_tone = if confidence >= 80
+                  :ok
+                elsif confidence >= 60
+                  :warn
+                else
+                  :bad
+                end
+              %>
+              <div style="padding:16px;border-bottom:1px solid var(--color-line);">
+                <label class="flex items-start gap-3" style="cursor:pointer;">
+                  <%= check_box_tag "selected_indices[]", index, true,
+                                    class: "mt-1",
+                                    style: "accent-color:var(--color-accent);width:16px;height:16px;" %>
+
+                  <div class="flex-1">
+                    <div class="flex items-center gap-2">
+                      <span style="font-weight:500;color:var(--color-ink);font-size:14px;"><%= element['construction_item'] %></span>
+                      <%= render Qb::PillComponent.new(element['type'] == 'line' ? 'Línea' : element['type'] == 'polygon' ? 'Área' : 'Punto', tone: :muted) %>
+                      <%= render Qb::PillComponent.new("#{confidence}% confianza", tone: conf_tone) %>
+                    </div>
+
+                    <div style="margin-top:4px;font-size:13px;color:var(--color-ink-2);">
+                      <span style="font-weight:600;color:var(--color-ink);">
+                        <%= number_with_precision(element['estimated_value'], precision: 2) %> <%= element['unit'] %>
+                      </span>
+                      <% if element['description'].present? %>
+                        — <%= element['description'] %>
+                      <% end %>
+                    </div>
+                  </div>
+                </label>
+              </div>
+            <% end %>
+          </div>
+        </div>
+
+        <!-- Notes Section -->
+        <% if @analysis.suggested_measurements['general_notes'].present? %>
+          <div style="margin-top:16px;padding:16px;background:color-mix(in oklab,var(--color-info) 10%,transparent);border:1px solid color-mix(in oklab,var(--color-info) 25%,transparent);border-radius:var(--radius);">
+            <h3 style="font-size:13px;font-weight:500;color:var(--color-info);margin-bottom:4px;">Notas del análisis</h3>
+            <p style="font-size:13px;color:var(--color-ink);"><%= @analysis.suggested_measurements['general_notes'] %></p>
+          </div>
+        <% end %>
+
+        <!-- Actions -->
+        <div class="flex gap-3" style="margin-top:24px;">
+          <%= f.submit "Aplicar Seleccionados",
+                       style: "display:inline-flex;align-items:center;padding:8px 16px;border-radius:var(--radius);border:none;background:var(--color-accent);color:var(--color-accent-ink);font-size:13px;font-weight:500;cursor:pointer;" %>
+          <%= render Qb::BtnComponent.new('Cancelar', variant: :secondary,
+                                          href: constructors_project_blueprint_path(@project, @blueprint)) %>
+        </div>
+      <% end %>
+    <% elsif @analysis.processing? || @analysis.status == 'queued' %>
+      <!-- Loading State -->
+      <div style="text-align:center;padding:48px 0;">
+        <div class="inline-flex items-center gap-3">
+          <svg class="animate-spin" style="height:32px;width:32px;color:var(--color-accent);" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+            <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+            <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+          </svg>
+          <span style="font-size:18px;color:var(--color-ink);">Analizando plano...</span>
+        </div>
+        <p style="margin-top:16px;font-size:13px;color:var(--color-ink-3);">Esto puede tomar entre 10-30 segundos</p>
+        <script>
+          setTimeout(() => window.location.reload(), 5000);
+        </script>
+      </div>
+    <% end %>
+  </div>
+</div>

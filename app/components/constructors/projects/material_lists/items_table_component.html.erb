@@ -1,0 +1,49 @@
+<% if material_items.empty? %>
+  <div class="qb-empty">
+    Todavía no hay materiales cargados en esta lista.
+  </div>
+<% else %>
+  <div style="border:1px solid var(--color-line);border-radius:var(--radius);overflow:hidden;">
+    <table class="qb-table">
+      <thead>
+        <tr>
+          <th>Material</th>
+          <th>Cantidad</th>
+          <th>Unidad</th>
+          <th>Costo estimado</th>
+          <% if editable? %>
+            <th></th>
+          <% end %>
+        </tr>
+      </thead>
+      <tbody>
+        <% material_items.each do |item| %>
+          <tr>
+            <td>
+              <span style="font-weight:600;color:var(--color-ink);"><%= item.name %></span>
+              <% if item.description.present? %>
+                <div style="margin-top:2px;font-size:11px;color:var(--color-ink-4);"><%= item.description %></div>
+              <% end %>
+            </td>
+            <td><%= item.quantity %></td>
+            <td><%= item.unit %></td>
+            <td>
+              <% if item.estimated_cost_cents.present? %>
+                <%= helpers.qb_fmt_cents(item.estimated_cost_cents) %>
+              <% else %>
+                -
+              <% end %>
+            </td>
+            <% if editable? %>
+              <td style="text-align:right;">
+                <%= render Qb::BtnComponent.new('Quitar', variant: :danger, size: :xs,
+                      href: helpers.constructors_project_material_list_material_item_path(project, material_list, item),
+                      data: { turbo_method: :delete, turbo_confirm: '¿Eliminar este material de la lista?' }) %>
+              </td>
+            <% end %>
+          </tr>
+        <% end %>
+      </tbody>
+    </table>
+  </div>
+<% end %>
