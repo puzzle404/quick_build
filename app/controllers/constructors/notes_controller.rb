@@ -11,7 +11,25 @@ module Constructors
       authorize @note
 
       if @note.save
-        redirect_to redirect_path, notice: "Nota agregada correctamente."
+        # Para notas del proyecto (resumen), respondemos turbo_stream para que
+        # la modal cierre y la lista se refresque sin recargar la página.
+        # Para notas de etapa, el flujo sigue siendo redirect (la drawer se
+        # vuelve a abrir vía Turbo Frame al recargar la stage show).
+        respond_to do |format|
+          format.turbo_stream do
+            if @noteable.is_a?(Project)
+              render turbo_stream: turbo_stream.update("project_notes_list",
+                Constructors::Projects::NotesListComponent.new(
+                  notes: @project.notes.recent_first.includes(:author),
+                  noteable: @project,
+                  project: @project
+                ))
+            else
+              redirect_to redirect_path, notice: "Nota agregada correctamente."
+            end
+          end
+          format.html { redirect_to redirect_path, notice: "Nota agregada correctamente." }
+        end
       else
         redirect_to redirect_path,
           alert: @note.errors.full_messages.to_sentence

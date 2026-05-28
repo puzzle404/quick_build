@@ -7,6 +7,19 @@ class Constructors::DashboardController < Constructors::BaseController
 
     @months_selected = months
     @exchange_rates = External::ExchangeRatesFetcher.new.call
+
+    # Clima de referencia para la barra superior: primero un proyecto activo
+    # con coordenadas, si no hay -> Buenos Aires como default razonable.
+    ref_project = current_user.owned_projects.where.not(latitude: nil, longitude: nil).first
+    if ref_project
+      @reference_weather_project = ref_project
+      @reference_weather_location = ref_project.location.presence || ref_project.name
+      @reference_weather = External::WeatherFetcher.new(lat: ref_project.latitude, lng: ref_project.longitude).call
+    else
+      @reference_weather_project = nil
+      @reference_weather_location = "Buenos Aires"
+      @reference_weather = External::WeatherFetcher.new(lat: -34.6037, lng: -58.3816).call
+    end
     service = Constructors::DashboardService.new(current_user)
 
     @dashboard = {

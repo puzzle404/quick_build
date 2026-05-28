@@ -72,10 +72,13 @@
               <%= doc.uploaded_at.strftime("%d/%m/%Y") %>
             </td>
             <td style="padding:0 12px;white-space:nowrap;">
-              <%# url_for(file) da la URL directa del servicio (Cloudinary en dev), igual
-                  que el viewer de planos que anda OK; rails_blob_url(inline) rompía con Cloudinary. %>
-              <%= link_to "Ver", url_for(doc.file), target: '_blank', rel: 'noopener', style: 'font-size:11px;color:var(--color-accent);text-decoration:none;margin-right:8px;' %>
-              <%= link_to "Descargar", url_for(doc.file), style: 'font-size:11px;color:var(--color-accent);text-decoration:none;' %>
+              <%# "Ver" abre el visor embebido (drawer QB OS) vía Turbo Frame,
+                  como el de planos. "Descargar" deja el archivo directo del servicio. %>
+              <%= link_to "Ver", constructors_library_document_path(doc),
+                    data: { turbo_frame: 'project_modal' },
+                    style: 'font-size:11px;color:var(--color-accent);text-decoration:none;margin-right:8px;' %>
+              <%= link_to "Descargar", url_for(doc.file),
+                    style: 'font-size:11px;color:var(--color-accent);text-decoration:none;' %>
             </td>
           </tr>
         <% end %>
@@ -84,10 +87,20 @@
   <% else %>
     <div style="padding:60px;margin:16px;text-align:center;color:var(--color-ink-4);font-size:13px;border:1px dashed var(--color-line);border-radius:10px;">
       <%= render Qb::IconComponent.new(name: :docs, size: 28, style: 'margin-bottom:8px;opacity:0.5;') %>
-      <div>Todavía no hay documentos en tus obras.</div>
-      <div style="font-size:11px;color:var(--color-ink-4);margin-top:6px;">Subí archivos desde la pestaña Documentos dentro de cada proyecto o etapa.</div>
+      <% if @query.present? %>
+        <div>Sin resultados para «<strong style="color:var(--color-ink-2);"><%= @query %></strong>».</div>
+        <div style="font-size:11px;color:var(--color-ink-4);margin-top:6px;">
+          <%= link_to 'Limpiar búsqueda', constructors_library_path, style: 'color:var(--color-accent);text-decoration:none;' %>
+        </div>
+      <% else %>
+        <div>Todavía no hay documentos en tus obras.</div>
+        <div style="font-size:11px;color:var(--color-ink-4);margin-top:6px;">Subí archivos desde la pestaña Documentos dentro de cada proyecto o etapa.</div>
+      <% end %>
     </div>
   <% end %>
 
   <%= render Qb::PaginationComponent.new(pagy: @pagy, label: 'documentos') %>
 </div>
+
+<%# Destino del visor de documentos (Turbo Frame). %>
+<%= turbo_frame_tag "project_modal" %>

@@ -75,7 +75,14 @@
   <% else %>
     <div style="padding:60px;margin:16px;text-align:center;color:var(--color-ink-4);font-size:13px;border:1px dashed var(--color-line);border-radius:10px;">
       <%= render Qb::IconComponent.new(name: :docs, size: 28, style: 'margin-bottom:8px;opacity:0.5;') %>
-      <div>Aún no se cargaron documentos.</div>
+      <% if @query.present? %>
+        <div>Sin resultados para «<strong style="color:var(--color-ink-2);"><%= @query %></strong>».</div>
+        <div style="font-size:11px;color:var(--color-ink-4);margin-top:6px;">
+          <%= link_to 'Limpiar búsqueda', constructors_project_documents_path(@project), style: 'color:var(--color-accent);text-decoration:none;' %>
+        </div>
+      <% else %>
+        <div>Aún no se cargaron documentos.</div>
+      <% end %>
     </div>
   <% end %>
 </div>

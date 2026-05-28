@@ -80,7 +80,14 @@
         <tr id="people_empty_row">
           <td colspan="6" style="padding:48px 12px;text-align:center;color:var(--color-ink-4);font-size:13px;">
             <%= render Qb::IconComponent.new(name: :people, size: 28, style: 'margin-bottom:8px;opacity:0.5;') %>
-            <div>Todavía no sumaste personas a esta obra.</div>
+            <% if @query.present? %>
+              <div>Sin resultados para «<strong style="color:var(--color-ink-2);"><%= @query %></strong>».</div>
+              <div style="font-size:11px;color:var(--color-ink-4);margin-top:6px;">
+                <%= link_to 'Limpiar búsqueda', constructors_project_people_path(@project), style: 'color:var(--color-accent);text-decoration:none;' %>
+              </div>
+            <% else %>
+              <div>Todavía no sumaste personas a esta obra.</div>
+            <% end %>
           </td>
         </tr>
       <% end %>

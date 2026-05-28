@@ -34,14 +34,28 @@
       <%= render Qb::SectionHeadComponent.new(title: 'Actividad en este proyecto') %>
       <%= render Constructors::Dashboard::ActivityFeedComponent.new(entries: @activity_entries) %>
 
-      <%= render Qb::SectionHeadComponent.new(title: 'Notas del proyecto', subtitle: 'Bitácora de reuniones y decisiones de obra') %>
-      <div style="padding:14px 16px;display:flex;flex-direction:column;gap:12px;">
-        <%= render Constructors::Projects::NoteFormComponent.new(noteable: @project, project: @project) %>
-        <%= render Constructors::Projects::NotesListComponent.new(
-              notes: @project.notes.recent_first.includes(:author),
-              noteable: @project,
-              project: @project
-            ) %>
+      <%# qb--modal envuelve el SectionHead y la lista: el botón "Agregar nota"
+          del slot right necesita un qb--modal ancestor para que su click->open
+          encuentre el controller. %>
+      <div data-controller="qb--modal">
+        <%= render Qb::SectionHeadComponent.new(title: 'Notas del proyecto', subtitle: 'Bitácora de reuniones y decisiones de obra') do |c| %>
+          <% c.with_right do %>
+            <%= render Qb::BtnComponent.new('Agregar nota', variant: :primary, size: :xs, icon: :plus,
+                  data: { action: 'click->qb--modal#open' }) %>
+          <% end %>
+        <% end %>
+        <div style="padding:14px 16px;display:flex;flex-direction:column;gap:12px;">
+          <%# turbo_stream target: el create del notes_controller actualiza
+              este contenedor con la lista refrescada (incluye la nueva nota). %>
+          <div id="project_notes_list">
+            <%= render Constructors::Projects::NotesListComponent.new(
+                  notes: @project.notes.recent_first.includes(:author),
+                  noteable: @project,
+                  project: @project
+                ) %>
+          </div>
+          <%= render Constructors::Projects::NoteModalComponent.new(project: @project) %>
+        </div>
       </div>
     </div>
 

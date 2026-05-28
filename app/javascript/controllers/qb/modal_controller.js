@@ -22,6 +22,20 @@ export default class extends Controller {
   open()  { this._setOpen(true) }
   close() { this._setOpen(false) }
 
+  // Para forms que viven dentro de la modal: cierran la modal sólo si la
+  // respuesta fue exitosa (turbo:submit-end emite event.detail.success).
+  // Si hay validation error, la modal queda abierta para que el usuario corrija.
+  closeOnSuccess(event) {
+    if (event?.detail?.success) {
+      this._setOpen(false)
+      // Reset de todos los forms dentro del panel para que la próxima apertura
+      // empiece vacía (caso típico: "Nueva nota" se reusa varias veces).
+      if (this.hasPanelTarget) {
+        this.panelTarget.querySelectorAll("form").forEach((f) => f.reset())
+      }
+    }
+  }
+
   _setOpen(open) {
     if (!this.hasDialogTarget) return
     this.dialogTarget.classList.toggle("hidden", !open)

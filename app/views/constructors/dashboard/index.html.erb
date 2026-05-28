@@ -31,8 +31,13 @@
       </div>
     </div>
     <div style="display:flex;align-items:center;gap:12px;">
-      <%# Tipo de cambio — visible arriba, compacto. %>
+      <%# Tipo de cambio + clima — visibles arriba, compactos. %>
       <%= render Constructors::Dashboard::ExchangeRatesComponent.new(rates: @exchange_rates, compact: true) %>
+      <%= render Constructors::Projects::WeatherComponent.new(
+            forecast: @reference_weather,
+            project: @reference_weather_project,
+            compact: true,
+            location_override: @reference_weather_location) %>
       <%= render Qb::BtnComponent.new('Reporte', variant: :secondary, size: :sm, icon: :download) %>
       <%= render Qb::BtnComponent.new('Nuevo proyecto', variant: :primary, size: :sm, icon: :plus, href: new_constructors_project_path) %>
     </div>

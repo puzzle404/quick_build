@@ -84,9 +84,24 @@
       <% end %>
     </div>
   <% else %>
+    <%
+      any_filter = @query.present? ||
+                    @status_filter != 'all' ||
+                    @source_filter != 'all' ||
+                    (@stage_filter.present? && @stage_filter != 'all')
+    %>
     <div style="padding:60px;margin:16px;text-align:center;color:var(--color-ink-4);font-size:13px;border:1px dashed var(--color-line);border-radius:10px;">
       <%= render Qb::IconComponent.new(name: :materials, size: 28, style: 'margin-bottom:8px;opacity:0.5;') %>
-      <div>Todavía no generaste listas de materiales para esta obra.</div>
+      <% if any_filter %>
+        <div>
+          Sin resultados<% if @query.present? %> para «<strong style="color:var(--color-ink-2);"><%= @query %></strong>»<% end %>.
+        </div>
+        <div style="font-size:11px;color:var(--color-ink-4);margin-top:6px;">
+          <%= link_to 'Limpiar búsqueda y filtros', constructors_project_material_lists_path(@project), style: 'color:var(--color-accent);text-decoration:none;' %>
+        </div>
+      <% else %>
+        <div>Todavía no generaste listas de materiales para esta obra.</div>
+      <% end %>
     </div>
   <% end %>
 

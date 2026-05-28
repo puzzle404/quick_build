@@ -119,8 +119,15 @@
   <% else %>
     <div style="padding:60px;margin:16px;text-align:center;color:var(--color-ink-4);font-size:13px;border:1px dashed var(--color-line);border-radius:10px;">
       <%= render Qb::IconComponent.new(name: :people, size: 28, style: 'margin-bottom:8px;opacity:0.5;') %>
-      <div>Aún no sumaste personas a ninguna obra.</div>
-      <div style="font-size:11px;color:var(--color-ink-4);margin-top:6px;">Entrá a un proyecto y usá la pestaña Equipo para agregar gente.</div>
+      <% if @query.present? %>
+        <div>Sin resultados para «<strong style="color:var(--color-ink-2);"><%= @query %></strong>».</div>
+        <div style="font-size:11px;color:var(--color-ink-4);margin-top:6px;">
+          <%= link_to 'Limpiar búsqueda', constructors_people_path, style: 'color:var(--color-accent);text-decoration:none;' %>
+        </div>
+      <% else %>
+        <div>Aún no sumaste personas a ninguna obra.</div>
+        <div style="font-size:11px;color:var(--color-ink-4);margin-top:6px;">Entrá a un proyecto y usá la pestaña Equipo para agregar gente.</div>
+      <% end %>
     </div>
   <% end %>
 

@@ -21,6 +21,7 @@
       </div>
       <%= render Qb::BtnComponent.new('Exportar', variant: :ghost, size: :sm, icon: :download) %>
       <%= link_to edit_constructors_project_material_list_path(project, list),
+                  data: { turbo_frame: 'project_modal' },
                   style: 'display:inline-flex;align-items:center;gap:6px;height:28px;padding:0 10px;background:var(--color-bg-raised);color:var(--color-ink);border:1px solid var(--color-line-2);border-radius:5px;font-size:12px;font-weight:500;text-decoration:none;' do %>
         <%= render Qb::IconComponent.new(name: :edit, size: 13) %>
         Editar

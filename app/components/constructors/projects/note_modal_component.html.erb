@@ -18,7 +18,11 @@
                                       data: { action: 'click->qb--modal#close' }) %>
     </div>
 
-    <%= form_with url: form_url, scope: :note, html: { style: 'display:flex;flex-direction:column;' } do |form| %>
+    <%# turbo:submit-end -> cierra la modal y resetea el form si la creación
+        fue exitosa; si hay validation error, queda abierta. %>
+    <%= form_with url: form_url, scope: :note,
+                  data: { action: 'turbo:submit-end->qb--modal#closeOnSuccess' },
+                  html: { style: 'display:flex;flex-direction:column;' } do |form| %>
       <div style="padding:18px;">
         <div class="qb-field">
           <%= form.label :title, "Título (opcional)", class: "qb-label" %>
