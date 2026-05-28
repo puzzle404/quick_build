@@ -1,24 +1,71 @@
-<%= render Constructors::Projects::SectionsNavComponent.new(project: @project, current_section: :planning) %>
+<% if turbo_frame_request? %>
+  <%= turbo_frame_tag "project_modal" do %>
+    <div data-controller="qb--modal" data-qb--modal-open-on-connect-value="true">
+      <div data-qb--modal-target="dialog" role="dialog" aria-modal="true"
+           class="hidden"
+           data-action="click->qb--modal#backdrop keydown@window->qb--modal#keydown"
+           style="display:flex;position:fixed;inset:0;z-index:60;background:rgba(0,0,0,0.45);align-items:center;justify-content:center;">
+        <div data-qb--modal-target="panel"
+             style="position:relative;width:560px;max-height:86vh;background:var(--color-bg);border:1px solid var(--color-line);border-radius:10px;overflow:hidden;display:flex;flex-direction:column;box-shadow:0 20px 50px -10px rgba(0,0,0,0.4);">
 
-<div class="mt-6 space-y-6">
-  <header class="space-y-1">
-    <h1 style="font-size:22px;font-weight:600;color:var(--color-ink);">Agregar imágenes a <%= @stage.name %></h1>
-    <p style="font-size:13px;color:var(--color-ink-3);">Subí fotografías o recursos visuales para documentar el avance de la etapa.</p>
-  </header>
+          <div style="padding:14px 18px;border-bottom:1px solid var(--color-line);display:flex;justify-content:space-between;align-items:center;">
+            <div>
+              <div style="font-size:10px;font-family:var(--font-mono);text-transform:uppercase;letter-spacing:0.7px;color:var(--color-accent);margin-bottom:4px;">Imágenes</div>
+              <h3 style="margin:0;font-size:15px;font-weight:600;color:var(--color-ink);">Agregar imágenes</h3>
+              <div style="font-size:12px;color:var(--color-ink-3);margin-top:2px;">Subir fotos a <strong><%= @stage.name %></strong></div>
+            </div>
+            <button type="button" data-action="click->qb--modal#close" aria-label="Cerrar"
+                    style="background:transparent;border:none;color:var(--color-ink-3);cursor:pointer;">
+              <%= render Qb::IconComponent.new(name: :x, size: 16) %>
+            </button>
+          </div>
 
-  <section class="qb-card">
-    <%= form_with scope: :image, url: constructors_project_stage_images_path(@project, @stage), multipart: true, class: "space-y-5" do |form| %>
-      <div class="qb-field">
-        <%= form.label :files, "Seleccionar imágenes", class: "qb-label" %>
-        <%= form.file_field :files, multiple: true, accept: "image/*",
-                            style: "font-size:12px;color:var(--color-ink-2);width:100%;" %>
-        <p style="margin-top:4px;font-size:11px;color:var(--color-ink-3);">Formatos recomendados: JPG o PNG (hasta 25 MB cada imagen).</p>
+          <div style="flex:1;overflow:auto;padding:18px;">
+            <div class="qb-card" style="padding:16px;">
+              <%= form_with scope: :image, url: constructors_project_stage_images_path(@project, @stage), multipart: true, class: "space-y-5", data: { turbo_frame: '_top' } do |form| %>
+                <div class="qb-field">
+                  <%= form.label :files, "Seleccionar imágenes", class: "qb-label" %>
+                  <%= form.file_field :files, multiple: true, accept: "image/*",
+                                      style: "font-size:12px;color:var(--color-ink-2);width:100%;" %>
+                  <p style="margin-top:4px;font-size:11px;color:var(--color-ink-3);">Formatos recomendados: JPG o PNG (hasta 25 MB cada imagen).</p>
+                </div>
+
+                <div class="flex items-center gap-3">
+                  <%= render Qb::BtnComponent.new('Subir imágenes', variant: :primary, type: 'submit') %>
+                  <button type="button" data-action="click->qb--modal#close"
+                          style="font-size:13px;color:var(--color-ink-3);background:transparent;border:none;cursor:pointer;padding:0;">Cancelar</button>
+                </div>
+              <% end %>
+            </div>
+          </div>
+
+        </div>
       </div>
+    </div>
+  <% end %>
+<% else %>
+  <%= render Constructors::Projects::SectionsNavComponent.new(project: @project, current_section: :planning) %>
 
-      <div class="flex items-center gap-3">
-        <%= render Qb::BtnComponent.new('Subir imágenes', variant: :primary, type: 'submit') %>
-        <%= render Qb::BtnComponent.new('Cancelar', variant: :secondary, href: constructors_project_stage_path(@project, @stage)) %>
-      </div>
-    <% end %>
-  </section>
-</div>
+  <div class="mt-6 space-y-6">
+    <header class="space-y-1">
+      <h1 style="font-size:22px;font-weight:600;color:var(--color-ink);">Agregar imágenes a <%= @stage.name %></h1>
+      <p style="font-size:13px;color:var(--color-ink-3);">Subí fotografías o recursos visuales para documentar el avance de la etapa.</p>
+    </header>
+
+    <section class="qb-card">
+      <%= form_with scope: :image, url: constructors_project_stage_images_path(@project, @stage), multipart: true, class: "space-y-5" do |form| %>
+        <div class="qb-field">
+          <%= form.label :files, "Seleccionar imágenes", class: "qb-label" %>
+          <%= form.file_field :files, multiple: true, accept: "image/*",
+                              style: "font-size:12px;color:var(--color-ink-2);width:100%;" %>
+          <p style="margin-top:4px;font-size:11px;color:var(--color-ink-3);">Formatos recomendados: JPG o PNG (hasta 25 MB cada imagen).</p>
+        </div>
+
+        <div class="flex items-center gap-3">
+          <%= render Qb::BtnComponent.new('Subir imágenes', variant: :primary, type: 'submit') %>
+          <%= render Qb::BtnComponent.new('Cancelar', variant: :secondary, href: constructors_project_stage_path(@project, @stage)) %>
+        </div>
+      <% end %>
+    </section>
+  </div>
+<% end %>

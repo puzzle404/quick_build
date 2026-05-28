@@ -39,7 +39,7 @@ class Constructors::Projects::SectionsNavComponent < ViewComponent::Base
         key: :planning,
         name: "Planificación",
         description: "Etapas y cronogramas",
-        path: helpers.constructors_project_planning_path(@project),
+        path: helpers.constructors_project_stages_path(@project),
         icon: "calendar"
       },
       {

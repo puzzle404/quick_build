@@ -12,7 +12,7 @@ RSpec.describe "Adding a note to a project", type: :system do
     visit constructors_project_path(project)
 
     # Open the note form disclosure
-    find("summary", text: "Nueva nota").click
+    find("summary", text: "Agregar una nota").click
 
     fill_in "Nota", with: "Coordinar con el arquitecto la semana próxima"
 

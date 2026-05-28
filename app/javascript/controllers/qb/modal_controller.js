@@ -4,13 +4,19 @@ import { Controller } from "@hotwired/stimulus"
 // but the dialog uses center alignment instead of right-anchored.
 export default class extends Controller {
   static targets = ["dialog", "panel"]
+  // openOnConnect: true for modals lazily loaded into a Turbo Frame (e.g. the
+  // project_modal frame). They must appear as soon as the frame swaps them in.
+  // Inline modals leave it false so they start hidden until their trigger.
+  static values = { openOnConnect: Boolean }
 
-  // Hide the dialog on connect so the markup doesn't need inline
-  // display:none (which makes rack_test specs unable to interact with
-  // the form). With no JS the dialog stays visible and the form is
-  // submittable directly — degraded UX, but functional.
+  // Inline modals hide on connect (markup ships visible so rack_test can reach
+  // the form; with no JS the dialog stays visible — degraded but functional).
+  // Modals lazily loaded into the project_modal Turbo Frame open immediately
+  // (an inline modal is never inside that frame, so this stays robust without
+  // depending on a per-instance attribute being parsed at connect time).
   connect() {
-    this._setOpen(false)
+    const inProjectModalFrame = this.element.closest("turbo-frame#project_modal") != null
+    this._setOpen(this.openOnConnectValue === true || inProjectModalFrame)
   }
 
   open()  { this._setOpen(true) }

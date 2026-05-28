@@ -7,6 +7,7 @@
 
 <% if turbo_frame_request? %>
   <%= turbo_frame_tag "project_modal" do %>
+    <div data-controller="qb--modal" data-qb--modal-open-on-connect-value="true">
     <div data-qb--modal-target="dialog" role="dialog" aria-modal="true"
          class="hidden"
          data-action="click->qb--modal#backdrop keydown@window->qb--modal#keydown"
@@ -38,6 +39,7 @@
           </div>
         </div>
       </div>
+    </div>
     </div>
   <% end %>
 <% else %>

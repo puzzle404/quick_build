@@ -8,7 +8,7 @@
 
   tabs = [
     { value: :overview,   label: 'Resumen',       icon: :home,      href: constructors_project_path(@project) },
-    { value: :planning,   label: 'Planificación', icon: :planning,  count: @project.project_stages.where(parent_id: nil).count, href: constructors_project_planning_path(@project) },
+    { value: :planning,   label: 'Planificación', icon: :planning,  count: @project.project_stages.where(parent_id: nil).count, href: constructors_project_stages_path(@project) },
     { value: :materials,  label: 'Materiales',    icon: :materials, count: all.size, href: constructors_project_material_lists_path(@project) },
     { value: :blueprints, label: 'Planos · IA',   icon: :blueprint, count: @project.blueprints.count, href: constructors_project_blueprints_path(@project) },
     { value: :team,       label: 'Equipo',        icon: :people,    count: @project.project_people.count, href: constructors_project_people_path(@project) },
@@ -36,11 +36,14 @@
       <h2 style="margin:3px 0 0;font-size:18px;font-weight:600;letter-spacing:-0.3px;">Listas de materiales</h2>
       <div style="font-size:12px;color:var(--color-ink-3);margin-top:2px;">Creá listas por etapa o generales, manualmente o desde PDF/Excel.</div>
     </div>
-    <div data-controller="qb--modal" style="display:contents;">
-      <%= render Qb::BtnComponent.new('Importar PDF/Excel', variant: :ghost, size: :sm, icon: :upload, data: { action: 'click->qb--modal#open' }) %>
+    <%# Nueva lista / Importar abren el modal vía Turbo Frame (project_modal),
+        no inline — mismo approach que el sidebar de etapa. %>
+    <div style="display:contents;">
+      <%= render Qb::BtnComponent.new('Importar PDF/Excel', variant: :ghost, size: :sm, icon: :upload,
+            href: new_constructors_project_material_list_path(@project), data: { turbo_frame: 'project_modal' }) %>
       <%= render Qb::BtnComponent.new('Generar con IA', variant: :secondary, size: :sm, icon: :ai) %>
-      <%= render Qb::BtnComponent.new('Nueva lista', variant: :primary, size: :sm, icon: :plus, data: { action: 'click->qb--modal#open' }) %>
-      <%= render Constructors::Projects::Materials::NewListModalComponent.new(project: @project) %>
+      <%= render Qb::BtnComponent.new('Nueva lista', variant: :primary, size: :sm, icon: :plus,
+            href: new_constructors_project_material_list_path(@project), data: { turbo_frame: 'project_modal' }) %>
     </div>
   </div>
 
@@ -89,3 +92,6 @@
 
   <%= render Qb::PaginationComponent.new(pagy: @pagy, label: 'listas') %>
 </div>
+
+<%# Destino del modal "Nueva lista" / "Importar" (Turbo Frame). %>
+<%= turbo_frame_tag "project_modal" %>

@@ -170,8 +170,14 @@ class ProjectDecorator < BaseDecorator
 
   private
 
+  # Filter the (often eager-loaded) project_stages association in Ruby instead
+  # of issuing a `.where(parent_id: nil)` query per project. When callers do
+  # `.includes(:project_stages)` (e.g. the topbar DashboardKpis over all
+  # owned projects), this collapses an N+1 into a single stages load.
   def root_stages
-    @root_stages ||= object.project_stages.where(parent_id: nil).order(:position).to_a
+    @root_stages ||= object.project_stages.to_a
+                           .select { |s| s.parent_id.nil? }
+                           .sort_by { |s| s.position.to_i }
   end
 
   # Sum of stage spend; assumes ProjectStage has spent_cents (added in redesign migration).

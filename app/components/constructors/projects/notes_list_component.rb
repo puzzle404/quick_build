@@ -3,15 +3,16 @@
 module Constructors
   module Projects
     class NotesListComponent < ViewComponent::Base
-      def initialize(notes:, noteable:, project:)
+      def initialize(notes:, noteable:, project:, bare: false)
         @notes    = notes
         @noteable = noteable
         @project  = project
+        @bare     = bare
       end
 
       private
 
-      attr_reader :notes, :noteable, :project
+      attr_reader :notes, :noteable, :project, :bare
 
       def delete_path(note)
         if noteable.is_a?(ProjectStage)

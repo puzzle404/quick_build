@@ -52,8 +52,29 @@ class Constructors::Projects::MaterialListsController < Constructors::BaseContro
     @material_list = @project.material_lists.build(material_list_params.merge(author: current_user))
 
     if @material_list.save
-      redirect_to constructors_project_material_list_path(@project, @material_list),
-                  notice: "Lista de materiales creada correctamente."
+      if @material_list.project_stage_id.present?
+        respond_to do |format|
+          format.turbo_stream do
+            @stage = @material_list.project_stage
+            render turbo_stream: [
+              turbo_stream.update("project_modal", ""),
+              turbo_stream.update("stage_detail",
+                Constructors::Projects::Planning::StageDetailComponent.new(
+                  project: @project,
+                  stage: @stage,
+                  sub_stages: @stage.sub_stages.order(:position, :name)
+                ))
+            ]
+          end
+          format.html do
+            redirect_to constructors_project_stage_path(@project, @material_list.project_stage),
+                        notice: "Lista creada."
+          end
+        end
+      else
+        redirect_to constructors_project_material_list_path(@project, @material_list),
+                    notice: "Lista de materiales creada correctamente."
+      end
     else
       flash.now[:alert] = "No pudimos crear la lista. Revisá los datos e intentá nuevamente."
       render :new, status: :unprocessable_entity

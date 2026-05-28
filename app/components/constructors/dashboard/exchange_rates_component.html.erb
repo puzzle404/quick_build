@@ -1,3 +1,28 @@
+<% if compact? %>
+  <%# Barra superior: línea única con oficial y blue. %>
+  <div title="Tipo de cambio" style="display:flex;align-items:center;gap:14px;height:34px;padding:0 12px;border:1px solid var(--color-line);border-radius:8px;background:var(--color-bg-raised);white-space:nowrap;">
+    <span style="font-size:10px;font-family:var(--font-mono);color:var(--color-ink-3);text-transform:uppercase;letter-spacing:0.7px;">USD</span>
+    <% if has_data? %>
+      <% if oficial.any? %>
+        <div style="display:flex;align-items:baseline;gap:6px;">
+          <span style="font-size:11px;color:var(--color-ink-3);">Oficial</span>
+          <span style="font-family:var(--font-mono);font-size:12px;color:var(--color-ink);"><%= fmt_rate(oficial[:venta] || oficial[:compra]) %></span>
+        </div>
+      <% end %>
+      <% if blue.any? %>
+        <div style="display:flex;align-items:baseline;gap:6px;padding-left:14px;border-left:1px solid var(--color-line);">
+          <span style="font-size:11px;color:var(--color-ink-3);">Blue</span>
+          <span style="font-family:var(--font-mono);font-size:12px;color:var(--color-ink);"><%= fmt_rate(blue[:venta] || blue[:compra]) %></span>
+        </div>
+      <% end %>
+    <% else %>
+      <span style="font-size:11px;color:var(--color-ink-4);">Sin datos</span>
+    <% end %>
+    <% if stale? %>
+      <span title="Cotización desactualizada" style="width:6px;height:6px;border-radius:50%;background:var(--color-warn);display:inline-block;"></span>
+    <% end %>
+  </div>
+<% else %>
 <div style="padding:14px 16px;display:flex;flex-direction:column;gap:10px;">
   <%# Header row %>
   <div style="display:flex;align-items:center;justify-content:space-between;">
@@ -41,3 +66,4 @@
 
   <div style="font-size:10px;color:var(--color-ink-4);font-family:var(--font-mono);">USD · dolarapi.com</div>
 </div>
+<% end %>

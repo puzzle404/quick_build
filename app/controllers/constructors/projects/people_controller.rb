@@ -37,7 +37,18 @@ class Constructors::Projects::PeopleController < Constructors::BaseController
     @person = @project.project_people.new(person_params)
     authorize @person
     if @person.save
-      redirect_to constructors_project_person_path(@project, @person), notice: "Persona agregada a la obra."
+      respond_to do |format|
+        format.turbo_stream do
+          render turbo_stream: [
+            turbo_stream.update("project_modal", ""),
+            turbo_stream.remove("people_empty_row"),
+            turbo_stream.append("people_rows",
+              partial: "constructors/projects/people/person_row",
+              locals: { person: @person, project: @project })
+          ]
+        end
+        format.html { redirect_to constructors_project_person_path(@project, @person), notice: "Persona agregada a la obra." }
+      end
     else
       render :new, status: :unprocessable_entity
     end

@@ -1,9 +1,12 @@
-<details style="border:1px solid var(--color-line);border-radius:var(--radius);background:var(--color-bg-raised);padding:12px 14px;">
-  <summary style="cursor:pointer;user-select:none;font-size:11px;font-family:var(--font-mono);color:var(--color-ink-3);text-transform:uppercase;letter-spacing:0.7px;list-style:none;">
-    Nueva nota
+<details style="border:1px solid var(--color-line);border-radius:var(--radius);background:var(--color-bg-raised);overflow:hidden;">
+  <summary style="cursor:pointer;user-select:none;display:flex;align-items:center;gap:8px;padding:11px 14px;font-size:12px;font-weight:500;color:var(--color-ink-2);list-style:none;">
+    <span style="display:inline-flex;align-items:center;justify-content:center;width:18px;height:18px;border-radius:5px;background:color-mix(in oklab, var(--color-accent) 14%, transparent);color:var(--color-accent);">
+      <%= render Qb::IconComponent.new(name: :plus, size: 12) %>
+    </span>
+    Agregar una nota
   </summary>
 
-  <div style="margin-top:12px;">
+  <div style="padding:0 14px 14px;border-top:1px solid var(--color-line);padding-top:12px;">
     <%= form_with url: form_url, scope: :note do |form| %>
       <div class="qb-field">
         <%= form.label :title, "Título (opcional)", class: "qb-label" %>

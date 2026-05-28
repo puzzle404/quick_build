@@ -1,0 +1,27 @@
+<tr style="height:40px;border-bottom:1px solid var(--color-line);">
+  <td style="padding:0 12px;">
+    <div style="display:flex;align-items:center;gap:10px;">
+      <%= render Qb::AvatarComponent.new(name: person.full_name, size: 26) %>
+      <div>
+        <div style="font-weight:500;color:var(--color-ink);"><%= person.full_name %></div>
+        <% if person.try(:phone).present? %>
+          <div class="qb-mono" style="font-size:10px;color:var(--color-ink-4);"><%= person.phone %></div>
+        <% end %>
+      </div>
+    </div>
+  </td>
+  <td style="padding:0 12px;color:var(--color-ink-2);"><%= person.try(:role_title) || '—' %></td>
+  <td style="padding:0 12px;color:var(--color-ink-2);"><%= person.try(:document_id) || '—' %></td>
+  <td style="padding:0 12px;color:var(--color-ink-3);" class="qb-mono">
+    <%= qb_fmt_date_short(person.try(:start_date)) %>
+    <% if person.try(:end_date) %>→ <%= qb_fmt_date_short(person.end_date) %><% end %>
+  </td>
+  <td style="padding:0 12px;text-align:right;">
+    <%= render Qb::PillComponent.new(person.status.to_s == 'active' ? 'Activa' : 'Licencia', tone: person.status.to_s == 'active' ? :ok : :muted, compact: true) %>
+  </td>
+  <td style="padding:0 12px;width:24px;">
+    <%= link_to constructors_project_person_path(project, person), style: 'color:var(--color-ink-4);text-decoration:none;' do %>
+      <%= render Qb::IconComponent.new(name: :'chevron-right', size: 14) %>
+    <% end %>
+  </td>
+</tr>

@@ -1,47 +1,74 @@
 <div>
-  <div class="qb-section-title">
-    <span>Gastos · <%= expenses.size %></span>
-  </div>
+  <% unless bare %>
+    <div class="qb-section-title">
+      <span>Gastos · <%= expenses.size %></span>
+    </div>
 
-  <% if expenses.empty? %>
-    <div class="qb-empty">
-      Todavía no se registraron gastos.
-    </div>
-  <% else %>
-    <div style="border:1px solid var(--color-line);border-radius:var(--radius);overflow:hidden;">
-      <table class="qb-table">
-        <thead>
-          <tr>
-            <th>Fecha</th>
-            <th>Categoría</th>
-            <th>Descripción</th>
-            <th style="text-align:right;">Monto</th>
-            <th></th>
-          </tr>
-        </thead>
-        <tbody>
-          <% expenses.each do |expense| %>
+    <% if expenses.empty? %>
+      <div class="qb-empty">
+        Todavía no se registraron gastos.
+      </div>
+    <% end %>
+  <% end %>
+
+  <% if expenses.any? %>
+    <% if bare %>
+      <div class="sd-list">
+        <% expenses.each do |expense| %>
+          <div class="sd-list-row">
+            <div class="sd-list-main">
+              <div class="sd-list-title"><%= expense.description.presence || "Sin descripción" %></div>
+              <div class="sd-list-meta"><%= expense.incurred_on.strftime("%d/%m/%Y") %> · <%= category_label(expense) %></div>
+            </div>
+            <div class="sd-list-side">
+              <span class="sd-list-value"><%= helpers.qb_fmt_cents(expense.amount_cents) %></span>
+              <%= render Qb::BtnComponent.new('Eliminar', variant: :danger, size: :xs,
+                    href: delete_path(expense),
+                    data: { turbo_method: :delete, turbo_confirm: '¿Eliminar este gasto?', turbo_frame: '_top' }) %>
+            </div>
+          </div>
+        <% end %>
+        <div class="sd-list-foot">
+          <span>Total</span>
+          <span class="sd-list-value"><%= helpers.qb_fmt_cents(total_cents) %></span>
+        </div>
+      </div>
+    <% else %>
+      <div style="border:1px solid var(--color-line);border-radius:var(--radius);overflow:hidden;">
+        <table class="qb-table">
+          <thead>
             <tr>
-              <td style="font-family:var(--font-mono);white-space:nowrap;color:var(--color-ink-2);"><%= expense.incurred_on.strftime("%d/%m/%Y") %></td>
-              <td style="color:var(--color-ink-2);"><%= category_label(expense) %></td>
-              <td><%= expense.description %></td>
-              <td style="text-align:right;font-family:var(--font-mono);font-weight:500;" class="qb-tnum"><%= helpers.qb_fmt_cents(expense.amount_cents) %></td>
-              <td style="text-align:right;">
-                <%= render Qb::BtnComponent.new('Eliminar', variant: :danger, size: :xs,
-                      href: delete_path(expense),
-                      data: { turbo_method: :delete, turbo_confirm: '¿Eliminar este gasto?' }) %>
-              </td>
+              <th>Fecha</th>
+              <th>Categoría</th>
+              <th>Descripción</th>
+              <th style="text-align:right;">Monto</th>
+              <th></th>
             </tr>
-          <% end %>
-        </tbody>
-        <tfoot>
-          <tr style="background:var(--color-bg-sunken);">
-            <td colspan="3" style="padding:8px 10px;font-size:11px;font-weight:600;color:var(--color-ink);font-family:var(--font-mono);text-transform:uppercase;letter-spacing:0.5px;">Total</td>
-            <td style="padding:8px 10px;text-align:right;font-size:12px;font-weight:600;color:var(--color-ink);font-family:var(--font-mono);" class="qb-tnum"><%= helpers.qb_fmt_cents(total_cents) %></td>
-            <td style="padding:8px 10px;"></td>
-          </tr>
-        </tfoot>
-      </table>
-    </div>
+          </thead>
+          <tbody>
+            <% expenses.each do |expense| %>
+              <tr>
+                <td style="font-family:var(--font-mono);white-space:nowrap;color:var(--color-ink-2);"><%= expense.incurred_on.strftime("%d/%m/%Y") %></td>
+                <td style="color:var(--color-ink-2);"><%= category_label(expense) %></td>
+                <td><%= expense.description %></td>
+                <td style="text-align:right;font-family:var(--font-mono);font-weight:500;" class="qb-tnum"><%= helpers.qb_fmt_cents(expense.amount_cents) %></td>
+                <td style="text-align:right;">
+                  <%= render Qb::BtnComponent.new('Eliminar', variant: :danger, size: :xs,
+                        href: delete_path(expense),
+                        data: { turbo_method: :delete, turbo_confirm: '¿Eliminar este gasto?' }) %>
+                </td>
+              </tr>
+            <% end %>
+          </tbody>
+          <tfoot>
+            <tr style="background:var(--color-bg-sunken);">
+              <td colspan="3" style="padding:8px 10px;font-size:11px;font-weight:600;color:var(--color-ink);font-family:var(--font-mono);text-transform:uppercase;letter-spacing:0.5px;">Total</td>
+              <td style="padding:8px 10px;text-align:right;font-size:12px;font-weight:600;color:var(--color-ink);font-family:var(--font-mono);" class="qb-tnum"><%= helpers.qb_fmt_cents(total_cents) %></td>
+              <td style="padding:8px 10px;"></td>
+            </tr>
+          </tfoot>
+        </table>
+      </div>
+    <% end %>
   <% end %>
 </div>

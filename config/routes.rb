@@ -38,9 +38,11 @@ Rails.application.routes.draw do
     root to: "dashboard#index"
     get 'dashboard/evolution_chart', to: 'dashboard#evolution_chart', as: :evolution_chart
     resources :people, only: [:index]
+    get 'biblioteca', to: 'library#index', as: :library
     get 'search', to: 'search#index', defaults: { format: :json }
     resources :projects do
       resources :project_memberships, only: [:create, :destroy, :new]
+      # /planning redirige a /stages (la vista de planificación ahora vive en stages#index).
       resource :planning, only: [:show], module: :projects, controller: :planning
       resources :documents, only: [:index, :create, :destroy], module: :projects, controller: :documents
       resources :images, only: [:index, :create, :destroy], module: :projects, controller: :images
@@ -49,6 +51,11 @@ Rails.application.routes.draw do
       resources :stages, module: :projects do
         collection do
           post :apply_template
+        end
+
+        member do
+          post :duplicate
+          patch :complete
         end
 
         resources :documents, only: [:new, :create, :destroy], module: :stages
@@ -80,6 +87,10 @@ Rails.application.routes.draw do
   end
 
   get "refresh_app" => "hotwire#refresh", as: :refresh_app
+
+  # PWA — manifest + service worker (renderizados desde app/views/pwa/*)
+  get "manifest" => "rails/pwa#manifest", as: :pwa_manifest
+  get "service-worker" => "rails/pwa#service_worker", as: :pwa_service_worker
 
   # Health check y root
   get "up" => "rails/health#show", as: :rails_health_check

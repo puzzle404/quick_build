@@ -4,7 +4,7 @@
 
   tabs = [
     { value: :overview,   label: 'Resumen',       icon: :home,      href: constructors_project_path(@project) },
-    { value: :planning,   label: 'Planificación', icon: :planning,  count: @project.project_stages.where(parent_id: nil).count, href: constructors_project_planning_path(@project) },
+    { value: :planning,   label: 'Planificación', icon: :planning,  count: @project.project_stages.where(parent_id: nil).count, href: constructors_project_stages_path(@project) },
     { value: :materials,  label: 'Materiales',    icon: :materials, count: @project.material_lists.count, href: constructors_project_material_lists_path(@project) },
     { value: :blueprints, label: 'Planos · IA',   icon: :blueprint, count: @project.blueprints.count, href: constructors_project_blueprints_path(@project) },
     { value: :team,       label: 'Equipo',        icon: :people,    count: @people.size, href: constructors_project_people_path(@project) },
@@ -57,55 +57,36 @@
     </form>
     <div style="flex:1;"></div>
     <%= render Qb::BtnComponent.new('Marcar asistencia', variant: :secondary, size: :xs, icon: :check) %>
-    <%= render Qb::BtnComponent.new('Invitar persona', variant: :primary, size: :xs, icon: :plus, href: new_constructors_project_person_path(@project)) %>
+    <%# Abre el modal de alta vía Turbo Frame (project_modal) — mismo approach que stages. %>
+    <%= render Qb::BtnComponent.new('Invitar persona', variant: :primary, size: :xs, icon: :plus,
+          href: new_constructors_project_person_path(@project), data: { turbo_frame: 'project_modal' }) %>
   </div>
 
-  <%# Table %>
-  <% if @people.any? %>
-    <table style="width:100%;border-collapse:collapse;font-size:12px;">
-      <thead>
-        <tr style="background:var(--color-bg-raised);">
-          <% ['Persona', 'Rol', 'Documento', 'Inicio / Fin', 'Estado', ''].each_with_index do |h, i| %>
-            <th style="padding:8px 12px;text-align:<%= i == 4 ? 'right' : 'left' %>;border-bottom:1px solid var(--color-line);font-size:10px;font-family:var(--font-mono);color:var(--color-ink-3);font-weight:500;letter-spacing:0.5px;text-transform:uppercase;"><%= h %></th>
-          <% end %>
-        </tr>
-      </thead>
-      <tbody>
-        <% @people.each do |person| %>
-          <tr style="height:40px;border-bottom:1px solid var(--color-line);">
-            <td style="padding:0 12px;">
-              <div style="display:flex;align-items:center;gap:10px;">
-                <%= render Qb::AvatarComponent.new(name: person.full_name, size: 26) %>
-                <div>
-                  <div style="font-weight:500;color:var(--color-ink);"><%= person.full_name %></div>
-                  <% if person.try(:phone).present? %>
-                    <div class="qb-mono" style="font-size:10px;color:var(--color-ink-4);"><%= person.phone %></div>
-                  <% end %>
-                </div>
-              </div>
-            </td>
-            <td style="padding:0 12px;color:var(--color-ink-2);"><%= person.try(:role_title) || '—' %></td>
-            <td style="padding:0 12px;color:var(--color-ink-2);"><%= person.try(:document_id) || '—' %></td>
-            <td style="padding:0 12px;color:var(--color-ink-3);" class="qb-mono">
-              <%= qb_fmt_date_short(person.try(:start_date)) %>
-              <% if person.try(:end_date) %>→ <%= qb_fmt_date_short(person.end_date) %><% end %>
-            </td>
-            <td style="padding:0 12px;text-align:right;">
-              <%= render Qb::PillComponent.new(person.status.to_s == 'active' ? 'Activa' : 'Licencia', tone: person.status.to_s == 'active' ? :ok : :muted, compact: true) %>
-            </td>
-            <td style="padding:0 12px;width:24px;">
-              <%= link_to constructors_project_person_path(@project, person), style: 'color:var(--color-ink-4);text-decoration:none;' do %>
-                <%= render Qb::IconComponent.new(name: :'chevron-right', size: 14) %>
-              <% end %>
-            </td>
-          </tr>
+  <%# Table — el tbody siempre existe (id people_rows) para poder hacer append
+      por turbo_stream al crear; la fila vacía se elimina en el create. %>
+  <table style="width:100%;border-collapse:collapse;font-size:12px;">
+    <thead>
+      <tr style="background:var(--color-bg-raised);">
+        <% ['Persona', 'Rol', 'Documento', 'Inicio / Fin', 'Estado', ''].each_with_index do |h, i| %>
+          <th style="padding:8px 12px;text-align:<%= i == 4 ? 'right' : 'left' %>;border-bottom:1px solid var(--color-line);font-size:10px;font-family:var(--font-mono);color:var(--color-ink-3);font-weight:500;letter-spacing:0.5px;text-transform:uppercase;"><%= h %></th>
         <% end %>
-      </tbody>
-    </table>
-  <% else %>
-    <div style="padding:60px;margin:16px;text-align:center;color:var(--color-ink-4);font-size:13px;border:1px dashed var(--color-line);border-radius:10px;">
-      <%= render Qb::IconComponent.new(name: :people, size: 28, style: 'margin-bottom:8px;opacity:0.5;') %>
-      <div>Todavía no sumaste personas a esta obra.</div>
-    </div>
-  <% end %>
+      </tr>
+    </thead>
+    <tbody id="people_rows">
+      <% @people.each do |person| %>
+        <%= render 'constructors/projects/people/person_row', person: person, project: @project %>
+      <% end %>
+      <% if @people.empty? %>
+        <tr id="people_empty_row">
+          <td colspan="6" style="padding:48px 12px;text-align:center;color:var(--color-ink-4);font-size:13px;">
+            <%= render Qb::IconComponent.new(name: :people, size: 28, style: 'margin-bottom:8px;opacity:0.5;') %>
+            <div>Todavía no sumaste personas a esta obra.</div>
+          </td>
+        </tr>
+      <% end %>
+    </tbody>
+  </table>
 </div>
+
+<%# Destino del modal "Invitar persona" (Turbo Frame). %>
+<%= turbo_frame_tag "project_modal" %>

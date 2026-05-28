@@ -15,7 +15,7 @@
 <div style="display:flex;flex-direction:column;background:var(--color-bg);">
 
   <%# Greeting strip %>
-  <div style="padding:18px 20px 12px;border-bottom:1px solid var(--color-line);display:flex;align-items:flex-end;gap:20px;">
+  <div class="qb-page-head" style="padding:18px 20px 12px;border-bottom:1px solid var(--color-line);display:flex;align-items:flex-end;gap:20px;">
     <div style="flex:1;">
       <div style="font-size:11px;font-family:var(--font-mono);color:var(--color-ink-3);text-transform:uppercase;letter-spacing:0.8px;">Dashboard · global</div>
       <h1 style="margin:4px 0 0;font-size:22px;font-weight:600;letter-spacing:-0.4px;color:var(--color-ink);">
@@ -30,7 +30,9 @@
         <% end %>
       </div>
     </div>
-    <div style="display:flex;gap:8px;">
+    <div style="display:flex;align-items:center;gap:12px;">
+      <%# Tipo de cambio — visible arriba, compacto. %>
+      <%= render Constructors::Dashboard::ExchangeRatesComponent.new(rates: @exchange_rates, compact: true) %>
       <%= render Qb::BtnComponent.new('Reporte', variant: :secondary, size: :sm, icon: :download) %>
       <%= render Qb::BtnComponent.new('Nuevo proyecto', variant: :primary, size: :sm, icon: :plus, href: new_constructors_project_path) %>
     </div>
@@ -130,10 +132,6 @@
 
       <%= render Qb::SectionHeadComponent.new(title: 'Próximas etapas · 14 días') %>
       <%= render Constructors::Dashboard::UpcomingStagesComponent.new(stages: @dashboard[:upcoming_stages]) %>
-
-      <div style="border-top:1px solid var(--color-line);">
-        <%= render Constructors::Dashboard::ExchangeRatesComponent.new(rates: @exchange_rates) %>
-      </div>
     </div>
   </div>
 </div>

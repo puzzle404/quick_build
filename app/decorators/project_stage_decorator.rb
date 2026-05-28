@@ -8,7 +8,12 @@ class ProjectStageDecorator < BaseDecorator
   STATUS_LABELS = { done: 'Completada', doing: 'En curso', pending: 'Pendiente' }.freeze
 
   def code
-    object.try(:code).presence || object.position.to_s
+    if object.parent_id.present?
+      parent = object.parent
+      "#{parent.position}.#{object.position}"
+    else
+      object.position.to_s
+    end
   end
 
   def status

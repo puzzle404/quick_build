@@ -1,4 +1,4 @@
-<div style="display:flex;align-items:stretch;border-bottom:1px solid var(--color-line);padding-left:16px;padding-right:12px;gap:2px;background:var(--color-bg-raised);">
+<div class="qb-tabs-row" style="display:flex;align-items:stretch;border-bottom:1px solid var(--color-line);padding-left:16px;padding-right:12px;gap:2px;background:var(--color-bg-raised);">
   <% tabs.each do |t| %>
     <% if t.href %>
       <%= link_to t.href, style: tab_style(active?(t)) do %>

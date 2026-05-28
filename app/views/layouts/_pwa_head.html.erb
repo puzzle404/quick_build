@@ -1,0 +1,10 @@
+<%# Tags PWA compartidos por los 3 layouts. viewport y apple-mobile-web-app-capable
+    ya viven en cada layout. theme-color es estático (#fbfaf8 = tema graphite, el
+    default): el tema "night" es opt-in por data-theme y no sigue prefers-color-scheme. %>
+<%= tag.link rel: "manifest", href: pwa_manifest_path(format: :json) %>
+<meta name="theme-color" content="#fbfaf8">
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
+<meta name="apple-mobile-web-app-title" content="QuickBuild">
+<link rel="icon" href="/icon-192.png" type="image/png" sizes="192x192">
+<link rel="icon" href="/icon-512.png" type="image/png" sizes="512x512">
+<link rel="apple-touch-icon" href="/apple-touch-icon.png">

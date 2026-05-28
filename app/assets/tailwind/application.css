@@ -148,16 +148,112 @@
       overflow-x: auto;
       white-space: nowrap;
     }
-    /* Hero strip + KPI strip pasan a 2 columnas en mobile */
+    /* Hero strip + KPI strip pasan a 2 columnas en mobile.
+       minmax(0, 1fr) (en vez de 1fr) permite que las columnas se achiquen por
+       debajo del min-content de su contenido; con 1fr el track no baja del
+       min-content y el grid desborda horizontalmente (franja blanca). */
     body.qb-os div[style*="grid-template-columns:repeat(4, 1fr)"],
     body.qb-os div[style*="grid-template-columns:repeat(5, 1fr)"] {
-      grid-template-columns: repeat(2, 1fr) !important;
+      grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
     }
-    /* Two-column body del dashboard pasa a una sola columna */
+    /* Two-column body del dashboard / project show pasa a una sola columna. */
     body.qb-os div[style*="grid-template-columns:1.4fr 1fr"],
     body.qb-os div[style*="grid-template-columns:1.5fr 1fr"] {
-      grid-template-columns: 1fr !important;
+      grid-template-columns: minmax(0, 1fr) !important;
     }
+    /* Los hijos de esos grids deben poder achicarse: sin min-width:0 una tabla
+       o gráfico ancho fuerza el ancho del track y rompe el layout. */
+    body.qb-os div[style*="grid-template-columns:repeat(4, 1fr)"] > *,
+    body.qb-os div[style*="grid-template-columns:repeat(5, 1fr)"] > *,
+    body.qb-os div[style*="grid-template-columns:1.4fr 1fr"] > *,
+    body.qb-os div[style*="grid-template-columns:1.5fr 1fr"] > * {
+      min-width: 0;
+    }
+  }
+
+  /* ─── Chrome mobile · bottom tab bar + sheet "Más" ───────── */
+  /* Por defecto ocultos; el bottom nav aparece sólo en teléfono. */
+  .qb-bottom-nav { display: none; }
+  .qb-sheet-overlay { display: none; }
+
+  @media (max-width: 767.98px) {
+    /* En teléfono el sidebar se va y navegamos con la barra inferior. */
+    body.qb-os .qb-sidebar { display: none !important; }
+
+    .qb-bottom-nav {
+      display: flex;
+      position: fixed;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      z-index: 40;
+      background: var(--color-bg-raised);
+      border-top: 1px solid var(--color-line);
+      padding-bottom: env(safe-area-inset-bottom, 0px);
+    }
+
+    /* Que el contenido no quede tapado por la barra fija. */
+    body.qb-os main { padding-bottom: calc(56px + env(safe-area-inset-bottom, 0px)); }
+  }
+
+  /* Sheet "Más": overlay + panel deslizante. Sólo se dispara desde el bottom
+     nav (mobile-only), por eso no necesita media query propia. */
+  .qb-sheet-overlay[data-open="true"] {
+    display: flex;
+    position: fixed;
+    inset: 0;
+    z-index: 60;
+    align-items: flex-end;
+    justify-content: center;
+    background: color-mix(in oklab, var(--color-ink) 45%, transparent);
+  }
+  .qb-sheet-panel {
+    width: 100%;
+    max-width: 520px;
+    max-height: 85vh;
+    overflow-y: auto;
+    background: var(--color-bg-raised);
+    border: 1px solid var(--color-line);
+    border-top-left-radius: 16px;
+    border-top-right-radius: 16px;
+    padding: 10px 6px calc(14px + env(safe-area-inset-bottom, 0px));
+    box-shadow: 0 -8px 30px rgb(0 0 0 / 18%);
+  }
+  .qb-sheet-handle {
+    width: 36px;
+    height: 4px;
+    border-radius: 999px;
+    background: var(--color-line-2);
+    margin: 2px auto 12px;
+  }
+
+  /* ─── Responsive · pantallas clave (teléfono, ≤767.98px) ─── */
+  @media (max-width: 767.98px) {
+    /* Tabs: scroll horizontal en vez de comprimirse o cortarse. */
+    .qb-tabs-row {
+      overflow-x: auto;
+      -webkit-overflow-scrolling: touch;
+      scrollbar-width: none;
+    }
+    .qb-tabs-row::-webkit-scrollbar { display: none; }
+
+    /* Headers de página (dashboard / listado): las acciones bajan bajo el título. */
+    .qb-page-head { flex-wrap: wrap; }
+
+    /* Header de proyecto: portada full-width arriba, acciones debajo. */
+    .qb-proj-header { flex-direction: column; }
+    .qb-proj-cover {
+      width: 100% !important;
+      min-width: 0 !important;
+      height: 120px;
+    }
+    .qb-proj-titlerow { flex-wrap: wrap; }
+    .qb-proj-actions { width: 100%; }
+
+    /* Barra de filtros del listado: tabs arriba, buscador full-width debajo. */
+    .qb-filter-bar { flex-wrap: wrap; gap: 8px; }
+    .qb-search-form { flex: 1 1 auto; min-width: 0; }
+    .qb-search-box { width: 100% !important; }
   }
 
   /* ─── A11y · focus rings consistentes en QB chrome ───────── */
@@ -336,4 +432,78 @@
   body.qb-os ::-webkit-scrollbar-thumb { background: var(--color-line-2); border-radius: 10px; border: 2px solid var(--color-bg); }
   body.qb-os ::-webkit-scrollbar-track { background: transparent; }
   body.qb-os ::selection { background: var(--color-accent); color: var(--color-accent-ink); }
+
+  /* ─── Tabbed panel (Qb::TabbedPanelComponent) ────────────── */
+  /* Prefixed qb-tab* to avoid colliding with daisyUI's .tab/.tabs component
+     classes (daisyUI is loaded from CDN after this file and would otherwise
+     win the cascade — making the label translucent/invisible in night theme). */
+  .qb-tabs {
+    display: flex; align-items: center; padding: 0 16px; gap: 2px;
+    border-bottom: 1px solid var(--color-line); background: var(--color-bg-raised);
+  }
+  .qb-tab {
+    height: 36px; padding: 0 10px; display: inline-flex; align-items: center; gap: 6px;
+    font-size: 12.5px; color: var(--color-ink-3); border: none; cursor: pointer;
+    background: transparent; border-bottom: 2px solid transparent; margin-bottom: -1px;
+    font-weight: 500;
+  }
+  .qb-tab--active { color: var(--color-ink); border-bottom-color: var(--color-accent); font-weight: 600; }
+  .qb-tab-count {
+    font-family: var(--font-mono); font-size: 10px; color: var(--color-ink-4);
+    background: var(--color-bg-sunken); padding: 1px 5px; border-radius: 3px; font-weight: 600;
+  }
+  .qb-tab--active .qb-tab-count { color: var(--color-accent); background: color-mix(in oklab, var(--color-accent) 14%, transparent); }
+  .qb-tab-panel { padding: 14px 16px; min-height: 130px; }
+
+  /* ─── Stage Detail (drawer) redesign ─────────────────────── */
+  .sd-hero { padding: 16px 18px; background: var(--color-bg); border-bottom: 1px solid var(--color-line); display: flex; flex-direction: column; gap: 12px; }
+  .sd-hero-top { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; }
+  .sd-code-pill { font-family: var(--font-mono); font-size: 11px; font-weight: 600; letter-spacing: 0.5px; padding: 3px 8px; border-radius: 4px; background: var(--color-bg-sunken); color: var(--color-ink-2); }
+  .sd-hero-title h1 { margin: 0; font-size: 20px; font-weight: 600; letter-spacing: -0.3px; color: var(--color-ink); line-height: 1.25; }
+  .sd-hero-desc { font-size: 12.5px; color: var(--color-ink-2); line-height: 1.45; }
+  .sd-hero-predecessor { font-size: 11px; color: var(--color-ink-3); display: inline-flex; align-items: center; gap: 4px; }
+  .sd-progress { display: flex; align-items: center; gap: 12px; padding: 10px 12px; background: var(--color-bg-sunken); border-radius: 7px; }
+  .sd-progress-num { font-family: var(--font-mono); font-variant-numeric: tabular-nums; font-size: 22px; font-weight: 600; letter-spacing: -0.5px; color: var(--color-ink); line-height: 1; }
+  .sd-progress-info { flex: 1; }
+  .sd-progress-info .top { font-size: 11px; color: var(--color-ink-3); margin-bottom: 4px; display: flex; justify-content: space-between; }
+  .sd-bar { position: relative; width: 100%; height: 6px; background: var(--color-line); border-radius: 999px; overflow: hidden; }
+  .sd-bar > div { position: absolute; inset: 0; background: var(--color-accent); border-radius: 999px; }
+  .sd-metrics { display: grid; grid-template-columns: 1fr 1fr 1fr; border-bottom: 1px solid var(--color-line); background: var(--color-bg-raised); }
+  .sd-metric { padding: 10px 14px; border-right: 1px solid var(--color-line); }
+  .sd-metric:last-child { border-right: none; }
+  .sd-metric .lbl { font-family: var(--font-mono); font-size: 10px; letter-spacing: 0.7px; text-transform: uppercase; color: var(--color-ink-4); font-weight: 500; margin-bottom: 2px; }
+  .sd-metric .val { font-size: 13px; font-weight: 600; color: var(--color-ink); }
+  .sd-metric .sub { font-size: 11px; color: var(--color-ink-3); margin-top: 1px; }
+  .sd-group { border-bottom: 1px solid var(--color-line); }
+  .sd-group-head { display: flex; align-items: center; padding: 10px 16px; background: var(--color-bg-raised); }
+  .sd-group-head-label { flex: 1; font-family: var(--font-mono); font-size: 11px; text-transform: uppercase; letter-spacing: 0.7px; color: var(--color-ink-3); font-weight: 500; }
+  .sd-group-head-label strong { color: var(--color-ink); font-weight: 600; font-family: var(--font-ui); }
+  .sd-sub-row { display: grid; grid-template-columns: 50px 1fr 70px 50px; gap: 10px; padding: 8px 16px; border-bottom: 1px solid var(--color-line); align-items: center; text-decoration: none; color: inherit; }
+  .sd-sub-row:last-child { border-bottom: none; }
+  .sd-sub-row:hover { background: var(--color-bg-sunken); }
+  .sd-sub-code { font-family: var(--font-mono); font-variant-numeric: tabular-nums; font-size: 11px; color: var(--color-ink-3); font-weight: 600; }
+  .sd-sub-name { font-size: 12.5px; color: var(--color-ink); font-weight: 500; }
+  .sd-sub-dates { font-family: var(--font-mono); font-size: 10.5px; color: var(--color-ink-4); margin-top: 1px; }
+  .sd-sub-pct { font-family: var(--font-mono); font-variant-numeric: tabular-nums; font-size: 11px; color: var(--color-ink-2); font-weight: 500; min-width: 30px; text-align: right; }
+  .sd-empty-inline { display: flex; align-items: center; justify-content: space-between; gap: 12px; padding: 12px 14px; background: var(--color-bg-sunken); border: 1px dashed var(--color-line-2); border-radius: 6px; }
+  .sd-empty-inline-text { font-size: 12.5px; color: var(--color-ink-3); }
+  .sd-empty-inline-text strong { color: var(--color-ink-2); font-weight: 600; }
+  .sd-tab-actions { display: flex; justify-content: flex-end; margin-bottom: 10px; }
+  /* ─── Stage Detail · unified list rows (todos los tabs) ───── */
+  .sd-list { border: 1px solid var(--color-line); border-radius: var(--radius); overflow: hidden; background: var(--color-bg-raised); }
+  .sd-list-row { display: grid; grid-template-columns: 1fr auto; gap: 10px; padding: 10px 12px; border-bottom: 1px solid var(--color-line); align-items: center; text-decoration: none; color: inherit; }
+  .sd-list-row:last-child { border-bottom: none; }
+  a.sd-list-row:hover { background: var(--color-bg-sunken); }
+  .sd-list-main { min-width: 0; }
+  .sd-list-title { display: flex; align-items: center; gap: 8px; font-size: 12.5px; font-weight: 500; color: var(--color-ink); }
+  .sd-list-body { font-size: 12px; color: var(--color-ink-2); margin-top: 2px; }
+  .sd-list-meta { font-size: 10.5px; color: var(--color-ink-4); font-family: var(--font-mono); margin-top: 3px; }
+  .sd-list-side { display: flex; align-items: center; gap: 8px; flex-shrink: 0; }
+  .sd-list-value { font-family: var(--font-mono); font-variant-numeric: tabular-nums; font-size: 13px; font-weight: 600; color: var(--color-ink); }
+  .sd-list-foot { display: flex; align-items: center; justify-content: space-between; padding: 8px 12px; background: var(--color-bg-sunken); font-family: var(--font-mono); font-size: 11px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.5px; color: var(--color-ink); }
+  .sd-list-empty { padding: 22px 16px; text-align: center; color: var(--color-ink-4); font-size: 12.5px; }
+  .sd-hero-back { display: inline-flex; align-items: center; gap: 4px; font-size: 11.5px; color: var(--color-ink-3); text-decoration: none; margin-bottom: 4px; width: fit-content; }
+  .sd-hero-back:hover { color: var(--color-accent); }
+  .sd-footer { padding: 12px 16px; border-top: 1px solid var(--color-line); display: flex; align-items: center; justify-content: space-between; background: var(--color-bg-raised); }
+  .sd-footer .right { display: flex; gap: 8px; }
 }

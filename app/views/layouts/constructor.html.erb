@@ -14,9 +14,7 @@
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Geist:wght@300;400;500;600;700&family=Geist+Mono:wght@400;500;600&display=swap" rel="stylesheet">
 
-    <link rel="icon" href="/icon.png" type="image/png">
-    <link rel="icon" href="/icon.svg" type="image/svg+xml">
-    <link rel="apple-touch-icon" href="/icon.png">
+    <%= render "layouts/pwa_head" %>
 
     <%= stylesheet_link_tag :app, "data-turbo-track": "reload" %>
     <%= javascript_importmap_tags %>
@@ -24,7 +22,7 @@
     <%= stylesheet_link_tag "https://unpkg.com/leaflet/dist/leaflet.css" %>
   </head>
 
-  <body class="qb-os <%= 'data-hotwire-native' if hotwire_native_app? %>"
+  <body class="qb-os" <%= "data-hotwire-native" if hotwire_native_app? %>
         data-controller="qb--keyboard qb--tweaks">
     <div style="display:flex;min-height:100vh;">
       <%= render Qb::Layout::SidebarComponent.new(
@@ -66,6 +64,25 @@
         </div>
       </main>
     </div>
+
+    <%# Chrome mobile: bottom tab bar + sheet "Más". En Hotwire Native lo provee
+        la app nativa, así que no se renderiza. %>
+    <% unless hotwire_native_app? %>
+      <div data-controller="qb--bottom-sheet"
+           data-action="keydown@window->qb--bottom-sheet#closeOnEsc">
+        <%= render Qb::Layout::BottomNavComponent.new(
+              current: current_qb_section || :dashboard,
+              project: current_qb_project,
+              project_sub: current_qb_project_sub
+            ) %>
+        <%= render Qb::Layout::MobileSheetComponent.new(
+              project: current_qb_project,
+              project_sub: current_qb_project_sub,
+              user: current_user,
+              company_name: (current_user.try(:company)&.name rescue nil)
+            ) %>
+      </div>
+    <% end %>
 
     <%= render Qb::Layout::CmdPaletteComponent.new %>
     <%= render Qb::Layout::TweaksPanelComponent.new %>
