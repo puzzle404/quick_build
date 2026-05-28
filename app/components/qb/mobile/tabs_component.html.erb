@@ -1,0 +1,19 @@
+<div class="m-tabs" role="tablist">
+  <% @options.each do |opt| %>
+    <% active = (opt[:key].to_s == @value.to_s) %>
+    <% body = capture do %>
+      <% if opt[:icon] %><%= render Qb::Mobile::IconComponent.new(name: opt[:icon], size: 14, stroke: active ? 2 : 1.8) %><% end %>
+      <%= opt[:label] %>
+      <% if opt[:count] %><span class="m-tab-count"><%= opt[:count] %></span><% end %>
+    <% end %>
+    <% if opt[:href] %>
+      <%= link_to body, opt[:href],
+            class: 'm-tab',
+            role: 'tab',
+            data: { active: active.to_s },
+            aria: (active ? { current: 'page' } : {}) %>
+    <% else %>
+      <button class="m-tab" type="button" role="tab" data-active="<%= active %>" data-key="<%= opt[:key] %>"><%= body %></button>
+    <% end %>
+  <% end %>
+</div>

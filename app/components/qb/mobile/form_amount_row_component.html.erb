@@ -1,0 +1,13 @@
+<div class="m-frow">
+  <label class="m-frow-label"><%= @label %></label>
+  <div class="m-frow-amount">
+    <span class="m-frow-amount-currency"><%= @currency %></span>
+    <input class="m-frow-amount-input"
+           type="text"
+           inputmode="decimal"
+           name="<%= @name %>"
+           value="<%= @value %>"
+           placeholder="<%= @placeholder %>"/>
+  </div>
+  <% if @sub.present? %><div class="m-frow-helper"><%= @sub %></div><% end %>
+</div>

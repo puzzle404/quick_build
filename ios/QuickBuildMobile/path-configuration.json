@@ -1,0 +1,35 @@
+{
+  "settings": {
+    "screenshots_enabled": true
+  },
+  "rules": [
+    {
+      "patterns": [".*"],
+      "properties": {
+        "context": "default",
+        "pull_to_refresh_enabled": true
+      }
+    },
+    {
+      "patterns": ["/new$", "/edit$", "/modal"],
+      "properties": {
+        "context": "modal",
+        "modal_style": "form_sheet",
+        "pull_to_refresh_enabled": false
+      }
+    },
+    {
+      "patterns": ["/session/new$"],
+      "properties": {
+        "context": "default",
+        "pull_to_refresh_enabled": false
+      }
+    },
+    {
+      "patterns": ["^/$"],
+      "properties": {
+        "presentation": "clear_all"
+      }
+    }
+  ]
+}

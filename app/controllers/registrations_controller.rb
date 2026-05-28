@@ -1,9 +1,16 @@
 class RegistrationsController < ApplicationController
   allow_unauthenticated_access only: %i[new create]
-  layout "marketing"
+  layout -> { mobile_layout_or("marketing") }
 
   def new
     @user = User.new
+  end
+
+  # Mobile "Perfil / Ajustes" tab lands here. Read-only summary for now;
+  # the actual edit flow lives in the upcoming user-preferences work.
+  def edit
+    @user = current_user
+    redirect_to new_session_path and return unless @user
   end
 
   def create

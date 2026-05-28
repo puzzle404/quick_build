@@ -1,0 +1,34 @@
+<%# Project mini card (mobile). Renders a single ProjectDecorator/Project.
+    Expects: `p` (a ProjectDecorator). Used from dashboard, projects index. %>
+<% pd = p.respond_to?(:object) ? p : ProjectDecorator.new(p) %>
+
+<%= link_to constructors_project_path(pd.object), style: "text-decoration:none;color:inherit;display:block;" do %>
+  <%= render Qb::Mobile::CardComponent.new do %>
+    <div style="display:flex;align-items:center;gap:8px;margin-bottom:8px;">
+      <%= render Qb::Mobile::DotComponent.new(tone: pd.health) %>
+      <span class="mono" style="font-size:10.5px;color:var(--color-ink-4);letter-spacing:0.5px;"><%= pd.code %></span>
+      <%= render Qb::Mobile::PillComponent.new(pd.status_label, tone: pd.status_tone, dense: true) %>
+      <div style="flex:1;"></div>
+      <span class="mono tnum" style="font-size:18px;font-weight:600;letter-spacing:-0.4px;"><%= pd.progress %>%</span>
+    </div>
+    <div style="font-size:15px;font-weight:600;line-height:1.25;margin-bottom:4px;"><%= pd.name %></div>
+    <% project_meta = [pd.try(:client), pd.location].compact.reject(&:blank?).join(' · ') %>
+    <% if project_meta.present? %>
+      <div style="font-size:12px;color:var(--color-ink-3);margin-bottom:10px;"><%= project_meta %></div>
+    <% else %>
+      <div style="margin-bottom:10px;"></div>
+    <% end %>
+    <%
+      bar_tone = case pd.health
+                 when :bad  then :bad
+                 when :warn then :warn
+                 else            :accent
+                 end
+    %>
+    <%= render Qb::Mobile::BarComponent.new(value: pd.progress, plan: pd.planned_progress, show_plan: true, tone: bar_tone, height: 5) %>
+    <div style="display:flex;justify-content:space-between;font-size:11.5px;color:var(--color-ink-3);margin-top:8px;">
+      <span><span class="mono tnum"><%= pd.stages_done %>/<%= pd.stages_count %></span> etapas · <%= pd.people_count %> pers</span>
+      <span class="mono tnum"><%= qb_fmt_cents(pd.spent) %> / <%= qb_fmt_cents(pd.budget) %></span>
+    </div>
+  <% end %>
+<% end %>

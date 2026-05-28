@@ -6,6 +6,10 @@ export default class extends Controller {
   static values = {
     initial: { type: Object, default: { theme: "graphite", density: "cozy", layout: "sidebar" } },
     storageKey: { type: String, default: "qb_tweaks" },
+    // When `data-qb--tweaks-persist-value="true"` is set, also PATCH the
+    // change to /preferences so the choice carries to the iOS app and back.
+    persist: { type: Boolean, default: false },
+    endpoint: { type: String, default: "/preferences" }
   }
   static targets = ["panel"]
 
@@ -33,6 +37,23 @@ export default class extends Controller {
     localStorage.setItem(this.storageKeyValue, JSON.stringify(current))
     this._apply(current)
     this._refreshActive(current)
+    if (this.persistValue && ["theme", "accent", "density"].includes(key)) {
+      this._persistToServer({ [key]: value })
+    }
+  }
+
+  _persistToServer(diff) {
+    const token = document.querySelector('meta[name="csrf-token"]')?.content
+    fetch(this.endpointValue, {
+      method: "PATCH",
+      credentials: "same-origin",
+      headers: {
+        "Content-Type": "application/json",
+        "Accept": "application/json",
+        "X-CSRF-Token": token || ""
+      },
+      body: JSON.stringify({ preferences: diff })
+    }).catch((err) => console.warn("[qb-tweaks] persist failed", err))
   }
 
   _readStored() {

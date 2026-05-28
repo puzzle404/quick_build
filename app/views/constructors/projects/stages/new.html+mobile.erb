@@ -1,0 +1,67 @@
+<% content_for :title, "Nueva etapa · #{@project.name}" %>
+<%
+  is_sub = @stage.parent.present?
+  parents = @project.project_stages.where(parent_id: nil).order(:position)
+%>
+
+<%= render Qb::Mobile::NavBarComponent.new(title: is_sub ? "Nueva sub-etapa" : "Nueva etapa", back: true, back_href: constructors_project_stages_path(@project)) %>
+
+<div style="padding: 8px 4px 0;">
+  <div style="padding: 4px 20px 12px;">
+    <h1 style="margin: 0; font-size: 22px; font-weight: 700; letter-spacing: -0.4px;">Crear etapa</h1>
+    <p style="margin: 4px 0 0; font-size: 13.5px; color: var(--color-ink-3); line-height: 1.4;">
+      <%= is_sub ? "Esta sub-etapa se anida bajo #{@stage.parent.name}." : "Definí los datos básicos y la responsable." %>
+    </p>
+  </div>
+
+  <%= form_with model: [@project, @stage], local: true, html: { style: "padding: 0 16px;" } do |f| %>
+    <% if @stage.errors.any? %>
+      <div role="alert" style="margin-bottom:14px;padding:10px 12px;border-radius:10px;background:color-mix(in oklab, var(--color-bad) 12%, transparent);color:var(--color-bad);font-size:13px;">
+        <%= @stage.errors.full_messages.to_sentence %>
+      </div>
+    <% end %>
+
+    <%= render Qb::Mobile::FormGroupComponent.new(title: "Datos") do %>
+      <%# Hidden parent (forced when entering via sub-stage flow) %>
+      <% if is_sub %>
+        <%= f.hidden_field :parent_id %>
+        <%= render Qb::Mobile::FormPickerRowComponent.new(label: "Etapa padre", value: @stage.parent.name, href: nil) %>
+      <% else %>
+        <%= render Qb::Mobile::FormRowComponent.new(
+              label: "Etapa padre",
+              name: "project_stage[parent_id]",
+              select: true,
+              value: @stage.parent_id,
+              options: [['— Etapa raíz —', '']] + parents.map { |s| [s.name, s.id] }) %>
+      <% end %>
+      <%= render Qb::Mobile::FormRowComponent.new(
+            label: "Nombre", name: "project_stage[name]",
+            value: @stage.name,
+            placeholder: "Ej: Revoque grueso exterior",
+            required: true) %>
+      <%= render Qb::Mobile::FormRowComponent.new(
+            label: "Descripción", name: "project_stage[description]",
+            value: @stage.description,
+            textarea: true,
+            placeholder: "Detalles, tareas, notas técnicas…") %>
+    <% end %>
+
+    <%= render Qb::Mobile::FormGroupComponent.new(title: "Cronograma") do %>
+      <%= render Qb::Mobile::FormRowComponent.new(
+            label: "Inicio", name: "project_stage[start_date]",
+            type: 'date',
+            value: @stage.start_date) %>
+      <%= render Qb::Mobile::FormRowComponent.new(
+            label: "Fin", name: "project_stage[end_date]",
+            type: 'date',
+            value: @stage.end_date) %>
+    <% end %>
+
+    <div style="display:flex;gap:10px;padding-bottom:24px;">
+      <%= link_to "Cancelar", constructors_project_stages_path(@project),
+            class: "m-btn m-btn--secondary m-btn--md",
+            style: "flex:1;text-decoration:none;" %>
+      <%= f.submit "Crear etapa", class: "m-btn m-btn--md", style: "flex:1.4;" %>
+    </div>
+  <% end %>
+</div>

@@ -1,0 +1,73 @@
+<% content_for :title, "Equipo · #{@project.name}" %>
+<%
+  active   = @people.select { |p| p.status.to_s == 'active' }
+  inactive = @people.reject { |p| p.status.to_s == 'active' }
+%>
+
+<%= render Qb::Mobile::NavBarComponent.new(title: @project.name, back: true, back_href: constructors_project_path(@project)) do |c| %>
+  <% c.with_right do %>
+    <%= link_to new_constructors_project_person_path(@project), aria: { label: 'Agregar persona' }, style: 'color:var(--color-accent);display:inline-flex;padding:8px;' do %>
+      <%= render Qb::Mobile::IconComponent.new(name: 'plus', size: 22) %>
+    <% end %>
+  <% end %>
+<% end %>
+
+<div style="padding: 4px 20px 12px;">
+  <h1 style="margin: 0; font-size: 24px; font-weight: 700; letter-spacing: -0.5px;">Equipo</h1>
+  <div style="font-size: 13px; color: var(--color-ink-3); margin-top: 4px;">
+    <%= pluralize(active.size, 'persona activa') %> · <%= inactive.size %> inactivas
+  </div>
+</div>
+
+<%# Search %>
+<%= form_with url: constructors_project_people_path(@project), method: :get, local: true do %>
+  <div style="padding: 0 20px 8px;">
+    <div style="display:flex;align-items:center;gap:8px;background:var(--color-bg-sunken);border:1px solid var(--color-line);border-radius:12px;padding:0 12px;height:42px;">
+      <%= render Qb::Mobile::IconComponent.new(name: 'search', size: 17) %>
+      <input type="search" name="q" value="<%= @query %>" placeholder="Buscar por nombre o rol" style="flex:1;border:none;outline:none;background:transparent;font-size:14px;"/>
+    </div>
+  </div>
+<% end %>
+
+<% if active.any? %>
+  <%= render Qb::Mobile::SectionComponent.new(title: "Activos · #{active.size}") do %>
+    <%= render Qb::Mobile::CardComponent.new(bleed: true) do %>
+      <% active.each do |person| %>
+        <%= link_to constructors_project_person_path(@project, person), class: 'm-row m-row--tap' do %>
+          <%= render Qb::Mobile::AvatarComponent.new(name: person.full_name, size: 32) %>
+          <div class="m-row-main" style="margin-left:12px;">
+            <div class="m-row-title"><%= person.full_name %></div>
+            <div class="m-row-subtitle">
+              <%= person.role_title.presence || 'Sin rol' %>
+              <% if person.start_date %> · desde <%= qb_fmt_date_short(person.start_date) %><% end %>
+            </div>
+          </div>
+          <span class="m-row-chevron"><%= render Qb::Mobile::IconComponent.new(name: 'chev-right', size: 16, stroke: 2.2) %></span>
+        <% end %>
+      <% end %>
+    <% end %>
+  <% end %>
+<% end %>
+
+<% if inactive.any? %>
+  <%= render Qb::Mobile::SectionComponent.new(title: "Inactivos · #{inactive.size}") do %>
+    <%= render Qb::Mobile::CardComponent.new(bleed: true) do %>
+      <% inactive.each do |person| %>
+        <%= render Qb::Mobile::RowComponent.new(
+              title: person.full_name,
+              subtitle: person.role_title.presence || 'Sin rol',
+              href: constructors_project_person_path(@project, person)) %>
+      <% end %>
+    <% end %>
+  <% end %>
+<% end %>
+
+<% if @people.empty? %>
+  <div style="padding: 0 16px;">
+    <%= render Qb::Mobile::CardComponent.new do %>
+      <div style="text-align:center;padding:14px 8px;color:var(--color-ink-3);font-size:13.5px;">Sin personas asignadas a la obra.</div>
+    <% end %>
+  </div>
+<% end %>
+
+<div style="height: 24px;"></div>

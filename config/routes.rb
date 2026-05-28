@@ -14,8 +14,9 @@ Rails.application.routes.draw do
   root to: "home#index"
 
   resources :contacts, only: :create
-  resource :registration, only: %i[new create]
+  resource :registration, only: %i[new create edit]
   resource :session, only: %i[new create destroy]
+  resource :preferences, only: %i[update]
 
   # Carrito
   resource :cart, only: :show do
@@ -40,15 +41,15 @@ Rails.application.routes.draw do
     resources :people, only: [:index]
     get 'biblioteca', to: 'library#index', as: :library
     get 'biblioteca/:id', to: 'library#show', as: :library_document, constraints: { id: /\d+/ }
-    get 'search', to: 'search#index', defaults: { format: :json }
+    get 'search', to: 'search#index'
     resources :projects do
       resources :project_memberships, only: [:create, :destroy, :new]
       # /planning redirige a /stages (la vista de planificación ahora vive en stages#index).
       resource :planning, only: [:show], module: :projects, controller: :planning
       resources :documents, only: [:index, :create, :destroy], module: :projects, controller: :documents
       resources :images, only: [:index, :create, :destroy], module: :projects, controller: :images
-      resources :expenses, only: [ :create, :destroy ], module: false, controller: "/constructors/expenses"
-      resources :notes, only: [ :create, :destroy ], module: false, controller: "/constructors/notes"
+      resources :expenses, only: [ :new, :create, :destroy ], module: false, controller: "/constructors/expenses"
+      resources :notes, only: [ :new, :create, :destroy ], module: false, controller: "/constructors/notes"
       resources :stages, module: :projects do
         collection do
           post :apply_template

@@ -1,0 +1,65 @@
+<% content_for :title, "Planificación · #{@project.name}" %>
+<%
+  total      = @root_stages.size
+  done_count = @root_stages.count { |s| s.progress.to_i >= 100 }
+  doing      = @root_stages.count { |s| (1..99).cover?(s.progress.to_i) }
+  pending    = total - done_count - doing
+%>
+
+<%= render Qb::Mobile::NavBarComponent.new(title: @project.name, back: true, back_href: constructors_project_path(@project)) do |c| %>
+  <% c.with_right do %>
+    <%= link_to new_constructors_project_stage_path(@project), aria: { label: 'Nueva etapa' }, style: 'color:var(--color-accent);display:inline-flex;padding:8px;' do %>
+      <%= render Qb::Mobile::IconComponent.new(name: 'plus', size: 22) %>
+    <% end %>
+  <% end %>
+<% end %>
+
+<div style="padding: 4px 20px 12px;">
+  <h1 style="margin: 0; font-size: 24px; font-weight: 700; letter-spacing: -0.5px;">Planificación</h1>
+  <div style="font-size: 13px; color: var(--color-ink-3); margin-top: 4px;">
+    <%= pluralize(total, 'etapa') %> · <%= done_count %> completadas · <%= doing %> en curso · <%= pending %> pendientes
+  </div>
+</div>
+
+<%# Segmented control — only Cards is implemented here; Gantt/WBS link to desktop fallback %>
+<div style="padding: 4px 20px 12px;">
+  <%= render Qb::Mobile::SegmentedComponent.new(
+        options: [
+          { key: 'cards', label: 'Etapas' },
+          { key: 'gantt', label: 'Gantt' },
+          { key: 'wbs',   label: 'WBS' }
+        ],
+        value: 'cards') %>
+</div>
+
+<div style="padding: 0 16px 16px;">
+  <% if @root_stages.any? %>
+    <div style="display:flex;flex-direction:column;gap:10px;">
+      <% @root_stages.each do |stage| %>
+        <%= render "constructors/projects/stages/mobile_card", stage: stage.decorate, project: @project %>
+      <% end %>
+    </div>
+  <% else %>
+    <%= render Qb::Mobile::CardComponent.new do %>
+      <div style="text-align:center;padding:16px 8px;">
+        <div style="font-size:14px;color:var(--color-ink-2);font-weight:600;margin-bottom:4px;">Sin etapas todavía</div>
+        <div style="font-size:12.5px;color:var(--color-ink-3);margin-bottom:14px;">Creá la primera etapa o aplicá una plantilla.</div>
+        <div style="display:flex;gap:8px;justify-content:center;">
+          <%= render Qb::Mobile::ButtonComponent.new("Aplicar plantilla", variant: :secondary, size: :sm, href: apply_template_constructors_project_stages_path(@project), icon: :sparkles, data: { turbo_method: :post }) %>
+          <%= render Qb::Mobile::ButtonComponent.new("Nueva etapa", variant: :primary, size: :sm, icon: :plus, href: new_constructors_project_stage_path(@project)) %>
+        </div>
+      </div>
+    <% end %>
+  <% end %>
+</div>
+
+<%# Sticky FAB at bottom (separate from the in-page tabbar, which is provided by the iOS shell) %>
+<% unless hotwire_native_app? %>
+  <div style="position:sticky;bottom:24px;display:flex;justify-content:center;padding:0 16px;pointer-events:none;">
+    <%= link_to new_constructors_project_stage_path(@project),
+          style: "pointer-events:auto;height:50px;border-radius:999px;padding:0 22px;background:var(--color-ink);color:var(--color-bg);text-decoration:none;display:inline-flex;align-items:center;gap:8px;font-weight:600;font-size:15px;box-shadow:0 10px 30px -6px rgba(0,0,0,0.3);" do %>
+      <%= render Qb::Mobile::IconComponent.new(name: 'plus', size: 20, stroke: 2.4) %>
+      Nueva etapa
+    <% end %>
+  </div>
+<% end %>

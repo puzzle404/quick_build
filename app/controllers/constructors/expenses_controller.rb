@@ -3,7 +3,16 @@
 module Constructors
   class ExpensesController < Constructors::BaseController
     before_action :set_project
-    before_action :set_stage, only: [ :create, :destroy ]
+    before_action :set_stage, only: [ :new, :create, :destroy ]
+
+    # Renders the mobile expense form. Desktop opens the same form inline via
+    # the `qb--modal` Stimulus controller; the Native shell can't host that
+    # modal, so it loads `/new` instead — the path-config rule routes it as a
+    # bottom-sheet automatically.
+    def new
+      authorize @project, :show?
+      @expense = (@stage || @project).expenses.build(currency: 'ARS', incurred_on: Date.current)
+    end
 
     def create
       @expense = @project.expenses.new(expense_params)

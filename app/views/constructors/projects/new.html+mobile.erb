@@ -1,0 +1,52 @@
+<% content_for :title, "Nuevo proyecto · Quick Build" %>
+
+<%= render Qb::Mobile::NavBarComponent.new(title: "Nuevo proyecto", back: true, back_href: constructors_projects_path) %>
+
+<div style="padding: 4px 20px 12px;">
+  <h1 style="margin: 0; font-size: 22px; font-weight: 700; letter-spacing: -0.4px;">Crear una obra</h1>
+  <p style="margin: 4px 0 0; font-size: 13.5px; color: var(--color-ink-3); line-height: 1.4;">
+    Los datos básicos alcanzan para empezar. Después podés sumar planos y la plantilla de etapas.
+  </p>
+</div>
+
+<%= form_with model: [:constructors, @project], local: true, html: { multipart: true, style: "padding: 0 16px;" } do |f| %>
+  <% if @project.errors.any? %>
+    <div role="alert" style="margin-bottom:14px;padding:10px 12px;border-radius:10px;background:color-mix(in oklab, var(--color-bad) 12%, transparent);color:var(--color-bad);font-size:13px;">
+      <%= @project.errors.full_messages.to_sentence %>
+    </div>
+  <% end %>
+
+  <%= render Qb::Mobile::FormGroupComponent.new(title: "Identidad") do %>
+    <%= render Qb::Mobile::FormRowComponent.new(label: "Nombre", name: "project[name]", value: @project.name, placeholder: "Ej: Torre Palermo · Aurora", required: true) %>
+    <%= render Qb::Mobile::FormRowComponent.new(label: "Cliente", name: "project[client]", value: @project.client, placeholder: "Razón social") %>
+    <%= render Qb::Mobile::FormRowComponent.new(label: "Ubicación", name: "project[location]", value: @project.location, placeholder: "Dirección") %>
+  <% end %>
+
+  <%= render Qb::Mobile::FormGroupComponent.new(title: "Cronograma") do %>
+    <%= render Qb::Mobile::FormRowComponent.new(label: "Inicio", name: "project[start_date]", type: 'date', value: @project.start_date) %>
+    <%= render Qb::Mobile::FormRowComponent.new(label: "Entrega", name: "project[end_date]", type: 'date', value: @project.end_date) %>
+  <% end %>
+
+  <%= render Qb::Mobile::FormGroupComponent.new(title: "Presupuesto y estado", footnote: "$ 1.500.000 → 150000000 (centavos).") do %>
+    <%= render Qb::Mobile::FormRowComponent.new(label: "Presupuesto (centavos)", name: "project[budget_cents]", type: 'number', value: @project.budget_cents, placeholder: '0') %>
+    <%= render Qb::Mobile::FormRowComponent.new(
+          label: "Estado inicial", name: "project[status]", select: true,
+          value: @project.status || 'planned',
+          options: Project.statuses.keys.map { |s| [{ 'planned' => 'Planificado', 'in_progress' => 'En obra', 'completed' => 'Finalizado' }[s] || s.humanize, s] }) %>
+  <% end %>
+
+  <%= render Qb::Mobile::FormGroupComponent.new(title: "Plantilla de etapas (opcional)", footnote: "Si activás, creamos las 3 etapas base (Proyecto y gestión, Dirección de obra, Administración).") do %>
+    <label class="m-frow-toggle">
+      <div class="m-frow-toggle-main">
+        <div class="m-frow-toggle-title">Aplicar plantilla base</div>
+        <div class="m-frow-toggle-sub">Recomendado para obras nuevas.</div>
+      </div>
+      <input type="checkbox" name="apply_template" value="template" class="m-frow-toggle-switch"/>
+    </label>
+  <% end %>
+
+  <div style="display:flex;gap:10px;padding-bottom:24px;">
+    <%= link_to "Cancelar", constructors_projects_path, class: "m-btn m-btn--secondary m-btn--md", style: "flex:1;text-decoration:none;" %>
+    <%= f.submit "Crear obra", class: "m-btn m-btn--md", style: "flex:1.4;" %>
+  </div>
+<% end %>

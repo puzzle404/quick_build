@@ -1,0 +1,102 @@
+<% content_for :title, "Buscar · Quick Build" %>
+<%
+  projects   = @results[:projects]
+  people     = @results[:people]
+  stages     = @results[:stages]
+  documents  = @results[:documents]
+  materials  = @results[:material_lists]
+  actions    = @results[:actions]
+%>
+
+<%= form_with url: constructors_search_path, method: :get, local: true do %>
+  <div style="padding: 12px 20px 8px;">
+    <div style="display:flex;align-items:center;gap:8px;background:var(--color-bg-sunken);border:1px solid var(--color-line);border-radius:12px;padding:0 12px;height:46px;">
+      <%= render Qb::Mobile::IconComponent.new(name: 'search', size: 18) %>
+      <input autofocus type="search" name="q" value="<%= @query %>" placeholder="Buscar proyectos, etapas, materiales…" style="flex:1;border:none;outline:none;background:transparent;font-size:15px;"/>
+      <% if @query.present? %>
+        <%= link_to constructors_search_path, style: "background:transparent;border:none;color:var(--color-accent);font-size:14px;font-weight:600;text-decoration:none;" do %>Limpiar<% end %>
+      <% end %>
+    </div>
+  </div>
+<% end %>
+
+<%# Scope tabs %>
+<%
+  scope_opts = [
+    { key: 'all',        label: 'Todo',        href: constructors_search_path(q: @query) },
+    { key: 'projects',   label: 'Proyectos',   count: projects.size,  href: constructors_search_path(q: @query, scope: 'projects') },
+    { key: 'stages',     label: 'Etapas',      count: stages.size,    href: constructors_search_path(q: @query, scope: 'stages') },
+    { key: 'materials',  label: 'Materiales',  count: materials.size, href: constructors_search_path(q: @query, scope: 'materials') },
+    { key: 'documents',  label: 'Documentos',  count: documents.size, href: constructors_search_path(q: @query, scope: 'documents') },
+    { key: 'people',     label: 'Personas',    count: people.size,    href: constructors_search_path(q: @query, scope: 'people') }
+  ]
+%>
+<%= render Qb::Mobile::TabsComponent.new(options: scope_opts, value: @scope) %>
+
+<%
+  show_section = ->(scope_key) { @scope == 'all' || @scope == scope_key }
+  result_row = ->(r, icon) do
+    render Qb::Mobile::RowComponent.new(
+      icon: icon, title: r[:label], subtitle: r[:hint], href: r[:url]
+    )
+  end
+%>
+
+<% if @query.blank? && actions.any? %>
+  <%= render Qb::Mobile::SectionComponent.new(title: "Acciones rápidas") do %>
+    <%= render Qb::Mobile::CardComponent.new(bleed: true) do %>
+      <% actions.each do |a| %>
+        <%= render Qb::Mobile::RowComponent.new(icon: :plus, title: a[:label], subtitle: a[:hint], href: a[:url]) %>
+      <% end %>
+    <% end %>
+  <% end %>
+<% end %>
+
+<% if show_section.call('projects') && projects.any? %>
+  <%= render Qb::Mobile::SectionComponent.new(title: "Proyectos · #{projects.size}") do %>
+    <%= render Qb::Mobile::CardComponent.new(bleed: true) do %>
+      <% projects.each do |r| %><%= result_row.call(r, :projects) %><% end %>
+    <% end %>
+  <% end %>
+<% end %>
+
+<% if show_section.call('stages') && stages.any? %>
+  <%= render Qb::Mobile::SectionComponent.new(title: "Etapas · #{stages.size}") do %>
+    <%= render Qb::Mobile::CardComponent.new(bleed: true) do %>
+      <% stages.each do |r| %><%= result_row.call(r, :stages) %><% end %>
+    <% end %>
+  <% end %>
+<% end %>
+
+<% if show_section.call('materials') && materials.any? %>
+  <%= render Qb::Mobile::SectionComponent.new(title: "Materiales · #{materials.size}") do %>
+    <%= render Qb::Mobile::CardComponent.new(bleed: true) do %>
+      <% materials.each do |r| %><%= result_row.call(r, :materials) %><% end %>
+    <% end %>
+  <% end %>
+<% end %>
+
+<% if show_section.call('documents') && documents.any? %>
+  <%= render Qb::Mobile::SectionComponent.new(title: "Documentos · #{documents.size}") do %>
+    <%= render Qb::Mobile::CardComponent.new(bleed: true) do %>
+      <% documents.each do |r| %><%= result_row.call(r, :doc) %><% end %>
+    <% end %>
+  <% end %>
+<% end %>
+
+<% if show_section.call('people') && people.any? %>
+  <%= render Qb::Mobile::SectionComponent.new(title: "Personas · #{people.size}") do %>
+    <%= render Qb::Mobile::CardComponent.new(bleed: true) do %>
+      <% people.each do |r| %><%= result_row.call(r, :people) %><% end %>
+    <% end %>
+  <% end %>
+<% end %>
+
+<% any_results = [projects, stages, materials, documents, people].any?(&:any?) %>
+<% if @query.present? && !any_results %>
+  <div style="padding: 24px 20px 8px; text-align: center; color: var(--color-ink-3); font-size: 13.5px;">
+    Sin resultados para "<%= @query %>".
+  </div>
+<% end %>
+
+<div style="height: 24px;"></div>

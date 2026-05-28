@@ -3,8 +3,15 @@
 module Constructors
   class NotesController < Constructors::BaseController
     before_action :set_project
-    before_action :set_noteable, only: [ :create ]
+    before_action :set_noteable, only: [ :new, :create ]
     before_action :set_note, only: [ :destroy ]
+
+    # Mirror of the desktop's inline modal — the Native shell hits this URL
+    # so the path-config rule presents it as a bottom-sheet automatically.
+    def new
+      authorize @project, :show?
+      @note = @noteable.notes.build
+    end
 
     def create
       @note = @noteable.notes.new(note_params.merge(author: current_user))

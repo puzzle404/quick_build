@@ -1,0 +1,81 @@
+<% content_for :title, "Biblioteca · Quick Build" %>
+<%
+  recent_material_lists = MaterialList
+    .where(project_id: current_user.owned_projects.pluck(:id))
+    .includes(:project, :material_items)
+    .order(updated_at: :desc)
+    .limit(6)
+%>
+
+<%= render Qb::Mobile::PageHeaderComponent.new(
+      title: "Biblioteca",
+      eyebrow: "Recursos del estudio",
+      subtitle: "Documentos cargados, listas reutilizables y referencias.") %>
+
+<%# Search %>
+<%= form_with url: constructors_library_path, method: :get, local: true do %>
+  <div style="padding: 0 20px 8px;">
+    <div style="display:flex;align-items:center;gap:8px;background:var(--color-bg-sunken);border:1px solid var(--color-line);border-radius:12px;padding:0 12px;height:42px;">
+      <%= render Qb::Mobile::IconComponent.new(name: 'search', size: 17) %>
+      <input type="search" name="q" value="<%= @query %>" placeholder="Buscar documentos" style="flex:1;border:none;outline:none;background:transparent;font-size:14px;"/>
+    </div>
+  </div>
+<% end %>
+
+<%# Documents grouped %>
+<%= render Qb::Mobile::SectionComponent.new(title: "Documentos · #{@pagy.count}") do %>
+  <% if @documents.any? %>
+    <%= render Qb::Mobile::CardComponent.new(bleed: true) do %>
+      <% @documents.first(8).each do |doc| %>
+        <%
+          name = doc.respond_to?(:file) && doc.file.attached? ? doc.file.filename.to_s : 'Documento'
+          parent = doc.documentable
+          parent_label = case parent
+                         when Project then parent.name
+                         when ProjectStage then "#{parent.project&.name} · #{parent.name}"
+                         else parent.to_s
+                         end
+          file_url = doc.respond_to?(:file) && doc.file.attached? ? url_for(doc.file) : nil
+        %>
+        <%= render Qb::Mobile::RowComponent.new(
+              icon: :doc,
+              title: name,
+              subtitle: "#{parent_label} · #{qb_fmt_date_short(doc.created_at)}",
+              href: file_url) %>
+      <% end %>
+    <% end %>
+  <% else %>
+    <%= render Qb::Mobile::CardComponent.new do %>
+      <div style="text-align:center;padding:14px 8px;color:var(--color-ink-3);font-size:13.5px;">
+        <% if @query.present? %>
+          Sin documentos para "<%= @query %>".
+        <% else %>
+          Sin documentos cargados todavía.
+        <% end %>
+      </div>
+    <% end %>
+  <% end %>
+<% end %>
+
+<%# Reusable material lists %>
+<% if recent_material_lists.any? %>
+  <%= render Qb::Mobile::SectionComponent.new(title: "Listas de materiales") do %>
+    <%= render Qb::Mobile::CardComponent.new(bleed: true) do %>
+      <% recent_material_lists.each do |ml| %>
+        <%
+          total_cents = ml.material_items.to_a.sum { |i| i.total_estimated_cost_cents.to_i }
+          items_count = ml.material_items.size
+        %>
+        <%= render Qb::Mobile::RowComponent.new(
+              icon: :materials,
+              title: ml.name,
+              subtitle: "#{ml.project.name} · #{pluralize(items_count, 'ítem')}",
+              value: qb_fmt_cents(total_cents),
+              value_mono: true,
+              href: constructors_project_material_list_path(ml.project, ml)) %>
+      <% end %>
+    <% end %>
+  <% end %>
+<% end %>
+
+<div style="height: 24px;"></div>

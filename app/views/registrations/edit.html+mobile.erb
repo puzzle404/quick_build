@@ -1,0 +1,64 @@
+<% content_for :title, "Perfil · Quick Build" %>
+<%
+  name = @user.email.to_s.split('@').first.titleize
+  company_name = (@user.try(:company)&.name rescue nil)
+%>
+
+<%# Profile hero %>
+<div style="padding: 24px 20px 16px; display: flex; align-items: center; gap: 14px;">
+  <%= render Qb::Mobile::AvatarComponent.new(name: name, size: 64) %>
+  <div style="flex: 1;">
+    <div style="font-size: 18px; font-weight: 700;"><%= name %></div>
+    <div style="font-size: 13px; color: var(--color-ink-3);">
+      <%= @user.role.to_s.humanize %><% if company_name.present? %> · <%= company_name %><% end %>
+    </div>
+    <div style="margin-top: 6px;">
+      <%= render Qb::Mobile::PillComponent.new("Beta", tone: :accent, dense: true) %>
+    </div>
+  </div>
+</div>
+
+<%= render Qb::Mobile::SectionComponent.new(title: "Cuenta") do %>
+  <%= render Qb::Mobile::CardComponent.new(bleed: true) do %>
+    <%= render Qb::Mobile::RowComponent.new(icon: :user, title: "Email", subtitle: @user.email, chevron: false) %>
+    <% if @user.phone.present? %>
+      <%= render Qb::Mobile::RowComponent.new(icon: :bell, title: "Teléfono", subtitle: @user.phone, chevron: false) %>
+    <% end %>
+    <% if @user.address.present? %>
+      <%= render Qb::Mobile::RowComponent.new(icon: :'map-pin', title: "Dirección", subtitle: @user.address, chevron: false) %>
+    <% end %>
+  <% end %>
+<% end %>
+
+<%= render Qb::Mobile::SectionComponent.new(title: "Apariencia") do %>
+  <%= render Qb::Mobile::CardComponent.new(bleed: true) do %>
+    <%= render Qb::Mobile::RowComponent.new(icon: :cog, title: "Tema", value: "Auto", chevron: true) %>
+    <%= render Qb::Mobile::RowComponent.new(icon: :cog, title: "Densidad", value: "Cómoda", chevron: true) %>
+    <%= render Qb::Mobile::RowComponent.new(icon: :cog, title: "Idioma", value: "Español (AR)", chevron: false) %>
+  <% end %>
+<% end %>
+
+<%= render Qb::Mobile::SectionComponent.new(title: "Datos") do %>
+  <%= render Qb::Mobile::CardComponent.new(bleed: true) do %>
+    <%= render Qb::Mobile::RowComponent.new(icon: :projects, title: "Mis proyectos", value: (current_user.owned_projects.count rescue 0).to_s, href: constructors_projects_path) %>
+    <%= render Qb::Mobile::RowComponent.new(icon: :library, title: "Biblioteca", href: constructors_library_path) %>
+  <% end %>
+<% end %>
+
+<%# Logout %>
+<div style="padding: 0 16px;">
+  <%= render Qb::Mobile::CardComponent.new(bleed: true) do %>
+    <%= button_to session_path, method: :delete, class: "m-row m-row--tap", form: { style: "margin:0;border:0;background:transparent;" } do %>
+      <div class="m-row-icon" style="background:color-mix(in oklab, var(--color-bad) 12%, transparent);color:var(--color-bad);">
+        <%= render Qb::Mobile::IconComponent.new(name: 'x', size: 17) %>
+      </div>
+      <div class="m-row-main">
+        <div class="m-row-title" style="color: var(--color-bad);">Cerrar sesión</div>
+      </div>
+    <% end %>
+  <% end %>
+</div>
+
+<div style="text-align: center; padding: 16px 0 24px; font-size: 11px; font-family: var(--font-mono); color: var(--color-ink-4);">
+  Quick Build · v0.1.0
+</div>

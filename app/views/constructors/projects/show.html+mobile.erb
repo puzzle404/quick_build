@@ -1,0 +1,177 @@
+<% content_for :title, "#{@project.name} · Quick Build" %>
+<%
+  p = @project # already decorated
+  due_in = p.days_to_due
+  due_text = if due_in.nil?
+               "Sin fecha de entrega"
+             elsif due_in.negative?
+               "Vencido hace #{due_in.abs}d"
+             elsif due_in.zero?
+               "Entrega hoy"
+             else
+               "#{due_in} días restantes"
+             end
+%>
+
+<%= render Qb::Mobile::NavBarComponent.new(title: nil, back: true, back_href: constructors_projects_path) do |c| %>
+  <% c.with_right do %>
+    <button type="button" aria-label="Más acciones" style="background:transparent;border:none;display:flex;color:var(--color-ink-2);">
+      <%= render Qb::Mobile::IconComponent.new(name: 'more', size: 22) %>
+    </button>
+  <% end %>
+<% end %>
+
+<%# Identity %>
+<div style="padding: 4px 20px 16px;">
+  <div style="display:flex;align-items:center;gap:8px;margin-bottom:10px;flex-wrap:wrap;">
+    <span class="mono" style="font-size:11px;color:var(--color-ink-3);background:var(--color-bg-sunken);padding:3px 8px;border-radius:4px;font-weight:600;"><%= p.code %></span>
+    <%= render Qb::Mobile::PillComponent.new(p.status_label, tone: p.status_tone, dense: true) %>
+    <%= render Qb::Mobile::PillComponent.new(p.health_label, tone: p.health, dense: true) %>
+  </div>
+  <h1 style="margin: 4px 0 6px; font-size: 24px; font-weight: 700; letter-spacing: -0.4px; line-height: 1.15;"><%= p.name %></h1>
+  <div style="display:flex;flex-wrap:wrap;gap:4px 14px;font-size:13px;color:var(--color-ink-3);">
+    <% if p.try(:client).present? %>
+      <span style="display:inline-flex;align-items:center;gap:4px;"><%= render Qb::Mobile::IconComponent.new(name: 'people', size: 13) %><%= p.client %></span>
+    <% end %>
+    <% if p.location.present? %>
+      <span style="display:inline-flex;align-items:center;gap:4px;"><%= render Qb::Mobile::IconComponent.new(name: 'map-pin', size: 13) %><%= p.location %></span>
+    <% end %>
+    <% if p.end_date %>
+      <span style="display:inline-flex;align-items:center;gap:4px;"><%= render Qb::Mobile::IconComponent.new(name: 'calendar', size: 13) %>Entrega <%= qb_fmt_date_short(p.end_date) %></span>
+    <% end %>
+  </div>
+</div>
+
+<%# Hero progress card %>
+<div style="padding: 0 16px 14px;">
+  <div class="m-card" style="background: linear-gradient(135deg, oklch(50% 0.20 250) 0%, oklch(60% 0.22 235) 100%); border: none; color: white; padding: 16px;">
+    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:14px;">
+      <div>
+        <div style="font-size:11px;font-family:var(--font-mono);color:rgba(255,255,255,0.8);text-transform:uppercase;letter-spacing:0.7px;font-weight:600;">Avance global</div>
+        <div class="mono tnum" style="font-size:44px;font-weight:600;letter-spacing:-1.5px;line-height:1;margin-top:4px;"><%= p.progress %>%</div>
+      </div>
+      <div style="text-align:right;">
+        <div style="font-size:11px;font-family:var(--font-mono);color:rgba(255,255,255,0.7);text-transform:uppercase;letter-spacing:0.7px;font-weight:600;">Plan</div>
+        <div class="mono tnum" style="font-size:22px;font-weight:600;opacity:0.9;margin-top:4px;"><%= p.planned_progress %>%</div>
+        <div style="font-size:11.5px;color:rgba(255,255,255,0.85);margin-top:2px;font-weight:600;">Δ <%= p.progress - p.planned_progress %></div>
+      </div>
+    </div>
+    <div style="height:6px;border-radius:999px;background:rgba(255,255,255,0.18);overflow:hidden;position:relative;">
+      <div style="height:100%;width:<%= [p.progress, 100].min %>%;background:white;border-radius:999px;"></div>
+      <div style="position:absolute;top:-3px;bottom:-3px;left:<%= [p.planned_progress, 100].min %>%;width:2px;background:rgba(255,255,255,0.7);"></div>
+    </div>
+    <div style="display:flex;justify-content:space-between;margin-top:10px;font-size:11.5px;color:rgba(255,255,255,0.85);">
+      <span><%= p.stages_done %> de <%= p.stages_count %> etapas completadas</span>
+      <span><%= due_text %></span>
+    </div>
+  </div>
+</div>
+
+<%# Quick stats: budget + team %>
+<div style="padding: 0 16px 18px; display: grid; grid-template-columns: 1fr 1fr; gap: 10px;">
+  <%= render Qb::Mobile::CardComponent.new(padding: 12) do %>
+    <div style="font-size:11px;font-family:var(--font-mono);color:var(--color-ink-3);text-transform:uppercase;letter-spacing:0.7px;font-weight:600;">Presupuesto</div>
+    <div class="mono tnum" style="font-size:18px;font-weight:700;margin-top:3px;letter-spacing:-0.3px;"><%= qb_fmt_cents(p.spent) %></div>
+    <div style="font-size:11px;color:var(--color-ink-3);margin-top:2px;">
+      <% budget_pct = p.budget.positive? ? (p.spent.to_f / p.budget * 100).round : 0 %>
+      <%= budget_pct %>% de <%= qb_fmt_cents(p.budget) %>
+    </div>
+    <div style="margin-top:8px;">
+      <%= render Qb::Mobile::BarComponent.new(value: budget_pct, tone: :accent, height: 4) %>
+    </div>
+  <% end %>
+  <%= render Qb::Mobile::CardComponent.new(padding: 12) do %>
+    <div style="font-size:11px;font-family:var(--font-mono);color:var(--color-ink-3);text-transform:uppercase;letter-spacing:0.7px;font-weight:600;">Equipo</div>
+    <div class="mono tnum" style="font-size:18px;font-weight:700;margin-top:3px;letter-spacing:-0.3px;"><%= pluralize(p.people_count, 'pers') %></div>
+    <% if p.people_count.zero? %>
+      <div style="font-size:11px;color:var(--color-ink-3);margin-top:2px;">Sin asignaciones</div>
+    <% else %>
+      <% members = (p.try(:members) || []).first(4) rescue [] %>
+      <div style="display:flex;margin-top:8px;">
+        <% members.each_with_index do |m, i| %>
+          <div style="margin-left:<%= i.zero? ? '0' : '-8px' %>;border:2px solid var(--color-bg-raised);border-radius:999px;">
+            <%= render Qb::Mobile::AvatarComponent.new(name: m.try(:email).to_s.split('@').first, size: 22) %>
+          </div>
+        <% end %>
+        <% remaining = p.people_count - members.size %>
+        <% if remaining.positive? %>
+          <div style="margin-left:-8px;width:22px;height:22px;border-radius:999px;background:var(--color-bg-sunken);border:2px solid var(--color-bg-raised);display:flex;align-items:center;justify-content:center;font-size:9px;font-weight:700;color:var(--color-ink-3);">+<%= remaining %></div>
+        <% end %>
+      </div>
+    <% end %>
+  <% end %>
+</div>
+
+<%# Section tiles %>
+<%= render Qb::Mobile::SectionComponent.new(title: "En este proyecto") do %>
+  <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;">
+    <%= render "constructors/projects/mobile_section_tile", icon: :stages, label: "Planificación",
+          sub: "#{pluralize(p.stages_count, 'etapa')} · #{p.stages_done} listas",
+          tone: (p.stages_at_risk if p.respond_to?(:stages_at_risk) && p.stages_at_risk.positive?) ? :warn : :accent,
+          href: constructors_project_stages_path(p) %>
+    <%= render "constructors/projects/mobile_section_tile", icon: :materials, label: "Materiales",
+          sub: "#{p.try(:material_lists)&.size || 0} listas",
+          tone: :accent,
+          href: constructors_project_material_lists_path(p) %>
+    <%= render "constructors/projects/mobile_section_tile", icon: :blueprint, label: "Planos · IA",
+          sub: "#{p.blueprints_count} planos",
+          tone: :accent, badge: "AI",
+          href: constructors_project_blueprints_path(p) %>
+    <%= render "constructors/projects/mobile_section_tile", icon: :people, label: "Equipo",
+          sub: "#{pluralize(p.people_count, 'persona')} activa".pluralize(p.people_count),
+          tone: :info,
+          href: constructors_project_people_path(p) %>
+    <%= render "constructors/projects/mobile_section_tile", icon: :doc, label: "Documentos",
+          sub: "#{pluralize(p.docs_count, 'archivo')}",
+          tone: :muted,
+          href: constructors_project_documents_path(p) %>
+    <%= render "constructors/projects/mobile_section_tile", icon: :money, label: "Gastos",
+          sub: qb_fmt_cents(p.spent),
+          tone: :muted,
+          href: constructors_project_path(p, anchor: 'gastos') %>
+  </div>
+<% end %>
+
+<%# Upcoming stages %>
+<% upcoming = @stages_root.to_a.reject { |s| s.progress.to_i >= 100 }.sort_by { |s| s.start_date || Date.current + 99.years }.first(4) %>
+<% if upcoming.any? %>
+  <%= render Qb::Mobile::SectionComponent.new(title: "Próximas etapas") do %>
+    <%= render Qb::Mobile::CardComponent.new(bleed: true) do %>
+      <% upcoming.each do |stage| %>
+        <%= render Qb::Mobile::RowComponent.new(
+              icon: :stages,
+              title: stage.name,
+              subtitle: stage.start_date ? "Empieza #{qb_fmt_date_short(stage.start_date)}" : "Sin fecha",
+              value: stage.try(:budget_cents) ? qb_fmt_cents(stage.budget_cents) : nil,
+              value_mono: true,
+              href: constructors_project_stage_path(p, stage)) %>
+      <% end %>
+    <% end %>
+  <% end %>
+<% end %>
+
+<%# Recent activity %>
+<% if @activity_entries.any? %>
+  <%= render Qb::Mobile::SectionComponent.new(title: "Actividad reciente") do %>
+    <%= render Qb::Mobile::CardComponent.new(bleed: true) do %>
+      <% @activity_entries.first(4).each_with_index do |a, i| %>
+        <div style="display:flex;align-items:flex-start;gap:12px;padding:12px 14px;<%= 'border-bottom:1px solid var(--color-line);' unless i == @activity_entries.first(4).size - 1 %>">
+          <div style="width:28px;height:28px;border-radius:8px;background:var(--color-bg-sunken);display:flex;align-items:center;justify-content:center;color:var(--color-ink-2);flex-shrink:0;">
+            <%= render Qb::Mobile::IconComponent.new(name: 'clock', size: 14) %>
+          </div>
+          <div style="flex:1;min-width:0;">
+            <div style="font-size:13.5px;color:var(--color-ink);font-weight:500;"><%= a[:title] %></div>
+            <% if a[:description].present? %>
+              <div style="font-size:12px;color:var(--color-ink-3);margin-top:2px;"><%= truncate(a[:description].to_s, length: 90) %></div>
+            <% end %>
+            <% if a[:timestamp] %>
+              <div style="font-size:11px;color:var(--color-ink-4);margin-top:3px;font-family:var(--font-mono);">hace <%= time_ago_in_words(a[:timestamp]) %></div>
+            <% end %>
+          </div>
+        </div>
+      <% end %>
+    <% end %>
+  <% end %>
+<% end %>
+
+<div style="height: 32px;"></div>

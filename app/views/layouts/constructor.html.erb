@@ -1,5 +1,9 @@
 <!DOCTYPE html>
-<html lang="es" data-theme="graphite" data-density="cozy" data-layout="sidebar">
+<html lang="es"
+      data-theme="<%= current_user&.theme || 'graphite' %>"
+      data-density="<%= current_user&.density || 'cozy' %>"
+      data-accent="<%= current_user&.accent || 'cobalt' %>"
+      data-layout="sidebar">
   <head>
     <title><%= content_for(:title) || "Quick Build · OS" %></title>
     <meta name="viewport" content="width=device-width,initial-scale=1">
@@ -23,7 +27,9 @@
   </head>
 
   <body class="qb-os" <%= "data-hotwire-native" if hotwire_native_app? %>
-        data-controller="qb--keyboard qb--tweaks">
+        data-controller="qb--keyboard qb--tweaks qb--mobile-detect"
+        data-qb--tweaks-persist-value="<%= current_user.present? %>"
+        data-qb--tweaks-initial-value='<%= { theme: current_user&.theme || "graphite", accent: current_user&.accent || "cobalt", density: current_user&.density || "cozy", layout: "sidebar" }.to_json %>'>
     <div style="display:flex;min-height:100vh;">
       <%= render Qb::Layout::SidebarComponent.new(
             current: current_qb_section || :dashboard,
