@@ -11,7 +11,7 @@ module Constructors
     # bottom-sheet automatically.
     def new
       authorize @project, :show?
-      @expense = (@stage || @project).expenses.build(currency: 'ARS', incurred_on: Date.current)
+      @expense = @project.expenses.build(currency: 'ARS', incurred_on: Date.current, project_stage: @stage)
     end
 
     def create

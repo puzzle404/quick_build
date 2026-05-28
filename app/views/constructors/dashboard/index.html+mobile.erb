@@ -61,8 +61,8 @@
     <%= render Qb::Mobile::RowComponent.new(
           icon: :people,
           icon_bg: 'color-mix(in oklab, var(--color-info) 14%, transparent)',
-          title: "#{people_now} #{ 'persona'.pluralize(people_now) } en obra",
-          subtitle: "#{pluralize(in_progress, 'obra')} activa".pluralize(in_progress),
+          title: "#{pluralize(people_now, 'persona')} en obra",
+          subtitle: in_progress == 1 ? "1 obra activa" : "#{in_progress} obras activas",
           value: people_now.zero? ? "—" : people_now.to_s) %>
     <%= render Qb::Mobile::RowComponent.new(
           icon: :money,

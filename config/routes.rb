@@ -62,8 +62,8 @@ Rails.application.routes.draw do
 
         resources :documents, only: [:new, :create, :destroy], module: :stages
         resources :images, only: [:new, :create, :destroy], module: :stages
-        resources :expenses, only: [ :create, :destroy ], module: false, controller: "/constructors/expenses"
-        resources :notes, only: [ :create, :destroy ], module: false, controller: "/constructors/notes"
+        resources :expenses, only: [ :new, :create, :destroy ], module: false, controller: "/constructors/expenses"
+        resources :notes, only: [ :new, :create, :destroy ], module: false, controller: "/constructors/notes"
       end
       resources :people, module: :projects do
         resources :attendances, only: [:create], module: :people

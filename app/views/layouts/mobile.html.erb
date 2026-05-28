@@ -34,14 +34,16 @@
       <div role="alert" style="margin:12px 16px;padding:8px 12px;background:color-mix(in oklab, var(--color-bad) 14%, transparent);color:var(--color-bad);border-radius:10px;font-size:13px;"><%= alert %></div>
     <% end %>
 
-    <main class="m-body">
+    <%# Show the tab bar only when the user is authenticated AND the screen
+        isn't hosted inside the Native iOS shell (which has its own
+        UITabBarController). Auth screens (login/signup) render without it. %>
+    <% show_tabbar = current_user.present? && !hotwire_native_app? %>
+
+    <main class="m-body" <%= raw 'style="padding-bottom: calc(72px + env(safe-area-inset-bottom, 0px));"' if show_tabbar %>>
       <%= yield %>
     </main>
 
-    <%# Hotwire Native iOS provides the actual UITabBarController; this
-        fallback bar is only rendered when the same URL is opened in a regular
-        browser (e.g. for QA / styleguide previews). %>
-    <% unless hotwire_native_app? %>
+    <% if show_tabbar %>
       <% active_tab = (respond_to?(:current_qb_section) ? current_qb_section : nil) || :dashboard %>
       <%= render Qb::Mobile::TabBarComponent.new(active: active_tab) if defined?(Qb::Mobile::TabBarComponent) %>
     <% end %>

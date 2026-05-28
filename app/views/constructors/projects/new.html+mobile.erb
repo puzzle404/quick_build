@@ -27,8 +27,14 @@
     <%= render Qb::Mobile::FormRowComponent.new(label: "Entrega", name: "project[end_date]", type: 'date', value: @project.end_date) %>
   <% end %>
 
-  <%= render Qb::Mobile::FormGroupComponent.new(title: "Presupuesto y estado", footnote: "$ 1.500.000 → 150000000 (centavos).") do %>
-    <%= render Qb::Mobile::FormRowComponent.new(label: "Presupuesto (centavos)", name: "project[budget_cents]", type: 'number', value: @project.budget_cents, placeholder: '0') %>
+  <%# Budget is stored in cents server-side but exposed in pesos here — much
+      less error-prone than asking the user to type "150000000". %>
+  <%= render Qb::Mobile::FormGroupComponent.new(title: "Presupuesto y estado") do %>
+    <%= render Qb::Mobile::FormAmountRowComponent.new(
+          label: "Presupuesto estimado",
+          name: "project[budget_pesos]",
+          value: @project.budget_cents.to_i.positive? ? (@project.budget_cents.to_i / 100) : nil,
+          sub: "Pesos argentinos. Lo redondeamos a entero al guardar.") %>
     <%= render Qb::Mobile::FormRowComponent.new(
           label: "Estado inicial", name: "project[status]", select: true,
           value: @project.status || 'planned',

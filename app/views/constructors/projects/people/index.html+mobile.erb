@@ -15,7 +15,7 @@
 <div style="padding: 4px 20px 12px;">
   <h1 style="margin: 0; font-size: 24px; font-weight: 700; letter-spacing: -0.5px;">Equipo</h1>
   <div style="font-size: 13px; color: var(--color-ink-3); margin-top: 4px;">
-    <%= pluralize(active.size, 'persona activa') %> · <%= inactive.size %> inactivas
+    <%= active.size == 1 ? "1 persona activa" : "#{active.size} personas activas" %> · <%= inactive.size %> inactivas
   </div>
 </div>
 

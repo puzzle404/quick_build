@@ -11,7 +11,7 @@
 <div style="padding: 4px 20px 12px;">
   <h1 style="margin: 0; font-size: 24px; font-weight: 700; letter-spacing: -0.5px;">Materiales</h1>
   <div style="font-size: 13px; color: var(--color-ink-3); margin-top: 4px;">
-    <%= pluralize(@material_lists_scope.size, 'lista') %>
+    <% n = @material_lists_scope.size %><%= n == 1 ? "1 lista" : "#{n} listas" %>
   </div>
 </div>
 
@@ -34,12 +34,14 @@
   <% end %>
 </div>
 
-<%# Status tabs (underline) %>
+<%# Status tabs (underline). Counts come from a fresh scope to avoid the
+    ORDER BY from the search service tripping over PG GROUP BY rules.
+    `group(:status).count` returns the enum keys as strings ({"draft" => 1, …}). %>
 <%
-  status_counts = @material_lists_scope.except(:where).where(project_id: @project.id).group(:status).count
-  draft_n    = status_counts[MaterialList.statuses['draft']].to_i
-  review_n   = status_counts[MaterialList.statuses['ready_for_review']].to_i
-  approved_n = status_counts[MaterialList.statuses['approved']].to_i
+  status_counts = MaterialList.unscoped.where(project_id: @project.id).group(:status).count
+  draft_n    = status_counts['draft'].to_i
+  review_n   = status_counts['ready_for_review'].to_i
+  approved_n = status_counts['approved'].to_i
   all_n      = draft_n + review_n + approved_n
 
   status_tabs = [

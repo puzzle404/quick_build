@@ -53,13 +53,13 @@
   <% end %>
 </div>
 
-<%# Sticky FAB at bottom (separate from the in-page tabbar, which is provided by the iOS shell) %>
+<%# Floating action — fixed and offset above the tab bar (88px = tabbar
+    height ~72px + 16px breathing). On native iOS the shell can intercept
+    and render this as a +-button on the nav bar. %>
 <% unless hotwire_native_app? %>
-  <div style="position:sticky;bottom:24px;display:flex;justify-content:center;padding:0 16px;pointer-events:none;">
-    <%= link_to new_constructors_project_stage_path(@project),
-          style: "pointer-events:auto;height:50px;border-radius:999px;padding:0 22px;background:var(--color-ink);color:var(--color-bg);text-decoration:none;display:inline-flex;align-items:center;gap:8px;font-weight:600;font-size:15px;box-shadow:0 10px 30px -6px rgba(0,0,0,0.3);" do %>
-      <%= render Qb::Mobile::IconComponent.new(name: 'plus', size: 20, stroke: 2.4) %>
-      Nueva etapa
-    <% end %>
-  </div>
+  <%= link_to new_constructors_project_stage_path(@project), aria: { label: "Nueva etapa" },
+        style: "position:fixed;right:16px;bottom:calc(88px + env(safe-area-inset-bottom, 0px));z-index:15;height:56px;padding:0 22px;border-radius:999px;background:var(--color-ink);color:var(--color-bg);text-decoration:none;display:inline-flex;align-items:center;gap:8px;font-weight:600;font-size:15px;box-shadow:0 10px 30px -6px rgba(0,0,0,0.3);" do %>
+    <%= render Qb::Mobile::IconComponent.new(name: 'plus', size: 20, stroke: 2.4) %>
+    Nueva etapa
+  <% end %>
 <% end %>

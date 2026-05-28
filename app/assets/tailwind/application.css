@@ -770,9 +770,12 @@
   }
 
   /* ── Bottom tab bar (5 tabs, blurred) ───────────────────── */
+  /* Fixed instead of sticky so the bar floats over scrolling content;
+     the parent .m-body adds its own bottom-padding so nothing ends up
+     trapped behind the bar. */
   .m-tabbar {
-    position: sticky; bottom: 0; left: 0; right: 0;
-    padding-top: 8px; padding-bottom: max(24px, env(safe-area-inset-bottom, 0px));
+    position: fixed; bottom: 0; left: 0; right: 0;
+    padding-top: 8px; padding-bottom: max(16px, env(safe-area-inset-bottom, 0px));
     background: color-mix(in oklab, var(--color-bg) 88%, transparent);
     backdrop-filter: blur(20px) saturate(180%);
     -webkit-backdrop-filter: blur(20px) saturate(180%);

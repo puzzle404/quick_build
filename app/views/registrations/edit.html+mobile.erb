@@ -30,13 +30,40 @@
   <% end %>
 <% end %>
 
-<%= render Qb::Mobile::SectionComponent.new(title: "Apariencia") do %>
-  <%= render Qb::Mobile::CardComponent.new(bleed: true) do %>
-    <%= render Qb::Mobile::RowComponent.new(icon: :cog, title: "Tema", value: "Auto", chevron: true) %>
-    <%= render Qb::Mobile::RowComponent.new(icon: :cog, title: "Densidad", value: "Cómoda", chevron: true) %>
-    <%= render Qb::Mobile::RowComponent.new(icon: :cog, title: "Idioma", value: "Español (AR)", chevron: false) %>
+<%# Tweaks panel — chips that fire the qb--tweaks Stimulus controller so
+    the choice persists locally and (when logged in) sync-PATCHes to the
+    server via /preferences. %>
+<div data-controller="qb--tweaks"
+     data-qb--tweaks-persist-value="true"
+     data-qb--tweaks-initial-value='<%= { theme: @user.theme, accent: @user.accent, density: @user.density }.to_json %>'>
+  <%= render Qb::Mobile::SectionComponent.new(title: "Apariencia") do %>
+    <%= render Qb::Mobile::CardComponent.new(bleed: true) do %>
+      <% themes = [%w[graphite Claro], %w[night Oscuro]] %>
+      <% densities = [%w[compact Compacta], %w[cozy Cómoda], %w[relaxed Espaciosa]] %>
+      <% accents = [%w[cobalt Cobalto], %w[kiln Ladrillo], %w[moss Verde], %w[safety Naranja], %w[ink Tinta]] %>
+      <% [["Tema", "theme", themes, @user.theme],
+          ["Densidad", "density", densities, @user.density],
+          ["Color", "accent", accents, @user.accent]].each do |label, key, options, current| %>
+        <div style="padding: 12px 14px; border-bottom: 1px solid var(--color-line);">
+          <div style="font-size: 11px; font-family: var(--font-mono); color: var(--color-ink-3); text-transform: uppercase; letter-spacing: 0.4px; margin-bottom: 10px; font-weight: 600;">
+            <%= label %>
+          </div>
+          <div style="display:flex;gap:6px;flex-wrap:wrap;">
+            <% options.each do |val, name| %>
+              <% active = (current.to_s == val) %>
+              <button type="button"
+                      data-action="click->qb--tweaks#set"
+                      data-qb--tweaks-key-param="<%= key %>"
+                      data-qb--tweaks-value-param="<%= val %>"
+                      style="padding:7px 12px;font-size:13px;font-weight:600;border-radius:999px;border:1px solid <%= active ? 'var(--color-accent)' : 'var(--color-line)' %>;background:<%= active ? 'color-mix(in oklab, var(--color-accent) 14%, transparent)' : 'transparent' %>;color:<%= active ? 'var(--color-accent)' : 'var(--color-ink-2)' %>;cursor:pointer;font-family:inherit;"><%= name %></button>
+            <% end %>
+          </div>
+        </div>
+      <% end %>
+      <%= render Qb::Mobile::RowComponent.new(icon: :cog, title: "Idioma", value: "Español (AR)", chevron: false) %>
+    <% end %>
   <% end %>
-<% end %>
+</div>
 
 <%= render Qb::Mobile::SectionComponent.new(title: "Datos") do %>
   <%= render Qb::Mobile::CardComponent.new(bleed: true) do %>

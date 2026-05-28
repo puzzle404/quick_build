@@ -9,7 +9,7 @@
   </p>
 </div>
 
-<%= form_with model: [@project, @material_list], local: true, html: { multipart: true, style: "padding: 0 16px;" } do |f| %>
+<%= form_with model: @material_list, url: constructors_project_material_lists_path(@project), local: true, html: { multipart: true, style: "padding: 0 16px;" } do |f| %>
   <% if @material_list.errors.any? %>
     <div role="alert" style="margin-bottom:14px;padding:10px 12px;border-radius:10px;background:color-mix(in oklab, var(--color-bad) 12%, transparent);color:var(--color-bad);font-size:13px;">
       <%= @material_list.errors.full_messages.to_sentence %>

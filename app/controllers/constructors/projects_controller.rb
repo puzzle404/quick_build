@@ -98,9 +98,17 @@ class Constructors::ProjectsController < Constructors::BaseController
   private
 
   def project_params
-    params.require(:project)
-          .permit(:name, :client, :location, :start_date, :end_date, :status, :budget_cents,
-                  :latitude, :longitude, document_files: [])
+    permitted = params.require(:project)
+                      .permit(:name, :client, :location, :start_date, :end_date, :status, :budget_cents,
+                              :budget_pesos, :latitude, :longitude, document_files: [])
+
+    # Mobile form posts `budget_pesos` (ARS); convert to cents and drop the
+    # pesos key so it doesn't reach the model (which only has budget_cents).
+    if (pesos = permitted.delete(:budget_pesos)).present?
+      permitted[:budget_cents] = (pesos.to_s.gsub(/[^\d]/, '').to_i * 100)
+    end
+
+    permitted
   end
 
   def set_project
