@@ -16,11 +16,8 @@
   </div>
   <% if can_upload %>
     <%= form_with scope: :image, url: constructors_project_images_path(@project), html: { multipart: true, style: 'display:flex;align-items:center;gap:8px;' } do |f| %>
-      <label style="display:inline-flex;cursor:pointer;align-items:center;gap:6px;height:28px;padding:0 10px;border-radius:5px;border:1px solid var(--color-line-2);background:var(--color-bg-raised);font-size:12px;font-weight:500;color:var(--color-ink);white-space:nowrap;">
-        <%= render Qb::IconComponent.new(name: :image, size: 13) %>
-        Elegir fotos
-        <%= f.file_field :files, multiple: true, accept: 'image/*', style: 'display:none;' %>
-      </label>
+      <%= render Qb::FileFieldComponent.new(form: f, method: :files, trigger_label: "Elegir fotos",
+                                            multiple: true, accept: 'image/*', compact: true) %>
       <%= render Qb::BtnComponent.new('Subir', variant: :primary, size: :sm, icon: :upload, type: 'submit') %>
     <% end %>
   <% end %>

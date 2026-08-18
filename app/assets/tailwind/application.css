@@ -301,6 +301,39 @@
   }
   .qb-textarea { resize: vertical; min-height: 64px; }
   .qb-input:disabled, .qb-select:disabled { opacity: 0.6; cursor: not-allowed; }
+
+  /* Qb::FileFieldComponent — input[type=file] real oculto (accesible, un
+     <label for> lo abre sin JS) + trigger con look de botón + nombre del
+     archivo elegido. No es un estilizado del widget nativo: Chrome ignora
+     background/border en ::file-selector-button incluso con
+     appearance:none — es una restricción del engine, no algo que la hoja de
+     estilos pueda vencer. El <label> de acá evita el problema de raíz. */
+  .qb-file-field { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; }
+  .qb-file-field-trigger {
+    display: inline-flex; align-items: center; gap: 6px; flex-shrink: 0;
+    height: 28px; padding: 0 10px;
+    font-family: var(--font-ui); font-size: 12px; font-weight: 500;
+    color: var(--color-ink);
+    background: var(--color-bg-raised);
+    border: 1px solid var(--color-line-2);
+    border-radius: 5px;
+    cursor: pointer;
+    white-space: nowrap;
+    transition: background-color 0.15s ease;
+  }
+  .qb-file-field-trigger:hover { background: var(--color-bg-sunken); }
+  .qb-file-field-trigger:has(:focus-visible) { outline: 2px solid var(--color-accent); outline-offset: 2px; }
+  .qb-file-field-input {
+    position: absolute; width: 1px; height: 1px; padding: 0; margin: -1px;
+    overflow: hidden; clip: rect(0, 0, 0, 0); white-space: nowrap; border: 0;
+  }
+  .qb-file-field-name {
+    font-size: 12px; color: var(--color-ink-3); min-width: 0;
+    overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
+  }
+  .qb-file-field--compact .qb-file-field-trigger { height: 24px; padding: 0 8px; font-size: 11px; }
+  .qb-file-field--compact .qb-file-field-name { font-size: 11px; }
+
   .qb-form-error {
     border: 1px solid color-mix(in oklab, var(--color-bad) 40%, var(--color-line));
     background: color-mix(in oklab, var(--color-bad) 8%, transparent);

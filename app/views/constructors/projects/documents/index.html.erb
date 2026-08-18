@@ -26,8 +26,9 @@
     <div style="flex:1;"></div>
     <% if can_upload %>
       <%= form_with scope: :document, url: constructors_project_documents_path(@project), html: { multipart: true, style: 'display:flex;align-items:center;gap:6px;' } do |f| %>
-        <%= f.file_field :files, multiple: true, accept: '.pdf,application/pdf', direct_upload: true,
-                         style: 'font-size:11px;color:var(--color-ink-2);' %>
+        <%= render Qb::FileFieldComponent.new(form: f, method: :files, trigger_label: "Elegir PDFs",
+                                              multiple: true, accept: '.pdf,application/pdf',
+                                              direct_upload: true, compact: true) %>
         <%= render Qb::BtnComponent.new('Subir', variant: :primary, size: :xs, icon: :upload, type: 'submit') %>
       <% end %>
     <% end %>

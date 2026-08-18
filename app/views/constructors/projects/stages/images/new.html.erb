@@ -4,8 +4,8 @@
       <%= form_with scope: :image, url: constructors_project_stage_images_path(@project, @stage), multipart: true, class: "space-y-5" do |form| %>
         <div class="qb-field">
           <%= form.label :files, "Seleccionar imágenes", class: "qb-label" %>
-          <%= form.file_field :files, multiple: true, accept: "image/*",
-                              style: "font-size:12px;color:var(--color-ink-2);width:100%;" %>
+          <%= render Qb::FileFieldComponent.new(form: form, method: :files, trigger_label: "Elegir imágenes",
+                                                multiple: true, accept: "image/*") %>
           <p style="margin-top:4px;font-size:11px;color:var(--color-ink-3);">Formatos recomendados: JPG o PNG (hasta 25 MB cada imagen).</p>
         </div>
 
@@ -37,8 +37,8 @@
       <%= form_with scope: :image, url: constructors_project_stage_images_path(@project, @stage), multipart: true, class: "space-y-5" do |form| %>
         <div class="qb-field">
           <%= form.label :files, "Seleccionar imágenes", class: "qb-label" %>
-          <%= form.file_field :files, multiple: true, accept: "image/*",
-                              style: "font-size:12px;color:var(--color-ink-2);width:100%;" %>
+          <%= render Qb::FileFieldComponent.new(form: form, method: :files, trigger_label: "Elegir imágenes",
+                                                multiple: true, accept: "image/*") %>
           <p style="margin-top:4px;font-size:11px;color:var(--color-ink-3);">Formatos recomendados: JPG o PNG (hasta 25 MB cada imagen).</p>
         </div>
 
