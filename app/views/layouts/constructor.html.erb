@@ -97,6 +97,22 @@
       </div>
     <% end %>
 
+    <%# Panel lateral único: reemplaza a project_modal + stage_detail. Vive acá
+        (no en cada vista) para que triggers globales como "+ Nuevo proyecto"
+        del sidebar funcionen sin importar en qué pantalla esté el usuario.
+        Las vistas nunca declaran su propio <turbo-frame id="drawer">: sólo
+        proveen contenido con content_for(:drawer), o el layout terminaría
+        emitiendo un id duplicado. %>
+    <div data-controller="qb--drawer">
+      <div class="qb-drawer-shell" data-qb--drawer-target="dialog"
+           data-action="click->qb--drawer#backdrop keydown@window->qb--drawer#keydown">
+        <div class="qb-drawer-backdrop"></div>
+        <%= turbo_frame_tag "drawer", data: { "qb--drawer-target": "frame" } do %>
+          <%= yield :drawer %>
+        <% end %>
+      </div>
+    </div>
+
     <%= render Qb::Layout::CmdPaletteComponent.new %>
     <%= render Qb::Layout::TweaksPanelComponent.new %>
   </body>

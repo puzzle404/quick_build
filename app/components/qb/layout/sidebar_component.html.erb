@@ -41,7 +41,7 @@
 
   <%# New project CTA %>
   <div style="padding:0 8px 4px;">
-    <%= link_to new_project_url, style: 'width:100%;height:32px;display:flex;align-items:center;justify-content:flex-start;gap:8px;padding:0 10px;background:var(--color-accent);color:var(--color-accent-ink);border:none;border-radius:5px;cursor:pointer;font-size:12px;font-weight:600;text-decoration:none;' do %>
+    <%= link_to new_project_url, id: "qb-sidebar-new-project", data: { turbo_frame: "drawer", action: "click->qb--drawer#open" }, style: 'width:100%;height:32px;display:flex;align-items:center;justify-content:flex-start;gap:8px;padding:0 10px;background:var(--color-accent);color:var(--color-accent-ink);border:none;border-radius:5px;cursor:pointer;font-size:12px;font-weight:600;text-decoration:none;' do %>
       <%= render Qb::IconComponent.new(name: :plus, size: 14) %>
       <span data-qb-sidebar-label>Nuevo proyecto</span>
       <span data-qb-sidebar-label style="margin-left:auto;font-size:10px;opacity:.8;font-family:var(--font-mono);">⌘N</span>

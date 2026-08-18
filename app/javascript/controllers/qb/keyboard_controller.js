@@ -1,16 +1,11 @@
 import { Controller } from "@hotwired/stimulus"
 
-// Global ⌘K / ⌘N shortcuts. Looks up the command-palette element by its
-// controller attribute (no Stimulus targets needed) and dispatches qb:open
-// on it.
-//
-// ⌘N navigates (Turbo.visit) to /constructors/projects/new instead of
-// opening the wizard as an inline modal on top of whatever page the user
-// is on. This is intentional: the wizard has its own page (nicer layout,
-// deep-linkable URL, back-button friendly) and reproducing it as a
-// layer-wide modal requires carrying form state across frames with no
-// obvious UX win. The handoff's NewProject screen also renders as a
-// dedicated view, not a modal over the dashboard.
+// Global ⌘K / ⌘N shortcuts. ⌘K dispatches qb:open on the command palette.
+// ⌘N used to Turbo.visit /constructors/projects/new as a full-page
+// navigation; now that project creation lives in the unified drawer, it
+// clicks the sidebar's own "Nuevo proyecto" trigger instead, so the exact
+// same frame-scoped, animated-open path fires regardless of whether the
+// user typed ⌘N or clicked the button.
 export default class extends Controller {
   connect() {
     this.handler = this.onKey.bind(this)
@@ -35,12 +30,7 @@ export default class extends Controller {
       const tag = (active?.tagName || "").toLowerCase()
       if (tag === "input" || tag === "textarea" || (active?.isContentEditable)) return
       event.preventDefault()
-      const url = "/constructors/projects/new"
-      if (window.Turbo) {
-        window.Turbo.visit(url)
-      } else {
-        window.location.href = url
-      }
+      document.querySelector("#qb-sidebar-new-project")?.click()
     }
   }
 }
