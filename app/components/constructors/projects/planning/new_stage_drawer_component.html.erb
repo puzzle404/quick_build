@@ -1,4 +1,5 @@
-<div class="qb-drawer-shell" data-qb--drawer-target="dialog"
+<div class="qb-drawer-shell" role="dialog" aria-modal="true"
+     data-qb--drawer-target="dialog"
      data-action="click->qb--drawer#backdrop keydown@window->qb--drawer#keydown">
   <div class="qb-drawer-backdrop"></div>
   <%= render(Qb::DrawerComponent.new(eyebrow: "Planificación", title: "Nueva etapa", size: :lg)) do %>

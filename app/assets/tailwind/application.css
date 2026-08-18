@@ -947,13 +947,16 @@
      El frame #drawer vive una sola vez en el layout; es display:contents para
      no interferir con el flex del shell — el panel visual real es el div raíz
      que renderiza Qb::DrawerComponent (el único que carga ancho/transform). */
+  /* `visibility: hidden` en el estado cerrado, no sólo opacity: sin él el
+     panel invisible seguía en el árbol de accesibilidad y sus inputs seguían
+     siendo tabulables (lo que el viejo qb--modal evitaba con display:none). */
   .qb-drawer-shell {
     position: fixed; inset: 0; z-index: 70;
     display: flex; justify-content: flex-end;
-    opacity: 0; pointer-events: none;
+    opacity: 0; pointer-events: none; visibility: hidden;
     transition: opacity .18s ease-out;
   }
-  .qb-drawer-shell.qb-drawer-open { opacity: 1; pointer-events: auto; }
+  .qb-drawer-shell.qb-drawer-open { opacity: 1; pointer-events: auto; visibility: visible; }
   .qb-drawer-shell.qb-drawer-no-transition,
   .qb-drawer-shell.qb-drawer-no-transition .qb-drawer-panel { transition: none !important; }
 

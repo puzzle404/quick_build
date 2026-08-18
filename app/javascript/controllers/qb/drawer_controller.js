@@ -72,7 +72,9 @@ export default class extends Controller {
     if (!this.hasDialogTarget) return
     if (!animate) this.dialogTarget.classList.add("qb-drawer-no-transition")
     this.dialogTarget.classList.toggle("qb-drawer-open", open)
-    this.dialogTarget.toggleAttribute("aria-hidden", !open)
+    // Valor explícito: `toggleAttribute` dejaba `aria-hidden=""` al cerrar, y
+    // ARIA lee la cadena vacía como "false" — justo lo contrario del intento.
+    this.dialogTarget.setAttribute("aria-hidden", open ? "false" : "true")
     document.body.style.overflow = open ? "hidden" : ""
     if (open && this.hasPanelTarget) {
       requestAnimationFrame(() => this.panelTarget.focus())
