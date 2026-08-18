@@ -8,13 +8,13 @@ module Constructors
       # aparece al editar: al crear una etapa esos tres valores son 0/vacío y
       # el alta se hace desde una modal chica.
       #
-      # `in_modal: true` hace que Cancelar cierre la modal en vez de navegar
+      # `in_drawer: true` hace que Cancelar cierre el drawer en vez de navegar
       # (la vista de edit lo pasa en la rama turbo_frame).
       class StageFormComponent < ViewComponent::Base
-        def initialize(project:, stage:, in_modal: false, cancel_href: nil)
+        def initialize(project:, stage:, in_drawer: false, cancel_href: nil)
           @project = project
           @stage = stage
-          @in_modal = in_modal
+          @in_drawer = in_drawer
           @cancel_href = cancel_href
         end
 
@@ -22,8 +22,8 @@ module Constructors
 
         attr_reader :project, :stage
 
-        def in_modal?
-          @in_modal
+        def in_drawer?
+          @in_drawer
         end
 
         # Sólo al editar: al crear, avance/responsable/presupuesto arrancan

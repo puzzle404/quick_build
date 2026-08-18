@@ -55,7 +55,7 @@ module Constructors
             format.turbo_stream do
               decorated_stage = @stage.decorate
               render turbo_stream: [
-                turbo_stream.update("project_modal", ""),
+                turbo_stream.update("drawer", ""),
                 turbo_stream.append("planning_stages",
                   Constructors::Projects::Planning::StageCardComponent.new(
                     project: @project.decorate,
@@ -78,17 +78,13 @@ module Constructors
           respond_to do |format|
             format.turbo_stream do
               @stage.reload
-              decorated_stage = @stage.decorate
-              decorated_project = @project.decorate
-              render turbo_stream: [
-                turbo_stream.update("project_modal", ""),
-                turbo_stream.update("stage_detail",
-                  Constructors::Projects::Planning::StageDetailComponent.new(
-                    project: decorated_project,
-                    stage: decorated_stage,
-                    sub_stages: @stage.sub_stages.order(:position, :name)
-                  ))
-              ]
+              render turbo_stream: turbo_stream.update("drawer",
+                partial: "constructors/projects/stages/detail_drawer",
+                locals: {
+                  project: @project.decorate,
+                  stage: @stage.decorate,
+                  sub_stages: @stage.sub_stages.order(:position, :name)
+                })
             end
             format.html { redirect_to stages_page_path, notice: "Etapa actualizada correctamente." }
           end

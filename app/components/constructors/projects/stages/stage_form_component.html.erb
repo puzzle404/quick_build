@@ -89,8 +89,6 @@
 
   <div style="display:flex;align-items:center;gap:8px;margin-top:4px;padding-top:14px;border-top:1px solid var(--color-line);">
     <% if stage.persisted? %>
-      <%# _top: dentro de la modal el DELETE tiene que navegar la página entera,
-          si no la redirección se cargaría dentro del frame. %>
       <%= render Qb::BtnComponent.new('Eliminar etapa', variant: :danger, size: :sm,
             href: delete_href,
             data: { turbo_method: :delete,
@@ -98,9 +96,9 @@
                     turbo_confirm: '¿Eliminar la etapa y todas sus sub-etapas?' }) %>
     <% end %>
     <div style="flex:1;"></div>
-    <% if in_modal? %>
+    <% if in_drawer? %>
       <%= render Qb::BtnComponent.new('Cancelar', variant: :secondary, size: :md,
-            data: { action: 'click->qb--modal#close' }) %>
+            data: { action: 'click->qb--drawer#close' }) %>
     <% else %>
       <%= render Qb::BtnComponent.new('Cancelar', variant: :secondary, size: :md,
             href: cancel_href, data: { turbo_frame: '_top' }) %>

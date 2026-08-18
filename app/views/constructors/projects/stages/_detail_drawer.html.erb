@@ -1,0 +1,4 @@
+<%= render(Qb::DrawerComponent.new(eyebrow: "#{stage.code} · Planificación", title: stage.name, size: :lg)) do %>
+  <%= render Constructors::Projects::Planning::StageDetailComponent.new(
+        project: project, stage: stage, sub_stages: sub_stages) %>
+<% end %>
