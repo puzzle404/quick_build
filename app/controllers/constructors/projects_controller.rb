@@ -136,7 +136,7 @@ class Constructors::ProjectsController < Constructors::BaseController
           if request.variant.include?(:mobile)
             redirect_to constructors_project_path(@project), notice: "Obra actualizada correctamente."
           else
-            render turbo_stream: turbo_stream.refresh
+            render turbo_stream: turbo_stream.refresh(request_id: nil)
           end
         end
         format.html { redirect_to constructors_project_path(@project), notice: "Obra actualizada correctamente." }

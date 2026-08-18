@@ -65,7 +65,7 @@ module Constructors
               # Proyecto: no hay un único "detalle" al que volver (index,
               # resumen del proyecto…), así que refresh cierra el drawer y
               # refresca cualquiera de esas pantallas por igual.
-              render turbo_stream: turbo_stream.refresh
+              render turbo_stream: turbo_stream.refresh(request_id: nil)
             end
           end
           format.html { redirect_to redirect_path, notice: "Gasto registrado correctamente." }
