@@ -3,7 +3,6 @@
   file_attached = @blueprint.file.attached?
   file_url = file_attached ? url_for(@blueprint.file) : nil
   groups = @blueprint.measurements.is_a?(Hash) ? (@blueprint.measurements['groups'] || @blueprint.measurements[:groups] || []) : []
-  analyses_count = @blueprint.ai_blueprint_analyses.count
   type_labels = { 'line' => 'Línea', 'polygon' => 'Área', 'marker' => 'Marcador' }
 %>
 
@@ -78,17 +77,8 @@
   <% end %>
 <% end %>
 
-<%# Análisis IA %>
-<%= render Qb::Mobile::SectionComponent.new(title: "Análisis IA") do %>
-  <%= render Qb::Mobile::CardComponent.new(bleed: true) do %>
-    <%= render Qb::Mobile::RowComponent.new(
-          icon: :sparkles,
-          icon_bg: 'color-mix(in oklab, var(--color-accent) 14%, transparent)',
-          title: "Historial de análisis",
-          subtitle: analyses_count.positive? ? pluralize(analyses_count, 'análisis realizado', 'análisis realizados') : "Todavía sin análisis",
-          href: constructors_project_blueprint_ai_analyses_path(@project, @blueprint)) %>
-  <% end %>
-<% end %>
+<%# Análisis con IA: en pausa (ver blueprints/ai_analyses_controller), la
+    sección de historial no se muestra mientras tanto. %>
 
 <%# Meta del archivo %>
 <%= render Qb::Mobile::SectionComponent.new(title: "Archivo") do %>

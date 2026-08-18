@@ -13,7 +13,7 @@ RSpec.describe 'QB OS · Blueprints', type: :system do
 
   it 'renders header + tabs even when empty' do
     visit constructors_project_blueprints_path(project)
-    expect(page).to have_text('Planos · IA')
+    expect(page).to have_text('Planos')
     # Inner tabs should also render (Resumen + Planificación → Etapas)
     expect(page).to have_text('Etapas')
     expect(page).to have_text('Equipo')

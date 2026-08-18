@@ -1,6 +1,7 @@
-<%# Planos · IA — vista única: header strip + workspace (lista + visor + IA).
-    El visor real (canvas, escala, mediciones) vive acá; blueprints#show en
-    desktop redirige a esta URL con ?selected=:id. %>
+<%# Planos — vista única: header strip + workspace (lista + visor). El
+    visor real (canvas, escala, mediciones) vive acá; blueprints#show en
+    desktop redirige a esta URL con ?selected=:id. Análisis con IA: en
+    pausa (ver WorkspaceComponent), no eliminado. %>
 <%
   with_scale = @blueprints.count { |bp| bp.scale_ratio.present? }
   with_measurements = @blueprints.count { |bp| bp.measurements.is_a?(Hash) && (bp.measurements['groups'] || []).any? }
@@ -17,7 +18,7 @@
   <div style="padding:14px 20px;border-bottom:1px solid var(--color-line);display:flex;align-items:flex-end;gap:16px;">
     <div style="flex:1;min-width:0;">
       <div style="font-size:11px;font-family:var(--font-mono);color:var(--color-ink-3);text-transform:uppercase;letter-spacing:0.8px;"><%= @project.code %></div>
-      <h2 style="margin:3px 0 0;font-size:18px;font-weight:600;letter-spacing:-0.3px;">Planos · IA</h2>
+      <h2 style="margin:3px 0 0;font-size:18px;font-weight:600;letter-spacing:-0.3px;">Planos</h2>
       <div style="font-size:12px;color:var(--color-ink-3);margin-top:2px;">
         <%= pluralize(@blueprints.size, 'plano') %> · <%= with_scale %> con escala · <%= with_measurements %> con mediciones
       </div>

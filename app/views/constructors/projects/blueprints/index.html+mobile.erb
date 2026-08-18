@@ -17,9 +17,9 @@
 <% end %>
 
 <div style="padding: 4px 20px 12px;">
-  <h1 style="margin: 0; font-size: 24px; font-weight: 700; letter-spacing: -0.5px;">Planos · IA</h1>
+  <h1 style="margin: 0; font-size: 24px; font-weight: 700; letter-spacing: -0.5px;">Planos</h1>
   <div style="font-size: 13px; color: var(--color-ink-3); margin-top: 4px;">
-    <%= pluralize(all.size, 'plano') %> · <%= with_measurements.size %> con análisis
+    <%= pluralize(all.size, 'plano') %> · <%= with_measurements.size %> con mediciones
   </div>
 </div>
 
@@ -44,7 +44,7 @@
 <% end %>
 
 <% if with_measurements.any? %>
-  <%= render Qb::Mobile::SectionComponent.new(title: "Con análisis · #{with_measurements.size}") do %>
+  <%= render Qb::Mobile::SectionComponent.new(title: "Con mediciones · #{with_measurements.size}") do %>
     <%= render Qb::Mobile::CardComponent.new(bleed: true) do %>
       <% with_measurements.each do |bp| %>
         <%

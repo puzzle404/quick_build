@@ -123,9 +123,9 @@
           sub: "#{p.try(:material_lists)&.size || 0} listas",
           tone: :accent,
           href: constructors_project_material_lists_path(p) %>
-    <%= render "constructors/projects/mobile_section_tile", icon: :blueprint, label: "Planos · IA",
+    <%= render "constructors/projects/mobile_section_tile", icon: :blueprint, label: "Planos",
           sub: "#{p.blueprints_count} planos",
-          tone: :accent, badge: "AI",
+          tone: :accent,
           href: constructors_project_blueprints_path(p) %>
     <%= render "constructors/projects/mobile_section_tile", icon: :people, label: "Equipo",
           sub: p.people_count == 1 ? "1 persona activa" : "#{p.people_count} personas activas",

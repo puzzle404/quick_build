@@ -21,7 +21,7 @@ RSpec.describe 'QB OS · Project show + Overview', type: :system do
     %w[Etapas Materiales Equipo Documentos].each do |label|
       expect(page).to have_text(label)
     end
-    expect(page).to have_text('Planos · IA')
+    expect(page).to have_text('Planos')
     # "Planificación" ya no es una pestaña propia — pero SÍ sigue siendo el
     # eyebrow legítimo de los drawers de plantillas/nueva etapa (click-driven
     # qb--drawer, cerrados por default pero presentes en el DOM bajo

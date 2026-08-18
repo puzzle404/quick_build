@@ -9,28 +9,9 @@
   </div>
 </div>
 
-<%# Nuevo análisis — POST al create existente. Editor de obra en adelante
-    (mismo permiso que blueprints/ai_analyses#create). %>
-<% if policy(@project).manage_content? %>
-<div style="padding: 0 16px 14px;">
-  <%= button_to constructors_project_blueprint_ai_analyses_path(@project, @blueprint),
-        method: :post, form: { style: 'margin:0;', data: { turbo: false } },
-        style: "width:100%;background:transparent;border:none;padding:0;text-align:left;cursor:pointer;color:inherit;font:inherit;" do %>
-    <%= render Qb::Mobile::CardComponent.new do %>
-      <div style="display:flex;align-items:center;gap:12px;">
-        <div style="width:48px;height:48px;border-radius:12px;background:color-mix(in oklab, var(--color-accent) 14%, transparent);color:var(--color-accent);display:flex;align-items:center;justify-content:center;flex-shrink:0;">
-          <%= render Qb::Mobile::IconComponent.new(name: 'sparkles', size: 22, stroke: 2) %>
-        </div>
-        <div style="flex:1;min-width:0;">
-          <div style="font-size:15px;font-weight:600;">Nuevo análisis</div>
-          <div style="font-size:12.5px;color:var(--color-ink-3);">La IA detecta muros, aberturas y superficies. Tarda 10-30 segundos.</div>
-        </div>
-        <%= render Qb::Mobile::IconComponent.new(name: 'chev-right', size: 16, stroke: 2.2) %>
-      </div>
-    <% end %>
-  <% end %>
-</div>
-<% end %>
+<%# El análisis con IA está pausado por el momento: se saca el trigger
+    "Nuevo análisis" (blueprints/ai_analyses_controller#create sigue intacto
+    para cuando se retome). Esta pantalla queda para consultar el historial. %>
 
 <%# Historial %>
 <div style="padding: 0 16px 16px;">
@@ -67,7 +48,7 @@
   <% else %>
     <%= render Qb::Mobile::CardComponent.new do %>
       <div style="text-align:center;padding:14px 8px;color:var(--color-ink-3);font-size:13.5px;">
-        No hay análisis todavía. Creá el primero desde arriba.
+        No hay análisis todavía. El análisis con IA está pausado por el momento.
       </div>
     <% end %>
   <% end %>

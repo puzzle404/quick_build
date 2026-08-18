@@ -21,7 +21,7 @@ module Qb
         { key: :stages,     label: "Etapas",        icon: :stages },
         { key: :materials,  label: "Materiales",    icon: :materials },
         { key: :expenses,   label: "Gastos",        icon: :money },
-        { key: :blueprints, label: "Planos · IA",   icon: :blueprint, accent: true },
+        { key: :blueprints, label: "Planos",        icon: :blueprint },
         { key: :team,       label: "Equipo",        icon: :people },
         { key: :docs,       label: "Documentos",    icon: :docs }
       ].freeze

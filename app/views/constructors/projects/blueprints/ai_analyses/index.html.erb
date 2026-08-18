@@ -1,24 +1,22 @@
 <% decorated_project = @project.decorated? ? @project : @project.decorate %>
-<%# Correr/borrar análisis de IA es editor de obra en adelante — el mismo
-    permiso que pide blueprints/ai_analyses#create/#destroy. %>
+<%# Análisis con IA: la creación de análisis nuevos está en pausa (ver
+    blueprints/ai_analyses_controller#create, que sigue intacto para cuando
+    se retome). Esta pantalla queda para consultar el historial existente;
+    "Nuevo análisis" se saca a propósito para que la pausa aplique también
+    entrando por URL directa, no sólo ocultando el botón que llevaba acá. %>
 <% can_run_ai = policy(@project).manage_content? %>
 <%= render 'constructors/projects/section_tabs', project: @project, current: :blueprints %>
 
 <%# Header strip %>
 <div style="padding:14px 20px;border-bottom:1px solid var(--color-line);display:flex;align-items:flex-end;gap:16px;">
   <div style="flex:1;">
-    <div style="font-size:11px;font-family:var(--font-mono);color:var(--color-ink-3);text-transform:uppercase;letter-spacing:0.8px;"><%= decorated_project.code %> · Planos · IA</div>
+    <div style="font-size:11px;font-family:var(--font-mono);color:var(--color-ink-3);text-transform:uppercase;letter-spacing:0.8px;"><%= decorated_project.code %> · Planos</div>
     <h2 style="margin:3px 0 0;font-size:18px;font-weight:600;letter-spacing:-0.3px;">Análisis IA — <%= @blueprint.name.presence || "Plano ##{@blueprint.id}" %></h2>
     <div style="font-size:12px;color:var(--color-ink-3);margin-top:2px;">
       <%= @analyses.size %> análisis realizados
       · <%= link_to '← Volver al plano', constructors_project_blueprints_path(@project, selected: @blueprint.id), style: 'color:var(--color-accent);text-decoration:none;font-size:12px;' %>
     </div>
   </div>
-  <% if can_run_ai %>
-    <%= render Qb::BtnComponent.new('Nuevo análisis', variant: :primary, size: :sm, icon: :plus,
-                                    href: constructors_project_blueprint_ai_analyses_path(@project.id, @blueprint.id),
-                                    data: { turbo_method: :post }) %>
-  <% end %>
 </div>
 
 <%# Historial — filas full bleed separadas por 1px %>
@@ -86,13 +84,6 @@
   <div style="padding:60px;margin:16px;text-align:center;color:var(--color-ink-4);font-size:13px;border:1px dashed var(--color-line);border-radius:10px;">
     <%= render Qb::IconComponent.new(name: :blueprint, size: 32, style: 'margin-bottom:8px;opacity:0.5;') %>
     <div>No hay análisis todavía.</div>
-    <% if can_run_ai %>
-      <div style="font-size:11px;color:var(--color-ink-4);margin-top:6px;">Comenzá creando tu primer análisis con IA para este plano.</div>
-      <div style="margin-top:16px;">
-        <%= render Qb::BtnComponent.new('Crear primer análisis', variant: :primary, size: :sm,
-                                        href: constructors_project_blueprint_ai_analyses_path(@project.id, @blueprint.id),
-                                        data: { turbo_method: :post }) %>
-      </div>
-    <% end %>
+    <div style="font-size:11px;color:var(--color-ink-4);margin-top:6px;">El análisis con IA está pausado por el momento.</div>
   </div>
 <% end %>
