@@ -26,7 +26,8 @@
     <% if rate_cents.blank? %>
       <% cell.with_extra do %>
         <%= link_to 'Cargar tarifa', edit_href,
-              style: 'font-size:11px;color:var(--color-accent);text-decoration:none;' %>
+              style: 'font-size:11px;color:var(--color-accent);text-decoration:none;',
+              data: { turbo_frame: 'drawer', action: 'click->qb--drawer#open' } %>
       <% end %>
     <% end %>
   <% end %>
@@ -41,7 +42,8 @@
     <% if labor_cost_missing_rate? %>
       <% cell.with_extra do %>
         <%= link_to 'Cargar tarifa', edit_href,
-              style: 'font-size:11px;color:var(--color-accent);text-decoration:none;' %>
+              style: 'font-size:11px;color:var(--color-accent);text-decoration:none;',
+              data: { turbo_frame: 'drawer', action: 'click->qb--drawer#open' } %>
       <% end %>
     <% end %>
   <% end %>

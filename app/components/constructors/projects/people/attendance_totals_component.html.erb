@@ -12,7 +12,8 @@
     <% if cost_hint %>
       <div style="font-size:10px;color:var(--color-ink-4);margin-top:2px;">
         <% if missing_rate? %>
-          <%= link_to 'Cargar tarifa', edit_href, style: 'color:var(--color-accent);text-decoration:none;' %>
+          <%= link_to 'Cargar tarifa', edit_href, style: 'color:var(--color-accent);text-decoration:none;',
+                data: { turbo_frame: 'drawer', action: 'click->qb--drawer#open' } %>
         <% else %>
           <%= cost_hint %>
         <% end %>
