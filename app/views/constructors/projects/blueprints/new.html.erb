@@ -5,11 +5,11 @@
     - full page (acceso directo o re-render con errores de validación):
       shell de secciones QB OS + formulario centrado. %>
 <% if turbo_frame_request? %>
-  <%= turbo_frame_tag 'project_modal' do %>
-    <div data-controller="qb--modal" data-qb--modal-open-on-connect-value="true">
-      <%= render Constructors::Projects::Blueprints::UploadModalComponent.new(
+  <% content_for(:drawer) do %>
+    <%= render(Qb::DrawerComponent.new(eyebrow: "Planos", title: "Subir plano", size: :md)) do %>
+      <%= render Constructors::Projects::Blueprints::UploadFormComponent.new(
             project: @project, blueprint: @blueprint) %>
-    </div>
+    <% end %>
   <% end %>
 <% else %>
   <%= render 'constructors/projects/section_tabs', project: @project, current: :blueprints %>

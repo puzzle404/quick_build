@@ -34,8 +34,20 @@ class Constructors::Projects::BlueprintsController < Constructors::BaseControlle
     @blueprint = @project.blueprints.build(blueprint_params)
 
     if @blueprint.save
-      redirect_to constructors_project_blueprints_path(@project, selected: @blueprint.id),
-                  notice: "Plano subido correctamente."
+      respond_to do |format|
+        format.turbo_stream do
+          if request.variant.include?(:mobile)
+            redirect_to constructors_project_blueprints_path(@project, selected: @blueprint.id),
+                        notice: "Plano subido correctamente."
+          else
+            render turbo_stream: turbo_stream.refresh
+          end
+        end
+        format.html do
+          redirect_to constructors_project_blueprints_path(@project, selected: @blueprint.id),
+                      notice: "Plano subido correctamente."
+        end
+      end
     else
       flash.now[:alert] = "Revisá los datos y volvé a intentarlo."
       render :new, status: :unprocessable_entity
