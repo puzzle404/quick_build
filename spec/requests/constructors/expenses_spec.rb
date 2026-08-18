@@ -70,7 +70,7 @@ RSpec.describe "Constructors::Expenses", type: :request do
         expense = Expense.last
         expect(expense.project_stage).to eq(stage)
         expect(expense.author).to eq(owner)
-        expect(response).to redirect_to(constructors_project_stage_path(project, stage))
+        expect(response).to redirect_to(constructors_project_stage_path(project, stage, tab: "gastos"))
       end
     end
 

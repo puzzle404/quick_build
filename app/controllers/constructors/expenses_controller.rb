@@ -132,7 +132,7 @@ module Constructors
     # el drawer de etapa, a la etapa.
     def redirect_path
       return expenses_index_path if back_to_expenses_index?
-      return constructors_project_stage_path(@project, @stage) if @stage
+      return constructors_project_stage_path(@project, @stage, tab: "gastos") if @stage
 
       constructors_project_path(@project)
     end

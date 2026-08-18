@@ -1,7 +1,8 @@
+<% active_idx = active_index %>
 <div data-controller="qb--tabs">
   <div class="qb-tabs">
     <% tabs.each_with_index do |tab, i| %>
-      <button class="qb-tab<%= i.zero? ? ' qb-tab--active' : '' %>"
+      <button class="qb-tab<%= i == active_idx ? ' qb-tab--active' : '' %>"
               type="button"
               data-qb--tabs-target="tab"
               data-action="click->qb--tabs#select"

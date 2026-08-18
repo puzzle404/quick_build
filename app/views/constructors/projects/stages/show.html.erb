@@ -11,7 +11,7 @@
     <%# Mismo partial que usa material_lists#create para repoblar el drawer con
         el detalle de la etapa: un solo lugar define el chrome del drawer. %>
     <%= render "constructors/projects/stages/detail_drawer",
-          project: @project, stage: @stage.decorate, sub_stages: @sub_stages %>
+          project: @project, stage: @stage.decorate, sub_stages: @sub_stages, active_tab: @active_tab %>
   <% end %>
 <% else %>
   <div>
@@ -31,7 +31,7 @@
 
     <div style="padding:16px 20px;">
       <%= render Constructors::Projects::Planning::StageDetailComponent.new(
-            project: @project, stage: @stage, sub_stages: @sub_stages) %>
+            project: @project, stage: @stage, sub_stages: @sub_stages, active_tab: @active_tab) %>
     </div>
   </div>
 <% end %>

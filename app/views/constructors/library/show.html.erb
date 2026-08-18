@@ -27,6 +27,10 @@
     <%= render(Qb::DrawerComponent.new(size: :xl)) do |d| %>
       <% d.with_custom_header do %>
         <div class="qb-drawer-header">
+          <button type="button" class="qb-drawer-back" data-qb--drawer-target="backButton"
+                  data-action="click->qb--drawer#back" aria-label="Volver" style="display:none;">
+            <%= render Qb::IconComponent.new(name: :'chevron-left', size: 16) %>
+          </button>
           <button type="button" class="qb-drawer-close" data-action="click->qb--drawer#close" aria-label="Cerrar">
             <%= render Qb::IconComponent.new(name: :x, size: 16) %>
           </button>

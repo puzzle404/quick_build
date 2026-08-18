@@ -17,9 +17,14 @@ import { Controller } from "@hotwired/stimulus"
 //     miembro", which has no #new route to be frame-scoped against): no
 //     `frame` target; a trigger calls #open, the panel calls #close.
 export default class extends Controller {
-  static targets = ["dialog", "panel", "frame"]
+  static targets = ["dialog", "panel", "frame", "backButton"]
 
   connect() {
+    // Pila de URLs de las que se puede "volver": un sub-nivel por cada vez
+    // que se navega a una vista nueva desde una ya abierta (ej: detalle de
+    // etapa → "Nueva nota"). Vacía = estamos en el primer nivel, así que
+    // volver equivale a cerrar del todo.
+    this._history = []
     if (this.hasFrameTarget) {
       this.onFrameMutation = this.onFrameMutation.bind(this)
       this.frameObserver = new MutationObserver(this.onFrameMutation)
@@ -28,6 +33,7 @@ export default class extends Controller {
     } else {
       this._setOpen(false, { animate: false })
     }
+    this._syncBackButton()
   }
 
   disconnect() {
@@ -36,16 +42,47 @@ export default class extends Controller {
 
   onFrameMutation() {
     this._setOpen(this._frameHasContent())
+    this._syncBackButton()
   }
 
-  open() { this._setOpen(true) }
+  // Se dispara con cada trigger "data-action=click->qb--drawer#open": en ese
+  // momento el frame todavía tiene el src/contenido ANTERIOR (el click nativo
+  // que dispara la navegación de Turbo llega después, en el mismo evento), así
+  // que es el lugar correcto para apilarlo como "adonde volver" antes de que
+  // lo reemplace la vista nueva. Src vacío (primer nivel, drawer recién
+  // abierto) no se apila: no hay nada previo a lo que volver.
+  open() {
+    if (this.hasFrameTarget) {
+      const current = this.frameTarget.getAttribute("src")
+      if (current) this._history.push(current)
+    }
+    this._setOpen(true)
+    this._syncBackButton()
+  }
+
+  // "Volver": deshace la navegación a la vista actual y muestra la anterior,
+  // sin cerrar el panel. Es la acción de los botones "Cancelar" y de la
+  // flecha ‹ del header — cancelar una acción vuelve a lo que se estaba
+  // viendo, no cierra todo el drawer. Sin nada en la pila (primer nivel) se
+  // comporta igual que close().
+  back() {
+    const previous = this._history.pop()
+    if (previous && this.hasFrameTarget) {
+      this.frameTarget.src = previous
+      this._syncBackButton()
+    } else {
+      this.close()
+    }
+  }
 
   // Cierre disparado por el botón × / backdrop / Escape: vacía el frame para
   // que la próxima apertura pida contenido fresco en vez de reusar el último
   // estado (ej: "Cancelar" no debe dejar la próxima apertura mostrando el
-  // formulario a medio llenar de la vez anterior).
+  // formulario a medio llenar de la vez anterior). Cierra el drawer entero
+  // sin importar cuántos niveles se hayan apilado.
   close() {
     this._setOpen(false)
+    this._history = []
     if (this.hasFrameTarget) {
       this.frameTarget.innerHTML = ""
       this.frameTarget.removeAttribute("src")
@@ -66,6 +103,15 @@ export default class extends Controller {
 
   _frameHasContent() {
     return this.hasFrameTarget && this.frameTarget.innerHTML.trim().length > 0
+  }
+
+  // El botón ‹ vive en el header de cada vista, así que se re-renderiza con
+  // cada navegación — hay que volver a sincronizar su visibilidad cada vez
+  // (Stimulus resuelve backButtonTarget contra el DOM actual, así que esto
+  // siempre apunta al botón recién insertado).
+  _syncBackButton() {
+    if (!this.hasBackButtonTarget) return
+    this.backButtonTarget.style.display = this._history.length > 0 ? "" : "none"
   }
 
   _setOpen(open, { animate = true } = {}) {

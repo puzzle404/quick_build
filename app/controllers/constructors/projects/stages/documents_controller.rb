@@ -28,7 +28,7 @@ module Constructors
             end
           end
 
-          redirect_to constructors_project_stage_path(@project, @stage), notice: "Documento cargado correctamente."
+          redirect_to constructors_project_stage_path(@project, @stage, tab: "docs"), notice: "Documento cargado correctamente."
         rescue ActiveRecord::RecordInvalid => e
           redirect_to new_constructors_project_stage_document_path(@project, @stage), alert: e.record.errors.full_messages.to_sentence
         end

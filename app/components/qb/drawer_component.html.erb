@@ -3,6 +3,10 @@
     <%= custom_header %>
   <% else %>
     <div class="qb-drawer-header">
+      <button type="button" class="qb-drawer-back" data-qb--drawer-target="backButton"
+              data-action="click->qb--drawer#back" aria-label="Volver" style="display:none;">
+        <%= render Qb::IconComponent.new(name: :'chevron-left', size: 16) %>
+      </button>
       <div class="qb-drawer-header-main">
         <% if @eyebrow.present? %><div class="qb-drawer-eyebrow"><%= @eyebrow %></div><% end %>
         <% if @title.present? %><h2 class="qb-drawer-title"><%= @title %></h2><% end %>

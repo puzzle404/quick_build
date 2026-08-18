@@ -2,7 +2,7 @@
      data-qb--drawer-target="dialog"
      data-action="click->qb--drawer#backdrop keydown@window->qb--drawer#keydown">
   <div class="qb-drawer-backdrop"></div>
-  <%= render(Qb::DrawerComponent.new(eyebrow: "Planificación", title: "Guardar como plantilla", subtitle: "Reutilizá esta estructura de etapas en tus próximas obras.", size: :md)) do %>
+  <%= render(Qb::DrawerComponent.new(eyebrow: "Planificación", title: "Guardar como plantilla", subtitle: "Reutilizá esta estructura de etapas en tus próximas obras.", size: :lg)) do %>
     <% if any_stages? %>
       <%= form_with url: constructors_stage_templates_path, method: :post, scope: :stage_template do |form| %>
         <%= form.hidden_field :project_id, value: project.id %>
@@ -44,7 +44,7 @@
 
         <div style="display:flex;align-items:center;gap:8px;margin-top:14px;">
           <%= render Qb::BtnComponent.new('Guardar plantilla', variant: :primary, icon: :sparkles, type: 'submit') %>
-          <%= render Qb::BtnComponent.new('Cancelar', variant: :secondary, data: { action: 'click->qb--drawer#close' }) %>
+          <%= render Qb::BtnComponent.new('Cancelar', variant: :secondary, data: { action: 'click->qb--drawer#back' }) %>
         </div>
       <% end %>
     <% else %>
@@ -52,7 +52,7 @@
         Esta obra todavía no tiene etapas cargadas. Creá al menos una etapa para poder guardarla como plantilla.
       </div>
       <div style="display:flex;align-items:center;gap:8px;margin-top:14px;">
-        <%= render Qb::BtnComponent.new('Entendido', variant: :secondary, data: { action: 'click->qb--drawer#close' }) %>
+        <%= render Qb::BtnComponent.new('Entendido', variant: :secondary, data: { action: 'click->qb--drawer#back' }) %>
       </div>
     <% end %>
   <% end %>

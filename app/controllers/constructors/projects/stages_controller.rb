@@ -32,6 +32,10 @@ module Constructors
       def show
         authorize_stage_access!
         @sub_stages = @stage.sub_stages.includes(:material_lists).order(:position, :name)
+        # Con qué tab del detalle abrir: los redirects de alta (nota, gasto,
+        # foto, doc) dentro de una etapa lo pasan para volver mostrando el tab
+        # donde acaba de pasar algo, en vez de caer siempre en "Materiales".
+        @active_tab = params[:tab].presence&.to_sym
       end
 
       def new

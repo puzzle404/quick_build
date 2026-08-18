@@ -7,7 +7,7 @@
           eyebrow: "Gastos",
           title: "Registrar nuevo gasto",
           subtitle: @stage ? "Se asocia a la etapa #{@stage.name}" : "Se asocia al proyecto",
-          size: :md
+          size: :lg
         )) do %>
       <%= form_with model: @expense,
                     url: (@stage ? constructors_project_stage_expenses_path(@project, @stage) : constructors_project_expenses_path(@project)),
@@ -55,7 +55,7 @@
 
         <div style="display:flex;align-items:center;gap:8px;margin-top:14px;">
           <%= render Qb::BtnComponent.new('Guardar gasto', variant: :primary, icon: :plus, type: 'submit') %>
-          <%= render Qb::BtnComponent.new('Cancelar', variant: :secondary, data: { action: 'click->qb--drawer#close' }) %>
+          <%= render Qb::BtnComponent.new('Cancelar', variant: :secondary, data: { action: 'click->qb--drawer#back' }) %>
         </div>
       <% end %>
     <% end %>

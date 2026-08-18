@@ -7,7 +7,7 @@
       QB OS + formulario centrado. %>
 <% if turbo_frame_request? %>
   <% content_for(:drawer) do %>
-    <%= render(Qb::DrawerComponent.new(eyebrow: "Materiales", title: "Nueva lista de materiales", size: :md)) do %>
+    <%= render(Qb::DrawerComponent.new(eyebrow: "Materiales", title: "Nueva lista de materiales", size: :lg)) do %>
       <%= render Constructors::Projects::Materials::NewListFormComponent.new(
             project: @project, stage: @material_list.project_stage) %>
     <% end %>

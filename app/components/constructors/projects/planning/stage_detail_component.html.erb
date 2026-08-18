@@ -111,15 +111,17 @@
 <% end %>
 
 <%# ④ TRABAJO — tabbed panel ─────────────────────────────────── %>
-<%= render Qb::TabbedPanelComponent.new do |tp| %>
+<%= render Qb::TabbedPanelComponent.new(active: active_tab) do |tp| %>
 
   <%# Todos los tabs comparten la MISMA estructura, vacíos o con contenido:
       .sd-tab-actions (CTA arriba a la derecha) + contenedor .sd-list (filas si
       hay contenido, o un mensaje .sd-list-empty dentro del mismo box). Así no
-      hay salto de layout al cambiar de tab. %>
+      hay salto de layout al cambiar de tab. `key:` es lo que `active_tab`
+      matchea para reabrir en el tab correcto tras crear algo dentro de él
+      (nota, gasto, foto, doc) — ver StageDetailComponent#active_tab. %>
 
   <%# Tab: Materiales %>
-  <% tp.with_tab(label: "Materiales", count: linked_lists.size) do %>
+  <% tp.with_tab(label: "Materiales", count: linked_lists.size, key: :materiales) do %>
     <% if can_manage_materials? %>
       <div class="sd-tab-actions">
         <%= render Qb::BtnComponent.new('Nueva lista', variant: :primary, size: :xs, icon: :plus,
@@ -148,7 +150,7 @@
   <% end %>
 
   <%# Tab: Gastos %>
-  <% tp.with_tab(label: "Gastos", count: stage.object.expenses.size) do %>
+  <% tp.with_tab(label: "Gastos", count: stage.object.expenses.size, key: :gastos) do %>
     <% if can_manage_content? %>
       <div class="sd-tab-actions">
         <%= render Qb::BtnComponent.new('Nuevo gasto', variant: :primary, size: :xs, icon: :plus,
@@ -168,7 +170,7 @@
   <% end %>
 
   <%# Tab: Notas %>
-  <% tp.with_tab(label: "Notas", count: stage.object.notes.size) do %>
+  <% tp.with_tab(label: "Notas", count: stage.object.notes.size, key: :notas) do %>
     <% if can_manage_content? %>
       <div class="sd-tab-actions">
         <%= render Qb::BtnComponent.new('Nueva nota', variant: :primary, size: :xs, icon: :plus,
@@ -188,7 +190,7 @@
   <% end %>
 
   <%# Tab: Docs %>
-  <% tp.with_tab(label: "Docs", count: stage.docs_count) do %>
+  <% tp.with_tab(label: "Docs", count: stage.docs_count, key: :docs) do %>
     <% if can_manage_content? %>
       <div class="sd-tab-actions">
         <%= render Qb::BtnComponent.new('Agregar documentos', variant: :primary, size: :xs, icon: :plus,
@@ -205,7 +207,7 @@
   <% end %>
 
   <%# Tab: Fotos %>
-  <% tp.with_tab(label: "Fotos", count: stage.images_count) do %>
+  <% tp.with_tab(label: "Fotos", count: stage.images_count, key: :fotos) do %>
     <% if can_manage_content? %>
       <div class="sd-tab-actions">
         <%= render Qb::BtnComponent.new('Agregar imágenes', variant: :primary, size: :xs, icon: :plus,

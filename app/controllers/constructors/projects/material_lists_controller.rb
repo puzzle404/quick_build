@@ -72,7 +72,8 @@ class Constructors::Projects::MaterialListsController < Constructors::BaseContro
               locals: {
                 project: @project,
                 stage: @stage.decorate,
-                sub_stages: @stage.sub_stages.order(:position, :name)
+                sub_stages: @stage.sub_stages.order(:position, :name),
+                active_tab: :materiales
               })
           end
           format.html do

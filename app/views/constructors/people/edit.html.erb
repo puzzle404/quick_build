@@ -7,7 +7,7 @@
           eyebrow: "Personas · global",
           title: "Editar datos de #{@person.full_name}",
           subtitle: "Los cambios se aplican a sus #{@assignments.size} #{@assignments.size == 1 ? 'asignación' : 'asignaciones'} en obra.",
-          size: :md
+          size: :lg
         )) do %>
       <% if flash.now[:alert].present? %>
         <div class="qb-form-error" style="margin-bottom:14px;"><%= flash.now[:alert] %></div>
@@ -41,7 +41,7 @@
 
         <div style="display:flex;align-items:center;gap:8px;margin-top:14px;">
           <%= render Qb::BtnComponent.new('Guardar cambios', variant: :primary, size: :md, type: :submit) %>
-          <%= render Qb::BtnComponent.new('Cancelar', variant: :secondary, size: :md, data: { action: 'click->qb--drawer#close' }) %>
+          <%= render Qb::BtnComponent.new('Cancelar', variant: :secondary, size: :md, data: { action: 'click->qb--drawer#back' }) %>
         </div>
       <% end %>
     <% end %>

@@ -28,7 +28,7 @@ module Constructors
             end
           end
 
-          redirect_to constructors_project_stage_path(@project, @stage), notice: "Imágenes cargadas correctamente."
+          redirect_to constructors_project_stage_path(@project, @stage, tab: "fotos"), notice: "Imágenes cargadas correctamente."
         rescue ActiveRecord::RecordInvalid => e
           redirect_to new_constructors_project_stage_image_path(@project, @stage), alert: "No pudimos cargar las imágenes: #{e.record.errors.full_messages.to_sentence}."
         end

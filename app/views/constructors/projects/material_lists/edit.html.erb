@@ -4,7 +4,7 @@
 <% if turbo_frame_request? %>
   <% content_for(:drawer) do %>
     <%= render(Qb::DrawerComponent.new(eyebrow: "Materiales", title: title, subtitle: subtitle, size: :lg)) do %>
-      <%= render "form" %>
+      <%= render "form", in_drawer: true %>
     <% end %>
   <% end %>
 <% else %>

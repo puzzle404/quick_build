@@ -993,11 +993,11 @@
   }
   .qb-drawer-title { margin: 3px 0 0; font-size: 18px; font-weight: 600; letter-spacing: -.3px; color: var(--color-ink); }
   .qb-drawer-subtitle { margin-top: 6px; font-size: 12px; color: var(--color-ink-3); display: flex; align-items: center; gap: 8px; flex-wrap: wrap; }
-  .qb-drawer-close {
+  .qb-drawer-close, .qb-drawer-back {
     flex: 0 0 auto; width: 28px; height: 28px; display: flex; align-items: center; justify-content: center;
     border: none; background: transparent; color: var(--color-ink-3); border-radius: var(--radius-sm); cursor: pointer;
   }
-  .qb-drawer-close:hover { background: var(--color-bg-sunken); color: var(--color-ink); }
+  .qb-drawer-close:hover, .qb-drawer-back:hover { background: var(--color-bg-sunken); color: var(--color-ink); }
 
   .qb-drawer-body { flex: 1; overflow: auto; padding: 18px 20px; }
   .qb-drawer-footer {

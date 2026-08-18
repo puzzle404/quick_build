@@ -7,7 +7,7 @@
           eyebrow: "Notas",
           title: "Nueva nota",
           subtitle: @noteable.is_a?(ProjectStage) ? "Se asocia a la etapa #{@noteable.name}" : "Se asocia al proyecto",
-          size: :md
+          size: :lg
         )) do %>
       <%= form_with model: @note,
                     url: (@noteable.is_a?(ProjectStage) ? constructors_project_stage_notes_path(@project, @noteable) : constructors_project_notes_path(@project)),
@@ -37,7 +37,7 @@
 
         <div style="display:flex;align-items:center;gap:8px;margin-top:14px;">
           <%= render Qb::BtnComponent.new('Guardar', variant: :primary, icon: :plus, type: 'submit') %>
-          <%= render Qb::BtnComponent.new('Cancelar', variant: :secondary, data: { action: 'click->qb--drawer#close' }) %>
+          <%= render Qb::BtnComponent.new('Cancelar', variant: :secondary, data: { action: 'click->qb--drawer#back' }) %>
         </div>
       <% end %>
     <% end %>

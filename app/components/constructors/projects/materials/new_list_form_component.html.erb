@@ -56,6 +56,6 @@
 
   <div style="display:flex;align-items:center;gap:8px;margin-top:14px;">
     <%= render Qb::BtnComponent.new('Crear lista', variant: :primary, icon: :check, type: 'submit') %>
-    <%= render Qb::BtnComponent.new('Cancelar', variant: :secondary, data: { action: 'click->qb--drawer#close' }) %>
+    <%= render Qb::BtnComponent.new('Cancelar', variant: :secondary, data: { action: 'click->qb--drawer#back' }) %>
   </div>
 <% end %>

@@ -62,8 +62,13 @@
   </div>
 
   <div class="qb-form-actions">
-    <%= render Qb::BtnComponent.new('Cancelar', variant: :secondary,
-                                    href: constructors_project_material_lists_path(@project)) %>
+    <% if local_assigns[:in_drawer] %>
+      <%= render Qb::BtnComponent.new('Cancelar', variant: :secondary,
+                                      data: { action: 'click->qb--drawer#back' }) %>
+    <% else %>
+      <%= render Qb::BtnComponent.new('Cancelar', variant: :secondary,
+                                      href: constructors_project_material_lists_path(@project)) %>
+    <% end %>
     <%= form.submit(form.object.new_record? ? 'Crear lista' : 'Guardar cambios',
                     style: "display:inline-flex;align-items:center;gap:6px;font-weight:500;border-radius:5px;border-width:1px;border-style:solid;font-size:12px;height:28px;padding:0 10px;cursor:pointer;background:var(--color-accent);color:var(--color-accent-ink);border-color:var(--color-accent);") %>
   </div>

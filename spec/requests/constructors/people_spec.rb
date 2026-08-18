@@ -35,7 +35,7 @@ RSpec.describe 'Constructors::People', type: :request do
   end
 
   # Regression guard (final review, fix 2): PersonFormComponent renderiza el
-  # mismo form en las dos ramas de new/edit. Con `click->qb--drawer#close`
+  # mismo form en las dos ramas de new/edit. Con `click->qb--drawer#back`
   # incondicional, en la rama de página completa Cancelar apuntaba al drawer
   # global del layout — que ya está cerrado — y no hacía nada.
   describe 'botón Cancelar del form de persona' do
@@ -45,7 +45,11 @@ RSpec.describe 'Constructors::People', type: :request do
       expect(response).to have_http_status(:ok)
       expect(response.body).not_to include('qb-drawer-panel')
       expect(response.body).to include(%(href="#{constructors_project_people_path(project)}"))
-      expect(response.body).not_to include('qb--drawer#close')
+      # Substring exacto con la comilla de cierre: "qb--drawer#back" solo
+      # apunta al botón de Cancelar/‹ volver — "qb--drawer#backdrop" (el click
+      # fuera del panel, siempre presente en el shell global) también contiene
+      # "qb--drawer#back" como substring y daría un falso positivo sin la ".
+      expect(response.body).not_to include('qb--drawer#back"')
     end
 
     it 'en la página completa de #edit es un link a la ficha' do
@@ -56,15 +60,19 @@ RSpec.describe 'Constructors::People', type: :request do
       expect(response).to have_http_status(:ok)
       expect(response.body).not_to include('qb-drawer-panel')
       expect(response.body).to include(%(href="#{constructors_project_person_path(project, person)}"))
-      expect(response.body).not_to include('qb--drawer#close')
+      # Substring exacto con la comilla de cierre: "qb--drawer#back" solo
+      # apunta al botón de Cancelar/‹ volver — "qb--drawer#backdrop" (el click
+      # fuera del panel, siempre presente en el shell global) también contiene
+      # "qb--drawer#back" como substring y daría un falso positivo sin la ".
+      expect(response.body).not_to include('qb--drawer#back"')
     end
 
-    it 'dentro del drawer sigue cerrando el drawer en vez de navegar' do
+    it 'dentro del drawer vuelve a la vista anterior en vez de navegar' do
       get new_constructors_project_person_path(project), headers: { 'Turbo-Frame' => 'drawer' }
 
       expect(response).to have_http_status(:ok)
       expect(response.body).to include('qb-drawer-panel')
-      expect(response.body).to include('qb--drawer#close')
+      expect(response.body).to include('qb--drawer#back')
     end
   end
 end

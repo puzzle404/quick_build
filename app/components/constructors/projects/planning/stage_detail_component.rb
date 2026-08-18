@@ -5,13 +5,14 @@
 # sub-stage structure group, and a 5-tab work panel (Materiales/Gastos/Notas/
 # Docs/Fotos). Rendered inside the shared drawer shell on the planning view.
 class Constructors::Projects::Planning::StageDetailComponent < ViewComponent::Base
-  def initialize(project:, stage:, sub_stages: [])
+  def initialize(project:, stage:, sub_stages: [], active_tab: nil)
     @project   = project
     @stage     = stage.is_a?(ProjectStageDecorator) ? stage : ProjectStageDecorator.new(stage)
     @sub_stages = Array(sub_stages).map { |s| s.is_a?(ProjectStageDecorator) ? s : ProjectStageDecorator.new(s) }
+    @active_tab = active_tab.presence&.to_sym
   end
 
-  attr_reader :project, :stage, :sub_stages
+  attr_reader :project, :stage, :sub_stages, :active_tab
 
   # ─── Permisos ───────────────────────────────────────────────
   # Todo lo que se puede tocar desde el drawer es editor de obra en adelante.

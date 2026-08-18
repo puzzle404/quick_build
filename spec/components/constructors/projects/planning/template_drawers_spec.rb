@@ -33,8 +33,8 @@ RSpec.describe "Planning template drawers", type: :component do
       # Presupuestos apagado por defecto, fechas encendido.
       expect(page).to have_css("input[name='apply_budgets'][type='checkbox']:not([checked])", visible: :all)
       expect(page).to have_css("input[name='apply_dates'][type='checkbox'][checked]", visible: :all)
-      # Cancelar cierra el drawer client-side, no navega (sin href ni _top).
-      expect(page).to have_css("button[data-action='click->qb--drawer#close']", text: "Cancelar")
+      # Cancelar vuelve a la vista anterior client-side, no navega (sin href ni _top).
+      expect(page).to have_css("button[data-action='click->qb--drawer#back']", text: "Cancelar")
     end
   end
 
@@ -49,7 +49,7 @@ RSpec.describe "Planning template drawers", type: :component do
       expect(page).to have_css(".qb-drawer-title", text: "Guardar como plantilla")
       expect(page).to have_text("Se guardan 1 etapa y 1 sub-etapa")
       expect(page).to have_field("stage_template[name]", with: "Plantilla · #{project.name}", visible: :all)
-      expect(page).to have_css("button[data-action='click->qb--drawer#close']", text: "Cancelar")
+      expect(page).to have_css("button[data-action='click->qb--drawer#back']", text: "Cancelar")
     end
 
     it "bloquea el guardado cuando la obra no tiene etapas" do
@@ -57,7 +57,7 @@ RSpec.describe "Planning template drawers", type: :component do
 
       expect(page).to have_text("todavía no tiene etapas cargadas")
       expect(page).to have_no_css("form")
-      expect(page).to have_css("button[data-action='click->qb--drawer#close']", text: "Entendido")
+      expect(page).to have_css("button[data-action='click->qb--drawer#back']", text: "Entendido")
     end
   end
 end

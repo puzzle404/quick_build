@@ -77,7 +77,7 @@
     <div style="flex:1;"></div>
     <% if in_drawer? %>
       <%= render Qb::BtnComponent.new("Cancelar", variant: :secondary, size: :md,
-            data: { action: 'click->qb--drawer#close' }) %>
+            data: { action: 'click->qb--drawer#back' }) %>
     <% else %>
       <%= render Qb::BtnComponent.new("Cancelar", variant: :secondary, size: :md,
             href: cancel_href, data: { turbo_frame: '_top' }) %>

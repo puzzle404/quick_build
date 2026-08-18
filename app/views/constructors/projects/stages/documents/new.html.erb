@@ -1,6 +1,6 @@
 <% if turbo_frame_request? %>
   <% content_for(:drawer) do %>
-    <%= render(Qb::DrawerComponent.new(eyebrow: "Documentos", title: "Agregar documentos", subtitle: @stage.name, size: :md)) do %>
+    <%= render(Qb::DrawerComponent.new(eyebrow: "Documentos", title: "Agregar documentos", subtitle: @stage.name, size: :lg)) do %>
       <%= form_with scope: :document, url: constructors_project_stage_documents_path(@project, @stage), multipart: true, class: "space-y-5" do |form| %>
         <div class="qb-field">
           <%= form.label :files, "Seleccionar archivos", class: "qb-label" %>
@@ -11,7 +11,7 @@
 
         <div style="display:flex;align-items:center;gap:8px;margin-top:14px;">
           <%= render Qb::BtnComponent.new('Subir documentos', variant: :primary, type: 'submit') %>
-          <%= render Qb::BtnComponent.new('Cancelar', variant: :secondary, data: { action: 'click->qb--drawer#close' }) %>
+          <%= render Qb::BtnComponent.new('Cancelar', variant: :secondary, data: { action: 'click->qb--drawer#back' }) %>
         </div>
       <% end %>
     <% end %>

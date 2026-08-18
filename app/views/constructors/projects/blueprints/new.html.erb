@@ -6,7 +6,7 @@
       shell de secciones QB OS + formulario centrado. %>
 <% if turbo_frame_request? %>
   <% content_for(:drawer) do %>
-    <%= render(Qb::DrawerComponent.new(eyebrow: "Planos", title: "Subir plano", size: :md)) do %>
+    <%= render(Qb::DrawerComponent.new(eyebrow: "Planos", title: "Subir plano", size: :lg)) do %>
       <%= render Constructors::Projects::Blueprints::UploadFormComponent.new(
             project: @project, blueprint: @blueprint) %>
     <% end %>

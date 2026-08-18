@@ -58,7 +58,7 @@ RSpec.describe "Constructors::Notes", type: :request do
         note = Note.last
         expect(note.noteable).to eq(stage)
         expect(note.author).to eq(owner)
-        expect(response).to redirect_to(constructors_project_stage_path(project, stage))
+        expect(response).to redirect_to(constructors_project_stage_path(project, stage, tab: "notas"))
       end
     end
   end

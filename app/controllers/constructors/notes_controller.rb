@@ -92,7 +92,7 @@ module Constructors
 
     def redirect_path
       if @noteable.is_a?(ProjectStage) || @stage
-        constructors_project_stage_path(@project, @stage || @noteable)
+        constructors_project_stage_path(@project, @stage || @noteable, tab: "notas")
       else
         constructors_project_path(@project)
       end
