@@ -1,12 +1,12 @@
-<%# Turbo Frame (clic en una card o en una fila de lista dentro del sidebar de
-    etapa, con data-turbo-frame="project_modal"): el detalle se abre como
-    slide-over QB OS dentro del frame, sin recargar la página ni embeber un
-    drawer por cada lista en el índice. qb--drawer auto-abre al cargarse. %>
+<%# Turbo Frame request (clic en una card del índice, o el link "Editar" que
+    vuelve a este show): el detalle se renderiza como contenido del drawer
+    global (turbo-frame "drawer" en el layout), envuelto en
+    Qb::DrawerComponent dentro de ListDetailComponent — sin frame ni
+    data-controller="qb--drawer" locales. Full page (acceso directo,
+    bookmark): shell de secciones QB OS con el detalle completo. %>
 <% if turbo_frame_request? %>
-  <%= turbo_frame_tag "project_modal" do %>
-    <div data-controller="qb--drawer">
-      <%= render Constructors::Projects::Materials::ListDetailComponent.new(project: @project, list: @material_list) %>
-    </div>
+  <% content_for(:drawer) do %>
+    <%= render Constructors::Projects::Materials::ListDetailComponent.new(project: @project, list: @material_list) %>
   <% end %>
 <% else %>
 <%

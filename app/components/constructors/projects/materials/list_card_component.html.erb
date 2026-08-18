@@ -1,7 +1,7 @@
-<%# El detalle se carga lazy en el frame project_modal (ya no se embebe un
+<%# El detalle se carga lazy en el frame global "drawer" (ya no se embebe un
     drawer por cada card, que era lo que volvía pesado el índice). %>
 <%= link_to constructors_project_material_list_path(project, list),
-        data: { turbo_frame: 'project_modal' },
+        data: { turbo_frame: 'drawer', action: 'click->qb--drawer#open' },
         style: "border:1px solid var(--color-line);border-radius:8px;background:var(--color-bg-raised);padding:14px;cursor:pointer;display:flex;flex-direction:column;gap:10px;min-height:170px;text-align:left;color:inherit;font:inherit;width:100%;text-decoration:none;" do %>
   <%# Header %>
   <div style="display:flex;align-items:flex-start;gap:10px;">
