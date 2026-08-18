@@ -3,8 +3,16 @@ import { Controller } from "@hotwired/stimulus"
 // Right-anchored slide-over drawer. Two modes:
 //   - Frame-driven (the global instance in layouts/constructor.html.erb):
 //     declares a `frame` target wrapping the "drawer" turbo-frame; content
-//     presence after any turbo:frame-load decides open/closed, so no view
-//     needs its own open-on-connect flag or closest("turbo-frame#...") check.
+//     presence decides open/closed. We watch the frame with a
+//     MutationObserver (childList) rather than listening for
+//     turbo:frame-load, because turbo:frame-load only fires when the frame
+//     completes its OWN navigation lifecycle — it does NOT fire when a
+//     turbo_stream response mutates the frame's contents from the outside
+//     (e.g. several controllers close the drawer after a create/update via
+//     `turbo_stream.update("drawer", "")`, which swaps the frame's children
+//     without going through frame navigation). A MutationObserver fires for
+//     both cases uniformly, so the panel's open/closed CSS state stays in
+//     sync regardless of which mechanism emptied or filled the frame.
 //   - Click-driven (local, self-contained instances — e.g. "Invitar
 //     miembro", which has no #new route to be frame-scoped against): no
 //     `frame` target; a trigger calls #open, the panel calls #close.
@@ -13,8 +21,9 @@ export default class extends Controller {
 
   connect() {
     if (this.hasFrameTarget) {
-      this.onFrameLoad = this.onFrameLoad.bind(this)
-      this.frameTarget.addEventListener("turbo:frame-load", this.onFrameLoad)
+      this.onFrameMutation = this.onFrameMutation.bind(this)
+      this.frameObserver = new MutationObserver(this.onFrameMutation)
+      this.frameObserver.observe(this.frameTarget, { childList: true })
       this._setOpen(this._frameHasContent(), { animate: false })
     } else {
       this._setOpen(false, { animate: false })
@@ -22,10 +31,10 @@ export default class extends Controller {
   }
 
   disconnect() {
-    if (this.hasFrameTarget) this.frameTarget.removeEventListener("turbo:frame-load", this.onFrameLoad)
+    this.frameObserver?.disconnect()
   }
 
-  onFrameLoad() {
+  onFrameMutation() {
     this._setOpen(this._frameHasContent())
   }
 
