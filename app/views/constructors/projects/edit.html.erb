@@ -1,3 +1,10 @@
+<% if turbo_frame_request? %>
+  <% content_for(:drawer) do %>
+    <%= render(Qb::DrawerComponent.new(eyebrow: @project.decorate.code, title: "Editar obra", size: :lg)) do %>
+      <%= render "form", project: @project %>
+    <% end %>
+  <% end %>
+<% else %>
 <div>
   <%= render 'constructors/projects/section_tabs', project: @project, current: :stages %>
 
@@ -98,3 +105,4 @@
     </aside>
   </div>
 </div>
+<% end %>

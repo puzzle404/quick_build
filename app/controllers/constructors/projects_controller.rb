@@ -131,7 +131,16 @@ class Constructors::ProjectsController < Constructors::BaseController
     @project.assign_attributes(project_params)
 
     if persist_project_with_documents(@project)
-      redirect_to constructors_project_path(@project), notice: "Obra actualizada correctamente."
+      respond_to do |format|
+        format.turbo_stream do
+          if request.variant.include?(:mobile)
+            redirect_to constructors_project_path(@project), notice: "Obra actualizada correctamente."
+          else
+            render turbo_stream: turbo_stream.refresh
+          end
+        end
+        format.html { redirect_to constructors_project_path(@project), notice: "Obra actualizada correctamente." }
+      end
     else
       @project_summary = @project.decorate
       flash.now[:alert] = "No pudimos guardar los cambios. Revisa los datos e inténtalo otra vez."
