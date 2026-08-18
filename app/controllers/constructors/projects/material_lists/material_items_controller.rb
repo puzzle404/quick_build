@@ -1,5 +1,5 @@
 class Constructors::Projects::MaterialLists::MaterialItemsController < Constructors::BaseController
-  before_action :set_project
+  before_action :find_project!
   before_action :decorate_project
   before_action :set_material_list
   before_action :load_material_items
@@ -8,6 +8,19 @@ class Constructors::Projects::MaterialLists::MaterialItemsController < Construct
   def create
     authorize @material_list, :update?
     @material_item = @material_list.material_items.build(material_item_params)
+
+    # En mobile el show no tiene los targets de turbo_stream del desktop
+    # (ids de la tabla), así que respondemos con redirect + flash.
+    if request.variant.include?(:mobile)
+      if @material_item.save
+        redirect_to constructors_project_material_list_path(@project, @material_list),
+                    notice: "Material agregado a la lista."
+      else
+        redirect_to constructors_project_material_list_path(@project, @material_list),
+                    alert: "No pudimos agregar el material. Revisá los datos."
+      end
+      return
+    end
 
     respond_to do |format|
       if @material_item.save
@@ -21,7 +34,7 @@ class Constructors::Projects::MaterialLists::MaterialItemsController < Construct
       else
         format.turbo_stream { render :create, status: :unprocessable_entity }
         format.html do
-          flash[:alert] = "No pudimos agregar el material. Revisá los datos." 
+          flash[:alert] = "No pudimos agregar el material. Revisá los datos."
           redirect_to constructors_project_material_list_path(@project, @material_list)
         end
       end
@@ -34,6 +47,13 @@ class Constructors::Projects::MaterialLists::MaterialItemsController < Construct
     @material_items = @material_list.material_items.order(created_at: :desc)
     @material_item = @material_list.material_items.build
 
+    # Mismo criterio que en create: mobile no tiene los targets del desktop.
+    if request.variant.include?(:mobile)
+      redirect_to constructors_project_material_list_path(@project, @material_list),
+                  notice: "Material eliminado de la lista."
+      return
+    end
+
     respond_to do |format|
       format.turbo_stream
       format.html do
@@ -44,10 +64,6 @@ class Constructors::Projects::MaterialLists::MaterialItemsController < Construct
   end
 
   private
-
-  def set_project
-    @project = current_user.owned_projects.find(params[:project_id])
-  end
 
   def decorate_project
     @project = @project.decorate

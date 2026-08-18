@@ -19,14 +19,38 @@
         </div>
         <h2 style="margin:0;font-size:16px;font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;"><%= "#{list.display_number} #{list.name}".strip %></h2>
       </div>
-      <%= render Qb::BtnComponent.new('Exportar', variant: :ghost, size: :sm, icon: :download) %>
-      <%= link_to edit_constructors_project_material_list_path(project, list),
-                  data: { turbo_frame: 'project_modal' },
-                  style: 'display:inline-flex;align-items:center;gap:6px;height:28px;padding:0 10px;background:var(--color-bg-raised);color:var(--color-ink);border:1px solid var(--color-line-2);border-radius:5px;font-size:12px;font-weight:500;text-decoration:none;' do %>
-        <%= render Qb::IconComponent.new(name: :edit, size: 13) %>
-        Editar
+      <%# data-turbo=false: descarga directa del CSV sin interceptar la navegación
+          (el drawer vive dentro del frame project_modal). %>
+      <%= render Qb::BtnComponent.new('Exportar', variant: :ghost, size: :sm, icon: :download,
+            href: constructors_project_material_list_path(project, list, format: :csv),
+            data: { turbo: false }, title: 'Descargar CSV de los ítems') %>
+      <% if can_edit? %>
+        <%= link_to edit_constructors_project_material_list_path(project, list),
+                    data: { turbo_frame: 'project_modal' },
+                    style: 'display:inline-flex;align-items:center;gap:6px;height:28px;padding:0 10px;background:var(--color-bg-raised);color:var(--color-ink);border:1px solid var(--color-line-2);border-radius:5px;font-size:12px;font-weight:500;text-decoration:none;' do %>
+          <%= render Qb::IconComponent.new(name: :edit, size: 13) %>
+          Editar
+        <% end %>
       <% end %>
-      <% if list.status.to_s != 'approved' %>
+      <% if paid? %>
+        <%= link_to expenses_path, data: { turbo_frame: '_top' },
+                    style: 'display:inline-flex;align-items:center;gap:6px;height:28px;padding:0 10px;background:color-mix(in oklab, var(--color-ok) 14%, transparent);color:var(--color-ok);border:1px solid color-mix(in oklab, var(--color-ok) 40%, transparent);border-radius:5px;font-size:12px;font-weight:500;text-decoration:none;white-space:nowrap;' do %>
+          <%= render Qb::IconComponent.new(name: :check, size: 13) %>
+          Pagada · <%= helpers.qb_fmt_cents(paid_cents) %>
+        <% end %>
+      <% elsif total_cents.positive? && can_edit? %>
+        <%# Registra el pago como Expense de la obra. turbo_frame _top: el
+            drawer vive dentro de project_modal y hay que salir del frame. %>
+        <%= button_to mark_as_paid_path,
+                      method: :patch,
+                      form: { data: { turbo_frame: '_top' } },
+                      data: { turbo_confirm: "Se va a registrar un gasto de #{helpers.qb_fmt_cents(total_cents)} en la obra. ¿Confirmás?" },
+                      style: 'display:inline-flex;align-items:center;gap:6px;height:28px;padding:0 10px;background:var(--color-bg-raised);color:var(--color-ink);border:1px solid var(--color-line-2);border-radius:5px;font-size:12px;font-weight:500;cursor:pointer;white-space:nowrap;' do %>
+          <%= render Qb::IconComponent.new(name: :money, size: 13) %>
+          Marcar como pagado
+        <% end %>
+      <% end %>
+      <% if can_edit? && list.status.to_s != 'approved' %>
         <%= button_to constructors_project_material_list_path(project, list, material_list: { status: :approved }),
                       method: :patch,
                       style: 'display:inline-flex;align-items:center;gap:6px;height:28px;padding:0 10px;background:var(--color-accent);color:var(--color-accent-ink);border:1px solid var(--color-accent);border-radius:5px;font-size:12px;font-weight:500;cursor:pointer;' do %>
@@ -97,23 +121,28 @@
               </div>
             <% end %>
           </div>
-          <span class="qb-mono qb-tnum" style="text-align:right;color:var(--color-ink);font-weight:500;"><%= number_with_delimiter(item.quantity) %></span>
+          <span class="qb-mono qb-tnum" style="text-align:right;color:var(--color-ink);font-weight:500;"><%= number_with_delimiter(item.quantity, delimiter: '.', separator: ',') %></span>
           <span style="color:var(--color-ink-3);font-size:11px;"><%= item.unit %></span>
           <span class="qb-mono qb-tnum" style="text-align:right;color:var(--color-ink-2);"><%= helpers.qb_fmt_cents(item.estimated_cost_cents) %></span>
           <span class="qb-mono qb-tnum" style="text-align:right;color:var(--color-ink);font-weight:600;"><%= helpers.qb_fmt_cents(subtotal) %></span>
           <div>
             <%= render Qb::PillComponent.new(tone: confidence_for(item), compact: true) { confidence_label(item) } %>
           </div>
-          <%= button_to constructors_project_material_list_material_item_path(project, list, item),
-                        method: :delete,
-                        data: { turbo_confirm: '¿Eliminar este ítem?' },
-                        style: 'background:transparent;border:none;color:var(--color-ink-4);cursor:pointer;' do %>
-            <%= render Qb::IconComponent.new(name: :trash, size: 13) %>
+          <% if can_edit? %>
+            <%= button_to constructors_project_material_list_material_item_path(project, list, item),
+                          method: :delete,
+                          data: { turbo_confirm: '¿Eliminar este ítem?' },
+                          style: 'background:transparent;border:none;color:var(--color-ink-4);cursor:pointer;' do %>
+              <%= render Qb::IconComponent.new(name: :trash, size: 13) %>
+            <% end %>
+          <% else %>
+            <span></span>
           <% end %>
         </div>
       <% end %>
 
       <%# Inline add — Turbo-submit form to existing material_items#create %>
+      <% if can_edit? %>
       <%= form_with url: constructors_project_material_list_material_items_path(project, list),
                     method: :post,
                     data: { turbo_frame: '_top' },
@@ -134,6 +163,7 @@
         <button type="submit" style="background:transparent;border:none;color:var(--color-ok);cursor:pointer;padding:2px;" title="Agregar">
           <%= render Qb::IconComponent.new(name: :check, size: 13) %>
         </button>
+      <% end %>
       <% end %>
 
       <% if items.empty? %>

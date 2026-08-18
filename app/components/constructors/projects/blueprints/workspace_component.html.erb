@@ -1,112 +1,115 @@
-<div style="display:grid;grid-template-columns:280px 1fr 320px;min-height:560px;">
+<div style="display:grid;grid-template-columns:248px minmax(0,1fr);border-bottom:1px solid var(--color-line);">
 
-  <%# Uploads sidebar %>
-  <div style="border-right:1px solid var(--color-line);">
-    <div style="padding:10px 12px;border-bottom:1px solid var(--color-line);display:flex;gap:6px;">
-      <%= render Qb::BtnComponent.new('Subir plano', variant: :primary, size: :sm, icon: :upload, href: new_constructors_project_blueprint_path(project), extra_style: 'flex:1;') %>
+  <%# ── Lista de planos ──────────────────────────────────────────────── %>
+  <div style="border-right:1px solid var(--color-line);display:flex;flex-direction:column;min-width:0;">
+    <div style="padding:9px 12px;border-bottom:1px solid var(--color-line);background:var(--color-bg-sunken);display:flex;align-items:center;gap:6px;">
+      <span style="font-size:10px;font-family:var(--font-mono);text-transform:uppercase;letter-spacing:0.6px;color:var(--color-ink-3);">Planos</span>
+      <span class="qb-mono qb-tnum" style="font-size:10px;color:var(--color-ink-4);"><%= blueprints.size %></span>
     </div>
-    <% blueprints.each do |bp| %>
-      <% active = (selected && bp.id == selected.id) %>
-      <%= link_to constructors_project_blueprints_path(project, selected: bp.id),
-                  style: "display:block;width:100%;text-align:left;padding:10px 12px;border-bottom:1px solid var(--color-line);background:#{active ? 'var(--color-bg-sunken)' : 'transparent'};border-left:2px solid #{active ? 'var(--color-accent)' : 'transparent'};text-decoration:none;color:inherit;" do %>
-        <div style="display:flex;align-items:center;gap:8px;margin-bottom:4px;">
-          <span class="qb-mono" style="font-size:10px;color:var(--color-ink-4);">BP-<%= bp.id %></span>
-          <%= render Qb::PillComponent.new(tone: status_tone(bp), compact: true) { status_label(bp) } %>
-        </div>
-        <div style="font-size:12px;font-weight:500;"><%= bp.name %></div>
-        <div style="font-size:10px;color:var(--color-ink-4);margin-top:2px;font-family:var(--font-mono);">
-          <%= helpers.qb_fmt_date_short(bp.created_at) %>
-        </div>
-      <% end %>
-    <% end %>
-  </div>
 
-  <%# Viewer placeholder %>
-  <div style="border-right:1px solid var(--color-line);display:flex;flex-direction:column;background:var(--color-bg-sunken);">
-    <% if selected %>
-      <div style="padding:8px 12px;border-bottom:1px solid var(--color-line);background:var(--color-bg-raised);display:flex;align-items:center;gap:8px;">
-        <span class="qb-mono" style="font-size:11px;color:var(--color-ink-3);"><%= selected.name %></span>
-        <% if selected.respond_to?(:scale) && selected.try(:scale).present? %>
-          <span class="qb-mono" style="font-size:10px;color:var(--color-ink-4);background:var(--color-bg-sunken);padding:1px 6px;border-radius:3px;">Esc <%= selected.scale %></span>
-        <% end %>
-        <div style="flex:1;"></div>
-        <%= render Qb::BtnComponent.new('100%', variant: :ghost, size: :xs) %>
-        <%= render Qb::BtnComponent.new('+',    variant: :ghost, size: :xs) %>
-        <%= render Qb::BtnComponent.new('Capas', variant: :ghost, size: :xs, icon: :layers) %>
-      </div>
-      <div style="flex:1;display:flex;align-items:center;justify-content:center;padding:20px;position:relative;">
-        <% if selected.file.attached? %>
-          <%= image_tag selected.file, style: 'max-width:90%;max-height:88%;background:var(--color-bg);border:1px solid var(--color-line-2);border-radius:4px;' %>
-        <% else %>
-          <div style="width:90%;height:88%;background:var(--color-bg);border:1px solid var(--color-line-2);border-radius:4px;background-image: linear-gradient(var(--color-line) 1px, transparent 1px), linear-gradient(90deg, var(--color-line) 1px, transparent 1px);background-size:20px 20px;display:flex;align-items:center;justify-content:center;color:var(--color-ink-4);">
-            Plano sin archivo adjunto
-          </div>
-        <% end %>
-        <div style="position:absolute;bottom:12px;left:20px;font-family:var(--font-mono);font-size:10px;color:var(--color-ink-3);background:var(--color-bg-raised);padding:4px 8px;border-radius:3px;border:1px solid var(--color-line);">
-          <% if has_analysis?(selected) %>
-            Análisis IA disponible →
-          <% else %>
-            Sin análisis IA todavía
+    <div style="flex:1;overflow-y:auto;">
+      <% blueprints.each do |bp| %>
+        <% active = selected && bp.id == selected.id %>
+        <div style="display:flex;align-items:stretch;border-bottom:1px solid var(--color-line);background:<%= active ? 'var(--color-bg-sunken)' : 'transparent' %>;border-left:2px solid <%= active ? 'var(--color-accent)' : 'transparent' %>;">
+          <%= link_to constructors_project_blueprints_path(project, selected: bp.id),
+                      style: 'flex:1;min-width:0;padding:9px 10px;text-decoration:none;color:inherit;display:block;',
+                      title: bp.name do %>
+            <div style="display:flex;align-items:center;gap:6px;margin-bottom:3px;">
+              <span class="qb-mono" style="font-size:10px;color:var(--color-ink-4);">BP-<%= bp.id %></span>
+              <%= render Qb::PillComponent.new(tone: status_tone(bp), compact: true) { status_label(bp) } %>
+            </div>
+            <div style="font-size:12px;font-weight:500;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;"><%= bp.name %></div>
+            <div style="font-size:10px;color:var(--color-ink-4);margin-top:2px;font-family:var(--font-mono);display:flex;gap:6px;flex-wrap:wrap;">
+              <span><%= helpers.qb_fmt_date_short(bp.created_at) %></span>
+              <% if bp.scale_ratio.present? %>
+                <span style="color:var(--color-ink-3);">1:<%= number_with_precision(bp.scale_ratio, precision: 0) %></span>
+              <% end %>
+              <% if groups_count(bp).positive? %>
+                <span style="color:var(--color-ink-3);"><%= groups_count(bp) %> med.</span>
+              <% end %>
+            </div>
+          <% end %>
+
+          <% if can_manage_content? %>
+            <%= button_to constructors_project_blueprint_path(project, bp),
+                          method: :delete,
+                          form: { style: 'display:flex;align-items:stretch;' },
+                          data: { turbo_confirm: "¿Eliminar el plano \"#{bp.name}\"? Se borran también sus mediciones y análisis." },
+                          title: 'Eliminar plano',
+                          aria: { label: "Eliminar #{bp.name}" },
+                          style: 'display:flex;align-items:center;padding:0 9px;background:transparent;border:none;color:var(--color-ink-4);cursor:pointer;' do %>
+              <%= render Qb::IconComponent.new(name: :trash, size: 13) %>
+            <% end %>
           <% end %>
         </div>
-      </div>
-    <% else %>
-      <div style="flex:1;display:flex;align-items:center;justify-content:center;color:var(--color-ink-4);">
-        Seleccioná un plano de la izquierda
-      </div>
-    <% end %>
-  </div>
-
-  <%# AI panel %>
-  <div style="display:flex;flex-direction:column;">
-    <div style="padding:10px 12px;border-bottom:1px solid var(--color-line);background:var(--color-bg-raised);display:flex;align-items:center;gap:8px;">
-      <%= render Qb::IconComponent.new(name: :sparkles, size: 14, style: 'color:var(--color-accent)') %>
-      <span style="font-size:12px;font-weight:600;">Análisis IA</span>
-      <% if selected && has_analysis?(selected) %>
-        <%= render Qb::PillComponent.new('completo', tone: :ok, compact: true) %>
       <% end %>
     </div>
+  </div>
 
+  <%# ── Visor + panel IA ─────────────────────────────────────────────── %>
+  <div style="min-width:0;">
     <% if selected %>
-      <% measurements = measurements_for(selected) %>
-      <div style="padding:14px;">
-        <div style="font-size:10px;font-family:var(--font-mono);color:var(--color-ink-3);text-transform:uppercase;letter-spacing:0.6px;margin-bottom:8px;">Mediciones detectadas</div>
-        <% if measurements.any? %>
-          <div style="display:grid;grid-template-columns:1fr 1fr;gap:0;border:1px solid var(--color-line);border-radius:6px;overflow:hidden;">
-            <% measurements.first(6).each_with_index do |(k, v), i| %>
-              <div style="padding:8px 10px;border-right:<%= i.even? ? '1px solid var(--color-line)' : 'none' %>;border-bottom:<%= i < 4 ? '1px solid var(--color-line)' : 'none' %>;">
-                <div style="font-size:10px;color:var(--color-ink-3);"><%= k.to_s.titleize %></div>
-                <div class="qb-mono qb-tnum" style="font-size:14px;font-weight:500;"><%= v %></div>
+      <%= render Constructors::Projects::Blueprints::ViewerComponent.new(
+            project: project, blueprint: selected, construction_items: construction_items) do |viewer| %>
+        <% viewer.with_aside do %>
+          <div style="padding:9px 12px;border-bottom:1px solid var(--color-line);background:var(--color-bg-sunken);display:flex;align-items:center;gap:6px;">
+            <%= render Qb::IconComponent.new(name: :sparkles, size: 13, style: 'color:var(--color-accent);') %>
+            <span style="font-size:10px;font-family:var(--font-mono);text-transform:uppercase;letter-spacing:0.6px;color:var(--color-ink-3);">Análisis IA</span>
+            <div style="flex:1;"></div>
+            <%= render Qb::PillComponent.new(status_label(selected).downcase, tone: status_tone(selected), compact: true) %>
+          </div>
+
+          <div style="padding:12px;">
+            <% elements = analysis_elements(selected) %>
+            <% if elements.any? %>
+              <div style="border:1px solid var(--color-line);border-radius:6px;overflow:hidden;">
+                <% elements.first(6).each_with_index do |element, i| %>
+                  <div style="padding:7px 10px;display:flex;align-items:baseline;gap:8px;<%= 'border-top:1px solid var(--color-line);' if i.positive? %>">
+                    <span style="font-size:11px;color:var(--color-ink-2);flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;"><%= element_label(element) %></span>
+                    <span class="qb-mono qb-tnum" style="font-size:11px;color:var(--color-ink);white-space:nowrap;"><%= element_value(element) %></span>
+                  </div>
+                <% end %>
+              </div>
+              <% if elements.size > 6 %>
+                <div style="font-size:10px;color:var(--color-ink-4);margin-top:5px;font-family:var(--font-mono);">+<%= elements.size - 6 %> más en el historial</div>
+              <% end %>
+            <% else %>
+              <div style="padding:14px;text-align:center;color:var(--color-ink-4);font-size:11.5px;border:1px dashed var(--color-line);border-radius:6px;">
+                Sin mediciones sugeridas todavía. Corré el análisis para que la IA lea el plano.
+              </div>
+            <% end %>
+
+            <% if analysis_notes(selected) %>
+              <div style="margin-top:10px;font-size:11.5px;color:var(--color-ink-3);line-height:1.45;">
+                <%= truncate(analysis_notes(selected), length: 220) %>
               </div>
             <% end %>
           </div>
-        <% else %>
-          <div style="padding:16px;text-align:center;color:var(--color-ink-4);font-size:12px;border:1px dashed var(--color-line);border-radius:6px;">
-            Sin mediciones todavía. Corré el análisis IA para extraer datos del plano.
+
+          <div style="padding:0 12px 12px;display:flex;flex-direction:column;gap:6px;">
+            <% if can_manage_content? %>
+              <%= form_with url: constructors_project_blueprint_ai_analyses_path(project, selected), method: :post do %>
+                <%= render Qb::BtnComponent.new('Correr análisis IA', variant: :primary, size: :sm, icon: :sparkles,
+                                                type: 'submit', extra_style: 'width:100%;justify-content:center;') %>
+              <% end %>
+            <% end %>
+            <%= render Qb::BtnComponent.new('Ver historial', variant: :secondary, size: :sm, icon: :clock,
+                                            href: constructors_project_blueprint_ai_analyses_path(project, selected),
+                                            extra_style: 'width:100%;justify-content:center;') %>
           </div>
-        <% end %>
-      </div>
 
-      <div style="padding:14px;border-top:1px solid var(--color-line);">
-        <div style="font-size:10px;font-family:var(--font-mono);color:var(--color-ink-3);text-transform:uppercase;letter-spacing:0.6px;margin-bottom:8px;">Acciones</div>
-        <%= form_with url: constructors_project_blueprint_ai_analyses_path(project, selected),
-                      method: :post,
-                      html: { style: 'margin-bottom:8px;' } do %>
-          <%= render Qb::BtnComponent.new('Correr análisis IA', variant: :primary, size: :sm, icon: :sparkles, type: 'submit', extra_style: 'width:100%;justify-content:center;') %>
+          <% if selected.description.present? %>
+            <div style="padding:10px 12px;border-top:1px solid var(--color-line);background:var(--color-bg-sunken);">
+              <div style="font-size:10px;font-family:var(--font-mono);text-transform:uppercase;letter-spacing:0.6px;color:var(--color-ink-3);margin-bottom:4px;">Observaciones</div>
+              <div style="font-size:11.5px;color:var(--color-ink-2);line-height:1.45;"><%= selected.description %></div>
+            </div>
+          <% end %>
         <% end %>
-        <%= render Qb::BtnComponent.new('Ver historial', variant: :ghost, size: :sm, icon: :clock,
-                                         href: constructors_project_blueprint_ai_analyses_path(project, selected),
-                                         extra_style: 'width:100%;justify-content:center;') %>
-      </div>
-
-      <div style="padding:14px;border-top:1px solid var(--color-line);background:var(--color-bg-sunken);">
-        <div style="font-size:10px;font-family:var(--font-mono);color:var(--color-ink-3);text-transform:uppercase;letter-spacing:0.6px;margin-bottom:6px;">Observaciones</div>
-        <div style="font-size:12px;color:var(--color-ink-2);line-height:1.5;">
-          <%= selected.try(:description).presence || 'Sin observaciones cargadas para este plano.' %>
-        </div>
-      </div>
+      <% end %>
     <% else %>
-      <div style="padding:24px;text-align:center;color:var(--color-ink-4);font-size:12px;">Sin selección.</div>
+      <div style="padding:60px 20px;text-align:center;color:var(--color-ink-4);font-size:13px;">
+        Seleccioná un plano de la lista.
+      </div>
     <% end %>
   </div>
 </div>

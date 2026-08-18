@@ -55,7 +55,7 @@ class Constructors::Projects::WeatherComponent < ViewComponent::Base
 
   def fmt_date(date_str)
     return "—" if date_str.blank?
-    Date.parse(date_str).strftime("%d/%m")
+    helpers.qb_fmt_date_short(Date.parse(date_str))
   rescue ArgumentError
     date_str
   end

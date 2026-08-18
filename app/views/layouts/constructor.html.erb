@@ -36,8 +36,12 @@
             user: current_user,
             project: current_qb_project,
             project_sub: current_qb_project_sub,
-            project_count: (current_user.owned_projects.count rescue nil),
-            pinned_projects: (current_user.owned_projects.order(updated_at: :desc).limit(4).map { ProjectDecorator.new(_1) } rescue []),
+            # El contador y los accesos rápidos cuentan LO MISMO que lista
+            # /constructors/projects (propias + donde soy miembro). Con
+            # `owned_projects` el sidebar decía "0" mientras la pantalla de
+            # al lado mostraba las obras donde el usuario es miembro.
+            project_count: (current_user.accessible_projects.count rescue nil),
+            pinned_projects: (current_user.accessible_projects.order(updated_at: :desc).limit(4).map { ProjectDecorator.new(_1) } rescue []),
             company_name: (current_user.try(:company)&.name rescue nil)
           ) %>
 
@@ -46,7 +50,10 @@
           # Topbar values come from DashboardKpis so the chip stays consistent
           # with the dashboard hero strip. Reuse @kpis when set by the
           # dashboard controller; compute lazily otherwise.
-          qb_topbar_kpis = (defined?(@kpis) && @kpis.is_a?(Hash)) ? @kpis : (DashboardKpis.new(current_user.owned_projects.includes(:project_stages).map { ProjectDecorator.new(_1) }).call rescue {})
+          # Mismo conjunto que el dashboard (que ya lista obras accesibles): si
+          # acá se contaran sólo las propias, el chip de la topbar contradiría
+          # los KPIs de la pantalla de abajo.
+          qb_topbar_kpis = (defined?(@kpis) && @kpis.is_a?(Hash)) ? @kpis : (DashboardKpis.new(current_user.accessible_projects.includes(:project_stages).map { ProjectDecorator.new(_1) }).call rescue {})
           qb_people_on_site = qb_topbar_kpis[:people_on_site].to_i
           qb_people_on_site = nil if qb_people_on_site.zero?
           qb_has_alerts = qb_topbar_kpis[:has_alerts] == true

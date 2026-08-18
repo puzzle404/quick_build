@@ -24,6 +24,13 @@ class ApplicationController < ActionController::Base
     request.variant = :mobile
   end
 
+  # True cuando esta request se está renderizando con la variante :mobile.
+  # Usarlo en vez de repetir `request.variant.include?(:mobile)`.
+  def mobile_variant?
+    request.variant.include?(:mobile)
+  end
+  helper_method :mobile_variant?
+
   # Dev/test only: `?_variant=mobile` flips the variant for the rest of the
   # session (sticky cookie); `?_variant=desktop` clears it. Lets DevTools
   # responsive mode preview mobile views without spoofing the UA. Production

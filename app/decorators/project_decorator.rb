@@ -16,7 +16,7 @@ class ProjectDecorator < BaseDecorator
   def elapsed_days
     return unless start_date
 
-    [(Date.current - start_date).to_i, 0].max
+    [ (Date.current - start_date).to_i, 0 ].max
   end
 
   def duration_text
@@ -27,23 +27,23 @@ class ProjectDecorator < BaseDecorator
   end
 
   def duration_hint
-    duration_text ? 'Calculado a partir de las fechas de inicio y fin cargadas.' : 'Registra fechas de inicio y fin para calcular la duración estimada.'
+    duration_text ? "Calculado a partir de las fechas de inicio y fin cargadas." : "Registra fechas de inicio y fin para calcular la duración estimada."
   end
 
   def time_elapsed_hint
-    elapsed_days ? 'días desde el inicio' : 'A definir'
+    elapsed_days ? "días desde el inicio" : "A definir"
   end
 
   def location_label
-    location.presence || 'Ubicación no indicada'
+    location.presence || "Ubicación no indicada"
   end
 
   def coordinates_status
-    located? ? 'Coordenadas cargadas' : 'Coordenadas pendientes'
+    located? ? "Coordenadas cargadas" : "Coordenadas pendientes"
   end
 
   def coordinates_badge_color
-    located? ? 'bg-emerald-500' : 'bg-slate-300'
+    located? ? "bg-emerald-500" : "bg-slate-300"
   end
 
   def coordinates_label
@@ -53,7 +53,7 @@ class ProjectDecorator < BaseDecorator
   end
 
   def member_options
-    User.order(:email).map { |user| [user.email, user.id] }
+    User.order(:email).map { |user| [ user.email, user.id ] }
   end
 
   # ─── Quick Build OS redesign — derived presentation values ─────
@@ -76,7 +76,7 @@ class ProjectDecorator < BaseDecorator
     total = (end_date - start_date).to_f
     return 0 if total <= 0
     elapsed = (Date.current - start_date).to_f
-    [[(elapsed / total * 100).round, 0].max, 100].min
+    [ [ (elapsed / total * 100).round, 0 ].max, 100 ].min
   end
 
   # Simple health heuristic — :ok | :warn | :bad
@@ -87,16 +87,15 @@ class ProjectDecorator < BaseDecorator
   end
 
   def health_label
-    { ok: 'Saludable', warn: 'Atención', bad: 'Crítico' }.fetch(health)
+    { ok: "Saludable", warn: "Atención", bad: "Crítico" }.fetch(health)
   end
 
   def status_label
-    { 'planned' => 'Planificado', 'in_progress' => 'En obra', 'completed' => 'Finalizado' }
-      .fetch(object.status.to_s, object.status.to_s.humanize)
+    Project::STATUS_LABELS.fetch(object.status.to_s, object.status.to_s.humanize)
   end
 
   def status_tone
-    { 'planned' => :muted, 'in_progress' => :info, 'completed' => :ok }
+    { "planned" => :muted, "in_progress" => :info, "completed" => :ok }
       .fetch(object.status.to_s, :muted)
   end
 
@@ -141,7 +140,7 @@ class ProjectDecorator < BaseDecorator
   def progress_curve_series
     return object.progress_curve if object.progress_curve.present?
     n = curve_buckets
-    return [0] if n <= 1
+    return [ 0 ] if n <= 1
     cur = progress
     (0..n - 1).map { |i| (cur * i.to_f / (n - 1)).round }
   end
@@ -150,7 +149,7 @@ class ProjectDecorator < BaseDecorator
   def progress_plan_series
     return object.progress_plan if object.progress_plan.present?
     n = curve_buckets
-    return [0] if n <= 1
+    return [ 0 ] if n <= 1
     plan = planned_progress
     (0..n - 1).map { |i| (plan * i.to_f / (n - 1)).round }
   end
@@ -189,6 +188,6 @@ class ProjectDecorator < BaseDecorator
   def curve_buckets
     return 6 unless start_date
     months = (Date.current.year * 12 + Date.current.month) - (start_date.year * 12 + start_date.month)
-    [[months + 1, 2].max, 12].min
+    [ [ months + 1, 2 ].max, 12 ].min
   end
 end

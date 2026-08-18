@@ -2,19 +2,21 @@
   active_count = @people.count { |p| p.status.to_s == 'active' }
   on_leave_count = @people.count { |p| p.status.to_s == 'inactive' }
 
-  tabs = [
-    { value: :overview,   label: 'Resumen',       icon: :home,      href: constructors_project_path(@project) },
-    { value: :planning,   label: 'Planificación', icon: :planning,  count: @project.project_stages.where(parent_id: nil).count, href: constructors_project_stages_path(@project) },
-    { value: :materials,  label: 'Materiales',    icon: :materials, count: @project.material_lists.count, href: constructors_project_material_lists_path(@project) },
-    { value: :blueprints, label: 'Planos · IA',   icon: :blueprint, count: @project.blueprints.count, href: constructors_project_blueprints_path(@project) },
-    { value: :team,       label: 'Equipo',        icon: :people,    count: @people.size, href: constructors_project_people_path(@project) },
-    { value: :docs,       label: 'Documentos',    icon: :docs,      count: @project.documents.count, href: constructors_project_documents_path(@project) },
-  ]
+  # Personas con presente ya registrado hoy — la fila muestra pill en vez del
+  # botón "Presente" (evita duplicar asistencias con doble clic).
+  present_today_ids = PersonAttendance.where(project_person_id: @people.map(&:id))
+                                      .where(occurred_at: Date.current.all_day)
+                                      .distinct.pluck(:project_person_id)
+
+  # Alta/baja de personas y gestión de miembros: admin de obra en adelante
+  # (ProjectPersonPolicy / ProjectMembershipPolicy). Marcar el presente, en
+  # cambio, es editor — por eso son dos permisos distintos.
+  can_manage_team = policy(@project).manage_team?
+  can_mark_attendance = policy(@project).manage_content?
 %>
 
 <div>
-  <%= render Constructors::Projects::HeaderComponent.new(project: @project) %>
-  <%= render Qb::TabsComponent.new(tabs: tabs, current: :team) %>
+  <%= render 'constructors/projects/section_tabs', project: @project, current: :team %>
 
   <%# KPI strip %>
   <div style="display:grid;grid-template-columns:repeat(4, 1fr);border-bottom:1px solid var(--color-line);background:var(--color-bg-raised);">
@@ -56,10 +58,12 @@
       </div>
     </form>
     <div style="flex:1;"></div>
-    <%= render Qb::BtnComponent.new('Marcar asistencia', variant: :secondary, size: :xs, icon: :check) %>
+    <%# La asistencia se marca por fila (botón "Presente") — sin botón global. %>
     <%# Abre el modal de alta vía Turbo Frame (project_modal) — mismo approach que stages. %>
-    <%= render Qb::BtnComponent.new('Invitar persona', variant: :primary, size: :xs, icon: :plus,
-          href: new_constructors_project_person_path(@project), data: { turbo_frame: 'project_modal' }) %>
+    <% if can_manage_team %>
+      <%= render Qb::BtnComponent.new('Invitar persona', variant: :primary, size: :xs, icon: :plus,
+            href: new_constructors_project_person_path(@project), data: { turbo_frame: 'project_modal' }) %>
+    <% end %>
   </div>
 
   <%# Table — el tbody siempre existe (id people_rows) para poder hacer append
@@ -74,7 +78,9 @@
     </thead>
     <tbody id="people_rows">
       <% @people.each do |person| %>
-        <%= render 'constructors/projects/people/person_row', person: person, project: @project %>
+        <%= render 'constructors/projects/people/person_row', person: person, project: @project,
+                    present_today: present_today_ids.include?(person.id),
+                    can_mark_attendance: can_mark_attendance %>
       <% end %>
       <% if @people.empty? %>
         <tr id="people_empty_row">
@@ -85,14 +91,24 @@
               <div style="font-size:11px;color:var(--color-ink-4);margin-top:6px;">
                 <%= link_to 'Limpiar búsqueda', constructors_project_people_path(@project), style: 'color:var(--color-accent);text-decoration:none;' %>
               </div>
-            <% else %>
+            <% elsif can_manage_team %>
               <div>Todavía no sumaste personas a esta obra.</div>
+            <% else %>
+              <div>Esta obra todavía no tiene personas asignadas.</div>
             <% end %>
           </td>
         </tr>
       <% end %>
     </tbody>
   </table>
+
+  <%# Accesos a la obra: usuarios de la plataforma + su rol. Vive acá porque
+      es la pestaña "Equipo" y era el único lugar donde ya se invitaba gente.
+      "Personas" (arriba) es quién trabaja en la obra; esto es quién entra al
+      sistema a verla. %>
+  <div style="border-top:1px solid var(--color-line-2);margin-top:8px;">
+    <%= render Constructors::Projects::Overview::MembersPanelComponent.new(project: @project) %>
+  </div>
 </div>
 
 <%# Destino del modal "Invitar persona" (Turbo Frame). %>

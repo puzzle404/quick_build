@@ -67,7 +67,9 @@
 
 <%= render Qb::Mobile::SectionComponent.new(title: "Datos") do %>
   <%= render Qb::Mobile::CardComponent.new(bleed: true) do %>
-    <%= render Qb::Mobile::RowComponent.new(icon: :projects, title: "Mis proyectos", value: (current_user.owned_projects.count rescue 0).to_s, href: constructors_projects_path) %>
+    <%# Mismo conjunto que lista /constructors/projects: propias + donde soy miembro. %>
+    <%= render Qb::Mobile::RowComponent.new(icon: :projects, title: "Obras", value: (current_user.accessible_projects.count rescue 0).to_s, href: constructors_projects_path) %>
+    <%= render Qb::Mobile::RowComponent.new(icon: :people, title: "Personas", href: constructors_people_path) %>
     <%= render Qb::Mobile::RowComponent.new(icon: :library, title: "Biblioteca", href: constructors_library_path) %>
   <% end %>
 <% end %>

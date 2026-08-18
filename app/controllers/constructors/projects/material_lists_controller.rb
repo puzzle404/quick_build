@@ -1,8 +1,10 @@
+require "csv"
+
 class Constructors::Projects::MaterialListsController < Constructors::BaseController
   helper Constructors::ProjectsHelper
-  before_action :set_project
+  before_action :find_project!
   before_action :decorate_project
-  before_action :set_material_list, only: %i[show edit update destroy toggle_publication]
+  before_action :set_material_list, only: %i[show edit update destroy toggle_publication mark_as_paid]
   before_action :set_stage_options, only: %i[new create edit update]
 
   def index
@@ -16,8 +18,8 @@ class Constructors::Projects::MaterialListsController < Constructors::BaseContro
     @to_date = params[:to_date].presence
 
     # Redesign filter chips
-    @status_filter = params[:status].to_s.presence_in(MaterialList.statuses.keys.map(&:to_s)) || 'all'
-    @source_filter = params[:source].to_s.presence_in(MaterialList.source_types.keys.map(&:to_s)) || 'all'
+    @status_filter = params[:status].to_s.presence_in(MaterialList.statuses.keys.map(&:to_s)) || "all"
+    @source_filter = params[:source].to_s.presence_in(MaterialList.source_types.keys.map(&:to_s)) || "all"
     @stage_filter  = params[:stage].to_s # 'all', 'none', or stage id
 
     @material_lists_scope = Constructors::Projects::MaterialListSearchService.new(
@@ -27,10 +29,10 @@ class Constructors::Projects::MaterialListsController < Constructors::BaseContro
       to_date: @to_date
     ).results
 
-    @material_lists_scope = @material_lists_scope.where(status: MaterialList.statuses[@status_filter])           if @status_filter != 'all'
-    @material_lists_scope = @material_lists_scope.where(source_type: MaterialList.source_types[@source_filter])  if @source_filter != 'all'
-    @material_lists_scope = @material_lists_scope.where(project_stage_id: nil)                                   if @stage_filter == 'none'
-    @material_lists_scope = @material_lists_scope.where(project_stage_id: @stage_filter.to_i)                    if @stage_filter.present? && @stage_filter != 'all' && @stage_filter != 'none'
+    @material_lists_scope = @material_lists_scope.where(status: MaterialList.statuses[@status_filter])           if @status_filter != "all"
+    @material_lists_scope = @material_lists_scope.where(source_type: MaterialList.source_types[@source_filter])  if @source_filter != "all"
+    @material_lists_scope = @material_lists_scope.where(project_stage_id: nil)                                   if @stage_filter == "none"
+    @material_lists_scope = @material_lists_scope.where(project_stage_id: @stage_filter.to_i)                    if @stage_filter.present? && @stage_filter != "all" && @stage_filter != "none"
 
     @pagy, @material_lists = pagy(@material_lists_scope, limit: 25)
   end
@@ -39,6 +41,15 @@ class Constructors::Projects::MaterialListsController < Constructors::BaseContro
     authorize @material_list
     @material_item = @material_list.material_items.build
     @material_items = @material_list.material_items.order(created_at: :desc)
+
+    respond_to do |format|
+      format.html
+      format.csv do
+        send_data material_items_csv(@material_list),
+                  filename: "materiales-#{@material_list.name.to_s.parameterize.presence || @material_list.id}-#{Date.current.strftime('%Y%m%d')}.csv",
+                  type: "text/csv; charset=utf-8"
+      end
+    end
   end
 
   def new
@@ -122,10 +133,61 @@ class Constructors::Projects::MaterialListsController < Constructors::BaseContro
     redirect_to constructors_project_material_list_path(@project, @material_list), notice: message
   end
 
+  # Registra el pago de la lista como un Expense real de la obra. "Pagada" se
+  # deriva de ese vínculo (material_list_id), así que borrar el gasto la
+  # desmarca sola — no hay columna de estado que se desincronice.
+  def mark_as_paid
+    authorize @material_list, :update?
+
+    return redirect_back_to_list(alert: "Esta lista ya figura como pagada.") if @material_list.paid?
+
+    total_cents = @material_list.estimated_total_cents
+    return redirect_back_to_list(alert: "La lista no tiene un total estimado para pagar.") unless total_cents.positive?
+
+    expense = @project.expenses.new(
+      project_stage: @material_list.project_stage,
+      material_list: @material_list,
+      author: current_user,
+      amount_cents: total_cents,
+      currency: "ARS",
+      category: :materials_misc,
+      incurred_on: Date.current,
+      description: "Pago lista #{@material_list.display_number} #{@material_list.name}".squish
+    )
+    authorize expense, :create?
+
+    if expense.save
+      redirect_back_to_list(notice: "Registramos el pago de la lista como gasto de la obra.")
+    else
+      redirect_back_to_list(alert: expense.errors.full_messages.to_sentence)
+    end
+  end
+
   private
 
-  def set_project
-    @project = current_user.owned_projects.find(params[:project_id])
+  def redirect_back_to_list(**flash_opts)
+    redirect_to constructors_project_material_list_path(@project, @material_list), **flash_opts
+  end
+
+  # CSV con los ítems de la lista (mismo orden que el drawer de detalle).
+  # Montos en pesos (no cents) para que sea legible en Excel/Sheets.
+  def material_items_csv(list)
+    CSV.generate(col_sep: ";") do |csv|
+      csv << [ "#", "Material", "Descripción", "Cantidad", "Unidad", "Precio unit. est. (ARS)", "Subtotal (ARS)", "Notas" ]
+      list.material_items.order(created_at: :asc).each_with_index do |item, idx|
+        subtotal_cents = (item.quantity.to_f * item.estimated_cost_cents.to_i).round
+        csv << [
+          idx + 1,
+          item.name,
+          item.description,
+          item.quantity,
+          item.unit,
+          (item.estimated_cost_cents.to_i / 100.0).round(2),
+          (subtotal_cents / 100.0).round(2),
+          item.try(:notes)
+        ]
+      end
+    end
   end
 
   def decorate_project

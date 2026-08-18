@@ -1,0 +1,48 @@
+<div style="display:grid;grid-template-columns:repeat(5, 1fr);border-bottom:1px solid var(--color-line);background:var(--color-bg-raised);">
+  <%= render Qb::MetricCellComponent.new(
+        label: "Asistencia · #{window_days} días",
+        value: attendance_pct ? "#{attendance_pct}%" : '—',
+        hint: "#{window_days_marked} de #{business_days} días hábiles",
+        tone: attendance_tone
+      ) %>
+
+  <%= render Qb::MetricCellComponent.new(
+        label: 'Días trabajados',
+        value: month_days_marked,
+        hint: 'con marca este mes'
+      ) %>
+
+  <%= render Qb::MetricCellComponent.new(
+        label: 'Antigüedad en obra',
+        value: seniority_value,
+        hint: vigencia
+      ) %>
+
+  <%= render Qb::MetricCellComponent.new(
+        label: 'Tarifa',
+        value: rate_cents.present? ? helpers.qb_fmt_cents(rate_cents) : '—',
+        hint: '$/hora'
+      ) do |cell| %>
+    <% if rate_cents.blank? %>
+      <% cell.with_extra do %>
+        <%= link_to 'Cargar tarifa', edit_href,
+              style: 'font-size:11px;color:var(--color-accent);text-decoration:none;' %>
+      <% end %>
+    <% end %>
+  <% end %>
+
+  <%# Costo MO = tarifa × horas cargadas en la ventana. Guion cuando falta
+      cualquiera de los dos, con el motivo en el hint. %>
+  <%= render Qb::MetricCellComponent.new(
+        label: "Costo MO · #{window_days} días",
+        value: labor_cost_cents ? helpers.qb_fmt_cents(labor_cost_cents) : '—',
+        hint: labor_cost_hint
+      ) do |cell| %>
+    <% if labor_cost_missing_rate? %>
+      <% cell.with_extra do %>
+        <%= link_to 'Cargar tarifa', edit_href,
+              style: 'font-size:11px;color:var(--color-accent);text-decoration:none;' %>
+      <% end %>
+    <% end %>
+  <% end %>
+</div>

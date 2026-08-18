@@ -12,11 +12,11 @@ RSpec.describe "Adding a project-level expense (no stage)", type: :system, js: t
     visit constructors_project_path(project)
 
     # Regression guard: the form must not be reachable until the button opens it.
-    expect(page).not_to have_field("Monto (centavos)")
+    expect(page).not_to have_field("Monto (ARS)")
 
     click_button "Registrar gasto"
 
-    fill_in "Monto (centavos)", with: "250000"
+    fill_in "Monto (ARS)", with: "2500"
     select "Mano de obra", from: "Categoría"
     fill_in "Descripción", with: "Compra de herramientas"
 

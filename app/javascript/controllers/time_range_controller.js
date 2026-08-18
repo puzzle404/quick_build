@@ -1,7 +1,8 @@
 import { Controller } from "@hotwired/stimulus"
-import { Turbo } from "@hotwired/turbo-rails"
 
-// Controlador para actualizar chart via Turbo Frame
+// Actualiza el gráfico de evolución del dashboard vía Turbo Frame:
+// el <select> de rango (6/12 meses) navega el frame "evolution-chart"
+// hacia constructors_evolution_chart_path?months=N.
 export default class extends Controller {
     static values = {
         url: String,

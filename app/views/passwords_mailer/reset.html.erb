@@ -1,0 +1,13 @@
+<p>Hola,</p>
+
+<p>Recibimos un pedido para restablecer la contraseña de tu cuenta de Quick Build (<%= @user.email %>).</p>
+
+<p>
+  <%= link_to "Restablecer mi contraseña", edit_password_url(@user.password_reset_token) %>
+</p>
+
+<p>El enlace vence en 15 minutos y se puede usar una sola vez.</p>
+
+<p>Si no pediste este cambio, podés ignorar este email: tu contraseña sigue siendo la misma.</p>
+
+<p>— El equipo de Quick Build</p>

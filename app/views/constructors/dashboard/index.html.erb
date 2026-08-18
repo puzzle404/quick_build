@@ -6,7 +6,6 @@
   completed = m[:completed_projects].to_i
   at_risk = @projects_decorated.count { |p| p.health != :ok && p.status.to_s != 'completed' }
   ev = @dashboard[:evolution]
-  ev_labels = (ev[:labels] || []).map { |l| l.to_s.split(' ').first }  # 'Apr 2026' → 'Apr'
   ev_progress = ev.dig(:series, :stages_started, :values) || []
   ev_completed = ev.dig(:series, :stages_completed, :values) || []
   ev_estimated = ev.dig(:series, :estimated_cents, :values) || []
@@ -38,7 +37,14 @@
             project: @reference_weather_project,
             compact: true,
             location_override: @reference_weather_location) %>
-      <%= render Qb::BtnComponent.new('Reporte', variant: :secondary, size: :sm, icon: :download) %>
+      <%# "Reporte" abre la vista imprimible; el CSV queda como volcado de datos.
+          data-turbo:false en el CSV: sin eso Turbo intercepta el link y el
+          navegador no dispara la descarga. %>
+      <%= render Qb::BtnComponent.new('Exportar datos', variant: :ghost, size: :sm, icon: :download,
+            href: constructors_root_path(format: :csv), data: { turbo: false },
+            title: 'Descargar la cartera en CSV para planilla') %>
+      <%= render Qb::BtnComponent.new('Reporte', variant: :secondary, size: :sm, icon: :doc,
+            href: constructors_report_path, title: 'Reporte imprimible de la cartera') %>
       <%= render Qb::BtnComponent.new('Nuevo proyecto', variant: :primary, size: :sm, icon: :plus, href: new_constructors_project_path) %>
     </div>
   </div>
@@ -102,37 +108,24 @@
   <%# Two-column body %>
   <div style="display:grid;grid-template-columns:1.4fr 1fr;gap:0;">
     <div style="border-right:1px solid var(--color-line);">
-      <%= render Qb::SectionHeadComponent.new(title: 'Evolución · 6 meses', subtitle: 'Avance físico real vs plan · Gasto mensual') %>
-      <%= render Constructors::Dashboard::EvolutionChartComponent.new(
-            months: ev_labels,
-            spend: ev_estimated.map { |c| (c.to_f / 100).round },
-            progress: ev_progress.map(&:to_f),
-            plan: ev_completed.map(&:to_f)
-          ) %>
+      <%= render partial: 'evolution_chart_frame', locals: { evolution: ev, selected_months: @months_selected } %>
 
       <%= render Qb::SectionHeadComponent.new(
             title: 'Obras activas',
             subtitle: "#{@active_projects.size} proyectos · click para abrir"
           ) do |c| %>
-        <% c.with_right do %>
-          <div style="display:flex;gap:4px;align-items:center;">
-            <%= render Qb::BtnComponent.new('Filtros', variant: :ghost, size: :xs, icon: :filter) %>
-            <%= render Qb::BtnComponent.new('Ver todos →', variant: :ghost, size: :xs, href: constructors_projects_path) %>
-          </div>
-        <% end %>
+        <% c.with_right { render Qb::BtnComponent.new('Ver todos →', variant: :ghost, size: :xs, href: constructors_projects_path) } %>
       <% end %>
       <%= render Constructors::Dashboard::ProjectsTableComponent.new(rows: @active_projects) %>
     </div>
 
     <div style="display:flex;flex-direction:column;">
       <%= render Qb::SectionHeadComponent.new(title: 'Alertas · hoy', subtitle: "#{@projects_decorated.count { |p| p.health != :ok && p.status.to_s != 'completed' }} activas · ordenadas por impacto") do |c| %>
-        <% c.with_right { render Qb::BtnComponent.new('Ver todas', variant: :ghost, size: :xs) } %>
+        <% c.with_right { render Qb::BtnComponent.new('Ver todas', variant: :ghost, size: :xs, href: constructors_projects_path) } %>
       <% end %>
       <%= render Constructors::Dashboard::AlertStripComponent.new(projects: @projects_decorated) %>
 
-      <%= render Qb::SectionHeadComponent.new(title: 'Actividad reciente') do |c| %>
-        <% c.with_right { render Qb::BtnComponent.new('Stream', variant: :ghost, size: :xs) } %>
-      <% end %>
+      <%= render Qb::SectionHeadComponent.new(title: 'Actividad reciente') %>
       <%= render Constructors::Dashboard::ActivityFeedComponent.new(entries: @dashboard[:recent_activity]) %>
 
       <%= render Qb::SectionHeadComponent.new(title: 'Próximas etapas · 14 días') %>

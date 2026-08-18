@@ -37,8 +37,9 @@
             <%= form.date_field :incurred_on, value: expense.incurred_on || Date.today, class: "qb-input" %>
           </div>
           <div class="qb-field" style="margin-bottom:0;">
-            <%= form.label :amount_cents, "Monto (centavos)", class: "qb-label" %>
-            <%= form.number_field :amount_cents, min: 1, required: true, value: expense.amount_cents, class: "qb-input" %>
+            <%= form.label :amount_pesos, "Monto (ARS)", class: "qb-label" %>
+            <%= form.text_field :amount_pesos, required: true, inputmode: "decimal", placeholder: "1.500,50",
+                                value: expense.amount_cents ? helpers.number_with_precision(expense.amount_cents / 100.0, precision: 2, separator: ",", delimiter: ".") : nil, class: "qb-input" %>
           </div>
         </div>
 

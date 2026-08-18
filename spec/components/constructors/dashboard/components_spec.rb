@@ -26,7 +26,7 @@ RSpec.describe 'Dashboard v2 components', type: :component do
 
   describe Constructors::Dashboard::KpiBlockComponent do
     it 'renders label, value and inline sparkline' do
-      render_inline(described_class.new(label: 'Hs', value: '1.842', hint: '+4 vs ayer', tone: :ok, data: [1, 2, 3]))
+      render_inline(described_class.new(label: 'Hs', value: '1.842', hint: '+4 vs ayer', tone: :ok, data: [ 1, 2, 3 ]))
       expect(page).to have_text('Hs')
       expect(page).to have_text('1.842')
       expect(page).to have_css('svg polyline')
@@ -35,7 +35,7 @@ RSpec.describe 'Dashboard v2 components', type: :component do
 
   describe Constructors::Dashboard::EvolutionChartComponent do
     it 'renders an SVG with grid lines and series' do
-      rendered = render_inline(described_class.new(months: %w[Nov Dic Ene], spend: [10, 20, 30], progress: [10, 20, 30], plan: [15, 25, 35]))
+      rendered = render_inline(described_class.new(months: %w[Nov Dic Ene], spend: [ 10, 20, 30 ], progress: [ 10, 20, 30 ], plan: [ 15, 25, 35 ]))
       html = rendered.to_html
       expect(html).to include('<svg')
       expect(html).to include('100%')  # axis labels
@@ -49,7 +49,7 @@ RSpec.describe 'Dashboard v2 components', type: :component do
 
     it 'renders table headers and one project row' do
       with_request_url '/constructors' do
-        render_inline(described_class.new(rows: [project]))
+        render_inline(described_class.new(rows: [ project ]))
       end
       expect(page).to have_text(project.name)
       expect(page).to have_text('Avance')
@@ -64,7 +64,7 @@ RSpec.describe 'Dashboard v2 components', type: :component do
     end
 
     it 'renders provided entries' do
-      entries = [{ title: 'Proyecto X — Etapa creada', timestamp: 2.hours.ago }]
+      entries = [ { title: 'Proyecto X — Etapa creada', timestamp: 2.hours.ago } ]
       render_inline(described_class.new(entries: entries))
       expect(page).to have_text('Proyecto X — Etapa creada')
       expect(page).to have_text(/Hace \d+ h/)
@@ -77,12 +77,15 @@ RSpec.describe 'Dashboard v2 components', type: :component do
       expect(page).to have_text('Sin alertas activas.')
     end
 
-    it 'derives alerts from at-risk projects' do
+    it 'derives alerts from at-risk projects and links each one to its project' do
       proj = double('Proj', health: :warn, status: :in_progress, code: 'PRJ-042', name: 'Aurora',
-                            planned_progress: 60, progress: 40, spent: 0, budget: 100)
-      render_inline(described_class.new(projects: [proj]))
+                            planned_progress: 60, progress: 40, spent: 0, budget: 100, to_param: '42')
+      with_request_url '/constructors' do
+        render_inline(described_class.new(projects: [ proj ]))
+      end
       expect(page).to have_text('Avance físico')
       expect(page).to have_text('PRJ-042')
+      expect(page).to have_link('Revisar', href: '/constructors/projects/42')
     end
   end
 

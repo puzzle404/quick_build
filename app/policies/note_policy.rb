@@ -1,29 +1,37 @@
 # frozen_string_literal: true
 
 class NotePolicy < ApplicationPolicy
+  def index?
+    project_access?
+  end
+
+  def show?
+    project_access?
+  end
+
   def create?
-    manage?
+    project_editor?
+  end
+
+  def update?
+    project_editor?
   end
 
   def destroy?
-    manage?
+    project_editor?
   end
 
   alias_method :new?, :create?
+  alias_method :edit?, :update?
 
   private
 
-  def manage?
-    return false unless user
-
-    # Unknown noteable types leave project as nil → manage? returns false (denied by default).
-    project = case record.noteable
+  # La nota cuelga de una obra o de una etapa. Un noteable de otro tipo (o
+  # nil) deja project en nil y todo se deniega.
+  def resolve_project
+    case record.noteable
     when Project      then record.noteable
     when ProjectStage then record.noteable.project
     end
-
-    return false unless project
-
-    user.admin? || project.owner == user
   end
 end

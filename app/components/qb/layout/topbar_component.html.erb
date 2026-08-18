@@ -20,14 +20,25 @@
       </div>
     <% end %>
 
-    <button type="button"
-            aria-label="<%= has_alerts ? 'Notificaciones (hay alertas)' : 'Notificaciones' %>"
-            style="position:relative;height:28px;width:28px;background:transparent;border:none;color:var(--color-ink-2);cursor:pointer;display:inline-flex;align-items:center;justify-content:center;border-radius:5px;">
-      <%= render Qb::IconComponent.new(name: :bell, size: 14) %>
-      <% if has_alerts %>
-        <span aria-hidden="true" style="position:absolute;top:4px;right:6px;width:6px;height:6px;border-radius:999px;background:var(--color-warn);"></span>
-      <% end %>
-    </button>
+    <div data-controller="qb--dropdown" style="position:relative;">
+      <button type="button"
+              aria-label="<%= has_alerts ? 'Notificaciones (hay alertas)' : 'Notificaciones' %>"
+              data-action="click->qb--dropdown#toggle"
+              style="position:relative;height:28px;width:28px;background:transparent;border:none;color:var(--color-ink-2);cursor:pointer;display:inline-flex;align-items:center;justify-content:center;border-radius:5px;">
+        <%= render Qb::IconComponent.new(name: :bell, size: 14) %>
+        <% if has_alerts %>
+          <span aria-hidden="true" style="position:absolute;top:4px;right:6px;width:6px;height:6px;border-radius:999px;background:var(--color-warn);"></span>
+        <% end %>
+      </button>
+      <div data-qb--dropdown-target="menu"
+           class="hidden"
+           style="display:none;position:absolute;top:32px;right:0;z-index:41;width:320px;background:var(--color-bg);border:1px solid var(--color-line);border-radius:6px;box-shadow:0 8px 20px -4px rgba(0,0,0,0.25);overflow:hidden;">
+        <div style="padding:8px 12px;border-bottom:1px solid var(--color-line);font-size:10px;font-family:var(--font-mono);letter-spacing:1px;text-transform:uppercase;color:var(--color-ink-3);">Alertas</div>
+        <div style="max-height:320px;overflow:auto;">
+          <%= render Qb::Layout::AlertsPanelComponent.new(projects: alert_projects) %>
+        </div>
+      </div>
+    </div>
 
     <button type="button"
             aria-label="Ajustes de apariencia"

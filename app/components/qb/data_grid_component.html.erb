@@ -1,0 +1,22 @@
+<dl style="<%= wrapper_style %>">
+  <% items.each do |item| %>
+    <div style="<%= "grid-column:span #{item[:span]};" if item[:span].to_i > 1 %>min-width:0;">
+      <dt style="<%= dt_style %>"><%= item[:label] %></dt>
+      <dd style="<%= dd_style(item) %>">
+        <% if blank_value?(item) && item[:empty_href].present? %>
+          <%= link_to item[:empty_label].presence || 'Cargar', item[:empty_href],
+                style: 'color:var(--color-accent);text-decoration:none;font-size:12px;' %>
+        <% elsif blank_value?(item) %>
+          <span style="color:var(--color-ink-4);">—</span>
+        <% elsif item[:href].present? %>
+          <%= link_to item[:value], item[:href], style: 'color:var(--color-ink);text-decoration:none;' %>
+        <% else %>
+          <%= item[:value] %>
+        <% end %>
+      </dd>
+    </div>
+  <% end %>
+  <% if footer? %>
+    <div style="grid-column:1 / -1;"><%= footer %></div>
+  <% end %>
+</dl>

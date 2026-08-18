@@ -86,9 +86,11 @@
       <div class="sd-group-head-label">
         <strong>Sub-etapas</strong> · <%= sub_stages.size %>
       </div>
-      <%= render Qb::BtnComponent.new('Agregar', variant: :ghost, size: :xs, icon: :plus,
-            href: new_constructors_project_stage_path(project, parent_id: stage.id),
-            data: { turbo_frame: 'project_modal' }) %>
+      <% if can_edit_stage? %>
+        <%= render Qb::BtnComponent.new('Agregar', variant: :ghost, size: :xs, icon: :plus,
+              href: new_constructors_project_stage_path(project, parent_id: stage.id),
+              data: { turbo_frame: 'project_modal' }) %>
+      <% end %>
     </div>
     <% sub_stages.each do |sub| %>
       <%= link_to constructors_project_stage_path(project, sub),
@@ -120,11 +122,13 @@
 
   <%# Tab: Materiales %>
   <% tp.with_tab(label: "Materiales", count: linked_lists.size) do %>
-    <div class="sd-tab-actions">
-      <%= render Qb::BtnComponent.new('Nueva lista', variant: :primary, size: :xs, icon: :plus,
-            href: new_constructors_project_material_list_path(project, project_stage_id: stage.id),
-            data: { turbo_frame: 'project_modal' }) %>
-    </div>
+    <% if can_manage_materials? %>
+      <div class="sd-tab-actions">
+        <%= render Qb::BtnComponent.new('Nueva lista', variant: :primary, size: :xs, icon: :plus,
+              href: new_constructors_project_material_list_path(project, project_stage_id: stage.id),
+              data: { turbo_frame: 'project_modal' }) %>
+      </div>
+    <% end %>
     <div class="sd-list">
       <% if linked_lists.empty? %>
         <div class="sd-list-empty">Todavía no hay listas de materiales en esta etapa.</div>
@@ -148,10 +152,12 @@
   <%# Tab: Gastos %>
   <% tp.with_tab(label: "Gastos", count: stage.object.expenses.size) do %>
     <div data-controller="qb--modal">
-      <div class="sd-tab-actions">
-        <%= render Qb::BtnComponent.new('Nuevo gasto', variant: :primary, size: :xs, icon: :plus,
-              data: { action: 'click->qb--modal#open' }) %>
-      </div>
+      <% if can_manage_content? %>
+        <div class="sd-tab-actions">
+          <%= render Qb::BtnComponent.new('Nuevo gasto', variant: :primary, size: :xs, icon: :plus,
+                data: { action: 'click->qb--modal#open' }) %>
+        </div>
+      <% end %>
       <% if stage.object.expenses.empty? %>
         <div class="sd-list"><div class="sd-list-empty">Todavía no hay gastos registrados en esta etapa.</div></div>
       <% else %>
@@ -161,17 +167,21 @@
               stage: stage.object,
               bare: true) %>
       <% end %>
-      <%= render Constructors::Projects::ExpenseModalComponent.new(project: project, stage: stage.object) %>
+      <% if can_manage_content? %>
+        <%= render Constructors::Projects::ExpenseModalComponent.new(project: project, stage: stage.object) %>
+      <% end %>
     </div>
   <% end %>
 
   <%# Tab: Notas %>
   <% tp.with_tab(label: "Notas", count: stage.object.notes.size) do %>
     <div data-controller="qb--modal">
-      <div class="sd-tab-actions">
-        <%= render Qb::BtnComponent.new('Nueva nota', variant: :primary, size: :xs, icon: :plus,
-              data: { action: 'click->qb--modal#open' }) %>
-      </div>
+      <% if can_manage_content? %>
+        <div class="sd-tab-actions">
+          <%= render Qb::BtnComponent.new('Nueva nota', variant: :primary, size: :xs, icon: :plus,
+                data: { action: 'click->qb--modal#open' }) %>
+        </div>
+      <% end %>
       <% if stage.object.notes.empty? %>
         <div class="sd-list"><div class="sd-list-empty">Todavía no hay notas en esta etapa.</div></div>
       <% else %>
@@ -181,17 +191,21 @@
               project: project,
               bare: true) %>
       <% end %>
-      <%= render Constructors::Projects::NoteModalComponent.new(project: project, stage: stage.object) %>
+      <% if can_manage_content? %>
+        <%= render Constructors::Projects::NoteModalComponent.new(project: project, stage: stage.object) %>
+      <% end %>
     </div>
   <% end %>
 
   <%# Tab: Docs %>
   <% tp.with_tab(label: "Docs", count: stage.docs_count) do %>
-    <div class="sd-tab-actions">
-      <%= render Qb::BtnComponent.new('Agregar documentos', variant: :primary, size: :xs, icon: :plus,
-            href: new_constructors_project_stage_document_path(project, stage.object),
-            data: { turbo_frame: 'project_modal' }) %>
-    </div>
+    <% if can_manage_content? %>
+      <div class="sd-tab-actions">
+        <%= render Qb::BtnComponent.new('Agregar documentos', variant: :primary, size: :xs, icon: :plus,
+              href: new_constructors_project_stage_document_path(project, stage.object),
+              data: { turbo_frame: 'project_modal' }) %>
+      </div>
+    <% end %>
     <% if stage.object.documents.empty? %>
       <div class="sd-list"><div class="sd-list-empty">Todavía no hay documentos cargados en esta etapa.</div></div>
     <% else %>
@@ -202,11 +216,13 @@
 
   <%# Tab: Fotos %>
   <% tp.with_tab(label: "Fotos", count: stage.images_count) do %>
-    <div class="sd-tab-actions">
-      <%= render Qb::BtnComponent.new('Agregar imágenes', variant: :primary, size: :xs, icon: :plus,
-            href: new_constructors_project_stage_image_path(project, stage.object),
-            data: { turbo_frame: 'project_modal' }) %>
-    </div>
+    <% if can_manage_content? %>
+      <div class="sd-tab-actions">
+        <%= render Qb::BtnComponent.new('Agregar imágenes', variant: :primary, size: :xs, icon: :plus,
+              href: new_constructors_project_stage_image_path(project, stage.object),
+              data: { turbo_frame: 'project_modal' }) %>
+      </div>
+    <% end %>
     <% if stage.object.images.empty? %>
       <div class="sd-list"><div class="sd-list-empty">Todavía no hay imágenes cargadas en esta etapa.</div></div>
     <% else %>
@@ -217,23 +233,27 @@
 
 <% end %>
 
-<%# Footer ──────────────────────────────────────────────────── %>
-<div class="sd-footer">
-  <%= render Qb::BtnComponent.new('Eliminar', variant: :danger, size: :xs,
-        href: constructors_project_stage_path(project, stage),
-        data: { turbo_method: :delete,
-                turbo_confirm: '¿Eliminar esta etapa?',
-                turbo_frame: '_top' }) %>
+<%# Footer ──────────────────────────────────────────────────────
+    Todo el pie es escritura sobre la etapa: para un lector no queda nada, así
+    que la barra entera desaparece en vez de dejar un borde vacío. %>
+<% if can_edit_stage? %>
+  <div class="sd-footer">
+    <%= render Qb::BtnComponent.new('Eliminar', variant: :danger, size: :xs,
+          href: constructors_project_stage_path(project, stage),
+          data: { turbo_method: :delete,
+                  turbo_confirm: '¿Eliminar esta etapa?',
+                  turbo_frame: '_top' }) %>
 
-  <div class="right">
-    <%= render Qb::BtnComponent.new('Duplicar', variant: :secondary, size: :xs,
-          href: duplicate_constructors_project_stage_path(project, stage),
-          data: { turbo_method: :post }) %>
-    <%= render Qb::BtnComponent.new('Editar', variant: :secondary, size: :xs,
-          href: edit_constructors_project_stage_path(project, stage),
-          data: { turbo_frame: 'project_modal' }) %>
-    <%= render Qb::BtnComponent.new('Marcar completada', variant: :primary, size: :xs, icon: :check,
-          href: complete_constructors_project_stage_path(project, stage),
-          data: { turbo_method: :patch, turbo_frame: 'stage_detail' }) %>
+    <div class="right">
+      <%= render Qb::BtnComponent.new('Duplicar', variant: :secondary, size: :xs,
+            href: duplicate_constructors_project_stage_path(project, stage),
+            data: { turbo_method: :post }) %>
+      <%= render Qb::BtnComponent.new('Editar', variant: :secondary, size: :xs,
+            href: edit_constructors_project_stage_path(project, stage),
+            data: { turbo_frame: 'project_modal' }) %>
+      <%= render Qb::BtnComponent.new('Marcar completada', variant: :primary, size: :xs, icon: :check,
+            href: complete_constructors_project_stage_path(project, stage),
+            data: { turbo_method: :patch, turbo_frame: 'stage_detail' }) %>
+    </div>
   </div>
-</div>
+<% end %>

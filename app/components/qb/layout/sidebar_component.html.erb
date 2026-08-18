@@ -12,15 +12,32 @@
     </div>
   </div>
 
-  <%# Company switcher %>
-  <button data-qb-sidebar-label style="margin:8px;padding:8px 10px;text-align:left;background:var(--color-bg);border:1px solid var(--color-line);border-radius:5px;display:flex;align-items:center;gap:8px;cursor:pointer;color:var(--color-ink);">
-    <%= render Qb::AvatarComponent.new(name: display_company, size: 22) %>
-    <div style="flex:1;overflow:hidden;">
-      <div style="font-size:12px;font-weight:500;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;"><%= display_company %></div>
-      <div style="font-size:10px;color:var(--color-ink-3);">Plan Pro</div>
+  <%# Company switcher — dropdown con Perfil + Cerrar sesión %>
+  <div data-qb-sidebar-label data-controller="qb--dropdown" style="position:relative;margin:8px;">
+    <button type="button"
+            data-action="click->qb--dropdown#toggle"
+            aria-label="Menú de cuenta"
+            style="width:100%;padding:8px 10px;text-align:left;background:var(--color-bg);border:1px solid var(--color-line);border-radius:5px;display:flex;align-items:center;gap:8px;cursor:pointer;color:var(--color-ink);">
+      <%= render Qb::AvatarComponent.new(name: display_company, size: 22) %>
+      <div style="flex:1;overflow:hidden;">
+        <div style="font-size:12px;font-weight:500;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;"><%= display_company %></div>
+        <div style="font-size:10px;color:var(--color-ink-3);">Plan Pro</div>
+      </div>
+      <%= render Qb::IconComponent.new(name: :'chevron-down', size: 12, style: 'color:var(--color-ink-3)') %>
+    </button>
+    <div data-qb--dropdown-target="menu"
+         class="hidden"
+         style="display:none;position:absolute;top:calc(100% + 4px);left:0;right:0;z-index:41;background:var(--color-bg);border:1px solid var(--color-line);border-radius:6px;box-shadow:0 8px 20px -4px rgba(0,0,0,0.25);padding:4px;">
+      <%= link_to helpers.edit_registration_path, style: account_menu_row_style do %>
+        <%= render Qb::IconComponent.new(name: :settings, size: 13, style: 'color:var(--color-ink-3);flex-shrink:0;') %>
+        <span>Perfil</span>
+      <% end %>
+      <%= button_to helpers.session_path, method: :delete, form: { style: 'margin:0;' }, style: account_menu_row_style do %>
+        <%= render Qb::IconComponent.new(name: :'arrow-right', size: 13, style: 'color:var(--color-ink-3);flex-shrink:0;') %>
+        <span>Cerrar sesión</span>
+      <% end %>
     </div>
-    <%= render Qb::IconComponent.new(name: :'chevron-down', size: 12, style: 'color:var(--color-ink-3)') %>
-  </button>
+  </div>
 
   <%# New project CTA %>
   <div style="padding:0 8px 4px;">

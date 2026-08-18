@@ -25,8 +25,11 @@ module Constructors
 
     attr_reader :user
 
+    # La cartera del dashboard son las obras en las que trabajo: propias +
+    # donde soy miembro. Con `owned_projects`, alguien invitado a una obra veía
+    # un dashboard vacío.
     def projects
-      @projects ||= user.owned_projects
+      @projects ||= user.accessible_projects
     end
 
     def project_ids
@@ -96,18 +99,18 @@ module Constructors
     # Evolución mensual con métricas relevantes
     # @param months_count [Integer] número de meses a incluir (6 o 12)
     def evolution_data(months_count: 6)
-      months_count = [months_count.to_i, 6].max # mínimo 6 meses
-      months_count = [months_count, 12].min     # máximo 12 meses
-      
+      months_count = [ months_count.to_i, 6 ].max # mínimo 6 meses
+      months_count = [ months_count, 12 ].min     # máximo 12 meses
+
       months = (0..(months_count - 1)).map { |i| (Date.current.beginning_of_month - (months_count - 1 - i).months) }
       range_start = months.first
       range_end   = months.last.end_of_month
 
-      month_key = ->(dt) { dt.strftime('%Y-%m') }
-      labels = months.map { |d| I18n.l(d, format: '%b %Y') }
+      month_key = ->(dt) { dt.strftime("%Y-%m") }
+      labels = months.map { |d| I18n.l(d, format: "%b %Y") }
 
       # Inicializar hash con ceros
-      zero_hash = months.map { |d| [month_key.call(d), 0] }.to_h
+      zero_hash = months.map { |d| [ month_key.call(d), 0 ] }.to_h
 
       # Etapas
       stages_scope = ProjectStage.where(project_id: project_ids)
@@ -167,10 +170,10 @@ module Constructors
         labels: labels,
         months: months,
         series: {
-          stages_started:   { label: 'Etapas iniciadas', values: s_started },
-          stages_completed: { label: 'Etapas finalizadas', values: s_completed },
-          attendances:      { label: 'Asistencias registradas', values: s_att },
-          estimated_cents:  { label: 'Costo estimado cargado (ARS)', values: s_est }
+          stages_started:   { label: "Etapas iniciadas", values: s_started },
+          stages_completed: { label: "Etapas finalizadas", values: s_completed },
+          attendances:      { label: "Asistencias registradas", values: s_att },
+          estimated_cents:  { label: "Costo estimado cargado (ARS)", values: s_est }
         },
         summary: {
           current_label: labels.last,

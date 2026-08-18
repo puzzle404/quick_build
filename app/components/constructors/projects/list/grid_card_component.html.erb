@@ -2,6 +2,10 @@
   <div style="display:flex;align-items:center;gap:8px;">
     <span class="qb-mono" style="font-size:10px;color:var(--color-ink-3);background:var(--color-bg-sunken);padding:2px 6px;border-radius:3px;"><%= project.code %></span>
     <%= render Qb::PillComponent.new(tone: project.status_tone, compact: true) { project.status_label } %>
+    <%# Sólo aparece en obras ajenas donde el usuario es miembro: distingue de
+        un vistazo "mis obras" de "obras donde me invitaron". El rol sale del
+        cache que precalienta projects#index (warm_role_cache!), 0 queries. %>
+    <%= render Constructors::Projects::RoleBadgeComponent.new(project: project, user: helpers.current_user) %>
     <div style="flex:1;"></div>
     <%= render Qb::StatusDotComponent.new(tone: project.health) %>
   </div>

@@ -31,4 +31,30 @@ RSpec.describe "Constructors::Dashboard", type: :request do
       expect(response.body).to include("Oficial")
     end
   end
+
+  describe "GET /constructors.csv (reporte)" do
+    it "descarga el CSV con las obras y sus KPIs" do
+      create(:project, owner: user, name: "Torre Azul", status: :in_progress)
+      sign_in(user)
+
+      get constructors_root_path(format: :csv)
+
+      expect(response).to have_http_status(:ok)
+      expect(response.content_type).to include("text/csv")
+      expect(response.body).to include("Código")
+      expect(response.body).to include("Torre Azul")
+    end
+  end
+
+  describe "GET /constructors/dashboard/evolution_chart" do
+    it "renderiza el frame del gráfico con el rango pedido" do
+      sign_in(user)
+
+      get constructors_evolution_chart_path(months: 12)
+
+      expect(response).to have_http_status(:ok)
+      expect(response.body).to include('id="evolution-chart"')
+      expect(response.body).to include("Evolución · 12 meses")
+    end
+  end
 end

@@ -1,0 +1,27 @@
+<%# Tabla de props de un primitive.
+    locals: rows — array de ternas [nombre, tipo · default, qué hace].
+            title — encabezado opcional de la tabla. %>
+<% title = local_assigns[:title] %>
+<% if title.present? %>
+  <div style="margin-top:14px;font-family:var(--font-mono);font-size:10px;text-transform:uppercase;letter-spacing:0.7px;color:var(--color-ink-3);"><%= title %></div>
+<% end %>
+<div style="margin-top:8px;overflow-x:auto;">
+  <table style="width:100%;min-width:560px;border-collapse:collapse;font-size:12px;">
+    <thead>
+      <tr>
+        <% ['prop', 'tipo · default', 'qué hace'].each do |head| %>
+          <th style="text-align:left;padding:6px 10px;font-family:var(--font-mono);font-size:10px;text-transform:uppercase;letter-spacing:0.6px;color:var(--color-ink-4);font-weight:500;border-bottom:1px solid var(--color-line);"><%= head %></th>
+        <% end %>
+      </tr>
+    </thead>
+    <tbody>
+      <% rows.each do |name, type, desc| %>
+        <tr>
+          <td style="padding:7px 10px;border-bottom:1px solid var(--color-line);font-family:var(--font-mono);font-size:11px;color:var(--color-ink);white-space:nowrap;vertical-align:top;"><%= name %></td>
+          <td style="padding:7px 10px;border-bottom:1px solid var(--color-line);font-family:var(--font-mono);font-size:11px;color:var(--color-ink-3);white-space:nowrap;vertical-align:top;"><%= type %></td>
+          <td style="padding:7px 10px;border-bottom:1px solid var(--color-line);color:var(--color-ink-2);line-height:1.5;vertical-align:top;"><%= desc %></td>
+        </tr>
+      <% end %>
+    </tbody>
+  </table>
+</div>

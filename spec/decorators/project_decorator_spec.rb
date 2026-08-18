@@ -13,7 +13,7 @@ RSpec.describe ProjectDecorator do
 
   describe '#status_label' do
     it 'translates status to Spanish' do
-      expect(decorated.status_label).to eq('En obra')
+      expect(decorated.status_label).to eq('En progreso')
     end
   end
 
@@ -82,8 +82,8 @@ RSpec.describe ProjectDecorator do
 
   describe '#progress_curve_series' do
     it 'returns the stored curve when present' do
-      project.update!(progress_curve: [0, 10, 20])
-      expect(decorated.progress_curve_series).to eq([0, 10, 20])
+      project.update!(progress_curve: [ 0, 10, 20 ])
+      expect(decorated.progress_curve_series).to eq([ 0, 10, 20 ])
     end
 
     it 'derives a linear ramp when no curve is stored' do

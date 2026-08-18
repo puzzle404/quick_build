@@ -30,6 +30,21 @@ RSpec.describe Expense, type: :model do
     end
   end
 
+  describe "material_list/project consistency" do
+    let(:project) { create(:project) }
+
+    it "permite una lista del mismo proyecto" do
+      list = create(:material_list, project: project)
+      expect(build(:expense, project: project, material_list: list)).to be_valid
+    end
+
+    it "rechaza una lista de otro proyecto" do
+      expense = build(:expense, project: project, material_list: create(:material_list))
+      expect(expense).not_to be_valid
+      expect(expense.errors[:material_list]).to include(/mismo proyecto/i)
+    end
+  end
+
   describe "scopes" do
     let(:project) { create(:project) }
     let(:stage)   { create(:project_stage, project: project) }

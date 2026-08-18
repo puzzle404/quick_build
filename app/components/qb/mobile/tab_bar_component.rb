@@ -4,13 +4,14 @@
 # Hotwire Native iOS shell provides the real UITabBarController.
 class Qb::Mobile::TabBarComponent < ViewComponent::Base
   # `key` matches the same `current_qb_section` symbols used in the desktop
-  # sidebar, so existing controllers don't need to change.
+  # sidebar, so existing controllers don't need to change. Biblioteca usa
+  # `:docs` (igual que la sidebar / LibraryController).
   TABS = [
-    { key: :dashboard, label: 'Inicio',    icon: :home,     path_helper: :constructors_root_path },
-    { key: :projects,  label: 'Proyectos', icon: :projects, path_helper: :constructors_projects_path },
-    { key: :search,    label: 'Buscar',    icon: :search,   path_helper: :constructors_search_path },
-    { key: :library,   label: 'Biblio.',   icon: :library,  path_helper: :constructors_library_path },
-    { key: :profile,   label: 'Perfil',    icon: :user,     path_helper: :edit_registration_path },
+    { key: :dashboard, label: "Inicio",    icon: :home,     path_helper: :constructors_root_path },
+    { key: :projects,  label: "Proyectos", icon: :projects, path_helper: :constructors_projects_path },
+    { key: :search,    label: "Buscar",    icon: :search,   path_helper: :constructors_search_path },
+    { key: :docs,      label: "Biblio.",   icon: :library,  path_helper: :constructors_library_path },
+    { key: :profile,   label: "Perfil",    icon: :user,     path_helper: :edit_registration_path }
   ].freeze
 
   def initialize(active: :dashboard)
@@ -20,6 +21,6 @@ class Qb::Mobile::TabBarComponent < ViewComponent::Base
   def safe_path(helper)
     helpers.public_send(helper)
   rescue NoMethodError, ActionController::UrlGenerationError
-    '#'
+    "#"
   end
 end

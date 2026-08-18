@@ -34,4 +34,3 @@ RSpec.describe 'Constructors::People', type: :request do
     expect(response.body).to include('Persona eliminada').or include('Recursos humanos')
   end
 end
-

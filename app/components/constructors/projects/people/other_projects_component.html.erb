@@ -1,0 +1,42 @@
+<%= render Qb::SectionHeadComponent.new(
+      title: "Otras obras · #{others.size}",
+      subtitle: 'Misma persona, otras asignaciones') do |c| %>
+  <% c.with_right do %>
+    <%= render Qb::BtnComponent.new('Ficha global', variant: :ghost, size: :xs, icon: :people,
+          href: helpers.constructors_person_path(person)) %>
+  <% end %>
+<% end %>
+
+<table class="qb-table">
+  <thead>
+    <tr style="background:var(--color-bg-raised);">
+      <th>Obra</th>
+      <th>Rol</th>
+      <th>Desde</th>
+      <th style="text-align:right;">Estado</th>
+      <th style="width:32px;"></th>
+    </tr>
+  </thead>
+  <tbody>
+    <% others.each do |assignment| %>
+      <tr>
+        <td>
+          <span class="qb-mono" style="font-size:10px;color:var(--color-ink-3);"><%= assignment.project.decorate.code %></span>
+          <span style="display:block;"><%= assignment.project.name %></span>
+        </td>
+        <td style="color:var(--color-ink-2);"><%= assignment.role_title.presence || '—' %></td>
+        <td class="qb-mono" style="color:var(--color-ink-3);font-size:11px;"><%= helpers.qb_fmt_date_short(assignment.start_date) %></td>
+        <td style="text-align:right;">
+          <%= render Qb::PillComponent.new(active?(assignment) ? 'Activa' : 'Licencia',
+                tone: active?(assignment) ? :ok : :muted, compact: true) %>
+        </td>
+        <td style="text-align:right;">
+          <%= link_to person_href(assignment), title: 'Ver ficha en esa obra',
+                style: 'color:var(--color-ink-4);text-decoration:none;display:inline-flex;' do %>
+            <%= render Qb::IconComponent.new(name: :'chevron-right', size: 14) %>
+          <% end %>
+        </td>
+      </tr>
+    <% end %>
+  </tbody>
+</table>

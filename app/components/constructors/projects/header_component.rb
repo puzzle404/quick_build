@@ -10,6 +10,25 @@ class Constructors::Projects::HeaderComponent < ViewComponent::Base
 
   attr_reader :project
 
+  # ─── Permisos ────────────────────────────────────────────────────────
+  # Todo lo que decide qué se ve sale de ProjectPolicy — nada de mirar el rol
+  # a mano. Los tres verbos cubren la matriz de la obra:
+  #   manage_content? → editor+ (gastos, etapas, materiales, archivos)
+  #   update?         → admin de obra+ (datos de la obra, portada)
+  #   destroy?        → sólo el dueño
+
+  def can_manage_content?
+    project_policy.manage_content?
+  end
+
+  def can_edit_project?
+    project_policy.update?
+  end
+
+  def can_destroy_project?
+    project_policy.destroy?
+  end
+
   def health_label
     project.health_label
   end
@@ -61,5 +80,13 @@ class Constructors::Projects::HeaderComponent < ViewComponent::Base
   def cover_photo_url
     return unless featured_image&.file&.attached?
     helpers.url_for(featured_image.file)
+  end
+
+  private
+
+  # Pundit resuelve ProjectPolicy aunque le pasemos el decorator (Draper hace
+  # que `Project === decorator` sea true), así que no hace falta desenvolverlo.
+  def project_policy
+    @project_policy ||= helpers.policy(project)
   end
 end

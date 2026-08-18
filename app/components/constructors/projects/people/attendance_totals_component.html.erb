@@ -1,0 +1,22 @@
+<tr id="<%= dom_id %>" style="background:var(--color-bg-raised);">
+  <td colspan="2" style="border-bottom:none;border-top:1px solid var(--color-line);font-size:11px;font-family:var(--font-mono);text-transform:uppercase;letter-spacing:0.5px;color:var(--color-ink-3);">
+    Total · <%= attendances.size %> <%= attendances.size == 1 ? 'marca' : 'marcas' %>
+  </td>
+  <td class="qb-mono qb-tnum" style="border-bottom:none;border-top:1px solid var(--color-line);text-align:right;font-weight:600;color:<%= total_hours_label ? 'var(--color-ink)' : 'var(--color-ink-4)' %>;">
+    <%= total_hours_label || '—' %>
+  </td>
+  <td colspan="2" style="border-bottom:none;border-top:1px solid var(--color-line);text-align:right;">
+    <div class="qb-mono qb-tnum" style="font-weight:600;color:<%= cost_label ? 'var(--color-ink)' : 'var(--color-ink-4)' %>;">
+      <%= cost_label || '—' %>
+    </div>
+    <% if cost_hint %>
+      <div style="font-size:10px;color:var(--color-ink-4);margin-top:2px;">
+        <% if missing_rate? %>
+          <%= link_to 'Cargar tarifa', edit_href, style: 'color:var(--color-accent);text-decoration:none;' %>
+        <% else %>
+          <%= cost_hint %>
+        <% end %>
+      </div>
+    <% end %>
+  </td>
+</tr>

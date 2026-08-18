@@ -24,7 +24,7 @@
            name="<%= @name %>"
            value="<%= @value %>"
            placeholder="<%= @placeholder %>"
-           <%= "autocomplete=\"#{@autocomplete}\"".html_safe if @autocomplete %>
+           <%= tag.attributes(input_attributes) %>
            <%= 'required' if @required %>/>
   <% end %>
   <% if @helper.present? %><div class="m-frow-helper"><%= @helper %></div><% end %>

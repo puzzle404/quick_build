@@ -11,11 +11,11 @@ class Qb::Mobile::CardComponent < ViewComponent::Base
   end
 
   def call
-    classes = ['m-card']
-    classes << 'm-card--bleed' if @bleed
+    classes = [ "m-card" ]
+    classes << "m-card--bleed" if @bleed
     classes << @css_class if @css_class
-    style = @padding ? %(style="padding:#{@padding}px") : ''
-    data = @data.map { |k, v| %(data-#{k}="#{ERB::Util.html_escape(v)}") }.join(' ')
+    style = @padding ? %(style="padding:#{@padding}px") : ""
+    data = @data.map { |k, v| %(data-#{k.to_s.dasherize}="#{ERB::Util.html_escape(v)}") }.join(" ")
 
     if @href
       %(<a href="#{@href}" class="#{classes.join(' ')}" #{style} #{data}>#{content}</a>).html_safe

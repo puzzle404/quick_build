@@ -23,11 +23,13 @@
               <div class="sd-list-body"><%= simple_format(note.body) %></div>
               <div class="sd-list-meta"><%= note.author.email %> · hace <%= time_ago_in_words(note.created_at) %></div>
             </div>
-            <div class="sd-list-side">
-              <%= render Qb::BtnComponent.new('Eliminar', variant: :danger, size: :xs,
-                    href: delete_path(note),
-                    data: { turbo_method: :delete, turbo_confirm: '¿Eliminar esta nota?', turbo_frame: '_top' }) %>
-            </div>
+            <% if can_destroy?(note) %>
+              <div class="sd-list-side">
+                <%= render Qb::BtnComponent.new('Eliminar', variant: :danger, size: :xs,
+                      href: delete_path(note),
+                      data: { turbo_method: :delete, turbo_confirm: '¿Eliminar esta nota?', turbo_frame: '_top' }) %>
+              </div>
+            <% end %>
           </div>
         <% end %>
       </div>
@@ -47,11 +49,13 @@
                   <%= note.author.email %> · <%= time_ago_in_words(note.created_at) %> atrás
                 </div>
               </div>
-              <div style="flex-shrink:0;">
-                <%= render Qb::BtnComponent.new('Eliminar', variant: :danger, size: :xs,
-                      href: delete_path(note),
-                      data: { turbo_method: :delete, turbo_confirm: '¿Eliminar esta nota?' }) %>
-              </div>
+              <% if can_destroy?(note) %>
+                <div style="flex-shrink:0;">
+                  <%= render Qb::BtnComponent.new('Eliminar', variant: :danger, size: :xs,
+                        href: delete_path(note),
+                        data: { turbo_method: :delete, turbo_confirm: '¿Eliminar esta nota?' }) %>
+                </div>
+              <% end %>
             </div>
           </div>
         <% end %>

@@ -1,0 +1,94 @@
+<%
+  base_path = constructors_project_expenses_path(@project)
+  extra = {
+    category: @category_filter == 'all' ? nil : @category_filter,
+    stage:    (@stage_filter.presence && @stage_filter != 'all') ? @stage_filter : nil
+  }
+  category_options = [['all', 'Todas']] +
+                     Constructors::Projects::ExpensesListComponent::CATEGORY_LABELS.map { |value, label| [value, label] }
+  stage_options = [['all', 'Todas'], ['none', 'Sin etapa']] +
+                  @stage_options.map { |id, name| [id.to_s, name] }
+
+  by_category = @summary.by_category
+  expenses_total_cents = by_category.values.sum
+  filtered = @category_filter != 'all' || (@stage_filter.present? && @stage_filter != 'all')
+  avg_cents = @expenses_count.positive? ? (expenses_total_cents / @expenses_count) : 0
+  top_category, top_category_cents = by_category.max_by { |_k, v| v }
+  top_category_label = top_category ? Constructors::Projects::ExpensesListComponent::CATEGORY_LABELS[top_category.to_s] : nil
+
+  # Cargar gastos es editor de obra en adelante (ExpensePolicy vía
+  # ProjectPolicy#manage_content?). Un lector ve el listado pero no el alta.
+  can_load_expenses = policy(@project).manage_content?
+%>
+
+<div data-controller="qb--modal">
+  <%= render 'constructors/projects/section_tabs', project: @project, current: :expenses %>
+
+  <%# Strip de métricas %>
+  <div style="display:grid;grid-template-columns:repeat(4, 1fr);border-bottom:1px solid var(--color-line);background:var(--color-bg-raised);">
+    <%= render Qb::MetricCellComponent.new(label: 'Gastos registrados', value: @expenses_count, hint: 'movimientos cargados a mano') %>
+    <%= render Qb::MetricCellComponent.new(label: 'Total gastado', value: qb_fmt_cents(expenses_total_cents), hint: 'suma de todos los gastos') %>
+    <%= render Qb::MetricCellComponent.new(label: 'Ticket promedio', value: qb_fmt_cents(avg_cents), hint: @expenses_count.positive? ? "sobre #{pluralize(@expenses_count, 'gasto')}" : 'sin gastos todavía') %>
+    <%= render Qb::MetricCellComponent.new(label: 'Categoría más pesada',
+          value: top_category_label || '—',
+          hint: top_category_cents ? qb_fmt_cents(top_category_cents) : 'sin datos',
+          tone: top_category_cents ? :warn : nil) %>
+  </div>
+
+  <%# Encabezado de página %>
+  <div style="padding:14px 20px 8px;display:flex;align-items:flex-end;gap:16px;">
+    <div style="flex:1;min-width:0;">
+      <div style="font-size:11px;font-family:var(--font-mono);color:var(--color-ink-3);text-transform:uppercase;letter-spacing:0.8px;"><%= @project.code %> · <%= @project.name.to_s.split('·').first&.strip %></div>
+      <h2 style="margin:3px 0 0;font-size:18px;font-weight:600;letter-spacing:-0.3px;">Gastos de la obra</h2>
+      <div style="font-size:12px;color:var(--color-ink-3);margin-top:2px;">Todo lo que se pagó, con o sin etapa. Adjuntá el comprobante para tenerlo a mano.</div>
+    </div>
+    <% if can_load_expenses %>
+      <%= render Qb::BtnComponent.new('Registrar gasto', variant: :primary, size: :sm, icon: :plus,
+            data: { action: 'click->qb--modal#open' }) %>
+    <% end %>
+  </div>
+
+  <%# Toolbar de filtros %>
+  <div style="display:flex;align-items:center;padding:10px 16px;gap:8px;border-bottom:1px solid var(--color-line);background:var(--color-bg-raised);">
+    <%= render Qb::FilterChipComponent.new(label: 'Categoría', param: :category, value: @category_filter,
+          options: category_options, base_path: base_path, extra_params: extra.except(:category)) %>
+    <%= render Qb::FilterChipComponent.new(label: 'Etapa', param: :stage, value: (@stage_filter.presence || 'all'),
+          options: stage_options, base_path: base_path, extra_params: extra.except(:stage)) %>
+    <div style="flex:1;"></div>
+    <span class="qb-mono" style="font-size:11px;color:var(--color-ink-3);">
+      <%= @pagy.count %> / <%= @expenses_count %> gastos · <%= qb_fmt_cents(@filtered_total_cents) %>
+    </span>
+  </div>
+
+  <%# Listado %>
+  <% if @expenses.any? %>
+    <div style="padding:16px 20px;">
+      <%= render Constructors::Projects::ExpensesListComponent.new(
+            expenses: @expenses,
+            project: @project,
+            show_stage: true,
+            return_to: base_path) %>
+    </div>
+  <% else %>
+    <div style="padding:60px;margin:16px;text-align:center;color:var(--color-ink-4);font-size:13px;border:1px dashed var(--color-line);border-radius:10px;">
+      <%= render Qb::IconComponent.new(name: :money, size: 28, style: 'margin-bottom:8px;opacity:0.5;') %>
+      <% if filtered %>
+        <div>Ningún gasto coincide con los filtros aplicados.</div>
+        <div style="font-size:11px;color:var(--color-ink-4);margin-top:6px;">
+          <%= link_to 'Limpiar filtros', base_path, style: 'color:var(--color-accent);text-decoration:none;' %>
+        </div>
+      <% else %>
+        <div>Todavía no se registraron gastos en esta obra.</div>
+        <% if can_load_expenses %>
+          <div style="font-size:11px;color:var(--color-ink-4);margin-top:6px;">Usá «Registrar gasto» para cargar el primero.</div>
+        <% end %>
+      <% end %>
+    </div>
+  <% end %>
+
+  <%= render Qb::PaginationComponent.new(pagy: @pagy, label: 'gastos') %>
+
+  <% if can_load_expenses %>
+    <%= render Constructors::Projects::ExpenseModalComponent.new(project: @project, expense: @expense) %>
+  <% end %>
+</div>

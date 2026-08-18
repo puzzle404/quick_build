@@ -20,6 +20,11 @@ RSpec.describe Constructors::Projects::Planning::StageDetailComponent, type: :co
     render_inline described_class.new(project: project, stage: stage)
   end
 
+  # El drawer pregunta a ProjectStagePolicy / ProjectPolicy qué acciones
+  # mostrar: sin usuario en Current no muestra ninguna. Los ejemplos de abajo
+  # corren como el dueño.
+  before { Current.session = Session.create!(user: owner) }
+
   # ─── ① IDENTIDAD ────────────────────────────────────────────
 
   it "renders the WBS code pill" do
@@ -132,5 +137,19 @@ RSpec.describe Constructors::Projects::Planning::StageDetailComponent, type: :co
     expect(page).to have_css(".sd-footer .right", text: /Duplicar/)
     expect(page).to have_css(".sd-footer .right", text: /Editar/)
     expect(page).to have_css(".sd-footer .right", text: /Marcar completada/)
+  end
+
+  it "drops the footer and the tab CTAs for a project viewer" do
+    viewer = create(:user, :constructor)
+    create(:project_membership, project: project, user: viewer, role: :viewer)
+    Current.session = Session.create!(user: viewer)
+
+    rendered
+
+    expect(page).to have_css(".sd-hero-title h1", text: "Fundaciones")
+    expect(page).to have_no_css(".sd-footer")
+    expect(page).to have_no_text("Nuevo gasto")
+    expect(page).to have_no_text("Nueva nota")
+    expect(page).to have_no_text("Agregar documentos")
   end
 end

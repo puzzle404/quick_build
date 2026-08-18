@@ -6,12 +6,12 @@ class Constructors::SearchController < Constructors::BaseController
   def index
     @current_qb_section = :search
     @query = params[:q].to_s
-    @scope = params[:scope].to_s.presence_in(%w[projects stages materials documents people]) || 'all'
+    @scope = params[:scope].to_s.presence_in(%w[projects stages materials documents people]) || "all"
     @results = Constructors::SearchService.new(user: current_user, query: @query).call
 
     respond_to do |format|
       format.json { render json: @results }
-      format.html # JSON-only on desktop has been the contract; mobile variant renders the full UI.
+      format.html # Página completa de resultados: desktop (QB OS) y variante mobile.
     end
   end
 end

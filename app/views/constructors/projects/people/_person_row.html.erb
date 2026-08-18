@@ -19,9 +19,25 @@
   <td style="padding:0 12px;text-align:right;">
     <%= render Qb::PillComponent.new(person.status.to_s == 'active' ? 'Activa' : 'Licencia', tone: person.status.to_s == 'active' ? :ok : :muted, compact: true) %>
   </td>
-  <td style="padding:0 12px;width:24px;">
-    <%= link_to constructors_project_person_path(project, person), style: 'color:var(--color-ink-4);text-decoration:none;' do %>
-      <%= render Qb::IconComponent.new(name: :'chevron-right', size: 14) %>
-    <% end %>
+  <td style="padding:0 12px;white-space:nowrap;">
+    <div style="display:flex;align-items:center;gap:8px;justify-content:flex-end;">
+      <%# present_today llega desde la index; el turbo_stream de alta no lo pasa
+          (persona recién creada → sin presente hoy → muestra el botón).
+          can_mark_attendance tampoco viaja en el turbo_stream: quien acaba de
+          crear la persona es admin de obra, así que el default true es seguro. %>
+      <% can_mark_attendance = local_assigns.fetch(:can_mark_attendance, true) %>
+      <% if local_assigns[:present_today] %>
+        <%= render Qb::PillComponent.new('Presente hoy', tone: :ok, compact: true) %>
+      <% elsif person.status.to_s == 'active' && can_mark_attendance %>
+        <%= render Qb::BtnComponent.new('Presente', variant: :secondary, size: :xs, icon: :check,
+              href: constructors_project_person_attendances_path(project, person),
+              data: { turbo_method: :post },
+              title: 'Registrar presente de hoy') %>
+      <% end %>
+      <%= link_to constructors_project_person_path(project, person), title: 'Ver ficha',
+                  style: 'color:var(--color-ink-4);text-decoration:none;display:inline-flex;' do %>
+        <%= render Qb::IconComponent.new(name: :'chevron-right', size: 14) %>
+      <% end %>
+    </div>
   </td>
 </tr>

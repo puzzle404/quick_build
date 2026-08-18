@@ -1,5 +1,5 @@
 class Constructors::Projects::ImagesController < Constructors::BaseController
-  before_action :set_project
+  before_action :find_project!
 
   def index
     authorize @project, :show?
@@ -7,7 +7,8 @@ class Constructors::Projects::ImagesController < Constructors::BaseController
   end
 
   def create
-    authorize @project, :update?
+    # Subir fotos de obra es contenido (editor+), no edición de la obra.
+    authorize @project, :manage_content?
 
     files = Array.wrap(image_params[:files]).compact_blank
     if files.empty?
@@ -31,7 +32,7 @@ class Constructors::Projects::ImagesController < Constructors::BaseController
   end
 
   def destroy
-    authorize @project, :update?
+    authorize @project, :manage_content?
     image = @project.images.find(params[:id])
     image.destroy
     redirect_to constructors_project_images_path(@project), notice: "Imagen eliminada."
@@ -39,12 +40,7 @@ class Constructors::Projects::ImagesController < Constructors::BaseController
 
   private
 
-  def set_project
-    @project = current_user.owned_projects.find(params[:project_id])
-  end
-
   def image_params
     params.fetch(:image, {}).permit(:title, :description, files: [])
   end
 end
-

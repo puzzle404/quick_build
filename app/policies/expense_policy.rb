@@ -1,21 +1,27 @@
 # frozen_string_literal: true
 
 class ExpensePolicy < ApplicationPolicy
+  # Ver gastos alcanza con acceso a la obra; cargarlos/borrarlos es de editor.
+  def index?
+    project_access?
+  end
+
+  def show?
+    project_access?
+  end
+
   def create?
-    manage?
+    project_editor?
+  end
+
+  def update?
+    project_editor?
   end
 
   def destroy?
-    manage?
+    project_editor?
   end
 
   alias_method :new?, :create?
-
-  private
-
-  def manage?
-    return false unless user
-
-    user.admin? || record.project.owner == user
-  end
+  alias_method :edit?, :update?
 end

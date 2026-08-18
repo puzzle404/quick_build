@@ -1,0 +1,66 @@
+<div data-qb--modal-target="dialog" role="dialog" aria-modal="true"
+     class="hidden"
+     data-action="click->qb--modal#backdrop keydown@window->qb--modal#keydown"
+     style="display:flex;position:fixed;inset:0;z-index:60;background:rgba(0,0,0,0.45);align-items:center;justify-content:center;padding:20px;">
+  <div data-qb--modal-target="panel"
+       style="position:relative;width:520px;max-width:100%;background:var(--color-bg);border:1px solid var(--color-line);border-radius:10px;overflow:hidden;box-shadow:0 20px 50px -10px rgba(0,0,0,0.4);">
+
+    <div style="padding:14px 18px;border-bottom:1px solid var(--color-line);display:flex;justify-content:space-between;align-items:center;">
+      <h3 style="margin:0;font-size:15px;font-weight:600;">Subir plano</h3>
+      <button type="button" data-action="click->qb--modal#close" aria-label="Cerrar"
+              style="background:transparent;border:none;color:var(--color-ink-3);cursor:pointer;">
+        <%= render Qb::IconComponent.new(name: :x, size: 16) %>
+      </button>
+    </div>
+
+    <%# turbo_frame _top: el POST redirige al índice de planos, así que la
+        respuesta tiene que reemplazar la página entera y no el frame. %>
+    <%= form_with model: blueprint,
+                  url: constructors_project_blueprints_path(project),
+                  data: { turbo_frame: '_top' },
+                  html: { multipart: true, style: 'display:flex;flex-direction:column;' } do |f| %>
+      <div style="padding:18px;display:flex;flex-direction:column;gap:14px;">
+        <% if blueprint.errors.any? %>
+          <div class="qb-form-error">
+            <p style="font-weight:600;margin:0 0 4px;">No se pudo subir el plano:</p>
+            <ul style="margin:0;padding-left:16px;">
+              <% blueprint.errors.full_messages.each do |message| %>
+                <li><%= message %></li>
+              <% end %>
+            </ul>
+          </div>
+        <% end %>
+
+        <div class="qb-field">
+          <%= f.label :name, 'Nombre del plano', class: 'qb-label' %>
+          <%= f.text_field :name, required: true, placeholder: 'Ej: Planta baja · Arquitectura', class: 'qb-input' %>
+        </div>
+
+        <div class="qb-field">
+          <%= f.label :description, 'Descripción (opcional)', class: 'qb-label' %>
+          <%= f.text_area :description, rows: 2, placeholder: 'Ej: distribución de ambientes, revisión 3', class: 'qb-textarea' %>
+        </div>
+
+        <div class="qb-field">
+          <%= f.label :file, 'Archivo del plano', class: 'qb-label' %>
+          <%= f.file_field :file,
+                required: true,
+                accept: 'image/jpeg,image/png,image/jpg',
+                direct_upload: true,
+                style: 'display:block;font-size:12px;color:var(--color-ink-2);width:100%;padding:10px;border:1px dashed var(--color-line-2);border-radius:var(--radius);background:var(--color-bg-sunken);' %>
+          <p style="font-size:11px;color:var(--color-ink-4);margin:4px 0 0;">JPG o PNG, hasta 10MB. Después definís la escala y medís sobre el plano.</p>
+        </div>
+      </div>
+
+      <div style="padding:12px 18px;border-top:1px solid var(--color-line);display:flex;gap:8px;justify-content:flex-end;background:var(--color-bg-raised);">
+        <button type="button" data-action="click->qb--modal#close"
+                style="height:28px;padding:0 10px;background:transparent;color:var(--color-ink-2);border:1px solid transparent;border-radius:5px;font-size:12px;cursor:pointer;">Cancelar</button>
+        <button type="submit"
+                style="display:inline-flex;align-items:center;gap:6px;height:28px;padding:0 10px;background:var(--color-accent);color:var(--color-accent-ink);border:1px solid var(--color-accent);border-radius:5px;font-size:12px;font-weight:500;cursor:pointer;">
+          <%= render Qb::IconComponent.new(name: :upload, size: 13) %>
+          Subir plano
+        </button>
+      </div>
+    <% end %>
+  </div>
+</div>

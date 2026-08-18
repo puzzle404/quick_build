@@ -16,6 +16,10 @@ class ProjectStage < ApplicationRecord
   before_validation :assign_position, on: :create
 
   validates :name, presence: true
+  # El input tiene min/max, pero la API no validaba nada: un PATCH con
+  # progress=180 se guardaba. #complete (100) y #duplicate (0) entran en rango.
+  validates :progress, numericality: { greater_than_or_equal_to: 0, less_than_or_equal_to: 100 },
+                       allow_nil: true
   validate :ensure_end_date_is_after_start_date
   validate :parent_belongs_to_same_project
   validate :parent_must_be_root

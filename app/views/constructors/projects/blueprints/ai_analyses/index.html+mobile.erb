@@ -1,0 +1,76 @@
+<% content_for :title, "Análisis IA · #{@blueprint.name.presence || "Plano ##{@blueprint.id}"}" %>
+
+<%= render Qb::Mobile::NavBarComponent.new(title: @blueprint.name.presence || "Plano ##{@blueprint.id}", back: true, back_href: constructors_project_blueprint_path(@project, @blueprint)) %>
+
+<div style="padding: 4px 20px 12px;">
+  <h1 style="margin: 0; font-size: 24px; font-weight: 700; letter-spacing: -0.5px;">Análisis IA</h1>
+  <div style="font-size: 13px; color: var(--color-ink-3); margin-top: 4px;">
+    <%= pluralize(@analyses.size, 'análisis realizado', plural: 'análisis realizados') %> para este plano
+  </div>
+</div>
+
+<%# Nuevo análisis — POST al create existente. Editor de obra en adelante
+    (mismo permiso que blueprints/ai_analyses#create). %>
+<% if policy(@project).manage_content? %>
+<div style="padding: 0 16px 14px;">
+  <%= button_to constructors_project_blueprint_ai_analyses_path(@project, @blueprint),
+        method: :post, form: { style: 'margin:0;', data: { turbo: false } },
+        style: "width:100%;background:transparent;border:none;padding:0;text-align:left;cursor:pointer;color:inherit;font:inherit;" do %>
+    <%= render Qb::Mobile::CardComponent.new do %>
+      <div style="display:flex;align-items:center;gap:12px;">
+        <div style="width:48px;height:48px;border-radius:12px;background:color-mix(in oklab, var(--color-accent) 14%, transparent);color:var(--color-accent);display:flex;align-items:center;justify-content:center;flex-shrink:0;">
+          <%= render Qb::Mobile::IconComponent.new(name: 'sparkles', size: 22, stroke: 2) %>
+        </div>
+        <div style="flex:1;min-width:0;">
+          <div style="font-size:15px;font-weight:600;">Nuevo análisis</div>
+          <div style="font-size:12.5px;color:var(--color-ink-3);">La IA detecta muros, aberturas y superficies. Tarda 10-30 segundos.</div>
+        </div>
+        <%= render Qb::Mobile::IconComponent.new(name: 'chev-right', size: 16, stroke: 2.2) %>
+      </div>
+    <% end %>
+  <% end %>
+</div>
+<% end %>
+
+<%# Historial %>
+<div style="padding: 0 16px 16px;">
+  <% if @analyses.any? %>
+    <%= render Qb::Mobile::CardComponent.new(bleed: true) do %>
+      <% @analyses.each do |analysis| %>
+        <%
+          pill_tone, pill_label = case analysis.status
+                                  when 'completed'  then [:ok, 'Completado']
+                                  when 'processing' then [:info, 'Procesando']
+                                  when 'queued'     then [:info, 'En cola']
+                                  when 'failed'     then [:bad, 'Fallido']
+                                  else [:muted, analysis.status]
+                                  end
+          subtitle = if analysis.failed?
+                       (analysis.error_message.presence || 'Error desconocido').truncate(60)
+                     elsif analysis.applied?
+                       "#{qb_fmt_date_short(analysis.created_at)} · aplicado al plano"
+                     else
+                       "#{qb_fmt_date_short(analysis.created_at)} · hace #{time_ago_in_words(analysis.created_at)}"
+                     end
+        %>
+        <%= link_to constructors_project_blueprint_ai_analysis_path(@project, @blueprint, analysis), class: 'm-row m-row--tap' do %>
+          <div class="m-row-icon"><%= render Qb::Mobile::IconComponent.new(name: 'sparkles', size: 17) %></div>
+          <div class="m-row-main">
+            <div class="m-row-title">Análisis #<%= analysis.id %></div>
+            <div class="m-row-subtitle"><%= subtitle %></div>
+          </div>
+          <%= render Qb::Mobile::PillComponent.new(pill_label, tone: pill_tone, dense: true) %>
+          <span class="m-row-chevron"><%= render Qb::Mobile::IconComponent.new(name: 'chev-right', size: 16, stroke: 2.2) %></span>
+        <% end %>
+      <% end %>
+    <% end %>
+  <% else %>
+    <%= render Qb::Mobile::CardComponent.new do %>
+      <div style="text-align:center;padding:14px 8px;color:var(--color-ink-3);font-size:13.5px;">
+        No hay análisis todavía. Creá el primero desde arriba.
+      </div>
+    <% end %>
+  <% end %>
+</div>
+
+<div style="height: 24px;"></div>

@@ -41,6 +41,16 @@ RSpec.describe Projects::SpendSummary do
     expect(summary.by_stage[stage.id]).to eq(300_00)
   end
 
+  it "no cuenta dos veces una lista aprobada que ya se pagó" do
+    list = create(:material_list, project: project, status: :approved, add_default_item: false)
+    create(:material_item, material_list: list, quantity: 4, estimated_cost_cents: 50_00)
+    expect(described_class.new(project).total_cents).to eq(4 * 50_00)
+
+    # Al marcarla como pagada, el estimado sale del cálculo y sólo cuenta el gasto real.
+    create(:expense, project: project, material_list: list, amount_cents: 180_00)
+    expect(described_class.new(project).total_cents).to eq(180_00)
+  end
+
   it "ignora items con estimated_cost_cents nulo sin romper" do
     list = create(:material_list, project: project, status: :approved, add_default_item: false)
     create(:material_item, material_list: list, quantity: 3, estimated_cost_cents: nil)

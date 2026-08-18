@@ -1,0 +1,233 @@
+<% content_for :title, "Reporte de cartera · Quick Build" %>
+<% content_for :qb_crumbs, [{ label: 'Inicio' }, { label: 'Reporte' }].to_json %>
+
+<%
+  # El reporte se imprime desde el navegador ("Guardar como PDF"), así que las
+  # fechas necesitan año: qb_fmt_date_short devuelve "17 ago" sin año. Uso el
+  # mismo formateador dd/mm/aaaa que los CSV para que un reporte y su export
+  # digan lo mismo.
+  emitted_at   = Exports::CsvBuilder.datetime(@generated_at)
+  budget_cents = @kpis[:budget_total_cents].to_i
+  spent_cents  = @spend.total_cents_all
+  exec_pct     = budget_cents.positive? ? ((spent_cents.to_f / budget_cents) * 100).round : 0
+  active_total = @kpis[:in_progress].to_i + @kpis[:planned].to_i
+%>
+
+<style>
+  /* ── Reporte imprimible ──────────────────────────────────────────────
+     Sin gemas de PDF: el navegador imprime esta misma vista. Todo lo que
+     no es contenido del reporte se oculta en @media print. */
+  .qb-report { max-width: 1120px; margin: 0 auto; padding: 20px; }
+  .qb-report__grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); border: 1px solid var(--color-line); border-radius: var(--radius); overflow: hidden; background: var(--color-bg-raised); }
+  .qb-report__grid > div:last-child { border-right: 0; }
+  .qb-report__scroll { overflow-x: auto; }
+  .qb-report table { width: 100%; border-collapse: collapse; font-size: 12px; }
+  .qb-report th { padding: 7px 10px; text-align: left; font-weight: 500; font-size: 10px; letter-spacing: 0.6px; text-transform: uppercase; font-family: var(--font-mono); color: var(--color-ink-3); border-bottom: 1px solid var(--color-line-2); white-space: nowrap; }
+  .qb-report td { padding: 7px 10px; border-bottom: 1px solid var(--color-line); color: var(--color-ink-2); vertical-align: top; }
+  .qb-report .num { text-align: right; font-family: var(--font-mono); font-variant-numeric: tabular-nums; white-space: nowrap; }
+
+  @media print {
+    /* Chrome de la app: sidebar, topbar, tab bars y hoja mobile. */
+    .qb-sidebar, .qb-bottom-nav, .qb-sheet-overlay, .m-tabbar, main > header, .qb-report__noprint { display: none !important; }
+
+    /* Quien tenga el tema oscuro no debería imprimir 4 páginas en negro. */
+    :root, [data-theme] {
+      --color-bg: #fff; --color-bg-raised: #fff; --color-bg-sunken: #f4f4f5;
+      --color-ink: #18181b; --color-ink-2: #3f3f46; --color-ink-3: #52525b; --color-ink-4: #71717a;
+      --color-line: #d4d4d8; --color-line-2: #a1a1aa;
+      --color-ok: #15803d; --color-warn: #a16207; --color-bad: #b91c1c; --color-info: #1d4ed8; --color-accent: #1d4ed8;
+    }
+    body, .qb-report { background: #fff !important; color: #18181b; }
+    .qb-report { max-width: none; padding: 0; }
+    .qb-report__grid { grid-template-columns: repeat(4, 1fr); }
+    .qb-report__scroll { overflow: visible; }
+
+    /* Cortes de página: nunca partir una fila ni un bloque de KPIs, y repetir
+       el encabezado de la tabla en cada hoja. */
+    thead { display: table-header-group; }
+    tr, .qb-report__block { break-inside: avoid; page-break-inside: avoid; }
+    .qb-report__break { break-before: page; page-break-before: always; }
+
+    /* La tabla de obras tiene 10 columnas: en A4 vertical mide 950px contra
+       688px de caja útil y el navegador recorta las últimas. Apaisado entra
+       completa. */
+    @page { size: A4 landscape; margin: 12mm 10mm; }
+    .qb-report table { font-size: 10px; }
+    .qb-report th, .qb-report td { padding: 4px 6px; }
+    .qb-report th { white-space: normal; }
+  }
+</style>
+
+<div class="qb-report">
+
+  <%# ── Encabezado del documento ──────────────────────────────────── %>
+  <div style="display:flex;align-items:flex-end;gap:20px;padding-bottom:14px;border-bottom:2px solid var(--color-ink);">
+    <div style="flex:1;min-width:0;">
+      <div style="font-size:11px;font-family:var(--font-mono);color:var(--color-ink-3);text-transform:uppercase;letter-spacing:0.8px;">Quick Build · reporte de cartera</div>
+      <h1 style="margin:6px 0 0;font-size:24px;font-weight:600;letter-spacing:-0.4px;color:var(--color-ink);">
+        Estado de obras
+      </h1>
+      <div style="font-size:12.5px;color:var(--color-ink-3);margin-top:4px;">
+        Emitido el <%= emitted_at %> · <%= current_user.email %>
+        <% if current_user.try(:company)&.name.present? %> · <%= current_user.company.name %><% end %>
+      </div>
+    </div>
+
+    <div class="qb-report__noprint" style="display:flex;align-items:center;gap:8px;">
+      <%= render Qb::BtnComponent.new(@scope_all ? 'Solo activas' : 'Incluir finalizadas',
+            variant: :ghost, size: :sm,
+            href: constructors_report_path(alcance: (@scope_all ? nil : 'todas'))) %>
+      <%= render Qb::BtnComponent.new('Exportar datos', variant: :secondary, size: :sm, icon: :download,
+            href: constructors_root_path(format: :csv), data: { turbo: false },
+            title: 'Descargar la cartera en CSV para planilla') %>
+      <%= render Qb::BtnComponent.new('Imprimir / Guardar PDF', variant: :primary, size: :sm, icon: :doc,
+            css_class: 'qb-report-print', title: 'Se abre el diálogo de impresión: elegí "Guardar como PDF"') %>
+    </div>
+  </div>
+
+  <%# ── KPIs de cartera ───────────────────────────────────────────── %>
+  <div class="qb-report__block" style="margin-top:18px;">
+    <%= render Qb::SectionHeadComponent.new(
+          title: 'Cartera',
+          subtitle: "#{@kpis[:total_projects]} obras · #{active_total} activas · #{@kpis[:people_on_site]} personas en obra") %>
+    <div class="qb-report__grid">
+      <%= render Qb::MetricCellComponent.new(label: 'Obras totales', value: @kpis[:total_projects]) %>
+      <%= render Qb::MetricCellComponent.new(label: 'En progreso', value: @kpis[:in_progress], tone: :info) %>
+      <%= render Qb::MetricCellComponent.new(label: 'Planificadas', value: @kpis[:planned]) %>
+      <%= render Qb::MetricCellComponent.new(label: 'Finalizadas', value: @kpis[:completed], tone: :ok) %>
+    </div>
+  </div>
+
+  <%# ── KPIs de ejecución ─────────────────────────────────────────── %>
+  <div class="qb-report__block" style="margin-top:18px;">
+    <%= render Qb::SectionHeadComponent.new(title: 'Ejecución', subtitle: 'Gastos registrados + listas de materiales aprobadas pendientes de pago') %>
+    <div class="qb-report__grid">
+      <%= render Qb::MetricCellComponent.new(label: 'Presupuesto', value: qb_fmt_cents(budget_cents), hint: 'suma de las obras') %>
+      <%= render Qb::MetricCellComponent.new(label: 'Gastado a la fecha', value: qb_fmt_cents(spent_cents),
+            hint: "#{qb_fmt_cents(@spend.expenses_cents_all)} en gastos · #{qb_fmt_cents(@spend.materials_cents_all)} comprometido") %>
+      <%= render Qb::MetricCellComponent.new(label: 'Ejecución presupuestaria', value: qb_fmt_pct(exec_pct),
+            tone: (exec_pct > 100 ? :bad : nil), hint: budget_cents.positive? ? 'del presupuesto cargado' : 'sin presupuesto cargado') do |c| %>
+        <% c.with_extra { render Qb::BarComponent.new(value: exec_pct, tone: (exec_pct > 100 ? :bad : :accent)) } %>
+      <% end %>
+      <%= render Qb::MetricCellComponent.new(label: 'Requieren atención', value: @at_risk.size,
+            tone: (@at_risk.any? ? :warn : :ok),
+            hint: "#{@kpis[:stages_at_risk]} etapas vencidas · #{@without_plan.size} obras sin etapas") %>
+    </div>
+  </div>
+
+  <%# ── Obras que requieren atención ──────────────────────────────── %>
+  <% if @at_risk.any? %>
+    <div class="qb-report__block" style="margin-top:18px;">
+      <%= render Qb::SectionHeadComponent.new(
+            title: 'Requieren atención',
+            subtitle: "#{@at_risk.size} obras con avance atrasado respecto del plan · ordenadas por desvío") %>
+      <div style="border:1px solid var(--color-line);border-top:0;border-radius:0 0 var(--radius) var(--radius);">
+        <% @at_risk.first(10).each do |p| %>
+          <div style="display:flex;align-items:center;gap:12px;padding:9px 14px;border-bottom:1px solid var(--color-line);">
+            <span class="qb-mono" style="font-size:10.5px;color:var(--color-ink-4);width:64px;flex-shrink:0;"><%= p.code %></span>
+            <span style="flex:1;min-width:0;font-size:13px;color:var(--color-ink);font-weight:500;"><%= p.name %></span>
+            <%= render Qb::PillComponent.new(p.health_label, tone: p.health, compact: true) %>
+            <span class="qb-mono" style="font-size:11.5px;color:var(--color-ink-3);white-space:nowrap;">
+              avance <%= p.progress %>% · plan <%= p.planned_progress %>% · Δ <%= p.progress - p.planned_progress %> pp
+            </span>
+          </div>
+        <% end %>
+        <% if @at_risk.size > 10 %>
+          <div style="padding:8px 14px;font-size:11.5px;color:var(--color-ink-3);">
+            + <%= @at_risk.size - 10 %> obras más con desvío · el detalle completo está en la tabla siguiente.
+          </div>
+        <% end %>
+      </div>
+    </div>
+  <% end %>
+
+  <%# ── Obras sin planificación cargada ───────────────────────────── %>
+  <% if @without_plan.any? %>
+    <div class="qb-report__block" style="margin-top:18px;">
+      <%= render Qb::SectionHeadComponent.new(
+            title: 'Sin planificación cargada',
+            subtitle: "#{@without_plan.size} obras sin etapas: no se puede medir avance ni desvío") %>
+      <div style="border:1px solid var(--color-line);border-top:0;border-radius:0 0 var(--radius) var(--radius);padding:10px 14px;font-size:12px;color:var(--color-ink-2);line-height:1.7;">
+        <%= @without_plan.first(30).map { |p| "#{p.code} #{p.name}" }.join(' · ') %><% if @without_plan.size > 30 %> · +<%= @without_plan.size - 30 %> más<% end %>
+      </div>
+    </div>
+  <% end %>
+
+  <%# ── Detalle por obra ──────────────────────────────────────────── %>
+  <div style="margin-top:18px;">
+    <%= render Qb::SectionHeadComponent.new(
+          title: 'Detalle por obra',
+          subtitle: @scope_all ? "#{@projects.size} obras · cartera completa" : "#{@projects.size} obras activas · #{@completed_count} finalizadas no listadas") %>
+
+    <div class="qb-report__scroll" style="border:1px solid var(--color-line);border-top:0;border-radius:0 0 var(--radius) var(--radius);">
+      <table>
+        <thead>
+          <tr>
+            <th>Código</th>
+            <th>Obra</th>
+            <th>Estado</th>
+            <th class="num">Avance</th>
+            <th class="num">Plan</th>
+            <th class="num">Presupuesto</th>
+            <th class="num">Gastado</th>
+            <th class="num">Etapas</th>
+            <th class="num">Inicio</th>
+            <th class="num">Fin</th>
+          </tr>
+        </thead>
+        <tbody>
+          <% @projects.each do |p| %>
+            <% p_spent = @spend.total_cents(p.id) %>
+            <tr>
+              <td class="qb-mono" style="font-size:10.5px;color:var(--color-ink-4);white-space:nowrap;"><%= p.code %></td>
+              <td style="color:var(--color-ink);font-weight:500;">
+                <%= p.name %>
+                <% if p.client.present? %>
+                  <div style="font-size:11px;color:var(--color-ink-3);font-weight:400;"><%= p.client %></div>
+                <% end %>
+              </td>
+              <td><%= render Qb::PillComponent.new(p.status_label, tone: p.status_tone, compact: true) %></td>
+              <td class="num" style="color:var(--color-ink);font-weight:600;"><%= p.progress %>%</td>
+              <td class="num"><%= p.planned_progress %>%</td>
+              <td class="num"><%= qb_fmt_ars_full(p.budget / 100.0) %></td>
+              <td class="num" style="color:<%= p.budget.positive? && p_spent > p.budget ? 'var(--color-bad)' : 'var(--color-ink-2)' %>;"><%= qb_fmt_ars_full(p_spent / 100.0) %></td>
+              <td class="num"><%= p.stages_done %>/<%= p.stages_count %></td>
+              <td class="num"><%= p.start_date ? Exports::CsvBuilder.date(p.start_date) : '—' %></td>
+              <td class="num"><%= p.end_date ? Exports::CsvBuilder.date(p.end_date) : '—' %></td>
+            </tr>
+          <% end %>
+          <% if @projects.empty? %>
+            <tr><td colspan="10" style="padding:24px;text-align:center;color:var(--color-ink-3);">No hay obras para mostrar.</td></tr>
+          <% end %>
+        </tbody>
+        <% if @projects.any? %>
+          <tfoot>
+            <tr style="border-top:1px solid var(--color-line-2);">
+              <td colspan="5" style="font-weight:600;color:var(--color-ink);">Total · <%= @projects.size %> obras</td>
+              <td class="num" style="font-weight:600;color:var(--color-ink);"><%= qb_fmt_ars_full(@projects.sum(&:budget) / 100.0) %></td>
+              <td class="num" style="font-weight:600;color:var(--color-ink);"><%= qb_fmt_ars_full(@projects.sum { |p| @spend.total_cents(p.id) } / 100.0) %></td>
+              <td colspan="3"></td>
+            </tr>
+          </tfoot>
+        <% end %>
+      </table>
+    </div>
+  </div>
+
+  <div style="margin-top:14px;padding-top:10px;border-top:1px solid var(--color-line);font-size:11px;color:var(--color-ink-4);display:flex;justify-content:space-between;gap:12px;">
+    <span>Quick Build OS · reporte generado desde el dashboard</span>
+    <span class="qb-mono"><%= emitted_at %></span>
+  </div>
+</div>
+
+<script>
+  // El botón dispara la impresión del navegador; el PDF lo genera el navegador
+  // ("Guardar como PDF"). El guard evita re-suscribir el listener en cada
+  // visita de Turbo (si no, un click imprimiría dos veces).
+  if (!window.__qbReportPrintBound) {
+    window.__qbReportPrintBound = true;
+    document.addEventListener("click", function (event) {
+      if (event.target.closest(".qb-report-print")) window.print();
+    });
+  }
+</script>

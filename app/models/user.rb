@@ -7,11 +7,33 @@ class User < ApplicationRecord
   has_many :orders, dependent: :destroy
   has_many :project_memberships, dependent: :destroy
   has_many :projects, through: :project_memberships
-  has_many :owned_projects, class_name: 'Project', foreign_key: 'owner_id', dependent: :destroy
+  has_many :owned_projects, class_name: "Project", foreign_key: "owner_id", dependent: :destroy
   has_many :material_lists, foreign_key: :author_id, dependent: :destroy
   has_many :sessions, dependent: :destroy
 
   validates :company, presence: true, if: :seller?
+
+  # ─── Acceso a obras ─────────────────────────────────────────────
+  # `owned_projects` sigue siendo "mis obras" (las que creé yo).
+  # `accessible_projects` es TODO lo que puedo ver: propias + donde soy
+  # miembro. Es el scope que tienen que usar los controllers para buscar
+  # una obra por id (nunca Project.find a secas).
+  def accessible_projects
+    Project.accessible_by(self)
+  end
+
+  # Cache de roles por obra, con el ciclo de vida de este objeto User.
+  # En un request `current_user` es siempre la misma instancia, así que
+  # funciona como cache de request y se tira solo al terminar.
+  # Si cambiás membresías en medio de un request, llamá a
+  # `reset_project_role_cache!` sobre el mismo objeto User.
+  def project_role_cache
+    @project_role_cache ||= {}
+  end
+
+  def reset_project_role_cache!
+    @project_role_cache = nil
+  end
 
   # ─── UI preferences (Tweaks panel — web + mobile) ───────────────
   # Stored in a single jsonb column. Whitelisted keys + per-key
@@ -19,9 +41,9 @@ class User < ApplicationRecord
   # `user.accent`, `user.density` and never has to think about the
   # underlying shape. Keep this list in sync with the Tweaks UI.
   PREFERENCE_KEYS = {
-    theme:   { default: 'graphite', allowed: %w[graphite night] },
-    accent:  { default: 'cobalt',   allowed: %w[cobalt kiln moss safety ink] },
-    density: { default: 'cozy',     allowed: %w[compact cozy relaxed] }
+    theme:   { default: "graphite", allowed: %w[graphite night] },
+    accent:  { default: "cobalt",   allowed: %w[cobalt kiln moss safety ink] },
+    density: { default: "cozy",     allowed: %w[compact cozy relaxed] }
   }.freeze
 
   PREFERENCE_KEYS.each_key do |key|

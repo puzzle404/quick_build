@@ -8,6 +8,9 @@ class MaterialList < ApplicationRecord
   belongs_to :project_stage, optional: true
 
   has_many :material_items, dependent: :destroy, inverse_of: :material_list
+  # Gastos generados al marcar la lista como pagada. Nullify (no destroy):
+  # borrar la lista no debe borrar plata ya registrada en la obra.
+  has_many :expenses, dependent: :nullify
   has_one :material_list_publication, dependent: :destroy
 
   has_one_attached :source_file
@@ -26,6 +29,22 @@ class MaterialList < ApplicationRecord
 
   def display_number
     number.present? ? "##{number}" : ""
+  end
+
+  # "Pagada" se deriva de tener gastos asociados: borrar el gasto la
+  # desmarca sola, sin columna denormalizada que se desincronice.
+  def paid?
+    expenses.any?
+  end
+
+  def paid_cents
+    expenses.sum(:amount_cents)
+  end
+
+  # Total estimado de la lista (cantidad × costo unitario, en centavos).
+  # Es el monto que se propone al marcarla como pagada.
+  def estimated_total_cents
+    material_items.sum { |item| item.total_estimated_cost_cents.to_i }
   end
 
   private

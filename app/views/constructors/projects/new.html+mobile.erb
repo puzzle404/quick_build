@@ -5,7 +5,7 @@
 <div style="padding: 4px 20px 12px;">
   <h1 style="margin: 0; font-size: 22px; font-weight: 700; letter-spacing: -0.4px;">Crear una obra</h1>
   <p style="margin: 4px 0 0; font-size: 13.5px; color: var(--color-ink-3); line-height: 1.4;">
-    Los datos básicos alcanzan para empezar. Después podés sumar planos y la plantilla de etapas.
+    Los datos básicos alcanzan para empezar. Después podés sumar planos y aplicar una plantilla de etapas desde la obra.
   </p>
 </div>
 
@@ -19,7 +19,8 @@
   <%= render Qb::Mobile::FormGroupComponent.new(title: "Identidad") do %>
     <%= render Qb::Mobile::FormRowComponent.new(label: "Nombre", name: "project[name]", value: @project.name, placeholder: "Ej: Torre Palermo · Aurora", required: true) %>
     <%= render Qb::Mobile::FormRowComponent.new(label: "Cliente", name: "project[client]", value: @project.client, placeholder: "Razón social") %>
-    <%= render Qb::Mobile::FormRowComponent.new(label: "Ubicación", name: "project[location]", value: @project.location, placeholder: "Dirección") %>
+    <%= render Qb::Mobile::FormRowComponent.new(label: "Domicilio", name: "project[location]", value: @project.location, placeholder: "Ej: Av. Colón 1234, Mendoza") %>
+    <%= render Qb::Mobile::FormRowComponent.new(label: "Descripción", name: "project[description]", value: @project.description, placeholder: "Alcance de la obra, notas para el equipo…", textarea: true) %>
   <% end %>
 
   <%= render Qb::Mobile::FormGroupComponent.new(title: "Cronograma") do %>
@@ -38,18 +39,12 @@
     <%= render Qb::Mobile::FormRowComponent.new(
           label: "Estado inicial", name: "project[status]", select: true,
           value: @project.status || 'planned',
-          options: Project.statuses.keys.map { |s| [{ 'planned' => 'Planificado', 'in_progress' => 'En obra', 'completed' => 'Finalizado' }[s] || s.humanize, s] }) %>
+          options: Project.status_options) %>
   <% end %>
 
-  <%= render Qb::Mobile::FormGroupComponent.new(title: "Plantilla de etapas (opcional)", footnote: "Si activás, creamos las 3 etapas base (Proyecto y gestión, Dirección de obra, Administración).") do %>
-    <label class="m-frow-toggle">
-      <div class="m-frow-toggle-main">
-        <div class="m-frow-toggle-title">Aplicar plantilla base</div>
-        <div class="m-frow-toggle-sub">Recomendado para obras nuevas.</div>
-      </div>
-      <input type="checkbox" name="apply_template" value="template" class="m-frow-toggle-switch"/>
-    </label>
-  <% end %>
+  <%# La plantilla de etapas se aplica desde la obra ya creada (pantalla de
+      Etapas → "Aplicar plantilla"): en el alta el usuario todavía no sabe qué
+      etapas necesita, y ahí puede elegir entre la base y las suyas. %>
 
   <div style="display:flex;gap:10px;padding-bottom:24px;">
     <%= link_to "Cancelar", constructors_projects_path, class: "m-btn m-btn--secondary m-btn--md", style: "flex:1;text-decoration:none;" %>

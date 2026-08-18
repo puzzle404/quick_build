@@ -64,7 +64,7 @@
             </div>
             <div>
               <div style="font-size:10px;font-family:var(--font-mono);color:var(--color-ink-4);text-transform:uppercase;letter-spacing:0.7px;margin-bottom:2px;">Subido</div>
-              <div class="qb-mono"><%= @document.uploaded_at.strftime("%d/%m/%Y %H:%M") %></div>
+              <div class="qb-mono"><%= qb_fmt_datetime_short(@document.uploaded_at) %></div>
             </div>
           </div>
 
