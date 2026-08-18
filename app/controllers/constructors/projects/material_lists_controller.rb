@@ -67,15 +67,13 @@ class Constructors::Projects::MaterialListsController < Constructors::BaseContro
         respond_to do |format|
           format.turbo_stream do
             @stage = @material_list.project_stage
-            render turbo_stream: [
-              turbo_stream.update("project_modal", ""),
-              turbo_stream.update("stage_detail",
-                Constructors::Projects::Planning::StageDetailComponent.new(
-                  project: @project,
-                  stage: @stage,
-                  sub_stages: @stage.sub_stages.order(:position, :name)
-                ))
-            ]
+            render turbo_stream: turbo_stream.update("drawer",
+              partial: "constructors/projects/stages/detail_drawer",
+              locals: {
+                project: @project,
+                stage: @stage.decorate,
+                sub_stages: @stage.sub_stages.order(:position, :name)
+              })
           end
           format.html do
             redirect_to constructors_project_stage_path(@project, @material_list.project_stage),
@@ -83,6 +81,11 @@ class Constructors::Projects::MaterialListsController < Constructors::BaseContro
           end
         end
       else
+        # Sin etapa: el POST llega frame-scoped al frame "drawer" (ya no se
+        # fuerza _top en el form); Turbo sigue este redirect como una request
+        # de frame y cae en material_lists#show, que ya renderiza su propio
+        # detalle dentro de "drawer" — el panel pasa de "form de alta" a
+        # "detalle de la lista recién creada" sin salir de la página.
         redirect_to constructors_project_material_list_path(@project, @material_list),
                     notice: "Lista de materiales creada correctamente."
       end

@@ -42,9 +42,9 @@
         <%# El origen (manual / PDF con IA / Excel) se elige dentro del modal de
             nueva lista — no hace falta un botón aparte de "Generar con IA". %>
         <%= render Qb::BtnComponent.new('Importar PDF/Excel', variant: :ghost, size: :sm, icon: :upload,
-              href: new_constructors_project_material_list_path(@project), data: { turbo_frame: 'project_modal' }) %>
+              href: new_constructors_project_material_list_path(@project), data: { turbo_frame: 'drawer', action: 'click->qb--drawer#open' }) %>
         <%= render Qb::BtnComponent.new('Nueva lista', variant: :primary, size: :sm, icon: :plus,
-              href: new_constructors_project_material_list_path(@project), data: { turbo_frame: 'project_modal' }) %>
+              href: new_constructors_project_material_list_path(@project), data: { turbo_frame: 'drawer', action: 'click->qb--drawer#open' }) %>
       </div>
     <% end %>
   </div>
@@ -111,6 +111,3 @@
 
   <%= render Qb::PaginationComponent.new(pagy: @pagy, label: 'listas') %>
 </div>
-
-<%# Destino del modal "Nueva lista" / "Importar" (Turbo Frame). %>
-<%= turbo_frame_tag "project_modal" %>
