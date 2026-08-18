@@ -1,12 +1,13 @@
 # frozen_string_literal: true
 
-# Modal centrada para guardar la WBS de la obra como plantilla reutilizable.
+# Drawer (click-driven qb--drawer, sin ruta #new propia) para guardar la WBS
+# de la obra como plantilla reutilizable.
 #
 # Pide nombre + descripción y confirma cuántas etapas se guardan. El submit va
 # a stage_templates#create, que delega en StageTemplateCaptureService: las
 # fechas se convierten en offsets relativos al inicio de la obra y el progreso
 # y el gasto nunca se copian.
-class Constructors::Projects::Planning::SaveTemplateModalComponent < ViewComponent::Base
+class Constructors::Projects::Planning::SaveTemplateDrawerComponent < ViewComponent::Base
   def initialize(project:)
     @project = project
   end

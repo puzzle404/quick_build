@@ -1,12 +1,13 @@
 # frozen_string_literal: true
 
-# Modal centrada para aplicar una plantilla de etapas sobre la obra.
+# Drawer (click-driven qb--drawer, sin ruta #new propia) para aplicar una
+# plantilla de etapas sobre la obra.
 #
 # Lista la plantilla base del sistema (sin persistir) + las plantillas
 # guardadas por el dueño de la obra. El submit va a stages#apply_template con
 # `stage_template_id` (vacío = plantilla base) y los toggles de fechas y
 # presupuestos.
-class Constructors::Projects::Planning::TemplateModalComponent < ViewComponent::Base
+class Constructors::Projects::Planning::TemplateDrawerComponent < ViewComponent::Base
   def initialize(project:)
     @project = project
   end

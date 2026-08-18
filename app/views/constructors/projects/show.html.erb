@@ -37,24 +37,24 @@
       </div>
     </div>
     <% if can.manage_content? %>
-      <div data-controller="qb--modal" style="display:contents;">
-        <%= render Qb::BtnComponent.new('Aplicar plantilla', variant: :ghost, size: :sm, icon: :layers, data: { action: 'click->qb--modal#open' }) %>
-        <%= render Constructors::Projects::Planning::TemplateModalComponent.new(project: @project) %>
+      <div data-controller="qb--drawer" style="display:contents;">
+        <%= render Qb::BtnComponent.new('Aplicar plantilla', variant: :ghost, size: :sm, icon: :layers, data: { action: 'click->qb--drawer#open' }) %>
+        <%= render Constructors::Projects::Planning::TemplateDrawerComponent.new(project: @project) %>
       </div>
     <% end %>
     <%# "Guardar como plantilla" sólo LEE la obra (stage_templates#create pide
         :show?) y la plantilla queda a nombre de quien la guarda, así que
         alcanza con poder ver la obra. %>
-    <div data-controller="qb--modal" style="display:contents;">
-      <%= render Qb::BtnComponent.new('Guardar como plantilla', variant: :ghost, size: :sm, icon: :layers, data: { action: 'click->qb--modal#open' }) %>
-      <%= render Constructors::Projects::Planning::SaveTemplateModalComponent.new(project: @project) %>
+    <div data-controller="qb--drawer" style="display:contents;">
+      <%= render Qb::BtnComponent.new('Guardar como plantilla', variant: :ghost, size: :sm, icon: :layers, data: { action: 'click->qb--drawer#open' }) %>
+      <%= render Constructors::Projects::Planning::SaveTemplateDrawerComponent.new(project: @project) %>
     </div>
     <%# "Exportar" vive en el header del proyecto (header_component): era el
         mismo CSV, duplicado a 200px de distancia. %>
     <% if can.manage_content? %>
-      <div data-controller="qb--modal" style="display:contents;">
-        <%= render Qb::BtnComponent.new('Nueva etapa', variant: :primary, size: :sm, icon: :plus, data: { action: 'click->qb--modal#open' }) %>
-        <%= render Constructors::Projects::Planning::NewStageModalComponent.new(project: @project, root_stages: @root_stages) %>
+      <div data-controller="qb--drawer" style="display:contents;">
+        <%= render Qb::BtnComponent.new('Nueva etapa', variant: :primary, size: :sm, icon: :plus, data: { action: 'click->qb--drawer#open' }) %>
+        <%= render Constructors::Projects::Planning::NewStageDrawerComponent.new(project: @project, root_stages: @root_stages) %>
       </div>
     <% end %>
   </div>

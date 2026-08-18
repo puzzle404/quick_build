@@ -1,9 +1,12 @@
 # frozen_string_literal: true
 
-# Centered modal to create a new ProjectStage. Uses qb--modal Stimulus.
+# Right-side drawer to create a new ProjectStage. Click-driven qb--drawer
+# instance (no dedicated #new route to frame-scope against — stages#new
+# exists but its drawer has no "Etapa padre" selector, so this stays a
+# self-contained, client-side-only drawer like InviteMemberDrawerComponent).
 # Submits via Turbo to stages#create. The parent_id select lets the user
 # attach the new stage as a sub-stage of an existing root.
-class Constructors::Projects::Planning::NewStageModalComponent < ViewComponent::Base
+class Constructors::Projects::Planning::NewStageDrawerComponent < ViewComponent::Base
   def initialize(project:, root_stages:)
     @project = project
     @root_stages = root_stages

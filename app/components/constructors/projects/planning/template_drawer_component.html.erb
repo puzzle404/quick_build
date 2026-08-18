@@ -1,22 +1,9 @@
-<div data-qb--modal-target="dialog" role="dialog" aria-modal="true"
-     class="hidden"
-     data-action="click->qb--modal#backdrop keydown@window->qb--modal#keydown"
-     style="display:flex;position:fixed;inset:0;z-index:60;background:rgba(0,0,0,0.45);align-items:center;justify-content:center;">
-  <div data-qb--modal-target="panel"
-       style="position:relative;width:640px;max-width:calc(100vw - 32px);max-height:86vh;background:var(--color-bg);border:1px solid var(--color-line);border-radius:10px;overflow:hidden;display:flex;flex-direction:column;box-shadow:0 20px 50px -10px rgba(0,0,0,0.4);text-align:left;">
-
-    <div style="padding:14px 18px;border-bottom:1px solid var(--color-line);display:flex;justify-content:space-between;align-items:center;">
-      <div>
-        <h3 style="margin:0;font-size:15px;font-weight:600;color:var(--color-ink);">Aplicar plantilla de etapas</h3>
-        <div style="font-size:12px;color:var(--color-ink-3);margin-top:2px;">Crea las etapas que no existan. Las existentes se mantienen tal cual.</div>
-      </div>
-      <%= render Qb::BtnComponent.new('', variant: :ghost, size: :sm, icon: :x, aria_label: 'Cerrar',
-                                      data: { action: 'click->qb--modal#close' }) %>
-    </div>
-
-    <%= form_with url: apply_template_constructors_project_stages_path(project), method: :post,
-                  html: { style: 'display:flex;flex-direction:column;min-height:0;flex:1;' } do %>
-      <div style="flex:1;overflow:auto;padding:18px;display:flex;flex-direction:column;gap:10px;">
+<div class="qb-drawer-shell" data-qb--drawer-target="dialog"
+     data-action="click->qb--drawer#backdrop keydown@window->qb--drawer#keydown">
+  <div class="qb-drawer-backdrop"></div>
+  <%= render(Qb::DrawerComponent.new(eyebrow: "Planificación", title: "Aplicar plantilla de etapas", subtitle: "Crea las etapas que no existan. Las existentes se mantienen tal cual.", size: :lg)) do %>
+    <%= form_with url: apply_template_constructors_project_stages_path(project), method: :post do %>
+      <div style="display:flex;flex-direction:column;gap:10px;">
 
         <%# Plantilla base del sistema — sin id, es la constante del service. %>
         <label style="display:block;border:1px solid var(--color-line);border-radius:8px;padding:12px;background:var(--color-bg-raised);cursor:pointer;">
@@ -88,7 +75,7 @@
 
       <%# Toggles. El hidden previo al checkbox garantiza que el "no" también
           viaje: sin él, destildar no manda nada y el server usa el default. %>
-      <div style="padding:10px 18px;border-top:1px solid var(--color-line);display:flex;gap:18px;flex-wrap:wrap;background:var(--color-bg-raised);">
+      <div style="margin-top:14px;padding:10px 12px;border:1px solid var(--color-line);border-radius:8px;display:flex;gap:18px;flex-wrap:wrap;background:var(--color-bg-sunken);">
         <label style="display:flex;align-items:center;gap:6px;font-size:12px;color:var(--color-ink-2);cursor:pointer;">
           <input type="hidden" name="apply_dates" value="0">
           <input type="checkbox" name="apply_dates" value="1" checked>
@@ -102,14 +89,13 @@
         </label>
       </div>
 
-      <div style="padding:12px 18px;border-top:1px solid var(--color-line);display:flex;gap:8px;align-items:center;background:var(--color-bg-raised);">
+      <div style="display:flex;align-items:center;gap:8px;margin-top:14px;">
+        <%= render Qb::BtnComponent.new('Aplicar plantilla', variant: :primary, icon: :layers, type: 'submit') %>
+        <%= render Qb::BtnComponent.new('Cancelar', variant: :secondary, data: { action: 'click->qb--drawer#close' }) %>
+        <div style="flex:1;"></div>
         <%= link_to 'Administrar plantillas', constructors_stage_templates_path,
                     style: 'font-size:11.5px;color:var(--color-ink-3);text-decoration:none;' %>
-        <div style="flex:1;"></div>
-        <%= render Qb::BtnComponent.new('Cancelar', variant: :ghost, size: :sm,
-                                        data: { action: 'click->qb--modal#close' }) %>
-        <%= render Qb::BtnComponent.new('Aplicar plantilla', variant: :primary, size: :sm, icon: :layers, type: 'submit') %>
       </div>
     <% end %>
-  </div>
+  <% end %>
 </div>
