@@ -1,0 +1,31 @@
+<%# Nueva nota — desktop. Antes sólo existía la modal inline
+    (NoteModalComponent); esta ruta sólo la servía Hotwire Native. %>
+<% if turbo_frame_request? %>
+  <% content_for(:drawer) do %>
+    <%= render(Qb::DrawerComponent.new(
+          eyebrow: "Notas",
+          title: "Nueva nota",
+          subtitle: @noteable.is_a?(ProjectStage) ? "Se asocia a la etapa #{@noteable.name}" : "Se asocia al proyecto",
+          size: :md
+        )) do %>
+      <%= form_with model: @note,
+                    url: (@noteable.is_a?(ProjectStage) ? constructors_project_stage_notes_path(@project, @noteable) : constructors_project_notes_path(@project)),
+                    scope: :note do |form| %>
+        <div class="qb-field">
+          <%= form.label :title, "Título (opcional)", class: "qb-label" %>
+          <%= form.text_field :title, class: "qb-input" %>
+        </div>
+
+        <div class="qb-field">
+          <%= form.label :body, "Nota", class: "qb-label" %>
+          <%= form.text_area :body, rows: 4, required: true, class: "qb-textarea" %>
+        </div>
+
+        <div style="display:flex;align-items:center;gap:8px;margin-top:14px;">
+          <%= render Qb::BtnComponent.new('Guardar', variant: :primary, icon: :plus, type: 'submit') %>
+          <%= render Qb::BtnComponent.new('Cancelar', variant: :secondary, data: { action: 'click->qb--drawer#close' }) %>
+        </div>
+      <% end %>
+    <% end %>
+  <% end %>
+<% end %>

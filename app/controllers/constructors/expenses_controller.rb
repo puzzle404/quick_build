@@ -52,7 +52,24 @@ module Constructors
       authorize @expense
 
       if @expense.save
-        redirect_to redirect_path, notice: "Gasto registrado correctamente."
+        respond_to do |format|
+          format.turbo_stream do
+            if request.variant.include?(:mobile)
+              redirect_to redirect_path, notice: "Gasto registrado correctamente."
+            elsif @stage
+              # Etapa: el form ya no fuerza _top, así que el redirect se sigue
+              # como request de frame y stages#show repuebla "drawer" con el
+              # detalle actualizado — mismo mecanismo que fotos/documentos.
+              redirect_to redirect_path, notice: "Gasto registrado correctamente."
+            else
+              # Proyecto: no hay un único "detalle" al que volver (index,
+              # resumen del proyecto…), así que refresh cierra el drawer y
+              # refresca cualquiera de esas pantallas por igual.
+              render turbo_stream: turbo_stream.refresh
+            end
+          end
+          format.html { redirect_to redirect_path, notice: "Gasto registrado correctamente." }
+        end
       else
         redirect_to redirect_path,
           alert: @expense.errors.full_messages.to_sentence

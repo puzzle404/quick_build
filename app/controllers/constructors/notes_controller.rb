@@ -20,24 +20,17 @@ module Constructors
       authorize @note
 
       if @note.save
-        # Para notas del proyecto (resumen), respondemos turbo_stream para que
-        # la modal cierre y la lista se refresque sin recargar la página.
-        # Para notas de etapa, el flujo sigue siendo redirect (la drawer se
-        # vuelve a abrir vía Turbo Frame al recargar la stage show).
+        # Etapa: el form ya no fuerza _top, así que el redirect se sigue como
+        # request de frame y stages#show repuebla "drawer" con el detalle
+        # actualizado — mismo mecanismo que fotos/documentos/gastos de etapa.
+        # Proyecto: no hay un único "detalle" al que volver, así que refresh
+        # cierra el drawer y refresca la página actual (index, resumen…).
         respond_to do |format|
           format.turbo_stream do
-            # El target "project_notes_list" sólo existe en el show desktop;
-            # en mobile la nota se crea desde una página propia, así que
-            # respondemos con redirect + flash.
-            if @noteable.is_a?(Project) && !request.variant.include?(:mobile)
-              render turbo_stream: turbo_stream.update("project_notes_list",
-                Constructors::Projects::NotesListComponent.new(
-                  notes: @project.notes.recent_first.includes(:author),
-                  noteable: @project,
-                  project: @project
-                ))
-            else
+            if request.variant.include?(:mobile) || @noteable.is_a?(ProjectStage)
               redirect_to redirect_path, notice: "Nota agregada correctamente."
+            else
+              render turbo_stream: turbo_stream.refresh
             end
           end
           format.html { redirect_to redirect_path, notice: "Nota agregada correctamente." }
