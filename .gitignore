@@ -49,3 +49,6 @@
 # Quick Build OS redesign — local visual QA artifacts
 .playwright-mcp/
 qb-*.png
+
+# Local git worktrees (subagent-driven-development scratch workspaces)
+.worktrees/
