@@ -1,5 +1,6 @@
 FactoryBot.define do
   factory :company do
-    name { "Acme S.A." }
+    sequence(:name) { |n| "Company #{n}" }
+    sequence(:email) { |n| "company#{n}@example.com" }
   end
 end

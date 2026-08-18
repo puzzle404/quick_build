@@ -1,0 +1,40 @@
+<div class="qb-drawer-shell" role="dialog" aria-modal="true"
+     data-qb--drawer-target="dialog"
+     data-action="click->qb--drawer#backdrop keydown@window->qb--drawer#keydown">
+  <div class="qb-drawer-backdrop"></div>
+  <%= render(Qb::DrawerComponent.new(eyebrow: "Planificación", title: "Nueva etapa", size: :lg)) do %>
+    <%= form_with url: constructors_project_stages_path(project), method: :post, scope: :project_stage do |f| %>
+      <div class="qb-field">
+        <%= f.label :parent_id, "Etapa padre (opcional)", class: "qb-label" %>
+        <%= f.select :parent_id, parent_options, {}, class: "qb-select" %>
+        <span style="font-size:10.5px;color:var(--color-ink-4);">Dejá vacío para crear una etapa raíz</span>
+      </div>
+
+      <div class="qb-field">
+        <%= f.label :name, "Nombre", class: "qb-label" %>
+        <%= f.text_field :name, required: true, placeholder: 'Ej: Revoque grueso exterior', class: "qb-input" %>
+      </div>
+
+      <div class="qb-field">
+        <%= f.label :description, "Descripción", class: "qb-label" %>
+        <%= f.text_area :description, rows: 3, placeholder: 'Descripción breve de la etapa…', class: "qb-textarea" %>
+      </div>
+
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;">
+        <div class="qb-field">
+          <%= f.label :start_date, "Fecha inicio", class: "qb-label" %>
+          <%= f.date_field :start_date, class: "qb-input" %>
+        </div>
+        <div class="qb-field">
+          <%= f.label :end_date, "Fecha fin", class: "qb-label" %>
+          <%= f.date_field :end_date, class: "qb-input" %>
+        </div>
+      </div>
+
+      <div style="display:flex;align-items:center;gap:8px;margin-top:14px;">
+        <%= render Qb::BtnComponent.new('Guardar etapa', variant: :primary, icon: :check, type: 'submit') %>
+        <%= render Qb::BtnComponent.new('Cancelar', variant: :secondary, data: { action: 'click->qb--drawer#back' }) %>
+      </div>
+    <% end %>
+  <% end %>
+</div>

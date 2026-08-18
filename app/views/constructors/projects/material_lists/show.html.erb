@@ -1,0 +1,191 @@
+<%# Turbo Frame request (clic en una card del índice, o el link "Editar" que
+    vuelve a este show): el detalle se renderiza como contenido del drawer
+    global (turbo-frame "drawer" en el layout), envuelto en
+    Qb::DrawerComponent dentro de ListDetailComponent — sin frame ni
+    data-controller="qb--drawer" locales. Full page (acceso directo,
+    bookmark): shell de secciones QB OS con el detalle completo. %>
+<% if turbo_frame_request? %>
+  <% content_for(:drawer) do %>
+    <%= render Constructors::Projects::Materials::ListDetailComponent.new(project: @project, list: @material_list) %>
+  <% end %>
+<% else %>
+<%
+  status_map = {
+    'draft'            => ['Borrador',    :muted],
+    'ready_for_review' => ['En revisión', :warn],
+    'approved'         => ['Aprobada',    :ok],
+  }
+  status_label, status_tone = status_map[@material_list.status.to_s] || [@material_list.status.to_s.humanize, :muted]
+
+  source_map = {
+    'manual'       => 'Carga manual',
+    'pdf_upload'   => 'Importado de PDF',
+    'excel_upload' => 'Importado de Excel',
+  }
+  source_label = source_map[@material_list.source_type.to_s] || @material_list.source_type.to_s.humanize
+
+  publication = @material_list.material_list_publication
+  total_cents = @material_items.sum { |i| (i.quantity.to_f * i.estimated_cost_cents.to_i).round }
+  paid_expenses = @material_list.expenses.recent_first.to_a
+  paid_cents = paid_expenses.sum(&:amount_cents)
+%>
+<%= render 'constructors/projects/section_tabs', project: @project, current: :materials %>
+
+<div>
+  <%# Header strip %>
+  <div style="padding:14px 20px;border-bottom:1px solid var(--color-line);display:flex;align-items:flex-end;gap:16px;">
+    <div style="flex:1;min-width:0;">
+      <div style="font-size:11px;font-family:var(--font-mono);color:var(--color-ink-3);text-transform:uppercase;letter-spacing:0.8px;"><%= @project.code %> · Materiales</div>
+      <h2 style="margin:3px 0 0;font-size:18px;font-weight:600;letter-spacing:-0.3px;"><%= "#{@material_list.display_number} #{@material_list.name}".strip %></h2>
+      <div style="font-size:12px;color:var(--color-ink-3);margin-top:4px;display:flex;align-items:center;gap:8px;flex-wrap:wrap;">
+        <%= render Qb::PillComponent.new(status_label, tone: status_tone, compact: true) %>
+        <span><%= source_label %></span>
+        <span>·</span>
+        <span>
+          <%= turbo_frame_tag dom_id(@material_list, :items_counter) do %><%= pluralize(@material_items.size, "ítem") %><% end %>
+          · actualizada hace <%= time_ago_in_words(@material_list.updated_at) %>
+        </span>
+        <span>·</span>
+        <%= link_to "← Volver a listas", constructors_project_material_lists_path(@project),
+                    style: "color:var(--color-accent);text-decoration:none;font-size:12px;" %>
+      </div>
+    </div>
+    <div style="display:flex;align-items:center;gap:8px;flex-shrink:0;">
+      <%# data-turbo=false: descarga directa del CSV sin interceptar la navegación. %>
+      <%= render Qb::BtnComponent.new('Exportar CSV', variant: :ghost, size: :sm, icon: :download,
+            href: constructors_project_material_list_path(@project, @material_list, format: :csv),
+            data: { turbo: false }, title: 'Descargar CSV de los ítems') %>
+      <% if paid_expenses.any? %>
+        <%= render Qb::PillComponent.new("Pagada · #{qb_fmt_cents(paid_cents)}", tone: :ok, compact: true) %>
+        <%= render Qb::BtnComponent.new('Ver gasto', variant: :ghost, size: :sm, icon: :money,
+              href: constructors_project_expenses_path(@project)) %>
+      <% elsif policy(@material_list).update? %>
+        <%# Genera un Expense por el total estimado; el vínculo es lo que marca
+            la lista como pagada (borrar el gasto la desmarca). %>
+        <%= render Qb::BtnComponent.new('Marcar como pagado', variant: :secondary, size: :sm, icon: :money,
+              href: mark_as_paid_constructors_project_material_list_path(@project, @material_list),
+              data: { turbo_method: :patch, turbo_confirm: "Se va a registrar un gasto de #{qb_fmt_cents(total_cents)} en la obra. ¿Confirmás?" }) %>
+      <% end %>
+      <% if policy(@material_list).toggle_publication? %>
+        <%= render Qb::BtnComponent.new('Alternar presupuesto', variant: :secondary, size: :sm,
+              href: toggle_publication_constructors_project_material_list_path(@project, @material_list),
+              data: { turbo_method: :patch }) %>
+      <% end %>
+      <% if policy(@material_list).update? %>
+        <%= render Qb::BtnComponent.new('Editar', variant: :primary, size: :sm, icon: :edit,
+              href: edit_constructors_project_material_list_path(@project, @material_list),
+              data: { turbo_frame: 'drawer', action: 'click->qb--drawer#open' }) %>
+      <% end %>
+    </div>
+  </div>
+
+  <%# Metadata strip %>
+  <div style="display:grid;grid-template-columns:repeat(4, 1fr);gap:16px;padding:10px 20px;border-bottom:1px solid var(--color-line);background:var(--color-bg-raised);font-size:12px;">
+    <div>
+      <div style="font-size:10px;font-family:var(--font-mono);color:var(--color-ink-4);text-transform:uppercase;letter-spacing:0.7px;margin-bottom:2px;">Estado</div>
+      <div style="color:var(--color-ink);font-weight:500;"><%= status_label %></div>
+      <div style="font-size:11px;color:var(--color-ink-4);margin-top:1px;">
+        <% if @material_list.approved_at.present? %>
+          aprobada el <%= qb_fmt_date_short(@material_list.approved_at) %>
+        <% else %>
+          pendiente de validación del equipo
+        <% end %>
+      </div>
+    </div>
+    <div>
+      <div style="font-size:10px;font-family:var(--font-mono);color:var(--color-ink-4);text-transform:uppercase;letter-spacing:0.7px;margin-bottom:2px;">Visibilidad</div>
+      <div style="color:var(--color-ink);font-weight:500;"><%= publication&.visibility_public? ? "Permitido presupuestar" : "Uso interno" %></div>
+      <div style="font-size:11px;color:var(--color-ink-4);margin-top:1px;">
+        <% if publication&.visibility_public? %>
+          publicada el <%= qb_fmt_date_short(publication.published_at || @material_list.updated_at) %>
+        <% else %>
+          no visible para proveedores
+        <% end %>
+      </div>
+    </div>
+    <div>
+      <div style="font-size:10px;font-family:var(--font-mono);color:var(--color-ink-4);text-transform:uppercase;letter-spacing:0.7px;margin-bottom:2px;">Etapa vinculada</div>
+      <% if @material_list.project_stage.present? %>
+        <div style="color:var(--color-ink);font-weight:500;"><%= project_stage_label(@material_list.project_stage) %></div>
+      <% else %>
+        <div style="color:var(--color-ink-3);">Sin etapa</div>
+      <% end %>
+    </div>
+    <div style="text-align:right;">
+      <div style="font-size:10px;font-family:var(--font-mono);color:var(--color-ink-4);text-transform:uppercase;letter-spacing:0.7px;margin-bottom:2px;">Total estimado</div>
+      <div class="qb-mono qb-tnum" style="font-size:14px;font-weight:600;color:var(--color-ink);"><%= qb_fmt_cents(total_cents) %></div>
+      <div style="font-size:11px;color:<%= paid_expenses.any? ? 'var(--color-ok)' : 'var(--color-ink-4)' %>;margin-top:1px;">
+        <% if paid_expenses.any? %>
+          pagada · <%= qb_fmt_cents(paid_cents) %> el <%= qb_fmt_date_short(paid_expenses.first.incurred_on) %>
+        <% else %>
+          sin pago registrado
+        <% end %>
+      </div>
+    </div>
+  </div>
+
+  <%# Notas + archivo adjunto %>
+  <% if @material_list.notes.present? || @material_list.source_file.attached? %>
+    <div style="padding:10px 20px;border-bottom:1px solid var(--color-line);font-size:12px;color:var(--color-ink-2);display:flex;gap:20px;align-items:flex-start;flex-wrap:wrap;">
+      <% if @material_list.notes.present? %>
+        <div style="display:flex;gap:8px;align-items:flex-start;flex:1;min-width:260px;">
+          <%= render Qb::IconComponent.new(name: :pin, size: 13, style: 'color:var(--color-ink-3);margin-top:1px;flex-shrink:0;') %>
+          <div style="white-space:pre-line;"><%= @material_list.notes %></div>
+        </div>
+      <% end %>
+      <% if @material_list.source_file.attached? %>
+        <%= link_to rails_blob_path(@material_list.source_file, disposition: :attachment),
+                    data: { turbo: false },
+                    style: "display:inline-flex;align-items:center;gap:6px;color:var(--color-accent);text-decoration:none;font-weight:500;" do %>
+          <%= render Qb::IconComponent.new(name: :doc, size: 13) %>
+          <%= @material_list.source_file.filename %>
+        <% end %>
+      <% end %>
+    </div>
+  <% end %>
+
+  <%# Cargar materiales — toggle abre el form dentro del frame new_item_frame
+      (los dom_id de los frames son los targets de los turbo_streams de
+      material_items#create/#destroy — no cambiarlos). %>
+  <% if policy(@material_list).update? %>
+    <div style="border-bottom:1px solid var(--color-line);"
+         data-controller="toggle-form"
+         data-toggle-form-open-value="<%= @material_item.errors.any? %>">
+      <div style="display:flex;flex-wrap:wrap;align-items:center;justify-content:space-between;gap:12px;padding:10px 20px;">
+        <div>
+          <div style="font-size:13px;font-weight:600;color:var(--color-ink);">Cargar materiales</div>
+          <div style="font-size:11px;color:var(--color-ink-4);">Sumá insumos de a uno para construir la lista.</div>
+        </div>
+        <button type="button"
+                style="display:inline-flex;align-items:center;border-radius:var(--radius);border:1px solid var(--color-line);background:transparent;padding:6px 12px;font-size:11px;font-weight:600;text-transform:uppercase;letter-spacing:0.05em;color:var(--color-ok);cursor:pointer;transition:border-color 0.1s,background 0.1s;"
+                data-action="toggle-form#toggle"
+                data-toggle-form-target="button"
+                aria-expanded="false">
+          <span data-toggle-form-target="buttonLabel">Agregar material</span>
+        </button>
+      </div>
+      <div class="hidden" data-toggle-form-target="content" style="padding:0 20px 16px;">
+        <%= turbo_frame_tag dom_id(@material_list, :new_item_frame) do %>
+        <%= render Constructors::Projects::MaterialLists::ItemFormComponent.new(
+                     project: @project,
+                     material_list: @material_list,
+                     material_item: @material_item
+                   ) %>
+        <% end %>
+      </div>
+    </div>
+  <% end %>
+
+  <%# Ítems de la lista %>
+  <div style="padding:16px 20px;">
+    <%= turbo_frame_tag dom_id(@material_list, :items_list) do %>
+      <%= render Constructors::Projects::MaterialLists::ItemsTableComponent.new(
+                   project: @project,
+                   material_list: @material_list,
+                   material_items: @material_items,
+                   editable: policy(@material_list).update?
+                 ) %>
+    <% end %>
+  </div>
+</div>
+<% end %>

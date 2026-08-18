@@ -1,0 +1,52 @@
+<section class="bg-white py-24 sm:py-32">
+  <div class="mx-auto max-w-7xl px-6 lg:px-8">
+    <div class="mx-auto max-w-2xl text-center">
+      <h2 class="text-3xl font-bold tracking-tight text-slate-900 sm:text-4xl">
+        <%= @title %>
+      </h2>
+      <p class="mt-4 text-lg leading-8 text-slate-600">
+        <%= @subtitle %>
+      </p>
+    </div>
+    
+    <div class="mx-auto mt-16 grid max-w-2xl grid-cols-1 gap-8 lg:mx-0 lg:max-w-none lg:grid-cols-3">
+      <% testimonials.each_with_index do |testimonial, index| %>
+        <article class="group relative flex flex-col justify-between rounded-3xl bg-gradient-to-br from-slate-50 to-white p-8 ring-1 ring-slate-200/80 transition-all duration-300 hover:ring-indigo-200 hover:shadow-xl hover:shadow-indigo-500/5">
+          <!-- Decorative gradient on hover -->
+          <div class="absolute inset-0 rounded-3xl bg-gradient-to-br from-indigo-50/0 to-purple-50/0 transition-all duration-300 group-hover:from-indigo-50/50 group-hover:to-purple-50/30" aria-hidden="true"></div>
+          
+          <div class="relative">
+            <!-- Rating stars -->
+            <div class="flex gap-1 text-amber-400" aria-label="<%= testimonial[:rating] %> estrellas">
+              <% testimonial[:rating].times do %>
+                <svg class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
+                  <path fill-rule="evenodd" d="M10.868 2.884c-.321-.772-1.415-.772-1.736 0l-1.83 4.401-4.753.381c-.833.067-1.171 1.107-.536 1.651l3.62 3.102-1.106 4.637c-.194.813.691 1.456 1.405 1.02L10 15.591l4.069 2.485c.713.436 1.598-.207 1.404-1.02l-1.106-4.637 3.62-3.102c.635-.544.297-1.584-.536-1.65l-4.752-.382-1.831-4.401z" clip-rule="evenodd" />
+                </svg>
+              <% end %>
+            </div>
+            
+            <!-- Quote -->
+            <blockquote class="mt-6 text-lg leading-relaxed text-slate-700">
+              "<%= testimonial[:quote] %>"
+            </blockquote>
+          </div>
+          
+          <!-- Author -->
+          <div class="relative mt-8 flex items-center gap-4 border-t border-slate-100 pt-6">
+            <div class="flex h-12 w-12 items-center justify-center rounded-full bg-gradient-to-br from-indigo-500 to-purple-600 text-sm font-semibold text-white ring-2 ring-white">
+              <%= testimonial[:avatar_initials] %>
+            </div>
+            <div>
+              <cite class="not-italic font-semibold text-slate-900">
+                <%= testimonial[:author] %>
+              </cite>
+              <p class="mt-0.5 text-sm text-slate-500">
+                <%= testimonial[:role] %>
+              </p>
+            </div>
+          </div>
+        </article>
+      <% end %>
+    </div>
+  </div>
+</section>

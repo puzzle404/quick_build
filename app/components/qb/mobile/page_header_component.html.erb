@@ -1,0 +1,8 @@
+<div class="m-page-head" <%= 'data-dense' if @dense %>>
+  <% if @eyebrow.present? %><div class="m-eyebrow"><%= @eyebrow %></div><% end %>
+  <div class="m-page-head-row">
+    <h1 class="m-title"><%= @title %></h1>
+    <% if action? %><%= action %><% end %>
+  </div>
+  <% if @subtitle.present? %><div class="m-subtitle"><%= @subtitle %></div><% end %>
+</div>

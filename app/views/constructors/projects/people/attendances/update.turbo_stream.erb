@@ -1,0 +1,11 @@
+<%# Se reemplazan sólo la fila editada y el total del pie: cargar diez
+    jornadas seguidas no tiene que recargar diez veces la página ni perder el
+    scroll ni el foco de las otras filas. %>
+<%= turbo_stream.replace Constructors::Projects::People::AttendanceRowComponent.row_id(@attendance) do %>
+  <%= render Constructors::Projects::People::AttendanceRowComponent.new(attendance: @attendance, project: @project) %>
+<% end %>
+
+<%= turbo_stream.replace Constructors::Projects::People::AttendanceTotalsComponent::DOM_ID do %>
+  <%= render Constructors::Projects::People::AttendanceTotalsComponent.new(
+        attendances: @recent_attendances, person: @person, project: @project) %>
+<% end %>

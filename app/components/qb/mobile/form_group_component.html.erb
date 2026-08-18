@@ -1,0 +1,7 @@
+<div class="m-fg">
+  <% if @title.present? %><div class="m-fg-title"><%= @title %></div><% end %>
+  <div class="m-fg-body">
+    <%= content %>
+  </div>
+  <% if @footnote.present? %><div class="m-fg-foot"><%= @footnote %></div><% end %>
+</div>

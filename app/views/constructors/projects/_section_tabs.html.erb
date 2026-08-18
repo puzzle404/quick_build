@@ -1,0 +1,21 @@
+<%# Shell de secciones del proyecto (diseño QB OS): cover header + tabs.
+    locals: project, current (símbolo de la sección activa).
+    Secciones: :stages (Etapas — resumen + planificación unificados, es la
+    landing del proyecto), :materials, :blueprints, :team, :docs. %>
+<%
+  project = project.decorate unless project.decorated?
+  # Los seis contadores en UNA query (Projects::SectionCounts). Eran seis
+  # `.count` sueltos y este partial se renderiza en TODAS las pantallas del
+  # proyecto, así que se pagaban en cada request de la sección.
+  counts = Projects::SectionCounts.new(project)
+  section_tabs = [
+    { value: :stages,     label: 'Etapas',      icon: :stages,    count: counts[:stages],     href: constructors_project_path(project) },
+    { value: :materials,  label: 'Materiales',  icon: :materials, count: counts[:materials],  href: constructors_project_material_lists_path(project) },
+    { value: :expenses,   label: 'Gastos',      icon: :money,     count: counts[:expenses],   href: constructors_project_expenses_path(project) },
+    { value: :blueprints, label: 'Planos',      icon: :blueprint, count: counts[:blueprints], href: constructors_project_blueprints_path(project) },
+    { value: :team,       label: 'Equipo',      icon: :people,    count: counts[:team],       href: constructors_project_people_path(project) },
+    { value: :docs,       label: 'Documentos',  icon: :docs,      count: counts[:docs],       href: constructors_project_documents_path(project) },
+  ]
+%>
+<%= render Constructors::Projects::HeaderComponent.new(project: project) %>
+<%= render Qb::TabsComponent.new(tabs: section_tabs, current: current) %>

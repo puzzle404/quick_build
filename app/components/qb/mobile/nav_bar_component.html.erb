@@ -1,0 +1,19 @@
+<div class="m-nav">
+  <div class="m-nav-side">
+    <% if @back %>
+      <% if @back_href %>
+        <%= link_to @back_href, class: 'm-nav-back', data: { turbo_action: 'replace' } do %>
+          <%= render Qb::Mobile::IconComponent.new(name: 'chev-left', size: 24, stroke: 2.4) %>
+        <% end %>
+      <% else %>
+        <button class="m-nav-back" type="button" onclick="history.back()" aria-label="Atrás">
+          <%= render Qb::Mobile::IconComponent.new(name: 'chev-left', size: 24, stroke: 2.4) %>
+        </button>
+      <% end %>
+    <% end %>
+  </div>
+  <div class="m-nav-title"><%= @title %></div>
+  <div class="m-nav-side m-nav-side--right">
+    <% if right? %><%= right %><% end %>
+  </div>
+</div>

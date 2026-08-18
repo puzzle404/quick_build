@@ -1,0 +1,64 @@
+<%# Nuevo gasto — desktop. Antes sólo existía la modal inline (ya eliminada)
+    y esta ruta sólo la servía Hotwire Native. Ahora es la vista real detrás
+    del trigger "Registrar gasto" en cualquier contexto (proyecto u obra). %>
+<% if turbo_frame_request? %>
+  <% content_for(:drawer) do %>
+    <%= render(Qb::DrawerComponent.new(
+          eyebrow: "Gastos",
+          title: "Registrar nuevo gasto",
+          subtitle: @stage ? "Se asocia a la etapa #{@stage.name}" : "Se asocia al proyecto",
+          size: :lg
+        )) do %>
+      <%= form_with model: @expense,
+                    url: (@stage ? constructors_project_stage_expenses_path(@project, @stage) : constructors_project_expenses_path(@project)),
+                    scope: :expense, multipart: true do |form| %>
+        <%# expenses#create re-renderiza esta vista con 422 cuando la validación
+            falla, así que los errores tienen que tener dónde mostrarse. %>
+        <% if @expense.errors.any? %>
+          <div class="qb-form-error" role="alert">
+            <p style="font-weight:600;margin:0 0 4px;">No pudimos guardar el gasto:</p>
+            <ul style="margin:0;padding-left:16px;">
+              <% @expense.errors.full_messages.each do |message| %>
+                <li><%= message %></li>
+              <% end %>
+            </ul>
+          </div>
+        <% end %>
+
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;">
+          <div class="qb-field" style="margin-bottom:0;">
+            <%= form.label :incurred_on, "Fecha", class: "qb-label" %>
+            <%= form.date_field :incurred_on, value: @expense.incurred_on || Date.today, class: "qb-input" %>
+          </div>
+          <div class="qb-field" style="margin-bottom:0;">
+            <%= form.label :amount_pesos, "Monto (ARS)", class: "qb-label" %>
+            <%= form.text_field :amount_pesos, required: true, inputmode: "decimal", placeholder: "1.500,50",
+                                value: @expense.amount_cents ? number_with_precision(@expense.amount_cents / 100.0, precision: 2, separator: ",", delimiter: ".") : nil, class: "qb-input" %>
+          </div>
+        </div>
+
+        <div class="qb-field" style="margin-top:12px;">
+          <%= form.label :category, "Categoría", class: "qb-label" %>
+          <%= form.select :category, Expense::CATEGORY_OPTIONS, { selected: @expense.category, prompt: "Seleccionar categoría" }, class: "qb-select" %>
+        </div>
+
+        <div class="qb-field">
+          <%= form.label :description, "Descripción", class: "qb-label" %>
+          <%= form.text_area :description, rows: 2, value: @expense.description, class: "qb-textarea" %>
+        </div>
+
+        <div class="qb-field" style="margin-bottom:0;">
+          <%= form.label :receipt, "Comprobante (JPG, PNG, PDF)", class: "qb-label" %>
+          <%= render Qb::FileFieldComponent.new(form: form, method: :receipt,
+                                                trigger_label: "Elegir comprobante",
+                                                accept: "image/jpeg,image/png,application/pdf") %>
+        </div>
+
+        <div style="display:flex;align-items:center;gap:8px;margin-top:14px;">
+          <%= render Qb::BtnComponent.new('Guardar gasto', variant: :primary, icon: :plus, type: 'submit') %>
+          <%= render Qb::BtnComponent.new('Cancelar', variant: :secondary, data: { action: 'click->qb--drawer#back' }) %>
+        </div>
+      <% end %>
+    <% end %>
+  <% end %>
+<% end %>

@@ -1,0 +1,57 @@
+<%= form_with(model: [:constructors, project, material_list, material_item],
+              class: "space-y-4",
+              data: { turbo_frame: dom_id(material_list, :new_item_frame) }) do |form| %>
+  <% if material_item.errors.any? %>
+    <div class="qb-form-error">
+      <p class="font-semibold">No pudimos guardar el material:</p>
+      <ul class="mt-1 list-disc pl-4">
+        <% material_item.errors.full_messages.each do |message| %>
+          <li><%= message %></li>
+        <% end %>
+      </ul>
+    </div>
+  <% end %>
+
+  <div class="grid gap-4 sm:grid-cols-2">
+    <div class="qb-field">
+      <%= form.label :name, "Material", class: "qb-label" %>
+      <%= form.text_field :name, class: "qb-input" %>
+    </div>
+
+    <div class="grid grid-cols-2 gap-3">
+      <div class="qb-field">
+        <%= form.label :quantity, "Cantidad", class: "qb-label" %>
+        <%= form.number_field :quantity, step: 0.01, class: "qb-input" %>
+      </div>
+      <div class="qb-field">
+        <%= form.label :unit, "Unidad", class: "qb-label" %>
+        <%= form.text_field :unit, class: "qb-input" %>
+      </div>
+    </div>
+  </div>
+
+  <div class="qb-field">
+    <%= form.label :description, "Descripción", class: "qb-label" %>
+    <%= form.text_area :description, rows: 2, class: "qb-textarea" %>
+  </div>
+
+  <div class="grid gap-4 sm:grid-cols-2">
+    <div class="qb-field">
+      <%= form.label :estimated_cost_cents, "Costo estimado (centavos)", class: "qb-label" %>
+      <%= form.number_field :estimated_cost_cents, class: "qb-input" %>
+    </div>
+    <div class="qb-field">
+      <%= form.label :confidence_label, "Confianza / fuente", class: "qb-label" %>
+      <%= form.text_field :confidence_label, placeholder: "p.ej. Catálogo A, cálculo propio", class: "qb-input" %>
+    </div>
+  </div>
+
+  <div class="qb-field">
+    <%= form.label :notes, "Notas internas", class: "qb-label" %>
+    <%= form.text_area :notes, rows: 2, class: "qb-textarea" %>
+  </div>
+
+  <div class="flex justify-end">
+    <%= render Qb::BtnComponent.new('Agregar material', variant: :primary, type: 'submit') %>
+  </div>
+<% end %>

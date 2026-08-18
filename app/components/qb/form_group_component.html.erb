@@ -1,0 +1,25 @@
+<% if collapsible? %>
+  <details <%= 'open' if open? %> style="margin-bottom:18px;">
+    <summary style="<%= head_style %>cursor:pointer;list-style:none;">
+      <span style="<%= title_style %>"><%= title %></span>
+      <span style="font-size:11px;color:var(--color-ink-4);"><%= subtitle.presence || 'mostrar / ocultar' %></span>
+    </summary>
+    <%= content %>
+    <% if footnote.present? %>
+      <p style="margin:6px 0 0;font-size:11px;color:var(--color-ink-4);"><%= footnote %></p>
+    <% end %>
+  </details>
+<% else %>
+  <div style="margin-bottom:18px;">
+    <div style="<%= head_style %>">
+      <span style="<%= title_style %>"><%= title %></span>
+      <% if subtitle.present? %>
+        <span style="font-size:11px;color:var(--color-ink-4);"><%= subtitle %></span>
+      <% end %>
+    </div>
+    <%= content %>
+    <% if footnote.present? %>
+      <p style="margin:6px 0 0;font-size:11px;color:var(--color-ink-4);"><%= footnote %></p>
+    <% end %>
+  </div>
+<% end %>

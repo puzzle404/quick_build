@@ -1,0 +1,63 @@
+<div class="qb-sheet-overlay"
+     data-qb--bottom-sheet-target="overlay"
+     data-open="false"
+     data-action="click->qb--bottom-sheet#backdropClose">
+  <div class="qb-sheet-panel" role="dialog" aria-modal="true" aria-label="Más opciones">
+    <div class="qb-sheet-handle" aria-hidden="true"></div>
+
+    <%# Empresa + cerrar %>
+    <div style="display:flex;align-items:center;gap:10px;padding:0 14px 10px;">
+      <%= render Qb::AvatarComponent.new(name: display_company, size: 30) %>
+      <div style="flex:1;min-width:0;">
+        <div style="font-size:14px;font-weight:600;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;"><%= display_company %></div>
+        <div style="font-size:11px;color:var(--color-ink-3);">Plan Pro</div>
+      </div>
+      <button type="button" data-action="click->qb--bottom-sheet#close" aria-label="Cerrar"
+              style="height:34px;width:34px;display:inline-flex;align-items:center;justify-content:center;background:transparent;border:none;color:var(--color-ink-3);cursor:pointer;border-radius:8px;">
+        <%= render Qb::IconComponent.new(name: :close, size: 18) %>
+      </button>
+    </div>
+
+    <div style="height:1px;background:var(--color-line);margin:0 14px 6px;"></div>
+
+    <%# Acciones rápidas %>
+    <%= link_to new_project_url, style: row_style, data: { action: "click->qb--bottom-sheet#close" } do %>
+      <%= render Qb::IconComponent.new(name: :plus, size: 18) %>
+      <span>Nuevo proyecto</span>
+    <% end %>
+
+    <button type="button"
+            data-controller="qb--cmd-palette-trigger"
+            data-action="click->qb--cmd-palette-trigger#open click->qb--bottom-sheet#close"
+            style="<%= row_style %>">
+      <%= render Qb::IconComponent.new(name: :search, size: 18) %>
+      <span>Buscar o saltar…</span>
+    </button>
+
+    <%# Sub-nav del proyecto activo %>
+    <% if project_nav_items.any? %>
+      <div style="<%= section_label_style %>">En este proyecto</div>
+      <% project_nav_items.each do |item| %>
+        <%= link_to item[:url], style: row_style(item[:active]), data: { action: "click->qb--bottom-sheet#close" }, "aria-current": (item[:active] ? "page" : nil) do %>
+          <%= render Qb::IconComponent.new(name: item[:icon], size: 18) %>
+          <span><%= item[:label] %></span>
+        <% end %>
+      <% end %>
+    <% end %>
+
+    <div style="height:1px;background:var(--color-line);margin:8px 14px;"></div>
+
+    <%# Apariencia + sesión %>
+    <button type="button"
+            data-action="click->qb--tweaks#open click->qb--bottom-sheet#close"
+            style="<%= row_style %>">
+      <%= render Qb::IconComponent.new(name: :settings, size: 18) %>
+      <span>Apariencia</span>
+    </button>
+
+    <%= button_to session_path, method: :delete, form: { style: "margin:0;" }, style: row_style do %>
+      <%= render Qb::IconComponent.new(name: :'arrow-right', size: 18) %>
+      <span>Cerrar sesión</span>
+    <% end %>
+  </div>
+</div>

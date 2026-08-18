@@ -1,0 +1,69 @@
+<%# Editar etapa.
+    - turbo_frame_request (lápiz/Editar con data-turbo-frame="drawer"):
+      Qb::DrawerComponent dentro del frame global "drawer" (qb--drawer lo auto-abre).
+    - full page (acceso directo): shell QB OS (section_tabs + header strip) con el form centrado.
+    Las dos ramas muestran el mismo contexto (código, nombre, estado) porque dentro
+    del drawer no había forma de saber qué etapa se estaba editando. %>
+<% stage = @stage.decorate %>
+
+<%# Pills de contexto, compartidas por las dos ramas. %>
+<% context_pills = capture do %>
+  <%= render Qb::PillComponent.new(stage.status_label, tone: stage.status_tone, compact: true) %>
+  <% if stage.overdue? %>
+    <%= render Qb::PillComponent.new('Atrasada', tone: :bad, compact: true) %>
+  <% end %>
+  <% if stage.days_total %>
+    <span class="qb-mono" style="font-size:11px;color:var(--color-ink-4);"><%= stage.days_total + 1 %> días</span>
+  <% end %>
+<% end %>
+
+<% if turbo_frame_request? %>
+  <% content_for(:drawer) do %>
+    <%# Sin eyebrow:/title: — el slot custom_header reemplaza por completo al
+        header por defecto de Qb::DrawerComponent, así que esos args no se
+        renderizarían nunca. %>
+    <%= render(Qb::DrawerComponent.new(size: :lg)) do |d| %>
+      <% d.with_custom_header do %>
+        <div class="qb-drawer-header">
+          <button type="button" class="qb-drawer-back" data-qb--drawer-target="backButton"
+                  data-action="click->qb--drawer#back" aria-label="Volver" style="display:none;">
+            <%= render Qb::IconComponent.new(name: :'chevron-left', size: 16) %>
+          </button>
+          <div class="qb-drawer-header-main">
+            <div class="qb-drawer-eyebrow">Planificación · Etapa <%= stage.code %></div>
+            <h2 class="qb-drawer-title"><%= @stage.name %></h2>
+            <div class="qb-drawer-subtitle"><%= context_pills %></div>
+          </div>
+          <button type="button" class="qb-drawer-close" data-action="click->qb--drawer#close" aria-label="Cerrar">
+            <%= render Qb::IconComponent.new(name: :x, size: 16) %>
+          </button>
+        </div>
+      <% end %>
+      <%= render Constructors::Projects::Stages::StageFormComponent.new(project: @project, stage: @stage, in_drawer: true) %>
+    <% end %>
+  <% end %>
+<% else %>
+  <% project = @project.decorate %>
+  <%= render 'constructors/projects/section_tabs', project: project, current: :stages %>
+
+  <%# Header strip %>
+  <div style="padding:14px 20px;border-bottom:1px solid var(--color-line);display:flex;align-items:flex-end;gap:16px;">
+    <div style="flex:1;min-width:0;">
+      <div style="font-size:11px;font-family:var(--font-mono);color:var(--color-ink-3);text-transform:uppercase;letter-spacing:0.8px;">
+        <%= project.code %> · Planificación · Etapa <%= stage.code %>
+      </div>
+      <h2 style="margin:3px 0 0;font-size:18px;font-weight:600;letter-spacing:-0.3px;"><%= @stage.name %></h2>
+      <div style="display:flex;align-items:center;gap:6px;margin-top:6px;flex-wrap:wrap;">
+        <%= context_pills %>
+        <%= link_to '← Volver a la etapa', constructors_project_stage_path(@project, @stage),
+              style: 'color:var(--color-accent);text-decoration:none;font-size:12px;' %>
+      </div>
+    </div>
+  </div>
+
+  <div style="padding:28px 20px;">
+    <div style="max-width:620px;margin:0 auto;">
+      <%= render Constructors::Projects::Stages::StageFormComponent.new(project: @project, stage: @stage) %>
+    </div>
+  </div>
+<% end %>

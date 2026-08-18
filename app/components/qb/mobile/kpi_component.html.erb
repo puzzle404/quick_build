@@ -1,0 +1,13 @@
+<div class="m-kpi <%= "m-kpi--#{@gradient} m-kpi--gradient" if @gradient %>">
+  <div class="m-kpi-head">
+    <% if @icon %>
+      <div class="m-kpi-iconbox"><%= render Qb::Mobile::IconComponent.new(name: @icon, size: 15) %></div>
+    <% end %>
+    <span class="m-kpi-label"><%= @label %></span>
+  </div>
+  <div>
+    <div class="m-kpi-value mono tnum"><%= @value %></div>
+    <% if @hint.present? %><div class="m-kpi-hint"><%= @hint %></div><% end %>
+    <% if @delta.present? %><div class="m-kpi-delta" data-tone="<%= @delta_tone %>"><%= @delta %></div><% end %>
+  </div>
+</div>

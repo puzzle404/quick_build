@@ -1,0 +1,108 @@
+<% if turbo_frame_request? %>
+  <% content_for(:drawer) do %>
+    <%= render(Qb::DrawerComponent.new(eyebrow: @project.decorate.code, title: "Editar obra", size: :lg)) do %>
+      <%= render "form", project: @project %>
+    <% end %>
+  <% end %>
+<% else %>
+<div>
+  <%= render 'constructors/projects/section_tabs', project: @project, current: :stages %>
+
+  <%# Header strip %>
+  <div style="padding:14px 20px;border-bottom:1px solid var(--color-line);display:flex;align-items:flex-end;gap:16px;">
+    <div style="flex:1;">
+      <div style="font-size:11px;font-family:var(--font-mono);color:var(--color-ink-3);text-transform:uppercase;letter-spacing:0.8px;"><%= @project.decorate.code %> · Edición de obra</div>
+      <h2 style="margin:3px 0 0;font-size:18px;font-weight:600;letter-spacing:-0.3px;">Actualizar información del proyecto</h2>
+      <div style="font-size:12px;color:var(--color-ink-3);margin-top:2px;">
+        Última edición hace <%= time_ago_in_words(@project.updated_at || @project.created_at) %> · los cambios se reflejan en tableros y reportes.
+        <%= link_to '← Volver al resumen', constructors_project_path(@project), style: 'color:var(--color-accent);text-decoration:none;margin-left:8px;' %>
+      </div>
+    </div>
+    <%= render Qb::BtnComponent.new("Ver listado", variant: :ghost, size: :sm, href: constructors_projects_path) %>
+  </div>
+
+  <div style="display:grid;grid-template-columns:minmax(0,2fr) minmax(0,1fr);gap:0;">
+    <div style="border-right:1px solid var(--color-line);">
+      <%= render Qb::SectionHeadComponent.new(title: 'Datos del proyecto', subtitle: 'Completá la información operativa para planificar y coordinar actividades.') %>
+      <div style="padding:16px 20px;">
+        <%= render "form", project: @project %>
+
+        <div style="margin-top:16px;border:1px dashed var(--color-line);border-radius:var(--radius);padding:12px 14px;">
+          <p style="font-size:12px;font-weight:600;color:var(--color-ink-2);margin-bottom:4px;">Consejo:</p>
+          <p style="font-size:12px;color:var(--color-ink-2);line-height:1.5;">
+            Mantené las fechas actualizadas para desbloquear los tableros de Gantt y la curva S. Si aún no conocés el fin estimado, dejalo en blanco y podrás completarlo más adelante.
+          </p>
+        </div>
+      </div>
+    </div>
+
+    <aside>
+      <%= render Qb::SectionHeadComponent.new(title: 'Resumen operativo') %>
+      <div style="display:grid;grid-template-columns:1fr 1fr;border-bottom:1px solid var(--color-line);">
+        <%= render Qb::MetricCellComponent.new(
+              label: "Estado",
+              value: @project_summary.status.humanize,
+              hint: "Define cómo se mostrará en tableros y reportes."
+            ) %>
+        <%= render Qb::MetricCellComponent.new(
+              label: "Duración estimada",
+              value: @project_summary.duration_text || "—",
+              hint: @project_summary.duration_hint
+            ) %>
+        <%= render Qb::MetricCellComponent.new(
+              label: "Inicio programado",
+              value: formatted_project_date(@project_summary.start_date)
+            ) %>
+        <%= render Qb::MetricCellComponent.new(
+              label: "Fin estimado",
+              value: formatted_project_date(@project_summary.end_date)
+            ) %>
+      </div>
+
+      <%= render Qb::SectionHeadComponent.new(title: 'Accesos rápidos') %>
+      <ul style="list-style:none;margin:0;padding:8px 12px 16px;display:flex;flex-direction:column;gap:10px;">
+        <li style="display:flex;align-items:center;justify-content:space-between;border-radius:var(--radius);background:var(--color-bg-raised);border:1px solid var(--color-line);padding:10px 12px;">
+          <div>
+            <p style="font-size:12px;font-weight:600;color:var(--color-ink);margin-bottom:2px;">Equipo y permisos</p>
+            <p style="font-size:11px;color:var(--color-ink-3);">Gestioná administradores, responsables y observadores.</p>
+          </div>
+          <%= link_to constructors_project_people_path(@project), title: 'Ir al equipo', style: "color:var(--color-accent);display:inline-flex;" do %>
+            <span class="sr-only">Ir al equipo</span>
+            <%= render Qb::IconComponent.new(name: :'chevron-right', size: 14) %>
+          <% end %>
+        </li>
+        <li style="display:flex;align-items:center;justify-content:space-between;border-radius:var(--radius);border:1px solid var(--color-line);padding:10px 12px;">
+          <div>
+            <p style="font-size:12px;font-weight:600;color:var(--color-ink);margin-bottom:2px;">Documentos y evidencia</p>
+            <p style="font-size:11px;color:var(--color-ink-3);">Agregá planos, fotos y respaldos clave del proyecto.</p>
+          </div>
+          <span style="font-size:11px;font-family:var(--font-mono);color:var(--color-ink-3);"><%= @project_summary.attachments_count %> archivos</span>
+        </li>
+        <li style="display:flex;align-items:center;justify-content:space-between;border-radius:var(--radius);border:1px solid var(--color-line);padding:10px 12px;">
+          <div>
+            <p style="font-size:12px;font-weight:600;color:var(--color-ink);margin-bottom:2px;">Responsable principal</p>
+            <p style="font-size:11px;color:var(--color-ink-3);"><%= @project_summary.owner.email %></p>
+          </div>
+          <%= render Qb::StatusDotComponent.new(tone: :ok) %>
+        </li>
+      </ul>
+
+      <%= render Qb::SectionHeadComponent.new(title: 'Vista previa de imágenes') %>
+      <div style="padding:8px 12px 20px;">
+        <% if @project.images.any? %>
+          <div style="display:flex;gap:10px;overflow-x:auto;padding-bottom:4px;">
+            <% @project.images.limit(8).each do |image| %>
+              <% preview = image.file.variable? ? image.file.variant(resize_to_fill: [180, 120]) : image.file %>
+              <div style="height:96px;width:144px;flex-shrink:0;overflow:hidden;border-radius:var(--radius);border:1px solid var(--color-line);background:var(--color-bg-raised);">
+                <%= image_tag preview, style: "height:100%;width:100%;object-fit:cover;", alt: image.title || image.file_filename.to_s %>
+              </div>
+            <% end %>
+          </div>
+        <% else %>
+          <p style="font-size:12px;color:var(--color-ink-3);">Aún no se subieron imágenes. Podés cargarlas desde la sección Fotos del proyecto.</p>
+        <% end %>
+      </div>
+    </aside>
+  </div>
+</div>
+<% end %>

@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html lang="es"
+      data-theme="<%= current_user&.theme || 'graphite' %>"
+      data-density="<%= current_user&.density || 'cozy' %>"
+      data-accent="<%= current_user&.accent || 'cobalt' %>">
+  <head>
+    <title><%= content_for(:title) || "Quick Build" %></title>
+    <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="mobile-web-app-capable" content="yes">
+    <%= csrf_meta_tags %>
+    <%= csp_meta_tag %>
+
+    <%= yield :head %>
+
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Geist:wght@400;500;600;700&family=Geist+Mono:wght@400;500;600;700&display=swap" rel="stylesheet">
+
+    <%= render "layouts/pwa_head" %>
+
+    <%= stylesheet_link_tag :app, "data-turbo-track": "reload" %>
+    <%= javascript_importmap_tags %>
+  </head>
+
+  <body class="m-screen" <%= "data-hotwire-native" if hotwire_native_app? %>
+        data-controller="qb--tweaks qb--mobile-detect"
+        data-qb--tweaks-persist-value="<%= current_user.present? %>"
+        data-qb--tweaks-initial-value='<%= { theme: current_user&.theme || "graphite", accent: current_user&.accent || "cobalt", density: current_user&.density || "cozy" }.to_json %>'>
+    <% if notice %>
+      <div role="status" style="margin:12px 16px;padding:8px 12px;background:color-mix(in oklab, var(--color-ok) 14%, transparent);color:var(--color-ok);border-radius:10px;font-size:13px;"><%= notice %></div>
+    <% end %>
+    <% if alert %>
+      <div role="alert" style="margin:12px 16px;padding:8px 12px;background:color-mix(in oklab, var(--color-bad) 14%, transparent);color:var(--color-bad);border-radius:10px;font-size:13px;"><%= alert %></div>
+    <% end %>
+
+    <%# Show the tab bar only when the user is authenticated AND the screen
+        isn't hosted inside the Native iOS shell (which has its own
+        UITabBarController). Auth screens (login/signup) render without it. %>
+    <% show_tabbar = current_user.present? && !hotwire_native_app? %>
+
+    <main class="m-body" <%= raw 'style="padding-bottom: calc(72px + env(safe-area-inset-bottom, 0px));"' if show_tabbar %>>
+      <%= yield %>
+    </main>
+
+    <% if show_tabbar %>
+      <% active_tab = (respond_to?(:current_qb_section) ? current_qb_section : nil) || :dashboard %>
+      <%= render Qb::Mobile::TabBarComponent.new(active: active_tab) if defined?(Qb::Mobile::TabBarComponent) %>
+    <% end %>
+  </body>
+</html>

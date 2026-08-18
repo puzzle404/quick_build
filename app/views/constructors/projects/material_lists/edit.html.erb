@@ -1,0 +1,37 @@
+<% title = "Editar lista #{@material_list.display_number} #{@material_list.name}".strip %>
+<% subtitle = 'Actualizá cantidades, notas o adjuntos para mantener la lista al día.' %>
+
+<% if turbo_frame_request? %>
+  <% content_for(:drawer) do %>
+    <%= render(Qb::DrawerComponent.new(eyebrow: "Materiales", title: title, subtitle: subtitle, size: :lg)) do %>
+      <%= render "form", in_drawer: true %>
+    <% end %>
+  <% end %>
+<% else %>
+  <%= render 'constructors/projects/section_tabs', project: @project, current: :materials %>
+
+  <div>
+    <%# Header strip %>
+    <div style="padding:14px 20px;border-bottom:1px solid var(--color-line);display:flex;align-items:flex-end;gap:16px;">
+      <div style="flex:1;min-width:0;">
+        <div style="font-size:11px;font-family:var(--font-mono);color:var(--color-ink-3);text-transform:uppercase;letter-spacing:0.8px;"><%= @project.code %> · Materiales</div>
+        <h2 style="margin:3px 0 0;font-size:18px;font-weight:600;letter-spacing:-0.3px;"><%= title %></h2>
+        <div style="font-size:12px;color:var(--color-ink-3);margin-top:2px;">
+          <%= subtitle %> ·
+          <%= link_to "← Volver a la lista", constructors_project_material_list_path(@project, @material_list),
+                      style: "color:var(--color-accent);text-decoration:none;font-size:12px;" %>
+        </div>
+      </div>
+      <% if policy(@material_list).destroy? %>
+        <%= render Qb::BtnComponent.new('Eliminar', variant: :danger, size: :sm, icon: :trash,
+              href: constructors_project_material_list_path(@project, @material_list),
+              data: { turbo_method: :delete, turbo_confirm: '¿Seguro que querés eliminar esta lista?' }) %>
+      <% end %>
+    </div>
+
+    <%# Formulario centrado %>
+    <div style="max-width:720px;margin:0 auto;padding:24px 20px;">
+      <%= render "form" %>
+    </div>
+  </div>
+<% end %>

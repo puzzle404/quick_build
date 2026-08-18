@@ -1,0 +1,118 @@
+<%= form_with model: [:constructors, project] do |f| %>
+  <section class="qb-card" style="margin-bottom:16px;">
+    <h3 style="font-size:11px;font-family:var(--font-mono);text-transform:uppercase;letter-spacing:0.7px;color:var(--color-ink-2);margin-bottom:4px;">Información general</h3>
+    <p style="font-size:12px;color:var(--color-ink-3);margin-bottom:14px;">Estos datos aparecen en los tableros y reportes compartidos con tu equipo.</p>
+    <div style="display:grid;grid-template-columns:1fr;gap:12px;">
+      <div class="qb-field" style="margin-bottom:0;">
+        <%= f.label :name, class: "qb-label" %>
+        <%= f.text_field :name, class: "qb-input" %>
+      </div>
+      <div class="qb-field" style="margin-bottom:0;">
+        <%= f.label :description, class: "qb-label" %>
+        <%= f.text_area :description, rows: 3, class: "qb-input", style: "resize:vertical;" %>
+      </div>
+    </div>
+  </section>
+
+  <%# Ubicación · el domicilio y el mapa viven en el mismo bloque porque se
+      completan entre sí: buscar una dirección mueve el marcador, y arrastrar el
+      marcador propone un domicilio. Por eso el controller envuelve a los dos. %>
+  <section class="qb-card" style="margin-bottom:16px;"
+           data-controller="project-map">
+    <div style="display:flex;flex-direction:column;gap:4px;margin-bottom:12px;">
+      <div>
+        <h3 style="font-size:11px;font-family:var(--font-mono);text-transform:uppercase;letter-spacing:0.7px;color:var(--color-ink-2);">Ubicación de la obra</h3>
+        <p style="font-size:12px;color:var(--color-ink-3);">Buscá la dirección en el mapa o arrastrá el marcador para posicionar la obra.</p>
+      </div>
+    </div>
+
+    <div class="qb-field">
+      <%= f.label :location, "Domicilio", class: "qb-label" %>
+      <%= f.text_field :location,
+                       class: "qb-input",
+                       placeholder: "Ej. Av. Colón 1234, Mendoza",
+                       data: { project_map_target: "location" } %>
+    </div>
+
+    <div id="project-map"
+         style="width:100%;overflow:hidden;border-radius:var(--radius);border:1px solid var(--color-line);height:320px;"
+         data-project-map-target="map"></div>
+
+    <%# Si el domicilio ya tiene texto escrito a mano, arrastrar el marcador no
+        lo pisa: ofrece la dirección acá y se aplica solo si el usuario acepta. %>
+    <div data-project-map-target="suggestion"
+         style="display:none;align-items:center;gap:8px;margin-top:8px;padding:8px 10px;border:1px solid var(--color-line);border-radius:var(--radius);background:var(--color-bg-raised);">
+      <span style="font-size:10px;font-family:var(--font-mono);text-transform:uppercase;letter-spacing:0.6px;color:var(--color-ink-3);flex-shrink:0;">Sugerencia</span>
+      <span data-project-map-target="suggestionAddress"
+            style="flex:1;min-width:0;font-size:12px;color:var(--color-ink);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;"></span>
+      <%= render Qb::BtnComponent.new("Usar esta dirección", variant: :secondary, size: :xs,
+                                      data: { action: "project-map#acceptSuggestion" }) %>
+      <%= render Qb::BtnComponent.new("Descartar", variant: :ghost, size: :xs,
+                                      data: { action: "project-map#dismissSuggestion" }) %>
+    </div>
+
+    <%# Los hidden viven fuera del contenedor del mapa (Leaflet le inyecta y le
+        limpia hijos), pero dentro del controller para seguir siendo targets. %>
+    <%= f.hidden_field :latitude, data: { project_map_target: "latitude" } %>
+    <%= f.hidden_field :longitude, data: { project_map_target: "longitude" } %>
+
+    <p style="margin-top:8px;font-size:10px;color:var(--color-ink-4);">
+      Mapa y búsqueda de direcciones por
+      <%= link_to "OpenStreetMap", "https://www.openstreetmap.org/copyright", target: "_blank", rel: "noopener",
+                  style: "color:var(--color-ink-3);" %>.
+    </p>
+  </section>
+
+  <section class="qb-card" style="margin-bottom:16px;">
+    <h3 style="font-size:11px;font-family:var(--font-mono);text-transform:uppercase;letter-spacing:0.7px;color:var(--color-ink-2);margin-bottom:4px;">Planificación temporal</h3>
+    <p style="font-size:12px;color:var(--color-ink-3);margin-bottom:14px;">Estos valores alimentan la curva S y el tablero de hitos.</p>
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;">
+      <div class="qb-field" style="margin-bottom:0;">
+        <%= f.label :start_date, class: "qb-label" %>
+        <%= f.date_field :start_date, class: "qb-input" %>
+      </div>
+      <div class="qb-field" style="margin-bottom:0;">
+        <%= f.label :end_date, class: "qb-label" %>
+        <%= f.date_field :end_date, class: "qb-input" %>
+      </div>
+      <div class="qb-field" style="margin-bottom:0;grid-column:span 2;">
+        <%= f.label :status, class: "qb-label" %>
+        <%= f.select :status,
+                     Project.statuses.keys.map { |s| [ s.humanize, s ] },
+                     {},
+                     class: "qb-select" %>
+      </div>
+    </div>
+  </section>
+
+  <section class="qb-card" style="margin-bottom:16px;border-style:dashed;">
+    <h3 style="font-size:11px;font-family:var(--font-mono);text-transform:uppercase;letter-spacing:0.7px;color:var(--color-ink-2);margin-bottom:4px;">Documentación de soporte</h3>
+    <p style="font-size:12px;color:var(--color-ink-3);margin-bottom:14px;">
+      Adjunta planos, fotos o reportes relevantes. Puedes seleccionar múltiples archivos a la vez.
+    </p>
+
+    <div class="qb-field">
+      <p class="qb-label">Imágenes del proyecto</p>
+      <p style="font-size:11px;color:var(--color-ink-4);">Formatos recomendados: JPG o PNG (máx. 25 MB c/u)</p>
+      <%= render Qb::FileFieldComponent.new(form: f, method: :images,
+                                            trigger_label: "Elegir imágenes",
+                                            multiple: true, accept: "image/*", direct_upload: true) %>
+    </div>
+
+    <div class="qb-field" style="margin-bottom:0;">
+      <p class="qb-label">Documentos (PDF)</p>
+      <p style="font-size:11px;color:var(--color-ink-4);">Adjunta planos, contratos o reportes en PDF (máx. 25 MB c/u)</p>
+      <%= render Qb::FileFieldComponent.new(form: f, method: :document_files,
+                                            trigger_label: "Elegir documentos",
+                                            multiple: true, accept: ".pdf,application/pdf", direct_upload: true) %>
+    </div>
+  </section>
+
+  <div class="qb-form-actions">
+    <%= render Qb::BtnComponent.new(
+          project.persisted? ? "Actualizar obra" : "Crear obra",
+          variant: :primary,
+          type: 'submit'
+        ) %>
+  </div>
+<% end %>

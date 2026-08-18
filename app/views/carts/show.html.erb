@@ -5,12 +5,12 @@
   <% else %>
     <ul class="mb-4 space-y-2">
       <% @products.each do |product| %>
-        <li class="flex items-center justify-between rounded bg-white p-4 shadow">
+        <li class="flex items-center justify-between rounded bg-white p-4 shadow" id="product-<%= product.id %>">
           <span><%= product.name %> (<%= @cart[product.id.to_s] %>)</span>
-          <%= render Ui::ButtonComponent.new(label: 'Remove', path: remove_item_cart_path(product_id: product.id), method: :delete, variant: :danger) %>
+          <%= render Ui::ButtonComponent.new(label: 'Remove', path: remove_item_cart_path(product_id: product.id), turbo_method: "delete", turbo_confirm: 'Are you sure?', variant: :danger) %>
         </li>
       <% end %>
     </ul>
-    <%= render Ui::ButtonComponent.new(label: 'Checkout', path: new_order_path) %>
+    <%= render Ui::ButtonComponent.new(label: 'Checkout', path: new_order_path, turbo_confirm: 'Are you sure?') %>
   <% end %>
 </div>

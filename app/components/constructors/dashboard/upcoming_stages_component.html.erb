@@ -1,0 +1,20 @@
+<div>
+  <% if stages.empty? %>
+    <div style="padding:24px 16px;text-align:center;color:var(--color-ink-3);font-size:12px;">No hay etapas planificadas próximas.</div>
+  <% else %>
+    <% stages.each do |s| %>
+      <div style="display:grid;grid-template-columns:auto 1fr auto;gap:10px;align-items:center;padding:8px 16px;border-bottom:1px solid var(--color-line);">
+        <%= render Qb::AvatarComponent.new(name: lead_name(s), size: 22) %>
+        <div style="min-width:0;">
+          <div style="font-size:12px;font-weight:500;color:var(--color-ink);"><%= s.name %></div>
+          <div style="font-size:11px;color:var(--color-ink-3);">
+            <span class="qb-mono"><%= project_code(s) %></span> · <%= lead_name(s) %> · <%= short_when(s) %>
+          </div>
+        </div>
+        <div class="qb-mono qb-tnum" style="font-size:12px;color:var(--color-ink-2);">
+          <%= stage_budget(s).positive? ? helpers.qb_fmt_ars(stage_budget(s)) : '—' %>
+        </div>
+      </div>
+    <% end %>
+  <% end %>
+</div>

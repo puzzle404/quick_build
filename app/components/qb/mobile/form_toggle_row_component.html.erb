@@ -1,0 +1,11 @@
+<label class="m-frow-toggle">
+  <div class="m-frow-toggle-main">
+    <div class="m-frow-toggle-title"><%= @label %></div>
+    <% if @sub.present? %><div class="m-frow-toggle-sub"><%= @sub %></div><% end %>
+  </div>
+  <input type="checkbox"
+         class="m-frow-toggle-switch"
+         name="<%= @name %>"
+         value="<%= @value %>"
+         <%= 'checked' if @checked %>/>
+</label>

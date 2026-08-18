@@ -1,0 +1,23 @@
+<div style="padding:14px;">
+  <% if stages.any? %>
+    <div style="display:grid;grid-template-columns:repeat(14, 1fr);gap:4px;">
+      <% stages.each_with_index do |s, idx| %>
+        <div title="<%= short_code(s, idx) %> <%= s.name %> · <%= s.try(:progress).to_i %>%"
+             style="aspect-ratio:1;background:<%= cell_color(s) %>;opacity:<%= cell_opacity(s) %>;border-radius:3px;position:relative;display:flex;align-items:flex-end;justify-content:center;padding:3px;">
+          <span style="font-family:var(--font-mono);font-size:9px;color:white;text-shadow:0 1px 2px rgba(0,0,0,0.3);"><%= short_code(s, idx) %></span>
+        </div>
+      <% end %>
+    </div>
+    <div style="display:flex;justify-content:space-between;align-items:center;margin-top:10px;font-size:11px;color:var(--color-ink-3);">
+      <div style="display:flex;gap:10px;">
+        <span style="display:inline-flex;align-items:center;gap:6px;"><span style="width:10px;height:10px;background:var(--color-ok);display:inline-block;"></span>Completa</span>
+        <span style="display:inline-flex;align-items:center;gap:6px;"><span style="width:10px;height:10px;background:var(--color-accent);display:inline-block;"></span>En curso</span>
+        <span style="display:inline-flex;align-items:center;gap:6px;"><span style="width:10px;height:10px;background:var(--color-warn);display:inline-block;"></span>Atrasada</span>
+        <span style="display:inline-flex;align-items:center;gap:6px;"><span style="width:10px;height:10px;background:var(--color-line-2);display:inline-block;"></span>Pendiente</span>
+      </div>
+      <span class="qb-mono" style="color:var(--color-ink-4);"><%= stages.size %> etapas</span>
+    </div>
+  <% else %>
+    <div style="text-align:center;color:var(--color-ink-3);font-size:12px;padding:20px;">Aún no hay etapas cargadas.</div>
+  <% end %>
+</div>

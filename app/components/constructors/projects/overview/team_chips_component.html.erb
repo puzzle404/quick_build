@@ -1,0 +1,19 @@
+<div style="padding:12px;display:flex;flex-wrap:wrap;gap:6px;">
+  <% if entries.empty? %>
+    <div style="padding:12px;color:var(--color-ink-3);font-size:12px;">Aún no hay equipo asignado.</div>
+  <% else %>
+    <% entries.each do |user, role| %>
+      <div style="display:flex;align-items:center;gap:8px;padding:6px 10px 6px 6px;border:1px solid var(--color-line);border-radius:999px;background:var(--color-bg-raised);"
+           title="<%= user.email %> · <%= Constructors::Projects::RoleBadgeComponent.hint_for(role) %>">
+        <%= render Qb::AvatarComponent.new(name: short_name(user), size: 20) %>
+        <div style="font-size:12px;font-weight:500;"><%= short_name(user) %></div>
+        <span class="qb-mono" style="font-size:10px;color:var(--color-ink-4);"><%= role_label(role) %></span>
+      </div>
+    <% end %>
+    <% if hidden_count.positive? %>
+      <div style="display:flex;align-items:center;padding:6px 10px;border:1px dashed var(--color-line);border-radius:999px;font-size:11px;color:var(--color-ink-4);">
+        +<%= hidden_count %>
+      </div>
+    <% end %>
+  <% end %>
+</div>
