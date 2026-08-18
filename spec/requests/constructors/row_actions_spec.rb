@@ -19,7 +19,7 @@ RSpec.describe 'Constructors · acciones por fila', type: :request do
 
     get constructors_library_path
     expect(response).to have_http_status(:ok)
-    expect(response.body).to include('data-turbo-frame="project_modal"')
+    expect(response.body).to include('data-turbo-frame="drawer"')
     expect(response.body).to include('aria-label="Ver planos.pdf"')
     expect(response.body).to include('aria-label="Descargar planos.pdf"')
   end

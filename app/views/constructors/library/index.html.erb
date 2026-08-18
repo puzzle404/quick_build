@@ -91,7 +91,7 @@
                 <%= render Qb::BtnComponent.new('', variant: :ghost, size: :xs, icon: :eye,
                       href: constructors_library_document_path(doc),
                       title: 'Ver el documento', aria_label: "Ver #{doc.file_filename}",
-                      data: { turbo_frame: 'project_modal' }) %>
+                      data: { turbo_frame: 'drawer', action: 'click->qb--drawer#open' }) %>
                 <%= render Qb::BtnComponent.new('', variant: :ghost, size: :xs, icon: :download,
                       href: url_for(doc.file),
                       title: 'Descargar el archivo', aria_label: "Descargar #{doc.file_filename}") %>
@@ -121,6 +121,3 @@
 
   <%= render Qb::PaginationComponent.new(pagy: @pagy, label: 'documentos') %>
 </div>
-
-<%# Destino del visor de documentos (Turbo Frame). %>
-<%= turbo_frame_tag "project_modal" %>
