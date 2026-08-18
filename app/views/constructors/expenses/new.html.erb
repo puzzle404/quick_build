@@ -12,8 +12,10 @@
       <%= form_with model: @expense,
                     url: (@stage ? constructors_project_stage_expenses_path(@project, @stage) : constructors_project_expenses_path(@project)),
                     scope: :expense, multipart: true do |form| %>
+        <%# expenses#create re-renderiza esta vista con 422 cuando la validación
+            falla, así que los errores tienen que tener dónde mostrarse. %>
         <% if @expense.errors.any? %>
-          <div class="qb-form-error">
+          <div class="qb-form-error" role="alert">
             <p style="font-weight:600;margin:0 0 4px;">No pudimos guardar el gasto:</p>
             <ul style="margin:0;padding-left:16px;">
               <% @expense.errors.full_messages.each do |message| %>

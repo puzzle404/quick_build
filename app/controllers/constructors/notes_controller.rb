@@ -6,13 +6,20 @@ module Constructors
     before_action :set_noteable, only: [ :new, :create ]
     before_action :set_note, only: [ :destroy ]
 
-    # Mirror of the desktop's inline modal — the Native shell hits this URL
-    # so the path-config rule presents it as a bottom-sheet automatically.
+    # Única vista del form de nota: desktop la carga dentro del frame "drawer"
+    # (turbo_frame "drawer" + controller Stimulus `qb--drawer`) y el shell
+    # Native la abre como página completa con la variante :mobile (la regla de
+    # path-config la presenta como bottom-sheet).
     def new
       # Mismo criterio que en gastos: el form pide el permiso del alta
       # (editor+), no el de lectura.
       @note = @noteable.notes.build
       authorize @note, :new?
+
+      # `new.html.erb` entera vive detrás de `turbo_frame_request?`, así que un
+      # GET directo sin frame (link pegado, historial) devolvía una página en
+      # blanco. Mismo criterio que library#show: sin frame, al destino natural.
+      redirect_to redirect_path unless turbo_frame_request? || mobile_variant?
     end
 
     def create
@@ -27,7 +34,7 @@ module Constructors
         # cierra el drawer y refresca la página actual (index, resumen…).
         respond_to do |format|
           format.turbo_stream do
-            if request.variant.include?(:mobile) || @noteable.is_a?(ProjectStage)
+            if mobile_variant? || @noteable.is_a?(ProjectStage)
               redirect_to redirect_path, notice: "Nota agregada correctamente."
             else
               flash[:notice] = "Nota agregada correctamente."
@@ -36,7 +43,17 @@ module Constructors
           end
           format.html { redirect_to redirect_path, notice: "Nota agregada correctamente." }
         end
+      elsif turbo_frame_request?
+        # El form vive dentro del frame "drawer". Un redirect acá lo sigue
+        # Turbo como request de frame: la página de destino no tiene contenido
+        # para "drawer", así que el MutationObserver de qb--drawer lo cerraba,
+        # el alert se descartaba con esa respuesta y el usuario perdía lo
+        # tipeado sin ver un solo mensaje. Re-renderizar el form en el lugar
+        # (422) deja los errores a la vista sin salir del drawer.
+        render :new, status: :unprocessable_entity
       else
+        # Mobile (form de página completa, sin frame) y accesos directos: el
+        # redirect + alert sí se ve porque hay navegación real.
         redirect_to redirect_path,
           alert: @note.errors.full_messages.to_sentence
       end

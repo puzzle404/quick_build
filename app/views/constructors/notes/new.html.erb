@@ -1,5 +1,6 @@
-<%# Nueva nota — desktop. Antes sólo existía la modal inline (ya eliminada);
-    esta ruta sólo la servía Hotwire Native. %>
+<%# Nueva nota — desktop. Antes sólo existía la modal inline (ya eliminada) y
+    esta ruta sólo la servía Hotwire Native. Ahora es la vista real detrás del
+    trigger "Agregar nota" en cualquier contexto (proyecto o etapa). %>
 <% if turbo_frame_request? %>
   <% content_for(:drawer) do %>
     <%= render(Qb::DrawerComponent.new(
@@ -11,6 +12,19 @@
       <%= form_with model: @note,
                     url: (@noteable.is_a?(ProjectStage) ? constructors_project_stage_notes_path(@project, @noteable) : constructors_project_notes_path(@project)),
                     scope: :note do |form| %>
+        <%# notes#create re-renderiza esta vista con 422 cuando la validación
+            falla, así que los errores tienen que tener dónde mostrarse. %>
+        <% if @note.errors.any? %>
+          <div class="qb-form-error" role="alert">
+            <p style="font-weight:600;margin:0 0 4px;">No pudimos guardar la nota:</p>
+            <ul style="margin:0;padding-left:16px;">
+              <% @note.errors.full_messages.each do |message| %>
+                <li><%= message %></li>
+              <% end %>
+            </ul>
+          </div>
+        <% end %>
+
         <div class="qb-field">
           <%= form.label :title, "Título (opcional)", class: "qb-label" %>
           <%= form.text_field :title, class: "qb-input" %>

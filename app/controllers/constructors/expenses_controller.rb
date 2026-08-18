@@ -34,16 +34,21 @@ module Constructors
       @expense = Expense.new(currency: "ARS", incurred_on: Date.current)
     end
 
-    # Renders the mobile expense form. Desktop opens the same form inline via
-    # the global drawer (turbo_frame "drawer" + `qb--drawer` Stimulus
-    # controller); the Native shell can't host that drawer, so it loads
-    # `/new` instead — the path-config rule routes it as a bottom-sheet
-    # automatically.
+    # Única vista del form de gasto: desktop la carga dentro del frame
+    # "drawer" (turbo_frame "drawer" + controller Stimulus `qb--drawer`) y el
+    # shell Native, que no puede hospedar ese drawer, la abre como página
+    # completa con la variante :mobile (la regla de path-config la presenta
+    # como bottom-sheet).
     def new
       # El formulario se autoriza como el alta que va a hacer (editor+): con
       # `:show?` un viewer llegaba hasta el form y recién ahí se comía el "no".
       @expense = @project.expenses.build(currency: "ARS", incurred_on: Date.current, project_stage: @stage)
       authorize @expense, :new?
+
+      # `new.html.erb` entera vive detrás de `turbo_frame_request?`, así que un
+      # GET directo sin frame (link pegado, historial) devolvía una página en
+      # blanco. Mismo criterio que library#show: sin frame, al destino natural.
+      redirect_to redirect_path unless turbo_frame_request? || mobile_variant?
     end
 
     def create
@@ -55,7 +60,7 @@ module Constructors
       if @expense.save
         respond_to do |format|
           format.turbo_stream do
-            if request.variant.include?(:mobile)
+            if mobile_variant?
               redirect_to redirect_path, notice: "Gasto registrado correctamente."
             elsif @stage
               # Etapa: el form ya no fuerza _top, así que el redirect se sigue
@@ -72,7 +77,17 @@ module Constructors
           end
           format.html { redirect_to redirect_path, notice: "Gasto registrado correctamente." }
         end
+      elsif turbo_frame_request?
+        # El form vive dentro del frame "drawer". Un redirect acá lo sigue
+        # Turbo como request de frame: la página de destino no tiene contenido
+        # para "drawer", así que el MutationObserver de qb--drawer lo cerraba,
+        # el alert se descartaba con esa respuesta y el usuario perdía lo
+        # tipeado sin ver un solo mensaje. Re-renderizar el form en el lugar
+        # (422) deja los errores a la vista sin salir del drawer.
+        render :new, status: :unprocessable_entity
       else
+        # Mobile (form de página completa, sin frame) y accesos directos: el
+        # redirect + alert sí se ve porque hay navegación real.
         redirect_to redirect_path,
           alert: @expense.errors.full_messages.to_sentence
       end

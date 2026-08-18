@@ -117,6 +117,74 @@ RSpec.describe "Constructors::Expenses", type: :request do
     end
   end
 
+  # Regression guard (final review, fix 1): el form vive dentro del frame
+  # "drawer". Con un `redirect_to ..., alert:` en la rama de error Turbo seguía
+  # el redirect como request de frame, aterrizaba en una página sin contenido
+  # para "drawer" (el drawer se cerraba solo) y el alert se descartaba con esa
+  # respuesta: el usuario perdía lo tipeado sin ver un mensaje.
+  describe "POST inválido desde el drawer" do
+    before { sign_in(owner) }
+
+    let(:invalid_params) do
+      { expense: { amount_pesos: "", currency: "ARS", category: "labor", incurred_on: Date.today.to_s } }
+    end
+
+    # Mismo Accept que manda Turbo al submitear un form dentro de un frame.
+    let(:turbo_accept) { "text/vnd.turbo-stream.html, text/html, application/xhtml+xml" }
+
+    it "re-renderiza el form dentro del drawer con 422 en vez de redirigir" do
+      expect {
+        post constructors_project_expenses_path(project),
+             params: invalid_params,
+             headers: { "Turbo-Frame" => "drawer", "Accept" => turbo_accept }
+      }.not_to change(Expense, :count)
+
+      expect(response).to have_http_status(:unprocessable_entity)
+      expect(response).not_to be_redirect
+      # Tiene que ser HTML, no text/vnd.turbo-stream.html: Turbo procesa una
+      # respuesta turbo-stream buscando <turbo-stream> y descartaría el form.
+      expect(response.media_type).to eq("text/html")
+      expect(response.body).to include('id="drawer"')
+      expect(response.body).to include("qb-drawer-panel")
+      expect(response.body).to include("No pudimos guardar el gasto")
+      expect(response.body).to include("Monto (ARS)")
+    end
+
+    it "hace lo mismo en la rama de etapa" do
+      post constructors_project_stage_expenses_path(project, stage),
+           params: invalid_params,
+           headers: { "Turbo-Frame" => "drawer" }
+
+      expect(response).to have_http_status(:unprocessable_entity)
+      expect(response.body).to include("qb-drawer-panel")
+      expect(response.body).to include("No pudimos guardar el gasto")
+    end
+
+    it "conserva el redirect + alert cuando el POST no viene de un frame (mobile / página completa)" do
+      post constructors_project_expenses_path(project), params: invalid_params
+
+      expect(response).to redirect_to(constructors_project_path(project))
+      expect(flash[:alert]).to be_present
+    end
+  end
+
+  describe "GET #new sin frame" do
+    before { sign_in(owner) }
+
+    it "redirige en vez de servir una página en blanco" do
+      get new_constructors_project_expense_path(project)
+
+      expect(response).to redirect_to(constructors_project_path(project))
+    end
+
+    it "sirve el drawer cuando la request viene del frame" do
+      get new_constructors_project_expense_path(project), headers: { "Turbo-Frame" => "drawer" }
+
+      expect(response).to have_http_status(:ok)
+      expect(response.body).to include("qb-drawer-panel")
+    end
+  end
+
   describe "DELETE project-scoped /constructors/projects/:project_id/expenses/:id" do
     before { sign_in(owner) }
 
