@@ -99,6 +99,7 @@ class Constructors::PeopleController < Constructors::BaseController
         if request.variant.include?(:mobile)
           redirect_to constructors_person_path(@person), notice: notice
         else
+          flash[:notice] = notice
           render turbo_stream: turbo_stream.refresh(request_id: nil)
         end
       end

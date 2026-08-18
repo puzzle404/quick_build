@@ -65,6 +65,7 @@ module Constructors
               # Proyecto: no hay un único "detalle" al que volver (index,
               # resumen del proyecto…), así que refresh cierra el drawer y
               # refresca cualquiera de esas pantallas por igual.
+              flash[:notice] = "Gasto registrado correctamente."
               render turbo_stream: turbo_stream.refresh(request_id: nil)
             end
           end

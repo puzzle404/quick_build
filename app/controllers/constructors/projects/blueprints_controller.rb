@@ -40,6 +40,7 @@ class Constructors::Projects::BlueprintsController < Constructors::BaseControlle
             redirect_to constructors_project_blueprints_path(@project, selected: @blueprint.id),
                         notice: "Plano subido correctamente."
           else
+            flash[:notice] = "Plano subido correctamente."
             render turbo_stream: turbo_stream.refresh(request_id: nil)
           end
         end

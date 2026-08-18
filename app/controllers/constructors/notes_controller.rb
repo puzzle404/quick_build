@@ -30,6 +30,7 @@ module Constructors
             if request.variant.include?(:mobile) || @noteable.is_a?(ProjectStage)
               redirect_to redirect_path, notice: "Nota agregada correctamente."
             else
+              flash[:notice] = "Nota agregada correctamente."
               render turbo_stream: turbo_stream.refresh(request_id: nil)
             end
           end

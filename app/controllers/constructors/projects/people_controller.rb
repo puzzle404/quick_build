@@ -83,6 +83,7 @@ class Constructors::Projects::PeopleController < Constructors::BaseController
             # lugares con el dato viejo. El refresh nativo de Turbo 8 cierra
             # el drawer (la próxima carga no trae contenido para él) Y
             # refresca toda la página actual en un solo paso.
+            flash[:notice] = "Datos actualizados."
             render turbo_stream: turbo_stream.refresh(request_id: nil)
           end
         end
