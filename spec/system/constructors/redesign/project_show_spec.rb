@@ -22,7 +22,12 @@ RSpec.describe 'QB OS · Project show + Overview', type: :system do
       expect(page).to have_text(label)
     end
     expect(page).to have_text('Planos · IA')
-    expect(page).to have_no_text('Planificación')
+    # "Planificación" ya no es una pestaña propia — pero SÍ sigue siendo el
+    # eyebrow legítimo de los drawers de plantillas/nueva etapa (click-driven
+    # qb--drawer, cerrados por default pero presentes en el DOM bajo
+    # rack_test), así que el check se acota a la barra de tabs, no a la
+    # página entera.
+    within('.qb-tabs-row') { expect(page).to have_no_text('Planificación') }
   end
 
   it 'renders the stages workspace (switcher + actions) on the landing page' do

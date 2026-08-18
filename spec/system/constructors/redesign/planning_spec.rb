@@ -44,12 +44,14 @@ RSpec.describe 'QB OS · Stages workspace', type: :system do
     expect(page).to have_text('Mampostería')
   end
 
-  it 'renders the Aplicar plantilla and Nueva etapa modals (hidden by default)' do
+  it 'renders the Aplicar plantilla and Nueva etapa drawers (closed by default)' do
     visit constructors_project_path(project)
     expect(page).to have_button('Aplicar plantilla')
     expect(page).to have_button('Nueva etapa')
-    # Modal panels exist in the DOM but start hidden — the dialog targets
-    # carry the .hidden class until qb--modal#open fires.
-    expect(page).to have_css('[data-qb--modal-target="dialog"]', visible: :all)
+    # Click-driven qb--drawer instances (TemplateDrawerComponent,
+    # SaveTemplateDrawerComponent, NewStageDrawerComponent — none has a #new
+    # route to frame-scope against) exist in the DOM but start closed —
+    # qb-drawer-shell stays at opacity:0 until qb--drawer#open fires.
+    expect(page).to have_css('.qb-drawer-shell[data-qb--drawer-target="dialog"]', visible: :all, minimum: 3)
   end
 end
