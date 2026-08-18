@@ -92,8 +92,18 @@ class Constructors::PeopleController < Constructors::BaseController
     ActiveRecord::Base.transaction do
       @assignments.each { |a| a.update!(person_params) }
     end
-    redirect_to constructors_person_path(@person),
-                notice: "Datos actualizados en #{@assignments.size} #{@assignments.size == 1 ? 'asignación' : 'asignaciones'}."
+
+    notice = "Datos actualizados en #{@assignments.size} #{@assignments.size == 1 ? 'asignación' : 'asignaciones'}."
+    respond_to do |format|
+      format.turbo_stream do
+        if request.variant.include?(:mobile)
+          redirect_to constructors_person_path(@person), notice: notice
+        else
+          render turbo_stream: turbo_stream.refresh
+        end
+      end
+      format.html { redirect_to constructors_person_path(@person), notice: notice }
+    end
   rescue ActiveRecord::RecordInvalid => e
     @current_qb_section = :team
     @person.assign_attributes(person_params)
