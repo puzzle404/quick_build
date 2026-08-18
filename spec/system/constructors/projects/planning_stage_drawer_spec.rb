@@ -2,8 +2,8 @@
 
 require "rails_helper"
 
-# JS (Cuprite): the drawer (qb--drawer), the work-area tabs (qb--tabs) and the
-# expense modal (qb--modal) all require Stimulus + Turbo Frame.
+# JS (Cuprite): the drawer (qb--drawer) and the work-area tabs (qb--tabs)
+# both require Stimulus + Turbo Frame.
 RSpec.describe "Planning stage drawer", type: :system, js: true do
   it "opens the stage detail in the drawer and registers an expense" do
     owner   = create(:user, :constructor)
@@ -19,7 +19,7 @@ RSpec.describe "Planning stage drawer", type: :system, js: true do
     expect(page).to have_text("Fundaciones", wait: 5)
 
     find(".qb-tab", text: /Gastos/).click
-    click_button("Nuevo gasto")
+    click_on("Nuevo gasto")
 
     fill_in "Monto (ARS)", with: "150"
     select "Mano de obra", from: "Categoría"

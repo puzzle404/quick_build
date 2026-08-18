@@ -1,7 +1,6 @@
-<%# Nuevo gasto — desktop. Antes sólo existía la modal inline
-    (ExpenseModalComponent) y esta ruta sólo la servía Hotwire Native. Ahora
-    es la vista real detrás del trigger "Registrar gasto" en cualquier
-    contexto (proyecto u obra). %>
+<%# Nuevo gasto — desktop. Antes sólo existía la modal inline (ya eliminada)
+    y esta ruta sólo la servía Hotwire Native. Ahora es la vista real detrás
+    del trigger "Registrar gasto" en cualquier contexto (proyecto u obra). %>
 <% if turbo_frame_request? %>
   <% content_for(:drawer) do %>
     <%= render(Qb::DrawerComponent.new(
@@ -38,7 +37,7 @@
 
         <div class="qb-field" style="margin-top:12px;">
           <%= form.label :category, "Categoría", class: "qb-label" %>
-          <%= form.select :category, Constructors::Projects::ExpenseModalComponent::CATEGORY_OPTIONS, { selected: @expense.category, prompt: "Seleccionar categoría" }, class: "qb-select" %>
+          <%= form.select :category, Expense::CATEGORY_OPTIONS, { selected: @expense.category, prompt: "Seleccionar categoría" }, class: "qb-select" %>
         </div>
 
         <div class="qb-field">

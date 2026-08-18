@@ -12,6 +12,19 @@ class Expense < ApplicationRecord
 
   ALLOWED_RECEIPT_TYPES = %w[image/jpeg image/png application/pdf].freeze
 
+  # Canonical (label, value) pairs for the category <select> on the expense
+  # forms. Moved here from the project's old inline expense modal component
+  # (deleted in the drawer migration) so it survives that deletion. Keep
+  # labels in sync with
+  # Constructors::Projects::ExpensesListComponent::CATEGORY_LABELS, which maps
+  # the same categories value => label for read-only display.
+  CATEGORY_OPTIONS = [
+    [ "Mano de obra", "labor" ],
+    [ "Materiales sueltos", "materials_misc" ],
+    [ "Alquileres", "rentals" ],
+    [ "Otros", "other" ]
+  ].freeze
+
   validates :amount_cents, presence: true, numericality: { greater_than: 0 }
   validates :incurred_on, presence: true
   validate :stage_belongs_to_same_project

@@ -17,10 +17,14 @@ RSpec.describe 'QB OS · Menú de acciones del proyecto', type: :system, js: tru
     find('.qb-proj-actions button[aria-label="Más acciones"]').click
   end
 
-  it 'abre el menú y navega a la edición del proyecto' do
+  it 'abre el menú y abre la edición del proyecto en el drawer' do
     open_kebab
     click_link 'Editar proyecto'
-    expect(page).to have_current_path(edit_constructors_project_path(project))
+
+    # "Editar proyecto" abre projects#edit dentro del drawer (Turbo Frame):
+    # no navega a una página nueva, así que la URL no cambia.
+    expect(page).to have_css('.qb-drawer-title', text: 'Editar obra', wait: 5)
+    expect(page).to have_current_path(constructors_project_documents_path(project))
   end
 
   it 'borra la obra desde el menú (turbo-method + confirm siguen vivos)' do

@@ -2,7 +2,7 @@
 
 require "rails_helper"
 
-# JS (Cuprite): the Gastos tab + the "Nuevo gasto" modal both require Stimulus.
+# JS (Cuprite): the Gastos tab + the "Nuevo gasto" drawer both require Stimulus.
 RSpec.describe "Adding an expense to a stage", type: :system, js: true do
   let(:owner) { create(:user, :constructor) }
   let(:project) { create(:project, owner: owner, name: "Proyecto Test") }
@@ -10,11 +10,11 @@ RSpec.describe "Adding an expense to a stage", type: :system, js: true do
 
   before { sign_in_user(owner) }
 
-  it "owner adds an expense via the Gastos tab modal" do
+  it "owner adds an expense via the Gastos tab drawer" do
     visit constructors_project_stage_path(project, stage)
 
     find(".qb-tab", text: /Gastos/).click
-    click_button("Nuevo gasto")
+    click_on("Nuevo gasto")
 
     fill_in "Monto (ARS)", with: "2500"
     select "Mano de obra", from: "Categoría"

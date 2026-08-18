@@ -21,7 +21,7 @@
   can_load_expenses = policy(@project).manage_content?
 %>
 
-<div data-controller="qb--modal">
+<div>
   <%= render 'constructors/projects/section_tabs', project: @project, current: :expenses %>
 
   <%# Strip de métricas %>
@@ -44,7 +44,8 @@
     </div>
     <% if can_load_expenses %>
       <%= render Qb::BtnComponent.new('Registrar gasto', variant: :primary, size: :sm, icon: :plus,
-            data: { action: 'click->qb--modal#open' }) %>
+            href: new_constructors_project_expense_path(@project),
+            data: { turbo_frame: 'drawer', action: 'click->qb--drawer#open' }) %>
     <% end %>
   </div>
 
@@ -87,8 +88,4 @@
   <% end %>
 
   <%= render Qb::PaginationComponent.new(pagy: @pagy, label: 'gastos') %>
-
-  <% if can_load_expenses %>
-    <%= render Constructors::Projects::ExpenseModalComponent.new(project: @project, expense: @expense) %>
-  <% end %>
 </div>

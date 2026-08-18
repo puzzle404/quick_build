@@ -50,13 +50,14 @@
             mirando. %>
         <%# Items en nil = sin permiso: MenuComponent los descarta y se cae solo
             si no queda ninguno (exportar es lectura, así que siempre queda). %>
-        <div class="qb-proj-actions" style="display:flex;gap:8px;" data-controller="qb--modal">
+        <div class="qb-proj-actions" style="display:flex;gap:8px;">
           <%= render Qb::MenuComponent.new(items: [
                 { label: 'Exportar etapas (CSV)', icon: :download,
                   href: constructors_project_stages_path(project, format: :csv),
                   title: 'Descargar etapas del proyecto (CSV)' },
                 ({ label: 'Editar proyecto', icon: :edit,
-                   href: edit_constructors_project_path(project) } if can_edit_project?),
+                   href: edit_constructors_project_path(project),
+                   data: { turbo_frame: 'drawer', action: 'click->qb--drawer#open' } } if can_edit_project?),
                 ({ divider: true } if can_destroy_project?),
                 ({ label: 'Eliminar obra', icon: :trash, danger: true,
                    href: constructors_project_path(project),
@@ -65,8 +66,8 @@
               ]) %>
           <% if can_manage_content? %>
             <%= render Qb::BtnComponent.new('Registrar gasto', variant: :primary, size: :sm, icon: :plus,
-                                            data: { action: 'click->qb--modal#open' }) %>
-            <%= render Constructors::Projects::ExpenseModalComponent.new(project: project) %>
+                  href: new_constructors_project_expense_path(project),
+                  data: { turbo_frame: 'drawer', action: 'click->qb--drawer#open' }) %>
           <% end %>
         </div>
       </div>

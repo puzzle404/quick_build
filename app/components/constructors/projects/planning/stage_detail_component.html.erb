@@ -149,50 +149,42 @@
 
   <%# Tab: Gastos %>
   <% tp.with_tab(label: "Gastos", count: stage.object.expenses.size) do %>
-    <div data-controller="qb--modal">
-      <% if can_manage_content? %>
-        <div class="sd-tab-actions">
-          <%= render Qb::BtnComponent.new('Nuevo gasto', variant: :primary, size: :xs, icon: :plus,
-                data: { action: 'click->qb--modal#open' }) %>
-        </div>
-      <% end %>
-      <% if stage.object.expenses.empty? %>
-        <div class="sd-list"><div class="sd-list-empty">Todavía no hay gastos registrados en esta etapa.</div></div>
-      <% else %>
-        <%= render Constructors::Projects::ExpensesListComponent.new(
-              expenses: stage.object.expenses.recent_first,
-              project: project,
-              stage: stage.object,
-              bare: true) %>
-      <% end %>
-      <% if can_manage_content? %>
-        <%= render Constructors::Projects::ExpenseModalComponent.new(project: project, stage: stage.object) %>
-      <% end %>
-    </div>
+    <% if can_manage_content? %>
+      <div class="sd-tab-actions">
+        <%= render Qb::BtnComponent.new('Nuevo gasto', variant: :primary, size: :xs, icon: :plus,
+              href: new_constructors_project_stage_expense_path(project, stage),
+              data: { turbo_frame: 'drawer', action: 'click->qb--drawer#open' }) %>
+      </div>
+    <% end %>
+    <% if stage.object.expenses.empty? %>
+      <div class="sd-list"><div class="sd-list-empty">Todavía no hay gastos registrados en esta etapa.</div></div>
+    <% else %>
+      <%= render Constructors::Projects::ExpensesListComponent.new(
+            expenses: stage.object.expenses.recent_first,
+            project: project,
+            stage: stage.object,
+            bare: true) %>
+    <% end %>
   <% end %>
 
   <%# Tab: Notas %>
   <% tp.with_tab(label: "Notas", count: stage.object.notes.size) do %>
-    <div data-controller="qb--modal">
-      <% if can_manage_content? %>
-        <div class="sd-tab-actions">
-          <%= render Qb::BtnComponent.new('Nueva nota', variant: :primary, size: :xs, icon: :plus,
-                data: { action: 'click->qb--modal#open' }) %>
-        </div>
-      <% end %>
-      <% if stage.object.notes.empty? %>
-        <div class="sd-list"><div class="sd-list-empty">Todavía no hay notas en esta etapa.</div></div>
-      <% else %>
-        <%= render Constructors::Projects::NotesListComponent.new(
-              notes: stage.object.notes.recent_first.includes(:author),
-              noteable: stage.object,
-              project: project,
-              bare: true) %>
-      <% end %>
-      <% if can_manage_content? %>
-        <%= render Constructors::Projects::NoteModalComponent.new(project: project, stage: stage.object) %>
-      <% end %>
-    </div>
+    <% if can_manage_content? %>
+      <div class="sd-tab-actions">
+        <%= render Qb::BtnComponent.new('Nueva nota', variant: :primary, size: :xs, icon: :plus,
+              href: new_constructors_project_stage_note_path(project, stage),
+              data: { turbo_frame: 'drawer', action: 'click->qb--drawer#open' }) %>
+      </div>
+    <% end %>
+    <% if stage.object.notes.empty? %>
+      <div class="sd-list"><div class="sd-list-empty">Todavía no hay notas en esta etapa.</div></div>
+    <% else %>
+      <%= render Constructors::Projects::NotesListComponent.new(
+            notes: stage.object.notes.recent_first.includes(:author),
+            noteable: stage.object,
+            project: project,
+            bare: true) %>
+    <% end %>
   <% end %>
 
   <%# Tab: Docs %>

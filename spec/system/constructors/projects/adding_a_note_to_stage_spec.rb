@@ -2,7 +2,7 @@
 
 require "rails_helper"
 
-# JS (Cuprite): the Notas tab + the "Nueva nota" modal both require Stimulus.
+# JS (Cuprite): the Notas tab + the "Nueva nota" drawer both require Stimulus.
 RSpec.describe "Adding a note to a stage", type: :system, js: true do
   let(:owner) { create(:user, :constructor) }
   let(:project) { create(:project, owner: owner, name: "Proyecto Test") }
@@ -10,11 +10,11 @@ RSpec.describe "Adding a note to a stage", type: :system, js: true do
 
   before { sign_in_user(owner) }
 
-  it "owner adds a note via the Notas tab modal" do
+  it "owner adds a note via the Notas tab drawer" do
     visit constructors_project_stage_path(project, stage)
 
     find(".qb-tab", text: /Notas/).click
-    click_button("Nueva nota")
+    click_on("Nueva nota")
 
     fill_in "Nota", with: "Verificar instalación de cañerías"
     click_button "Guardar"

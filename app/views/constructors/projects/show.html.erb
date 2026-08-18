@@ -169,15 +169,13 @@
       <%= render Constructors::Dashboard::ActivityFeedComponent.new(entries: @activity_entries) %>
     </div>
 
-    <%# qb--modal envuelve el SectionHead y la lista: el botón "Agregar nota"
-        del slot right necesita un qb--modal ancestor para que su click->open
-        encuentre el controller. %>
-    <div data-controller="qb--modal">
+    <div>
       <%= render Qb::SectionHeadComponent.new(title: 'Notas del proyecto', subtitle: 'Bitácora de reuniones y decisiones de obra') do |c| %>
         <% if can.manage_content? %>
           <% c.with_right do %>
             <%= render Qb::BtnComponent.new('Agregar nota', variant: :primary, size: :xs, icon: :plus,
-                  data: { action: 'click->qb--modal#open' }) %>
+                  href: new_constructors_project_note_path(@project),
+                  data: { turbo_frame: 'drawer', action: 'click->qb--drawer#open' }) %>
           <% end %>
         <% end %>
       <% end %>
@@ -191,9 +189,6 @@
                 project: @project
               ) %>
         </div>
-        <% if can.manage_content? %>
-          <%= render Constructors::Projects::NoteModalComponent.new(project: @project) %>
-        <% end %>
       </div>
     </div>
   </div>

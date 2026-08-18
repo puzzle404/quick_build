@@ -122,8 +122,8 @@ module Constructors
 
     # El destino nunca sale del parámetro: se compara contra el path calculado
     # del index de este proyecto, así que no hay open redirect posible.
-    # El borrado manda `return_to` explícito; el alta usa el modal compartido
-    # (ExpenseModalComponent), que no puede inyectar campos extra, así que ahí
+    # El borrado manda `return_to` explícito; el alta usa el form compartido de
+    # expenses/new (drawer), que no puede inyectar campos extra, así que ahí
     # se resuelve por Referer.
     def back_to_expenses_index?
       return true if params[:return_to].to_s == expenses_index_path

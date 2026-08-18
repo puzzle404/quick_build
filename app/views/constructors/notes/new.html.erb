@@ -1,5 +1,5 @@
-<%# Nueva nota — desktop. Antes sólo existía la modal inline
-    (NoteModalComponent); esta ruta sólo la servía Hotwire Native. %>
+<%# Nueva nota — desktop. Antes sólo existía la modal inline (ya eliminada);
+    esta ruta sólo la servía Hotwire Native. %>
 <% if turbo_frame_request? %>
   <% content_for(:drawer) do %>
     <%= render(Qb::DrawerComponent.new(
