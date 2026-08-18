@@ -65,14 +65,6 @@ class Qb::Layout::SidebarComponent < ViewComponent::Base
     "width:100%;display:flex;align-items:center;gap:10px;padding:0 10px;height:30px;margin-bottom:1px;background:#{bg};color:#{color};border:none;border-radius:5px;cursor:pointer;font-size:12.5px;font-weight:#{weight};text-decoration:none;position:relative;"
   end
 
-  def project_nav_link_style(item)
-    active = item[:active]
-    bg = active ? "var(--color-bg-sunken)" : "transparent"
-    color = active ? "var(--color-ink)" : "var(--color-ink-2)"
-    weight = active ? 600 : 500
-    "width:100%;display:flex;align-items:center;gap:10px;padding:0 10px;height:28px;margin-bottom:1px;background:#{bg};color:#{color};border:none;border-radius:5px;cursor:pointer;font-size:12px;font-weight:#{weight};text-decoration:none;position:relative;"
-  end
-
   def project_chip_style
     "padding:8px 10px;border-radius:6px;background:color-mix(in oklab, var(--color-accent) 8%, var(--color-bg-sunken));border:1px solid color-mix(in oklab, var(--color-accent) 18%, var(--color-line));"
   end

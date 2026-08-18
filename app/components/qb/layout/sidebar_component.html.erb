@@ -3,27 +3,27 @@
        data-qb--sidebar-storage-key-value="qb_sidebar_collapsed"
        style="flex-shrink:0;height:100vh;position:sticky;top:0;display:flex;flex-direction:column;border-right:1px solid var(--color-line);background:var(--color-bg-raised);transition:width .2s ease;">
 
-  <%# Brand %>
-  <div style="display:flex;align-items:center;height:48px;padding:0 12px;gap:10px;border-bottom:1px solid var(--color-line);">
-    <div style="width:26px;height:26px;border-radius:6px;background:var(--color-ink);color:var(--color-bg);display:flex;align-items:center;justify-content:center;font-family:var(--font-mono);font-weight:700;font-size:14px;letter-spacing:-0.5px;flex-shrink:0;">◱</div>
-    <div data-qb-sidebar-label style="line-height:1.1;overflow:hidden;">
-      <div style="font-weight:600;font-size:13px;letter-spacing:-0.1px;white-space:nowrap;">Quick Build</div>
-      <div style="font-size:10px;color:var(--color-ink-3);font-family:var(--font-mono);letter-spacing:0.5px;">OPS CONSOLE</div>
-    </div>
-  </div>
-
-  <%# Company switcher — dropdown con Perfil + Cerrar sesión %>
-  <div data-qb-sidebar-label data-controller="qb--dropdown" style="position:relative;margin:8px;">
+  <%# Marca + switcher de cuenta unificados: antes eran dos bloques apilados
+      (marca estática "Quick Build" + switcher con el nombre de la empresa),
+      que mostraban el mismo texto dos veces cuando la cuenta no tiene
+      company_name propio (cae al mismo fallback "Quick Build" — ver
+      display_company). Ahora es un único botón: el ícono de marca queda
+      siempre visible (sin data-qb-sidebar-label) para que el rail colapsado
+      conserve la identidad; el nombre + plan + flecha se ocultan colapsado
+      pero el botón sigue abriendo el menú (Perfil / Cerrar sesión). %>
+  <div data-controller="qb--dropdown" style="position:relative;margin:8px;">
     <button type="button"
             data-action="click->qb--dropdown#toggle"
             aria-label="Menú de cuenta"
-            style="width:100%;padding:8px 10px;text-align:left;background:var(--color-bg);border:1px solid var(--color-line);border-radius:5px;display:flex;align-items:center;gap:8px;cursor:pointer;color:var(--color-ink);">
-      <%= render Qb::AvatarComponent.new(name: display_company, size: 22) %>
-      <div style="flex:1;overflow:hidden;">
-        <div style="font-size:12px;font-weight:500;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;"><%= display_company %></div>
-        <div style="font-size:10px;color:var(--color-ink-3);">Plan Pro</div>
+            style="width:100%;padding:8px 10px;text-align:left;background:var(--color-bg);border:1px solid var(--color-line);border-radius:6px;display:flex;align-items:center;gap:10px;cursor:pointer;color:var(--color-ink);">
+      <div style="width:26px;height:26px;border-radius:6px;background:var(--color-ink);color:var(--color-bg);display:flex;align-items:center;justify-content:center;font-family:var(--font-mono);font-weight:700;font-size:14px;letter-spacing:-0.5px;flex-shrink:0;">◱</div>
+      <div data-qb-sidebar-label style="flex:1;overflow:hidden;line-height:1.15;">
+        <div style="font-size:13px;font-weight:600;letter-spacing:-0.1px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;"><%= display_company %></div>
+        <div style="font-size:10px;color:var(--color-ink-3);font-family:var(--font-mono);letter-spacing:0.4px;">PLAN PRO</div>
       </div>
-      <%= render Qb::IconComponent.new(name: :'chevron-down', size: 12, style: 'color:var(--color-ink-3)') %>
+      <span data-qb-sidebar-label style="flex-shrink:0;display:flex;">
+        <%= render Qb::IconComponent.new(name: :'chevron-down', size: 12, style: 'color:var(--color-ink-3)') %>
+      </span>
     </button>
     <div data-qb--dropdown-target="menu"
          class="hidden"
@@ -82,19 +82,14 @@
         </div>
       </div>
 
-      <div data-qb-sidebar-label style="margin-top:8px;padding:4px 10px 4px;font-size:10px;font-family:var(--font-mono);color:var(--color-ink-4);letter-spacing:1px;text-transform:uppercase;font-weight:500;">En este proyecto</div>
-      <% project_nav_items.each do |item| %>
-        <%= link_to item[:url], style: project_nav_link_style(item), 'aria-current': (item[:active] ? 'page' : nil) do %>
-          <% if item[:active] %>
-            <span data-qb-sidebar-label style="position:absolute;left:-8px;top:6px;bottom:6px;width:2px;background:var(--color-accent);border-radius:2px;"></span>
-          <% end %>
-          <%= render Qb::IconComponent.new(name: item[:icon], size: 14, style: "color:#{item[:active] ? 'var(--color-ink)' : 'var(--color-ink-3)'};flex-shrink:0;") %>
-          <span data-qb-sidebar-label style="flex:1;text-align:left;"><%= item[:label] %></span>
-          <% if item[:accent] %>
-            <span data-qb-sidebar-label style="width:5px;height:5px;border-radius:999px;background:var(--color-accent);"></span>
-          <% end %>
-        <% end %>
-      <% end %>
+      <%# La lista "En este proyecto" (Etapas/Materiales/Gastos/Planos/Equipo/
+          Documentos) vivía acá duplicada 1:1 con los tabs de arriba del
+          contenido (_section_tabs.html.erb) — mismos links, mismo estado
+          activo, y esos tabs además muestran contadores que acá no había.
+          Se saca de la sidebar de escritorio; project_nav_items/project_url
+          siguen vivos en Qb::Layout::Navigation porque Qb::Layout::MobileSheetComponent
+          los usa para el sheet "Más" — mobile no tiene tabs de sección, así
+          que ahí no hay duplicación que sacar. %>
     <% elsif pinned_projects.any? %>
       <div data-qb-sidebar-label style="margin-top:14px;padding:6px 10px 4px;font-size:10px;font-family:var(--font-mono);color:var(--color-ink-4);letter-spacing:1px;text-transform:uppercase;font-weight:500;">Fijados</div>
       <% pinned_projects.first(4).each do |p| %>

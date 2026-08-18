@@ -29,17 +29,19 @@ RSpec.describe Qb::Layout::SidebarComponent, type: :component do
     expect(page).to have_text('Torre Aurora')
   end
 
-  it 'renders the in-project sub-nav and chip when a project is active' do
+  it 'renders the active project chip, without duplicating the section tabs shown above the content' do
     project = double('Project', id: 42, code: 'PRJ-042', name: 'Torre Aurora', progress: 64,
                                 planned_progress: 68, health: :ok, stages_done: 8, stages_count: 14)
     with_request_url '/constructors/projects/42' do
       render_inline(described_class.new(current: :projects, user: user,
                                          project: project, project_sub: :stages))
     end
-    expect(page).to have_text('En este proyecto')
-    expect(page).to have_text('Etapas')
-    expect(page).to have_text('Materiales')
-    expect(page).to have_text('Planos · IA')
     expect(page).to have_text('PRJ-042')
+    expect(page).to have_text('Torre Aurora')
+    expect(page).to have_text('64% avance')
+    # La sección "En este proyecto" (Etapas/Materiales/Gastos/Planos/Equipo/
+    # Documentos) se sacó de la sidebar: duplicaba 1:1 los tabs de
+    # _section_tabs.html.erb, que además muestran contadores.
+    expect(page).to have_no_text('En este proyecto')
   end
 end

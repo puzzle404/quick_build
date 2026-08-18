@@ -8,7 +8,6 @@ RSpec.describe 'QB OS · Layout', type: :system do
     visit constructors_root_path
     expect(page).to have_css('aside.qb-sidebar')
     expect(page).to have_text('Quick Build')
-    expect(page).to have_text('OPS CONSOLE')
     expect(page).to have_link('Dashboard', href: constructors_root_path)
     expect(page).to have_link('Proyectos', href: constructors_projects_path)
   end
