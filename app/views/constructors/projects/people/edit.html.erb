@@ -1,7 +1,7 @@
 <% if turbo_frame_request? %>
   <% content_for(:drawer) do %>
     <%= render(Qb::DrawerComponent.new(eyebrow: "Equipo", title: "Editar persona", subtitle: @person.full_name, size: :lg)) do %>
-      <%= render Constructors::Projects::People::PersonFormComponent.new(project: @project, person: @person) %>
+      <%= render Constructors::Projects::People::PersonFormComponent.new(project: @project, person: @person, in_drawer: true) %>
     <% end %>
   <% end %>
 <% else %>

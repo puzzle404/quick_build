@@ -33,4 +33,38 @@ RSpec.describe 'Constructors::People', type: :request do
     follow_redirect!
     expect(response.body).to include('Persona eliminada').or include('Recursos humanos')
   end
+
+  # Regression guard (final review, fix 2): PersonFormComponent renderiza el
+  # mismo form en las dos ramas de new/edit. Con `click->qb--drawer#close`
+  # incondicional, en la rama de página completa Cancelar apuntaba al drawer
+  # global del layout — que ya está cerrado — y no hacía nada.
+  describe 'botón Cancelar del form de persona' do
+    it 'en la página completa de #new es un link al listado del equipo' do
+      get new_constructors_project_person_path(project)
+
+      expect(response).to have_http_status(:ok)
+      expect(response.body).not_to include('qb-drawer-panel')
+      expect(response.body).to include(%(href="#{constructors_project_people_path(project)}"))
+      expect(response.body).not_to include('qb--drawer#close')
+    end
+
+    it 'en la página completa de #edit es un link a la ficha' do
+      person = create(:project_person, project: project, full_name: 'Ana')
+
+      get edit_constructors_project_person_path(project, person)
+
+      expect(response).to have_http_status(:ok)
+      expect(response.body).not_to include('qb-drawer-panel')
+      expect(response.body).to include(%(href="#{constructors_project_person_path(project, person)}"))
+      expect(response.body).not_to include('qb--drawer#close')
+    end
+
+    it 'dentro del drawer sigue cerrando el drawer en vez de navegar' do
+      get new_constructors_project_person_path(project), headers: { 'Turbo-Frame' => 'drawer' }
+
+      expect(response).to have_http_status(:ok)
+      expect(response.body).to include('qb-drawer-panel')
+      expect(response.body).to include('qb--drawer#close')
+    end
+  end
 end

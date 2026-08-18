@@ -4,19 +4,27 @@ module Constructors
   module Projects
     module People
       # Form de persona agrupado en bloques: Identidad / Condiciones / Vigencia
-      # / Notas. Lo comparten el alta (modal «Invitar persona» + página) y la
-      # edición, así que los labels se mantienen estables.
+      # / Notas. Lo comparten el alta y la edición, en sus dos ramas (drawer
+      # global y página completa), así que los labels se mantienen estables.
+      #
+      # `in_drawer: true` hace que Cancelar cierre el drawer en vez de navegar
+      # (las vistas de new/edit lo pasan en la rama turbo_frame).
       class PersonFormComponent < ViewComponent::Base
         STATUS_LABELS = { "active" => "Activa", "inactive" => "Licencia" }.freeze
 
-        def initialize(project:, person:)
+        def initialize(project:, person:, in_drawer: false)
           @project = project
           @person = person
+          @in_drawer = in_drawer
         end
 
         private
 
         attr_reader :project, :person
+
+        def in_drawer?
+          @in_drawer
+        end
 
         def form_url
           if person.persisted?
