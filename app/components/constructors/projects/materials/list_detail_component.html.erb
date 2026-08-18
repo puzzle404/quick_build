@@ -55,6 +55,14 @@
     </div>
   <% end %>
 
+  <% d.with_footer do %>
+    <span style="font-size:12px;color:var(--color-ink-3);"><%= items.size %> ítems</span>
+    <div style="flex:1;"></div>
+    <span style="font-size:12px;color:var(--color-ink-3);">Total estimado</span>
+    <span class="qb-mono qb-tnum" style="font-size:16px;font-weight:600;color:var(--color-ink);"><%= helpers.qb_fmt_cents(total_cents) %></span>
+  <% end %>
+
+  <div style="margin:-18px -20px;">
     <%# Metadata strip 4-col %>
     <div style="padding:10px 20px;border-bottom:1px solid var(--color-line);background:var(--color-bg-raised);display:grid;grid-template-columns:repeat(4, 1fr);gap:16px;font-size:12px;">
       <div>
@@ -165,12 +173,5 @@
         <div style="padding:40px;text-align:center;color:var(--color-ink-4);font-size:13px;">Esta lista no tiene ítems todavía.</div>
       <% end %>
     </div>
-
-    <%# Footer with totals %>
-    <div style="padding:12px 20px;border-top:1px solid var(--color-line);background:var(--color-bg-raised);display:flex;align-items:center;gap:12px;">
-      <span style="font-size:12px;color:var(--color-ink-3);"><%= items.size %> ítems</span>
-      <div style="flex:1;"></div>
-      <span style="font-size:12px;color:var(--color-ink-3);">Total estimado</span>
-      <span class="qb-mono qb-tnum" style="font-size:16px;font-weight:600;color:var(--color-ink);"><%= helpers.qb_fmt_cents(total_cents) %></span>
-    </div>
+  </div>
 <% end %>
