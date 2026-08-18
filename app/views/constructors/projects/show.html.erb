@@ -140,15 +140,15 @@
           MEMBRESÍA, así que van las memberships (con el owner adelante), no los
           User: `user.role` es el rol de plataforma y decía "Constructor" para
           todos. La gestión completa (cambiar rol / quitar) vive en Equipo. %>
-      <div data-controller="qb--modal">
+      <div data-controller="qb--drawer">
         <%= render Qb::SectionHeadComponent.new(title: 'Equipo asignado') do |c| %>
           <% if can.manage_team? %>
-            <% c.with_right { render Qb::BtnComponent.new('Invitar', variant: :ghost, size: :xs, icon: :plus, data: { action: 'click->qb--modal#open' }) } %>
+            <% c.with_right { render Qb::BtnComponent.new('Invitar', variant: :ghost, size: :xs, icon: :plus, data: { action: 'click->qb--drawer#open' }) } %>
           <% end %>
         <% end %>
         <%= render Constructors::Projects::Overview::TeamChipsComponent.new(project: @project, limit: 6) %>
         <% if can.manage_team? %>
-          <%= render Constructors::Projects::Overview::InviteMemberModalComponent.new(project: @project) %>
+          <%= render Constructors::Projects::Overview::InviteMemberDrawerComponent.new(project: @project) %>
         <% end %>
       </div>
 

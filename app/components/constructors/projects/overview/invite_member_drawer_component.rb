@@ -1,8 +1,11 @@
 # frozen_string_literal: true
 
-# Modal centrado para sumar a un usuario existente como miembro de la obra, con
-# un rol. POSTea a project_memberships#create. Usa el Stimulus qb--modal.
-class Constructors::Projects::Overview::InviteMemberModalComponent < ViewComponent::Base
+# Drawer lateral para sumar a un usuario existente como miembro de la obra, con
+# un rol. POSTea a project_memberships#create. Excepción documentada: no hay
+# ruta :new en project_memberships, así que este componente es una instancia
+# inline y autocontenida de qb--drawer en modo click-driven (sin frame target),
+# no el drawer global frame-driven que usan el resto de las vistas.
+class Constructors::Projects::Overview::InviteMemberDrawerComponent < ViewComponent::Base
   def initialize(project:)
     @project = project.respond_to?(:object) ? project.object : project
   end

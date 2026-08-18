@@ -1,0 +1,32 @@
+<div class="qb-drawer-shell" data-qb--drawer-target="dialog"
+     data-action="click->qb--drawer#backdrop keydown@window->qb--drawer#keydown">
+  <div class="qb-drawer-backdrop"></div>
+  <%= render(Qb::DrawerComponent.new(eyebrow: "Equipo", title: "Invitar miembro a la obra", subtitle: "El usuario ya tiene que existir en la plataforma.", size: :md)) do %>
+    <%= form_with url: constructors_project_project_memberships_path(project), method: :post, scope: :project_membership do |f| %>
+      <div class="qb-field">
+        <%= f.label :user_id, "Selecciona un usuario", class: "qb-label" %>
+        <%= f.select :user_id, candidate_user_options, { include_blank: '— Elegí un usuario —' }, required: true, class: "qb-select" %>
+      </div>
+
+      <div class="qb-field">
+        <%= f.label :role, "Rol en la obra", class: "qb-label" %>
+        <%= f.select :role, role_options, { selected: 'editor' }, required: true, class: "qb-select" %>
+      </div>
+
+      <%# Qué significa cada rol: elegirlo a ciegas era la forma más fácil de
+          dar de más. El dueño no está en la lista — no se invita. %>
+      <ul style="margin:0;padding:10px 12px;list-style:none;display:flex;flex-direction:column;gap:6px;background:var(--color-bg-sunken);border-radius:5px;">
+        <% role_hints.each do |label, hint| %>
+          <li style="font-size:11px;color:var(--color-ink-3);line-height:1.45;">
+            <strong style="color:var(--color-ink-2);"><%= label %></strong> · <%= hint %>
+          </li>
+        <% end %>
+      </ul>
+
+      <div style="display:flex;align-items:center;gap:8px;margin-top:14px;">
+        <%= render Qb::BtnComponent.new('Agregar miembro', variant: :primary, icon: :plus, type: 'submit') %>
+        <%= render Qb::BtnComponent.new('Cancelar', variant: :secondary, data: { action: 'click->qb--drawer#close' }) %>
+      </div>
+    <% end %>
+  <% end %>
+</div>

@@ -1,11 +1,11 @@
-<div data-controller="qb--modal">
+<div data-controller="qb--drawer">
   <%= render Qb::SectionHeadComponent.new(
         title: 'Accesos a la obra',
         subtitle: 'Usuarios de QuickBuild que pueden entrar a esta obra, y con qué permisos') do |c| %>
     <% if can_manage? %>
       <% c.with_right do %>
         <%= render Qb::BtnComponent.new('Invitar miembro', variant: :primary, size: :xs, icon: :plus,
-              data: { action: 'click->qb--modal#open' }) %>
+              data: { action: 'click->qb--drawer#open' }) %>
       <% end %>
     <% end %>
   <% end %>
@@ -51,6 +51,6 @@
   </table>
 
   <% if can_manage? %>
-    <%= render Constructors::Projects::Overview::InviteMemberModalComponent.new(project: project) %>
+    <%= render Constructors::Projects::Overview::InviteMemberDrawerComponent.new(project: project) %>
   <% end %>
 </div>
