@@ -1,0 +1,42 @@
+<tr id="<%= row_id %>">
+  <td class="qb-mono" style="white-space:nowrap;"><%= helpers.qb_fmt_datetime_short(attendance.occurred_at) %></td>
+  <td style="color:var(--color-ink-3);"><%= day_label %></td>
+  <td style="text-align:right;">
+    <% if editable? %>
+      <%# text_field_tag y no f.text_field: con error, form_for envuelve el
+          input en un div.field_with_errors que rompe el flex de la celda. %>
+      <%= form_with url: update_path, method: :patch,
+            html: { style: 'display:flex;align-items:center;gap:6px;justify-content:flex-end;' } do %>
+        <%# id explícito: text_field_tag derivaría el mismo "person_attendance_hours"
+            en las diez filas y quedarían diez ids repetidos en el DOM. %>
+        <%= text_field_tag 'person_attendance[hours]', input_value,
+              id: "attendance_#{attendance.id}_hours",
+              inputmode: 'decimal', autocomplete: 'off', placeholder: '—',
+              'aria-label': field_label, class: 'qb-input qb-mono',
+              style: "width:56px;padding:4px 6px;text-align:right;font-size:12px;#{'border-color:var(--color-bad);' if hours_errors.any?}" %>
+        <%= render Qb::BtnComponent.new(variant: :secondary, size: :xs, icon: :check, type: 'submit',
+              title: 'Guardar horas', aria_label: 'Guardar horas') %>
+      <% end %>
+      <% if hours_errors.any? %>
+        <div style="font-size:11px;color:var(--color-bad);margin-top:4px;text-align:right;">
+          <%= hours_errors.to_sentence %>
+        </div>
+      <% end %>
+    <% else %>
+      <span class="qb-mono" style="color:<%= attendance.hours ? 'var(--color-ink)' : 'var(--color-ink-4)' %>;">
+        <%= hours_label || '—' %>
+      </span>
+    <% end %>
+  </td>
+  <td style="text-align:right;">
+    <%= render Qb::PillComponent.new(source_label, tone: :muted, compact: true) %>
+  </td>
+  <td style="text-align:right;width:32px;">
+    <% if deletable? %>
+      <%= render Qb::BtnComponent.new(variant: :ghost, size: :xs, icon: :trash,
+            href: update_path, title: 'Eliminar esta marca',
+            aria_label: 'Eliminar esta marca de asistencia',
+            data: { turbo_method: :delete, turbo_confirm: '¿Eliminar esta marca de asistencia?' }) %>
+    <% end %>
+  </td>
+</tr>

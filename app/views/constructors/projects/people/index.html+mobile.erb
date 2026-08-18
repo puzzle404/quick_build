@@ -2,12 +2,16 @@
 <%
   active   = @people.select { |p| p.status.to_s == 'active' }
   inactive = @people.reject { |p| p.status.to_s == 'active' }
+  # Alta de personas y gestión de accesos: admin de obra en adelante.
+  can_manage_team = policy(@project).manage_team?
 %>
 
 <%= render Qb::Mobile::NavBarComponent.new(title: @project.name, back: true, back_href: constructors_project_path(@project)) do |c| %>
-  <% c.with_right do %>
-    <%= link_to new_constructors_project_person_path(@project), aria: { label: 'Agregar persona' }, style: 'color:var(--color-accent);display:inline-flex;padding:8px;' do %>
-      <%= render Qb::Mobile::IconComponent.new(name: 'plus', size: 22) %>
+  <% if can_manage_team %>
+    <% c.with_right do %>
+      <%= link_to new_constructors_project_person_path(@project), aria: { label: 'Agregar persona' }, style: 'color:var(--color-accent);display:inline-flex;padding:8px;' do %>
+        <%= render Qb::Mobile::IconComponent.new(name: 'plus', size: 22) %>
+      <% end %>
     <% end %>
   <% end %>
 <% end %>
@@ -68,6 +72,30 @@
       <div style="text-align:center;padding:14px 8px;color:var(--color-ink-3);font-size:13.5px;">Sin personas asignadas a la obra.</div>
     <% end %>
   </div>
+<% end %>
+
+<%# Accesos a la obra: quién entra al sistema a verla y con qué rol. En mobile
+    es sólo lectura — invitar y quitar viven en la pestaña Equipo del escritorio. %>
+<%
+  access_rows = (@project.owner ? [[@project.owner, :owner]] : []) +
+                @project.project_memberships.includes(:user).map { |m| [m.user, m.effective_role] }
+  access_rows = access_rows.reject { |user, _| user.nil? }
+%>
+<% if access_rows.any? %>
+  <%= render Qb::Mobile::SectionComponent.new(title: "Accesos · #{access_rows.size}") do %>
+    <%= render Qb::Mobile::CardComponent.new(bleed: true) do %>
+      <% access_rows.each do |user, role| %>
+        <div class="m-row">
+          <%= render Qb::Mobile::AvatarComponent.new(name: user.email.to_s.split('@').first, size: 32) %>
+          <div class="m-row-main" style="margin-left:12px;">
+            <div class="m-row-title"><%= user.email.to_s.split('@').first.titleize %></div>
+            <div class="m-row-subtitle"><%= user.email %></div>
+          </div>
+          <%= render Constructors::Projects::RoleBadgeComponent.new(role: role, variant: :mobile, show_owner: true) %>
+        </div>
+      <% end %>
+    <% end %>
+  <% end %>
 <% end %>
 
 <div style="height: 24px;"></div>

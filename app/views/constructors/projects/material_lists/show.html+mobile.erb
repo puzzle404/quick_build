@@ -9,12 +9,17 @@
                 when 'ready_for_review' then :warn
                 else                         :muted
                 end
+  # Editar la lista y cargar ítems: editor de obra en adelante
+  # (MaterialListPolicy), igual que en escritorio.
+  can_edit_list = policy(ml).update?
 %>
 
 <%= render Qb::Mobile::NavBarComponent.new(title: nil, back: true, back_href: constructors_project_material_lists_path(@project)) do |c| %>
-  <% c.with_right do %>
-    <%= link_to edit_constructors_project_material_list_path(@project, ml), aria: { label: 'Editar' }, style: 'color:var(--color-accent);padding:8px;display:inline-flex;' do %>
-      <%= render Qb::Mobile::IconComponent.new(name: 'edit', size: 20) %>
+  <% if can_edit_list %>
+    <% c.with_right do %>
+      <%= link_to edit_constructors_project_material_list_path(@project, ml), aria: { label: 'Editar' }, style: 'color:var(--color-accent);padding:8px;display:inline-flex;' do %>
+        <%= render Qb::Mobile::IconComponent.new(name: 'edit', size: 20) %>
+      <% end %>
     <% end %>
   <% end %>
 <% end %>
@@ -44,8 +49,10 @@
 
 <%# Items list %>
 <%= render Qb::Mobile::SectionComponent.new(title: "Ítems · #{items.size}") do |s| %>
-  <% s.with_action do %>
-    <%= link_to "Agregar", "#item-form", style: "font-size:13px;color:var(--color-accent);font-weight:600;text-decoration:none;" %>
+  <% if can_edit_list %>
+    <% s.with_action do %>
+      <%= link_to "Agregar", "#item-form", style: "font-size:13px;color:var(--color-accent);font-weight:600;text-decoration:none;" %>
+    <% end %>
   <% end %>
 
   <% if items.any? %>
@@ -72,12 +79,15 @@
     <% end %>
   <% else %>
     <%= render Qb::Mobile::CardComponent.new do %>
-      <div style="text-align:center;padding:14px 8px;color:var(--color-ink-3);font-size:13.5px;">Sin ítems. Agregá el primero abajo.</div>
+      <div style="text-align:center;padding:14px 8px;color:var(--color-ink-3);font-size:13.5px;">
+        <% if can_edit_list %>Sin ítems. Agregá el primero abajo.<% else %>Esta lista todavía no tiene ítems.<% end %>
+      </div>
     <% end %>
   <% end %>
 <% end %>
 
 <%# Item form %>
+<% if can_edit_list %>
 <div id="item-form" style="padding: 0 16px 16px;">
   <%= form_with model: @material_item, url: constructors_project_material_list_material_items_path(@project, ml), local: true do |f| %>
     <%= render Qb::Mobile::FormGroupComponent.new(title: "Nuevo ítem") do %>
@@ -91,6 +101,7 @@
     <%= render Qb::Mobile::ButtonComponent.new("Agregar ítem", variant: :primary, size: :md, full: true, type: 'submit', icon: :plus) %>
   <% end %>
 </div>
+<% end %>
 
 <%# Totals + actions — inline (not floating) so they don't collide with
     the bottom tab bar. %>

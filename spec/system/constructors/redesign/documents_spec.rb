@@ -8,7 +8,7 @@ RSpec.describe 'QB OS · Documents', type: :system do
   it 'renders header + tabs + empty state when no documents' do
     visit constructors_project_documents_path(project)
     expect(page).to have_text('Aurora')
-    expect(page).to have_text('Resumen')
+    expect(page).to have_text('Etapas')
     expect(page).to have_text('Documentos')
     expect(page).to have_text('Aún no se cargaron documentos.')
   end

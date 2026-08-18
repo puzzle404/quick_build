@@ -6,19 +6,12 @@
   total_value_cents = all.sum { |l| l.material_items.sum { |i| (i.quantity.to_f * i.estimated_cost_cents.to_i).round } }
   approved_value_cents = all.select { |l| l.status.to_s == 'approved' }.sum { |l| l.material_items.sum { |i| (i.quantity.to_f * i.estimated_cost_cents.to_i).round } }
 
-  tabs = [
-    { value: :overview,   label: 'Resumen',       icon: :home,      href: constructors_project_path(@project) },
-    { value: :planning,   label: 'Planificación', icon: :planning,  count: @project.project_stages.where(parent_id: nil).count, href: constructors_project_stages_path(@project) },
-    { value: :materials,  label: 'Materiales',    icon: :materials, count: all.size, href: constructors_project_material_lists_path(@project) },
-    { value: :blueprints, label: 'Planos · IA',   icon: :blueprint, count: @project.blueprints.count, href: constructors_project_blueprints_path(@project) },
-    { value: :team,       label: 'Equipo',        icon: :people,    count: @project.project_people.count, href: constructors_project_people_path(@project) },
-    { value: :docs,       label: 'Documentos',    icon: :docs,      count: @project.documents.count, href: constructors_project_documents_path(@project) },
-  ]
+  # Crear/importar listas es editor de obra en adelante (MaterialListPolicy).
+  can_manage_lists = policy(@project).manage_materials?
 %>
 
 <div>
-  <%= render Constructors::Projects::HeaderComponent.new(project: @project) %>
-  <%= render Qb::TabsComponent.new(tabs: tabs, current: :materials) %>
+  <%= render 'constructors/projects/section_tabs', project: @project, current: :materials %>
 
   <%# KPI strip %>
   <div style="display:grid;grid-template-columns:repeat(5, 1fr);border-bottom:1px solid var(--color-line);background:var(--color-bg-raised);">
@@ -34,17 +27,26 @@
     <div style="flex:1;">
       <div style="font-size:11px;font-family:var(--font-mono);color:var(--color-ink-3);text-transform:uppercase;letter-spacing:0.8px;"><%= @project.code %> · <%= @project.name.to_s.split('·').first&.strip %></div>
       <h2 style="margin:3px 0 0;font-size:18px;font-weight:600;letter-spacing:-0.3px;">Listas de materiales</h2>
-      <div style="font-size:12px;color:var(--color-ink-3);margin-top:2px;">Creá listas por etapa o generales, manualmente o desde PDF/Excel.</div>
+      <div style="font-size:12px;color:var(--color-ink-3);margin-top:2px;">
+        <% if can_manage_lists %>
+          Creá listas por etapa o generales, manualmente o desde PDF/Excel.
+        <% else %>
+          Listas por etapa o generales de esta obra.
+        <% end %>
+      </div>
     </div>
     <%# Nueva lista / Importar abren el modal vía Turbo Frame (project_modal),
         no inline — mismo approach que el sidebar de etapa. %>
-    <div style="display:contents;">
-      <%= render Qb::BtnComponent.new('Importar PDF/Excel', variant: :ghost, size: :sm, icon: :upload,
-            href: new_constructors_project_material_list_path(@project), data: { turbo_frame: 'project_modal' }) %>
-      <%= render Qb::BtnComponent.new('Generar con IA', variant: :secondary, size: :sm, icon: :ai) %>
-      <%= render Qb::BtnComponent.new('Nueva lista', variant: :primary, size: :sm, icon: :plus,
-            href: new_constructors_project_material_list_path(@project), data: { turbo_frame: 'project_modal' }) %>
-    </div>
+    <% if can_manage_lists %>
+      <div style="display:contents;">
+        <%# El origen (manual / PDF con IA / Excel) se elige dentro del modal de
+            nueva lista — no hace falta un botón aparte de "Generar con IA". %>
+        <%= render Qb::BtnComponent.new('Importar PDF/Excel', variant: :ghost, size: :sm, icon: :upload,
+              href: new_constructors_project_material_list_path(@project), data: { turbo_frame: 'project_modal' }) %>
+        <%= render Qb::BtnComponent.new('Nueva lista', variant: :primary, size: :sm, icon: :plus,
+              href: new_constructors_project_material_list_path(@project), data: { turbo_frame: 'project_modal' }) %>
+      </div>
+    <% end %>
   </div>
 
   <%# Toolbar — search + filter chips %>
@@ -99,8 +101,10 @@
         <div style="font-size:11px;color:var(--color-ink-4);margin-top:6px;">
           <%= link_to 'Limpiar búsqueda y filtros', constructors_project_material_lists_path(@project), style: 'color:var(--color-accent);text-decoration:none;' %>
         </div>
-      <% else %>
+      <% elsif can_manage_lists %>
         <div>Todavía no generaste listas de materiales para esta obra.</div>
+      <% else %>
+        <div>Esta obra todavía no tiene listas de materiales.</div>
       <% end %>
     </div>
   <% end %>

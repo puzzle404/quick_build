@@ -19,6 +19,11 @@ RSpec.describe Constructors::Projects::HeaderComponent, type: :component do
 
   subject(:component) { described_class.new(project: project) }
 
+  # El header consulta ProjectPolicy para decidir qué acciones muestra, así que
+  # sin usuario en Current no renderiza ninguna (y ese es el comportamiento
+  # correcto). Los ejemplos de abajo son los del dueño.
+  before { Current.session = Session.create!(user: owner) }
+
   it "shows the project name" do
     render_inline(component)
     expect(page).to have_text("Obra del Puerto")
@@ -85,5 +90,19 @@ RSpec.describe Constructors::Projects::HeaderComponent, type: :component do
   it "renders the cover photo upload form pointing to the project update path" do
     render_inline(component)
     expect(page).to have_css("form[method='post']")
+  end
+
+  it "hides the cover uploader and the write actions for a project viewer" do
+    viewer = create(:user, :constructor)
+    create(:project_membership, project: project, user: viewer, role: :viewer)
+    Current.session = Session.create!(user: viewer)
+
+    render_inline(component)
+
+    expect(page).to have_text("Obra del Puerto")
+    expect(page).to have_no_css("form[method='post']")
+    expect(page).to have_no_text("Registrar gasto")
+    expect(page).to have_no_text("Editar proyecto")
+    expect(page).to have_no_text("Eliminar obra")
   end
 end

@@ -38,7 +38,7 @@
 
   filters = [
     { key: 'all',         label: 'Todos',        count: all_count,       href: constructors_projects_path(q: @query) },
-    { key: 'in_progress', label: 'En obra',      count: in_progress_cnt, href: constructors_projects_path(q: @query, status: 'in_progress') },
+    { key: 'in_progress', label: 'En progreso', count: in_progress_cnt, href: constructors_projects_path(q: @query, status: 'in_progress') },
     { key: 'planned',     label: 'Planificados', count: planned_cnt,     href: constructors_projects_path(q: @query, status: 'planned') },
     { key: 'completed',   label: 'Finalizados',  count: completed_cnt,   href: constructors_projects_path(q: @query, status: 'completed') }
   ]

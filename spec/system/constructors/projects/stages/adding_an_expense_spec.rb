@@ -16,7 +16,7 @@ RSpec.describe "Adding an expense to a stage", type: :system, js: true do
     find(".qb-tab", text: /Gastos/).click
     click_button("Nuevo gasto")
 
-    fill_in "Monto (centavos)", with: "250000"
+    fill_in "Monto (ARS)", with: "2500"
     select "Mano de obra", from: "Categoría"
     fill_in "Descripción", with: "Pago de jornales semana 1"
     click_button "Guardar gasto"

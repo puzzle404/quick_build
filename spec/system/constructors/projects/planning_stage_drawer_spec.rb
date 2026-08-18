@@ -21,7 +21,7 @@ RSpec.describe "Planning stage drawer", type: :system, js: true do
     find(".qb-tab", text: /Gastos/).click
     click_button("Nuevo gasto")
 
-    fill_in "Monto (centavos)", with: "15000"
+    fill_in "Monto (ARS)", with: "150"
     select "Mano de obra", from: "Categoría"
     fill_in "Descripción", with: "Jornal del lunes"
     click_button "Guardar gasto"

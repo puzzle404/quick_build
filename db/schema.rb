@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.0].define(version: 2026_05_28_100000) do
+ActiveRecord::Schema[8.0].define(version: 2026_08_18_001112) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
 
@@ -126,7 +126,9 @@ ActiveRecord::Schema[8.0].define(version: 2026_05_28_100000) do
     t.string "description"
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
+    t.bigint "material_list_id"
     t.index ["author_id"], name: "index_expenses_on_author_id"
+    t.index ["material_list_id"], name: "index_expenses_on_material_list_id"
     t.index ["project_id", "incurred_on"], name: "index_expenses_on_project_id_and_incurred_on"
     t.index ["project_id"], name: "index_expenses_on_project_id"
     t.index ["project_stage_id", "incurred_on"], name: "index_expenses_on_project_stage_id_and_incurred_on"
@@ -318,6 +320,7 @@ ActiveRecord::Schema[8.0].define(version: 2026_05_28_100000) do
     t.bigint "budget_cents"
     t.jsonb "progress_curve"
     t.jsonb "progress_plan"
+    t.text "description"
     t.index ["owner_id"], name: "index_projects_on_owner_id"
     t.index ["start_date"], name: "index_projects_on_start_date"
     t.index ["status"], name: "index_projects_on_status"
@@ -453,6 +456,37 @@ ActiveRecord::Schema[8.0].define(version: 2026_05_28_100000) do
     t.index ["key"], name: "index_solid_queue_semaphores_on_key", unique: true
   end
 
+  create_table "stage_template_items", force: :cascade do |t|
+    t.bigint "stage_template_id", null: false
+    t.bigint "parent_id"
+    t.string "name", null: false
+    t.text "description"
+    t.integer "position", default: 0, null: false
+    t.integer "start_offset_days"
+    t.integer "duration_days"
+    t.bigint "budget_cents"
+    t.decimal "budget_pct", precision: 5, scale: 2
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["parent_id"], name: "index_stage_template_items_on_parent_id"
+    t.index ["stage_template_id", "parent_id", "position"], name: "index_stage_template_items_on_template_parent_position"
+    t.index ["stage_template_id"], name: "index_stage_template_items_on_stage_template_id"
+  end
+
+  create_table "stage_templates", force: :cascade do |t|
+    t.bigint "owner_id"
+    t.string "name", null: false
+    t.text "description"
+    t.bigint "source_project_id"
+    t.integer "visibility", default: 0, null: false
+    t.boolean "builtin", default: false, null: false
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["owner_id", "name"], name: "index_stage_templates_on_owner_id_and_name", unique: true, where: "(owner_id IS NOT NULL)"
+    t.index ["owner_id"], name: "index_stage_templates_on_owner_id"
+    t.index ["source_project_id"], name: "index_stage_templates_on_source_project_id"
+  end
+
   create_table "users", force: :cascade do |t|
     t.string "email", default: "", null: false
     t.datetime "created_at", null: false
@@ -473,6 +507,7 @@ ActiveRecord::Schema[8.0].define(version: 2026_05_28_100000) do
   add_foreign_key "blueprints", "projects"
   add_foreign_key "construction_item_materials", "construction_items"
   add_foreign_key "construction_item_materials", "materials"
+  add_foreign_key "expenses", "material_lists"
   add_foreign_key "expenses", "project_stages"
   add_foreign_key "expenses", "projects"
   add_foreign_key "expenses", "users", column: "author_id"
@@ -502,5 +537,9 @@ ActiveRecord::Schema[8.0].define(version: 2026_05_28_100000) do
   add_foreign_key "solid_queue_ready_executions", "solid_queue_jobs", column: "job_id", on_delete: :cascade
   add_foreign_key "solid_queue_recurring_executions", "solid_queue_jobs", column: "job_id", on_delete: :cascade
   add_foreign_key "solid_queue_scheduled_executions", "solid_queue_jobs", column: "job_id", on_delete: :cascade
+  add_foreign_key "stage_template_items", "stage_template_items", column: "parent_id"
+  add_foreign_key "stage_template_items", "stage_templates"
+  add_foreign_key "stage_templates", "projects", column: "source_project_id"
+  add_foreign_key "stage_templates", "users", column: "owner_id"
   add_foreign_key "users", "companies"
 end

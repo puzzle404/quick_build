@@ -1,9 +1,30 @@
 <div style="padding:12px;">
-  <div style="width:100%;height:140px;border-radius:6px;border:1px solid var(--color-line);background: radial-gradient(circle at 40% 60%, var(--color-bg-sunken) 0%, var(--color-bg-raised) 70%), repeating-linear-gradient(0deg, transparent, transparent 14px, var(--color-line) 14px, var(--color-line) 15px), repeating-linear-gradient(90deg, transparent, transparent 14px, var(--color-line) 14px, var(--color-line) 15px);position:relative;overflow:hidden;">
-    <% if lat.present? && lng.present? %>
-      <div style="position:absolute;left:42%;top:52%;width:14px;height:14px;border-radius:999px;background:var(--color-accent);border:3px solid var(--color-bg);box-shadow:0 0 0 2px var(--color-accent);"></div>
-      <div style="position:absolute;left:42%;top:52%;width:40px;height:40px;border-radius:999px;background:var(--color-accent);opacity:0.15;transform:translate(-40%, -40%);"></div>
-    <% end %>
-    <div style="position:absolute;bottom:8px;right:10px;font-family:var(--font-mono);font-size:10px;color:var(--color-ink-3);background:var(--color-bg-raised);padding:2px 6px;border-radius:3px;"><%= coords_label %></div>
-  </div>
+  <% if located? %>
+    <div style="position:relative;width:100%;height:150px;overflow:hidden;border-radius:var(--radius);border:1px solid var(--color-line);"
+         data-controller="qb--mini-map"
+         data-qb--mini-map-lat-value="<%= lat %>"
+         data-qb--mini-map-lng-value="<%= lng %>"
+         data-qb--mini-map-zoom-value="<%= zoom %>"></div>
+
+    <div style="display:flex;align-items:center;justify-content:space-between;gap:8px;margin-top:8px;">
+      <span style="font-family:var(--font-mono);font-size:10px;color:var(--color-ink-3);"><%= coords_label %></span>
+      <%= link_to osm_url, target: "_blank", rel: "noopener",
+                  style: "font-size:11px;color:var(--color-accent);text-decoration:none;white-space:nowrap;" do %>
+        Ver en mapa ↗
+      <% end %>
+    </div>
+    <p style="margin-top:4px;font-size:10px;color:var(--color-ink-4);">© OpenStreetMap</p>
+  <% else %>
+    <%# Sin coordenadas no dibujamos nada que parezca un mapa: se dice que falta
+        y se ofrece el camino para cargarlo. %>
+    <div style="display:flex;flex-direction:column;align-items:flex-start;gap:8px;padding:16px 14px;border-radius:var(--radius);border:1px dashed var(--color-line-2);background:var(--color-bg-sunken);">
+      <div style="display:flex;align-items:center;gap:6px;color:var(--color-ink-3);">
+        <%= render Qb::IconComponent.new(name: :pin, size: 13) %>
+        <span style="font-size:12px;">Esta obra todavía no está ubicada en el mapa.</span>
+      </div>
+      <% if edit_path.present? %>
+        <%= render Qb::BtnComponent.new("Ubicar en el mapa", variant: :secondary, size: :xs, href: edit_path) %>
+      <% end %>
+    </div>
+  <% end %>
 </div>

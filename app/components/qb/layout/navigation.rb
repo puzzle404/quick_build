@@ -16,9 +16,11 @@ module Qb
       ].freeze
 
       PROJECT_NAV = [
-        { key: :overview,   label: "Resumen",       icon: :home },
-        { key: :planning,   label: "Planificación", icon: :planning },
+        # Etapas unifica el viejo "Resumen" + "Planificación": es la landing
+        # del proyecto (constructors_project_path).
+        { key: :stages,     label: "Etapas",        icon: :stages },
         { key: :materials,  label: "Materiales",    icon: :materials },
+        { key: :expenses,   label: "Gastos",        icon: :money },
         { key: :blueprints, label: "Planos · IA",   icon: :blueprint, accent: true },
         { key: :team,       label: "Equipo",        icon: :people },
         { key: :docs,       label: "Documentos",    icon: :docs }
@@ -36,9 +38,9 @@ module Qb
 
       def project_url(sub_key)
         case sub_key
-        when :overview   then helpers.constructors_project_path(project)
-        when :planning   then helpers.constructors_project_stages_path(project)
+        when :stages     then helpers.constructors_project_path(project)
         when :materials  then helpers.constructors_project_material_lists_path(project)
+        when :expenses   then helpers.constructors_project_expenses_path(project)
         when :blueprints then helpers.constructors_project_blueprints_path(project)
         when :team       then helpers.constructors_project_people_path(project)
         when :docs       then helpers.constructors_project_documents_path(project)

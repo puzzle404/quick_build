@@ -1,7 +1,10 @@
 <% content_for :title, "Biblioteca · Quick Build" %>
 <%
+  # Obras accesibles (propias + donde soy miembro): la biblioteca de escritorio
+  # ya lista los documentos de ese mismo conjunto (library_controller), y si acá
+  # se filtrara por `owned_projects` las dos pantallas mostrarían cosas distintas.
   recent_material_lists = MaterialList
-    .where(project_id: current_user.owned_projects.pluck(:id))
+    .where(project_id: current_user.accessible_projects.pluck(:id))
     .includes(:project, :material_items)
     .order(updated_at: :desc)
     .limit(6)

@@ -2,6 +2,9 @@ class RegistrationsController < ApplicationController
   allow_unauthenticated_access only: %i[new create]
   layout -> { mobile_layout_or("marketing") }
 
+  # Sección activa para layouts compartidos (tab bar mobile): Perfil.
+  helper_method :current_qb_section
+
   def new
     @user = User.new
   end
@@ -28,8 +31,11 @@ class RegistrationsController < ApplicationController
 
   private
 
+  def current_qb_section
+    :profile
+  end
+
   def user_params
     params.require(:user).permit(:email, :password, :password_confirmation)
   end
 end
-

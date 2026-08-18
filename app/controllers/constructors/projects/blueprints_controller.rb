@@ -1,60 +1,78 @@
 class Constructors::Projects::BlueprintsController < Constructors::BaseController
-  before_action :set_project
-  before_action :set_blueprint, only: [:show, :update_scale, :update_measurements, :destroy]
+  before_action :find_project!
+  before_action :set_blueprint, only: [ :show, :update_scale, :update_measurements, :destroy ]
 
+  # Planos es UNA sola vista: lista + visor real (canvas, escala, mediciones) +
+  # panel de IA. `?selected=:id` elige qué plano se abre en el visor.
   def index
     authorize @project, :show?
     @current_qb_section = :projects
     @project = @project.decorate
     @current_qb_project = @project
     @current_qb_project_sub = :blueprints
-    @blueprints = @project.blueprints.order(created_at: :desc)
+    # includes: status_label/analysis? del workspace leen los análisis de cada
+    # plano; sin preload era una query por fila.
+    @blueprints = @project.blueprints.includes(:ai_blueprint_analyses).with_attached_file.order(created_at: :desc)
     @selected_blueprint = @blueprints.find_by(id: params[:selected]) || @blueprints.first
+    # Lo consume el modal "¿Qué vas a medir?" del visor (antes se cargaba en #show).
+    @construction_items = @selected_blueprint ? construction_items_by_category : {}
   end
 
   def new
-    authorize @project, :update?
+    # Planos = contenido de obra: `manage_content?` (editor+). Con `:update?`
+    # (que ahora significa "editar los datos de la obra", admin+) un editor no
+    # podía subir un plano, contra lo que dice la matriz.
+    authorize @project, :manage_content?
+    @current_qb_section = :projects
+    @current_qb_project = @project.decorate
+    @current_qb_project_sub = :blueprints
     @blueprint = @project.blueprints.build
   end
 
   def create
-    authorize @project, :update?
+    authorize @project, :manage_content?
     @blueprint = @project.blueprints.build(blueprint_params)
 
     if @blueprint.save
-      redirect_to constructors_project_blueprints_path(@project), 
+      redirect_to constructors_project_blueprints_path(@project, selected: @blueprint.id),
                   notice: "Plano subido correctamente."
     else
-      flash.now[:alert] = "Revisa los datos y vuelve a intentarlo."
+      flash.now[:alert] = "Revisá los datos y volvé a intentarlo."
       render :new, status: :unprocessable_entity
     end
   end
 
+  # En desktop el visor vive en #index, así que /blueprints/:id redirige a la
+  # vista única con ese plano seleccionado. Los links viejos (historial de IA,
+  # marcadores del navegador) siguen funcionando.
+  # Mobile conserva su propia pantalla de detalle (show.html+mobile.erb).
   def show
     authorize @project, :show?
-    @construction_items = ConstructionItem.all.select(:id, :name, :unit, :category).group_by(&:category)
+    return if mobile_variant?
+
+    redirect_to constructors_project_blueprints_path(@project, selected: @blueprint.id)
   end
 
   def update_scale
-    authorize @project, :update?
-    
+    authorize @project, :manage_content?
+
     if @blueprint.update(scale_params)
-      render json: { 
-        success: true, 
+      render json: {
+        success: true,
         scale_ratio: @blueprint.scale_ratio,
-        message: "Escala definida correctamente" 
+        message: "Escala definida correctamente"
       }
     else
-      render json: { 
-        success: false, 
-        errors: @blueprint.errors.full_messages 
+      render json: {
+        success: false,
+        errors: @blueprint.errors.full_messages
       }, status: :unprocessable_entity
     end
   end
 
   def update_measurements
-    authorize @project, :update?
-    
+    authorize @project, :manage_content?
+
     if @blueprint.update(measurements_params)
       render json: { success: true, message: "Mediciones guardadas" }
     else
@@ -63,20 +81,23 @@ class Constructors::Projects::BlueprintsController < Constructors::BaseControlle
   end
 
   def destroy
-    authorize @project, :update?
+    authorize @project, :manage_content?
     @blueprint.destroy
-    redirect_to constructors_project_blueprints_path(@project), 
+    redirect_to constructors_project_blueprints_path(@project),
                 notice: "Plano eliminado correctamente."
   end
 
   private
 
-  def set_project
-    @project = current_user.owned_projects.find(params[:project_id])
-  end
-
   def set_blueprint
     @blueprint = @project.blueprints.find(params[:id])
+  end
+
+  # { "Mampostería" => [#<ConstructionItem id:, name:, unit:, category:>, ...] }
+  # El JS del visor hace Object.entries() sobre esto para armar el modal de
+  # "¿Qué vas a medir?".
+  def construction_items_by_category
+    ConstructionItem.select(:id, :name, :unit, :category).group_by(&:category)
   end
 
   def blueprint_params
@@ -88,6 +109,6 @@ class Constructors::Projects::BlueprintsController < Constructors::BaseControlle
   end
 
   def measurements_params
-    params.require(:blueprint).permit(measurements: { groups: [:id, :name, :construction_item_id, :type, :color, :total_value, :unit, elements: [:id, :value, point: [:x, :y], points: [:x, :y]]] })
+    params.require(:blueprint).permit(measurements: { groups: [ :id, :name, :construction_item_id, :type, :color, :total_value, :unit, elements: [ :id, :value, point: [ :x, :y ], points: [ :x, :y ] ] ] })
   end
 end

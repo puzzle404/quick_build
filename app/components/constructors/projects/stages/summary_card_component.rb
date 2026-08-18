@@ -27,9 +27,9 @@ module Constructors
 
         def status_label
           if stage.start_date.present? && stage.end_date.present?
-            "#{helpers.l(stage.start_date, format: :short)} · #{helpers.l(stage.end_date, format: :short)}"
+            "#{helpers.qb_fmt_date_short(stage.start_date)} · #{helpers.qb_fmt_date_short(stage.end_date)}"
           elsif stage.start_date.present?
-            "Desde #{helpers.l(stage.start_date, format: :short)}"
+            "Desde #{helpers.qb_fmt_date_short(stage.start_date)}"
           else
             "Sin fechas cargadas"
           end

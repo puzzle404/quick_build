@@ -1,4 +1,6 @@
-<header class="relative z-50 bg-white border-b border-slate-200">
+<header class="relative z-50 bg-white border-b border-slate-200"
+        data-controller="marketing-menu"
+        data-action="keydown@window->marketing-menu#closeOnEsc">
   <nav class="mx-auto flex max-w-7xl items-center justify-between p-6 lg:px-8" aria-label="Global">
     <div class="flex lg:flex-1">
       <%= link_to root_path, class: "flex items-center gap-2" do %>
@@ -7,7 +9,8 @@
       <% end %>
     </div>
     <div class="flex lg:hidden">
-      <button type="button" class="-m-2.5 inline-flex items-center justify-center rounded-md p-2.5 text-slate-700" id="mobile-menu-button">
+      <button type="button" class="-m-2.5 inline-flex items-center justify-center rounded-md p-2.5 text-slate-700"
+              data-action="click->marketing-menu#toggle" aria-controls="mobile-menu" id="mobile-menu-button">
         <span class="sr-only">Abrir menú</span>
         <svg class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" aria-hidden="true">
           <path stroke-linecap="round" stroke-linejoin="round" d="M3.75 6.75h16.5M3.75 12h16.5m-16.5 5.25h16.5" />
@@ -25,8 +28,8 @@
           <%= link_to "Carrito", cart_path, class: "text-sm font-semibold leading-6 text-slate-900 hover:text-indigo-600" %>
         <% end %>
       <% else %>
-        <a href="#features" class="text-sm font-semibold leading-6 text-slate-900 hover:text-indigo-600">Características</a>
-        <a href="#" class="text-sm font-semibold leading-6 text-slate-900 hover:text-indigo-600">Precios</a>
+        <%= link_to "Características", root_path(anchor: "features"), class: "text-sm font-semibold leading-6 text-slate-900 hover:text-indigo-600" %>
+        <%= link_to "Precios", precios_path, class: "text-sm font-semibold leading-6 text-slate-900 hover:text-indigo-600" %>
         <%= link_to "Contacto", root_path(anchor: "contacto"), class: "text-sm font-semibold leading-6 text-slate-900 hover:text-indigo-600" %>
       <% end %>
     </div>
@@ -65,15 +68,17 @@
     </div>
   </nav>
   <!-- Mobile menu -->
-  <div class="lg:hidden hidden" role="dialog" aria-modal="true" id="mobile-menu">
-    <div class="fixed inset-0 z-10"></div>
+  <div class="lg:hidden hidden" role="dialog" aria-modal="true" id="mobile-menu"
+       data-marketing-menu-target="panel">
+    <div class="fixed inset-0 z-10" data-action="click->marketing-menu#close"></div>
     <div class="fixed inset-y-0 right-0 z-10 w-full overflow-y-auto bg-white px-6 py-6 sm:max-w-sm sm:ring-1 sm:ring-slate-900/10">
       <div class="flex items-center justify-between">
         <%= link_to root_path, class: "flex items-center gap-2" do %>
           <div class="h-8 w-8 rounded bg-indigo-600 flex items-center justify-center text-white font-bold">Q</div>
           <span class="text-xl font-bold text-slate-900">Quick Build</span>
         <% end %>
-        <button type="button" class="-m-2.5 rounded-md p-2.5 text-slate-700" id="mobile-menu-close">
+        <button type="button" class="-m-2.5 rounded-md p-2.5 text-slate-700"
+                data-action="click->marketing-menu#close" id="mobile-menu-close">
           <span class="sr-only">Cerrar menú</span>
           <svg class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" aria-hidden="true">
             <path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12" />
@@ -93,8 +98,8 @@
                 <%= link_to "Carrito", cart_path, class: "-mx-3 block rounded-lg px-3 py-2 text-base font-semibold leading-7 text-slate-900 hover:bg-slate-50" %>
               <% end %>
             <% else %>
-              <a href="#features" class="-mx-3 block rounded-lg px-3 py-2 text-base font-semibold leading-7 text-slate-900 hover:bg-slate-50">Características</a>
-              <a href="#" class="-mx-3 block rounded-lg px-3 py-2 text-base font-semibold leading-7 text-slate-900 hover:bg-slate-50">Precios</a>
+              <%= link_to "Características", root_path(anchor: "features"), class: "-mx-3 block rounded-lg px-3 py-2 text-base font-semibold leading-7 text-slate-900 hover:bg-slate-50" %>
+              <%= link_to "Precios", precios_path, class: "-mx-3 block rounded-lg px-3 py-2 text-base font-semibold leading-7 text-slate-900 hover:bg-slate-50" %>
               <%= link_to "Contacto", root_path(anchor: "contacto"), class: "-mx-3 block rounded-lg px-3 py-2 text-base font-semibold leading-7 text-slate-900 hover:bg-slate-50" %>
             <% end %>
           </div>

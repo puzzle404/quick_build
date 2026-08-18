@@ -11,9 +11,9 @@ RSpec.describe "PWA", type: :request do
       expect(response.media_type).to eq("application/json")
 
       json = JSON.parse(response.body)
-      expect(json["name"]).to eq("QuickBuild")
+      expect(json["name"]).to eq("Quick Build")
       expect(json["display"]).to eq("standalone")
-      expect(json["start_url"]).to eq("/")
+      expect(json["start_url"]).to eq("/constructors")
 
       sizes = json["icons"].map { |i| i["sizes"] }
       expect(sizes).to include("192x192", "512x512")
@@ -30,6 +30,36 @@ RSpec.describe "PWA", type: :request do
       expect(response).to have_http_status(:ok)
       expect(response.media_type).to eq("text/javascript")
       expect(response.body).to include('addEventListener("fetch"')
+    end
+
+    it "precaches fresh copies and never resolves a navigation without Response" do
+      get "/service-worker", headers: { "Accept" => "text/javascript" }
+
+      # Versión nueva del cache (invalida qb-shell-v1 en clientes ya instalados).
+      expect(response.body).to include('"qb-shell-v2"')
+      # cache: "reload" saltea el cache HTTP del navegador al precachear.
+      expect(response.body).to include('cache: "reload"')
+      # Guard: caches.match puede resolver undefined; siempre hay fallback.
+      expect(response.body).to include("offlineFallbackResponse")
+    end
+  end
+
+  describe "theme-color (PWA head)" do
+    it "emits the graphite bg token by default (anonymous)" do
+      get "/"
+
+      expect(response).to have_http_status(:ok)
+      expect(response.body).to include('name="theme-color" content="#fbfaf8"')
+    end
+
+    it "emits the night bg token when the user opted into the night theme" do
+      user = create(:user, :constructor, preferences: { "theme" => "night" })
+      sign_in(user)
+
+      get "/constructors"
+
+      expect(response).to have_http_status(:ok)
+      expect(response.body).to include('name="theme-color" content="#0d1218"')
     end
   end
 

@@ -11,16 +11,27 @@
   </div>
 
   <%# Toolbar %>
+  <%
+    base_path = constructors_library_path
+    extra = { q: @query.presence,
+              type: @type_filter == 'all' ? nil : @type_filter,
+              project_id: @project_filter == 'all' ? nil : @project_filter }
+    type_options = [['all', 'Todos'], ['pdf', 'PDF'], ['image', 'Imágenes'], ['sheet', 'Planillas'], ['doc', 'Word'], ['other', 'Otros']]
+    project_options = [['all', 'Todas']] +
+                      @projects_for_filter.map { |p| [p.id.to_s, p.name.to_s.split('·').first.to_s.strip.first(28)] }
+  %>
   <div style="display:flex;align-items:center;padding:10px 16px;gap:8px;border-bottom:1px solid var(--color-line);background:var(--color-bg-raised);">
     <form action="<%= constructors_library_path %>" method="get" style="display:flex;align-items:center;gap:8px;">
+      <% if @type_filter != 'all' %><input type="hidden" name="type" value="<%= @type_filter %>"><% end %>
+      <% if @project_filter != 'all' %><input type="hidden" name="project_id" value="<%= @project_filter %>"><% end %>
       <div style="display:flex;align-items:center;gap:6px;padding:0 10px;height:28px;background:var(--color-bg);border:1px solid var(--color-line);border-radius:5px;width:280px;">
         <%= render Qb::IconComponent.new(name: :search, size: 13, style: 'color:var(--color-ink-4)') %>
         <input type="search" name="q" value="<%= @query %>" placeholder="Buscar documentos…"
                style="flex:1;border:none;outline:none;background:transparent;font-size:12px;color:var(--color-ink);">
       </div>
     </form>
-    <%= render Qb::BtnComponent.new(variant: :ghost, size: :xs, icon: :filter) { "Tipo" } %>
-    <%= render Qb::BtnComponent.new(variant: :ghost, size: :xs, icon: :filter) { "Obra" } %>
+    <%= render Qb::FilterChipComponent.new(label: 'Tipo', param: :type, value: @type_filter, options: type_options, base_path: base_path, extra_params: extra.except(:type)) %>
+    <%= render Qb::FilterChipComponent.new(label: 'Obra', param: :project_id, value: @project_filter, options: project_options, base_path: base_path, extra_params: extra.except(:project_id)) %>
     <div style="flex:1;"></div>
     <span class="qb-mono" style="font-size:11px;color:var(--color-ink-3);"><%= @pagy.count %> documentos</span>
   </div>
@@ -69,28 +80,37 @@
             <td style="padding:0 12px;color:var(--color-ink-2);"><%= project_name %></td>
             <td style="padding:0 12px;color:var(--color-ink-2);"><%= etapa %></td>
             <td class="qb-mono" style="padding:0 12px;color:var(--color-ink-3);">
-              <%= doc.uploaded_at.strftime("%d/%m/%Y") %>
+              <%= qb_fmt_date_short(doc.uploaded_at) %>
             </td>
             <td style="padding:0 12px;white-space:nowrap;">
-              <%# "Ver" abre el visor embebido (drawer QB OS) vía Turbo Frame,
-                  como el de planos. "Descargar" deja el archivo directo del servicio. %>
-              <%= link_to "Ver", constructors_library_document_path(doc),
-                    data: { turbo_frame: 'project_modal' },
-                    style: 'font-size:11px;color:var(--color-accent);text-decoration:none;margin-right:8px;' %>
-              <%= link_to "Descargar", url_for(doc.file),
-                    style: 'font-size:11px;color:var(--color-accent);text-decoration:none;' %>
+              <%# Acciones por fila en íconos (el texto repetido N veces era todo
+                  el ruido de la tabla). El ojo abre el visor embebido (drawer QB
+                  OS) vía Turbo Frame, como el de planos; la flecha descarga el
+                  archivo directo del servicio. %>
+              <div style="display:flex;align-items:center;gap:2px;">
+                <%= render Qb::BtnComponent.new('', variant: :ghost, size: :xs, icon: :eye,
+                      href: constructors_library_document_path(doc),
+                      title: 'Ver el documento', aria_label: "Ver #{doc.file_filename}",
+                      data: { turbo_frame: 'project_modal' }) %>
+                <%= render Qb::BtnComponent.new('', variant: :ghost, size: :xs, icon: :download,
+                      href: url_for(doc.file),
+                      title: 'Descargar el archivo', aria_label: "Descargar #{doc.file_filename}") %>
+              </div>
             </td>
           </tr>
         <% end %>
       </tbody>
     </table>
   <% else %>
+    <% any_filter = @query.present? || @type_filter != 'all' || @project_filter != 'all' %>
     <div style="padding:60px;margin:16px;text-align:center;color:var(--color-ink-4);font-size:13px;border:1px dashed var(--color-line);border-radius:10px;">
       <%= render Qb::IconComponent.new(name: :docs, size: 28, style: 'margin-bottom:8px;opacity:0.5;') %>
-      <% if @query.present? %>
-        <div>Sin resultados para «<strong style="color:var(--color-ink-2);"><%= @query %></strong>».</div>
+      <% if any_filter %>
+        <div>
+          Sin resultados<% if @query.present? %> para «<strong style="color:var(--color-ink-2);"><%= @query %></strong>»<% end %>.
+        </div>
         <div style="font-size:11px;color:var(--color-ink-4);margin-top:6px;">
-          <%= link_to 'Limpiar búsqueda', constructors_library_path, style: 'color:var(--color-accent);text-decoration:none;' %>
+          <%= link_to 'Limpiar búsqueda y filtros', constructors_library_path, style: 'color:var(--color-accent);text-decoration:none;' %>
         </div>
       <% else %>
         <div>Todavía no hay documentos en tus obras.</div>

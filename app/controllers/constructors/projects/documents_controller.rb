@@ -1,5 +1,5 @@
 class Constructors::Projects::DocumentsController < Constructors::BaseController
-  before_action :set_project
+  before_action :find_project!
 
   def index
     authorize @project, :show?
@@ -21,7 +21,9 @@ class Constructors::Projects::DocumentsController < Constructors::BaseController
   end
 
   def create
-    authorize @project, :update?
+    # `:manage_content?` (editor+) y no `:update?` (admin+): subir documentos
+    # es cargar contenido de obra, no editar los datos de la obra.
+    authorize @project, :manage_content?
 
     files = Array.wrap(document_params[:files]).compact_blank
 
@@ -47,7 +49,7 @@ class Constructors::Projects::DocumentsController < Constructors::BaseController
   end
 
   def destroy
-    authorize @project, :update?
+    authorize @project, :manage_content?
     document = @project.documents.find(params[:id])
     document.destroy
 
@@ -55,10 +57,6 @@ class Constructors::Projects::DocumentsController < Constructors::BaseController
   end
 
   private
-
-  def set_project
-    @project = current_user.owned_projects.find(params[:project_id])
-  end
 
   def document_params
     params.fetch(:document, {}).permit(files: [])

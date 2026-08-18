@@ -1,7 +1,7 @@
 <%
   status_tabs = [
     { k: 'all',         l: 'Todos',         c: @counts_total },
-    { k: 'in_progress', l: 'En obra',       c: @counts['in_progress'].to_i },
+    { k: 'in_progress', l: 'En progreso',  c: @counts['in_progress'].to_i },
     { k: 'planned',     l: 'Planificados',  c: @counts['planned'].to_i },
     { k: 'completed',   l: 'Finalizados',   c: @counts['completed'].to_i },
   ]
@@ -18,7 +18,8 @@
       <h1 style="margin:4px 0 0;font-size:20px;font-weight:600;letter-spacing:-0.3px;color:var(--color-ink);">Lista de obras</h1>
       <div style="font-size:12px;color:var(--color-ink-3);margin-top:2px;"><%= @pagy.count %> obras coinciden · <%= @counts_total %> en total</div>
     </div>
-    <%= render Qb::BtnComponent.new('Exportar CSV', variant: :secondary, size: :sm, icon: :download) %>
+    <%= render Qb::BtnComponent.new('Exportar CSV', variant: :secondary, size: :sm, icon: :download,
+          href: constructors_projects_path(format: :csv, status: (@status_filter unless @status_filter == 'all'), q: @query.presence)) %>
     <%= render Qb::BtnComponent.new('Nuevo proyecto', variant: :primary, size: :sm, icon: :plus, href: new_constructors_project_path) %>
   </div>
 

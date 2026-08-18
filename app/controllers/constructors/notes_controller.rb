@@ -2,15 +2,17 @@
 
 module Constructors
   class NotesController < Constructors::BaseController
-    before_action :set_project
+    before_action :find_project!
     before_action :set_noteable, only: [ :new, :create ]
     before_action :set_note, only: [ :destroy ]
 
     # Mirror of the desktop's inline modal — the Native shell hits this URL
     # so the path-config rule presents it as a bottom-sheet automatically.
     def new
-      authorize @project, :show?
+      # Mismo criterio que en gastos: el form pide el permiso del alta
+      # (editor+), no el de lectura.
       @note = @noteable.notes.build
+      authorize @note, :new?
     end
 
     def create
@@ -24,7 +26,10 @@ module Constructors
         # vuelve a abrir vía Turbo Frame al recargar la stage show).
         respond_to do |format|
           format.turbo_stream do
-            if @noteable.is_a?(Project)
+            # El target "project_notes_list" sólo existe en el show desktop;
+            # en mobile la nota se crea desde una página propia, así que
+            # respondemos con redirect + flash.
+            if @noteable.is_a?(Project) && !request.variant.include?(:mobile)
               render turbo_stream: turbo_stream.update("project_notes_list",
                 Constructors::Projects::NotesListComponent.new(
                   notes: @project.notes.recent_first.includes(:author),
@@ -51,10 +56,6 @@ module Constructors
     end
 
     private
-
-    def set_project
-      @project = current_user.owned_projects.find(params[:project_id])
-    end
 
     def set_noteable
       if params[:stage_id].present?

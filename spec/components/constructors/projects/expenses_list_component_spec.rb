@@ -44,4 +44,34 @@ RSpec.describe Constructors::Projects::ExpensesListComponent, type: :component d
     render_inline described_class.new(expenses: [ expense ], project: project)
     expect(page).to have_text("Materiales sueltos")
   end
+
+  describe "columna Etapa y comprobante (listado a nivel proyecto)" do
+    it "linkea la etapa del gasto y muestra guion cuando no tiene" do
+      with_stage = create(:expense, project: project, project_stage: stage, author: owner,
+                                    description: "Con etapa", amount_cents: 100_00)
+      without    = create(:expense, project: project, project_stage: nil, author: owner,
+                                    description: "Sin etapa", amount_cents: 100_00)
+
+      render_inline described_class.new(expenses: [ with_stage, without ], project: project)
+
+      expect(page).to have_css("th", text: "Etapa")
+      expect(page).to have_link(stage.name, href: "/constructors/projects/#{project.id}/stages/#{stage.id}")
+      expect(page).to have_text("—")
+    end
+
+    it "linkea el comprobante adjunto" do
+      expense = create(:expense, :with_receipt, project: project, author: owner, amount_cents: 100_00)
+
+      render_inline described_class.new(expenses: [ expense ], project: project)
+
+      expect(page).to have_css("th", text: "Comprobante")
+      expect(page).to have_link("Ver", href: /#{expense.receipt.blob.key}|rails\/active_storage/)
+    end
+
+    it "no agrega la columna Etapa cuando la lista ya está acotada a una etapa" do
+      expense = create(:expense, project: project, project_stage: stage, author: owner, amount_cents: 100_00)
+      render_inline described_class.new(expenses: [ expense ], project: project, stage: stage)
+      expect(page).not_to have_css("th", text: "Etapa")
+    end
+  end
 end

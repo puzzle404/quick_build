@@ -1,42 +1,76 @@
-<%= render Constructors::Projects::SectionsNavComponent.new(project: @project, current_section: :documents) %>
+<% decorated_project = @project.decorated? ? @project : @project.decorate %>
+<%# Subir y borrar fotos = ProjectPolicy#manage_content? (editor de obra en
+    adelante), el mismo permiso que piden images#create/#destroy. %>
+<% can_upload = policy(@project).manage_content? %>
+<%= render 'constructors/projects/section_tabs', project: @project, current: :docs %>
 
-<div class="mt-6 space-y-6">
-  <%= render Qb::SectionHeadComponent.new(title: 'Imágenes del proyecto', subtitle: 'Fotografías y evidencias visuales de la obra') %>
-
-  <section class="qb-card">
-    <div class="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
-      <h2 style="font-size:15px;font-weight:600;color:var(--color-ink);">Subir imágenes</h2>
-      <%= form_with scope: :image, url: constructors_project_images_path(@project), html: { multipart: true }, class: "flex items-center gap-3" do |f| %>
-        <label style="display:inline-flex;cursor:pointer;align-items:center;gap:8px;border-radius:var(--radius);border:1px solid var(--color-line);background:var(--color-bg);padding:6px 14px;font-size:13px;font-weight:600;color:var(--color-ink-2);">
-          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" style="height:16px;width:16px;fill:currentColor;"><path d="M19 13v6a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2v-6H3l9-9l9 9h-2zm-7 5h2v-4h3l-4-4l-4 4h3v4z"/></svg>
-          Agregar imágenes
-          <%= f.file_field :files, multiple: true, accept: 'image/*', class: 'hidden' %>
-        </label>
-        <%= render Qb::BtnComponent.new('Subir', variant: :primary, size: :sm, type: 'submit') %>
-      <% end %>
+<%# Header strip %>
+<div style="padding:14px 20px;border-bottom:1px solid var(--color-line);display:flex;align-items:flex-end;gap:16px;">
+  <div style="flex:1;">
+    <div style="font-size:11px;font-family:var(--font-mono);color:var(--color-ink-3);text-transform:uppercase;letter-spacing:0.8px;"><%= decorated_project.code %> · Documentos</div>
+    <h2 style="margin:3px 0 0;font-size:18px;font-weight:600;letter-spacing:-0.3px;">Fotos de obra</h2>
+    <div style="font-size:12px;color:var(--color-ink-3);margin-top:2px;">
+      <%= pluralize(@images.size, 'foto cargada', plural: 'fotos cargadas') %>
+      · <%= link_to '← Volver a Documentos', constructors_project_documents_path(@project), style: 'color:var(--color-accent);text-decoration:none;font-size:12px;' %>
     </div>
+  </div>
+  <% if can_upload %>
+    <%= form_with scope: :image, url: constructors_project_images_path(@project), html: { multipart: true, style: 'display:flex;align-items:center;gap:8px;' } do |f| %>
+      <label style="display:inline-flex;cursor:pointer;align-items:center;gap:6px;height:28px;padding:0 10px;border-radius:5px;border:1px solid var(--color-line-2);background:var(--color-bg-raised);font-size:12px;font-weight:500;color:var(--color-ink);white-space:nowrap;">
+        <%= render Qb::IconComponent.new(name: :image, size: 13) %>
+        Elegir fotos
+        <%= f.file_field :files, multiple: true, accept: 'image/*', style: 'display:none;' %>
+      </label>
+      <%= render Qb::BtnComponent.new('Subir', variant: :primary, size: :sm, icon: :upload, type: 'submit') %>
+    <% end %>
+  <% end %>
+</div>
 
-    <% if @images.any? %>
-      <div class="mt-5 grid grid-cols-2 gap-4 sm:grid-cols-3 lg:grid-cols-4">
-        <% @images.each do |image| %>
-          <div style="overflow:hidden;border-radius:var(--radius);border:1px solid var(--color-line);background:var(--color-bg-sunken);">
-            <% if image.file.variable? %>
-              <%= image_tag image.file.variant(resize_to_fill: [480, 320]), style: "height:160px;width:100%;object-fit:cover;" %>
-            <% else %>
-              <div style="display:flex;height:160px;width:100%;align-items:center;justify-content:center;font-size:11px;color:var(--color-ink-4);">Imagen</div>
-            <% end %>
-            <div style="display:flex;align-items:center;justify-content:space-between;border-top:1px solid var(--color-line);padding:6px 8px;font-size:11px;">
-              <span style="overflow:hidden;text-overflow:ellipsis;white-space:nowrap;" title="<%= image.title.presence || image.file_filename.to_s %>"><%= image.title.presence || image.file_filename.to_s %></span>
-              <div style="display:flex;align-items:center;gap:8px;">
-                <%= link_to 'Abrir', url_for(image.file), target: '_blank', style: "font-weight:500;color:var(--color-ink-2);" %>
-                <%= button_to 'Eliminar', constructors_project_image_path(@project, image), method: :delete, style: "font-weight:500;color:var(--color-bad);background:none;border:none;cursor:pointer;padding:0;font-size:inherit;font-family:inherit;", data: { turbo_confirm: '¿Eliminar esta imagen?' } %>
-              </div>
-            </div>
+<%# Grid de fotos — full bleed %>
+<% if @images.any? %>
+  <div style="padding:16px 20px;display:grid;grid-template-columns:repeat(auto-fill, minmax(200px, 1fr));gap:12px;">
+    <% @images.each do |image| %>
+      <% image_label = image.title.presence || image.file_filename.to_s %>
+      <div style="overflow:hidden;border-radius:var(--radius);border:1px solid var(--color-line);background:var(--color-bg-sunken);">
+        <% if image.file.variable? %>
+          <%= image_tag image.file.variant(resize_to_fill: [480, 320]), loading: 'lazy', alt: image_label,
+                        style: "display:block;height:160px;width:100%;object-fit:cover;" %>
+        <% else %>
+          <div style="display:flex;height:160px;width:100%;align-items:center;justify-content:center;color:var(--color-ink-4);">
+            <%= render Qb::IconComponent.new(name: :image, size: 24) %>
           </div>
         <% end %>
+        <div style="display:flex;align-items:center;justify-content:space-between;gap:8px;border-top:1px solid var(--color-line);background:var(--color-bg-raised);padding:6px 8px;">
+          <div style="min-width:0;">
+            <div style="font-size:11px;font-weight:500;color:var(--color-ink-2);overflow:hidden;text-overflow:ellipsis;white-space:nowrap;" title="<%= image_label %>"><%= image_label %></div>
+            <div style="font-size:10px;color:var(--color-ink-4);margin-top:1px;"><%= qb_fmt_date_short(image.created_at) %></div>
+          </div>
+          <%# Acciones en íconos: el pie de cada card es angosto y "Abrir/Eliminar"
+              en texto competía con el nombre del archivo. %>
+          <div style="display:flex;align-items:center;gap:2px;flex-shrink:0;">
+            <%= render Qb::BtnComponent.new('', variant: :ghost, size: :xs, icon: :'external-link',
+                  href: url_for(image.file), target: '_blank',
+                  title: 'Abrir la foto en una pestaña nueva',
+                  aria_label: "Abrir #{image_label}") %>
+            <% if can_upload %>
+              <%= button_to constructors_project_image_path(@project, image), method: :delete,
+                            title: 'Eliminar la foto', 'aria-label': "Eliminar #{image_label}",
+                            style: "display:inline-flex;align-items:center;justify-content:center;height:24px;padding:0 6px;color:var(--color-bad);background:none;border:none;border-radius:5px;cursor:pointer;",
+                            data: { turbo_confirm: '¿Eliminar esta imagen?' } do %>
+                <%= render Qb::IconComponent.new(name: :trash, size: 13) %>
+              <% end %>
+            <% end %>
+          </div>
+        </div>
       </div>
-    <% else %>
-      <p class="mt-4 qb-empty">Aún no se cargaron imágenes para este proyecto.</p>
     <% end %>
-  </section>
-</div>
+  </div>
+<% else %>
+  <div style="padding:60px;margin:16px;text-align:center;color:var(--color-ink-4);font-size:13px;border:1px dashed var(--color-line);border-radius:10px;">
+    <%= render Qb::IconComponent.new(name: :image, size: 32, style: 'margin-bottom:8px;opacity:0.5;') %>
+    <div>Aún no se cargaron fotos de esta obra.</div>
+    <% if can_upload %>
+      <div style="font-size:11px;color:var(--color-ink-4);margin-top:6px;">Subí fotografías y evidencias visuales desde «Elegir fotos», arriba a la derecha.</div>
+    <% end %>
+  </div>
+<% end %>

@@ -12,12 +12,16 @@
   docs_count    = s.docs_count
   images_count  = s.images_count
   materials_count = (s.try(:material_lists)&.size || 0)
+  # ProjectStagePolicy (editor de obra en adelante) decide qué acciones se ven.
+  can_manage_stage = policy(@stage).update?
 %>
 
 <%= render Qb::Mobile::NavBarComponent.new(title: nil, back: true, back_href: constructors_project_stages_path(@project)) do |c| %>
-  <% c.with_right do %>
-    <%= link_to edit_constructors_project_stage_path(@project, s), aria: { label: 'Más' }, style: 'background:transparent;border:none;display:flex;color:var(--color-ink-2);padding:8px;' do %>
-      <%= render Qb::Mobile::IconComponent.new(name: 'more', size: 22) %>
+  <% if can_manage_stage %>
+    <% c.with_right do %>
+      <%= link_to edit_constructors_project_stage_path(@project, s), aria: { label: 'Más' }, style: 'background:transparent;border:none;display:flex;color:var(--color-ink-2);padding:8px;' do %>
+        <%= render Qb::Mobile::IconComponent.new(name: 'more', size: 22) %>
+      <% end %>
     <% end %>
   <% end %>
 <% end %>
@@ -111,40 +115,42 @@
 <%# Quick actions over related content. Each row deep-links to the right
     `new` action — Rails has singular helpers like
     `new_constructors_project_stage_expense_path`, not `expense_path`. %>
-<%= render Qb::Mobile::SectionComponent.new(title: "Agregar") do %>
+<%= render Qb::Mobile::SectionComponent.new(title: can_manage_stage ? "Agregar" : "Contenido de la etapa") do %>
   <%= render Qb::Mobile::CardComponent.new(bleed: true) do %>
     <%= render Qb::Mobile::RowComponent.new(
           icon: :materials,
           title: "Materiales (#{materials_count})",
           subtitle: "Ver listas vinculadas",
           href: constructors_project_material_lists_path(@project)) %>
-    <%= render Qb::Mobile::RowComponent.new(
-          icon: :money,
-          title: "Gasto",
-          subtitle: "#{expense_count} registrado".pluralize(expense_count),
-          href: new_constructors_project_stage_expense_path(@project, s)) %>
-    <%= render Qb::Mobile::RowComponent.new(
-          icon: :note,
-          title: "Nota",
-          subtitle: "#{note_count} cargada".pluralize(note_count),
-          href: new_constructors_project_stage_note_path(@project, s)) %>
-    <%= render Qb::Mobile::RowComponent.new(
-          icon: :doc,
-          title: "Documento",
-          subtitle: "#{docs_count} archivo".pluralize(docs_count),
-          href: new_constructors_project_stage_document_path(@project, s)) %>
-    <%= render Qb::Mobile::RowComponent.new(
-          icon: :image,
-          title: "Foto",
-          subtitle: "#{images_count} subida".pluralize(images_count),
-          href: new_constructors_project_stage_image_path(@project, s)) %>
+    <% if can_manage_stage %>
+      <%= render Qb::Mobile::RowComponent.new(
+            icon: :money,
+            title: "Gasto",
+            subtitle: "#{expense_count} registrado".pluralize(expense_count),
+            href: new_constructors_project_stage_expense_path(@project, s)) %>
+      <%= render Qb::Mobile::RowComponent.new(
+            icon: :note,
+            title: "Nota",
+            subtitle: "#{note_count} cargada".pluralize(note_count),
+            href: new_constructors_project_stage_note_path(@project, s)) %>
+      <%= render Qb::Mobile::RowComponent.new(
+            icon: :doc,
+            title: "Documento",
+            subtitle: "#{docs_count} archivo".pluralize(docs_count),
+            href: new_constructors_project_stage_document_path(@project, s)) %>
+      <%= render Qb::Mobile::RowComponent.new(
+            icon: :image,
+            title: "Foto",
+            subtitle: "#{images_count} subida".pluralize(images_count),
+            href: new_constructors_project_stage_image_path(@project, s)) %>
+    <% end %>
   <% end %>
 <% end %>
 
 <%# Inline action bar — renders within the flow so it doesn't collide with
     the bottom tab bar. The Native iOS shell will hide this and surface
     these actions in the UINavigationBar / a context menu instead. %>
-<% unless hotwire_native_app? %>
+<% if can_manage_stage && !hotwire_native_app? %>
   <div style="padding: 4px 16px 24px;">
     <div style="display:flex;gap:8px;align-items:stretch;">
       <%= button_to constructors_project_stage_path(@project, s), method: :delete,

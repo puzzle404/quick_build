@@ -1,0 +1,75 @@
+<div data-qb--modal-target="dialog" role="dialog" aria-modal="true"
+     class="hidden"
+     data-action="click->qb--modal#backdrop keydown@window->qb--modal#keydown"
+     style="display:flex;position:fixed;inset:0;z-index:60;background:rgba(0,0,0,0.45);align-items:center;justify-content:center;">
+  <div data-qb--modal-target="panel"
+       style="position:relative;width:520px;max-width:calc(100vw - 32px);max-height:86vh;background:var(--color-bg);border:1px solid var(--color-line);border-radius:10px;overflow:hidden;display:flex;flex-direction:column;box-shadow:0 20px 50px -10px rgba(0,0,0,0.4);text-align:left;">
+
+    <div style="padding:14px 18px;border-bottom:1px solid var(--color-line);display:flex;justify-content:space-between;align-items:center;">
+      <div>
+        <h3 style="margin:0;font-size:15px;font-weight:600;color:var(--color-ink);">Guardar como plantilla</h3>
+        <div style="font-size:12px;color:var(--color-ink-3);margin-top:2px;">Reutilizá esta estructura de etapas en tus próximas obras.</div>
+      </div>
+      <%= render Qb::BtnComponent.new('', variant: :ghost, size: :sm, icon: :x, aria_label: 'Cerrar',
+                                      data: { action: 'click->qb--modal#close' }) %>
+    </div>
+
+    <% if any_stages? %>
+      <%= form_with url: constructors_stage_templates_path, method: :post, scope: :stage_template,
+                    html: { style: 'display:flex;flex-direction:column;min-height:0;flex:1;' } do |form| %>
+        <%= form.hidden_field :project_id, value: project.id %>
+
+        <div style="flex:1;overflow:auto;padding:18px;">
+          <div class="qb-field">
+            <%= form.label :name, "Nombre de la plantilla", class: "qb-label" %>
+            <%= form.text_field :name, value: default_name, required: true, maxlength: 120, class: "qb-input" %>
+          </div>
+
+          <div class="qb-field">
+            <%= form.label :description, "Descripción (opcional)", class: "qb-label" %>
+            <%= form.text_area :description, rows: 2, class: "qb-textarea",
+                               placeholder: 'Para qué tipo de obra sirve, qué asume el cronograma…' %>
+          </div>
+
+          <%# Confirmación de lo que se guarda. %>
+          <div style="border:1px solid var(--color-line);border-radius:8px;padding:12px;background:var(--color-bg-raised);">
+            <div style="display:flex;align-items:baseline;gap:8px;">
+              <div style="font-size:12.5px;font-weight:600;color:var(--color-ink);">Se guardan <%= summary_line %></div>
+            </div>
+            <div style="display:flex;flex-wrap:wrap;gap:4px;margin-top:8px;">
+              <% root_stages.each do |stage| %>
+                <span style="font-size:11px;padding:2px 8px;background:var(--color-bg-sunken);border-radius:12px;color:var(--color-ink-3);">
+                  <%= stage.name %><% if stage.sub_stages.size.positive? %> <span class="qb-mono" style="color:var(--color-ink-4);">+<%= stage.sub_stages.size %></span><% end %>
+                </span>
+              <% end %>
+            </div>
+            <div style="font-size:11px;color:var(--color-ink-3);margin-top:10px;line-height:1.5;">
+              Guardamos nombres, descripciones, presupuestos y las fechas como
+              <strong style="color:var(--color-ink-2);">días relativos</strong> al inicio de la obra, para que el cronograma
+              se recalcule en la obra destino. No se copian avances ni gastos.
+            </div>
+            <% if schedule_warning? %>
+              <div style="font-size:11px;color:var(--color-warn);margin-top:8px;line-height:1.5;">
+                Esta obra no tiene fecha de inicio, así que la plantilla se guarda sin cronograma.
+              </div>
+            <% end %>
+          </div>
+        </div>
+
+        <div style="padding:12px 18px;border-top:1px solid var(--color-line);display:flex;gap:8px;justify-content:flex-end;background:var(--color-bg-raised);">
+          <%= render Qb::BtnComponent.new('Cancelar', variant: :ghost, size: :sm,
+                                          data: { action: 'click->qb--modal#close' }) %>
+          <%= render Qb::BtnComponent.new('Guardar plantilla', variant: :primary, size: :sm, icon: :sparkles, type: 'submit') %>
+        </div>
+      <% end %>
+    <% else %>
+      <div style="padding:18px;font-size:12.5px;color:var(--color-ink-3);line-height:1.5;">
+        Esta obra todavía no tiene etapas cargadas. Creá al menos una etapa para poder guardarla como plantilla.
+      </div>
+      <div style="padding:12px 18px;border-top:1px solid var(--color-line);display:flex;justify-content:flex-end;background:var(--color-bg-raised);">
+        <%= render Qb::BtnComponent.new('Entendido', variant: :secondary, size: :sm,
+                                        data: { action: 'click->qb--modal#close' }) %>
+      </div>
+    <% end %>
+  </div>
+</div>

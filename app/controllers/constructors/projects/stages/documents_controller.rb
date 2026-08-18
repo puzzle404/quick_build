@@ -2,7 +2,7 @@ module Constructors
   module Projects
     module Stages
       class DocumentsController < Constructors::BaseController
-        before_action :set_project
+        before_action :find_project!
         before_action :set_stage
         before_action :set_document, only: :destroy
 
@@ -41,10 +41,6 @@ module Constructors
         end
 
         private
-
-        def set_project
-          @project = current_user.owned_projects.find(params[:project_id])
-        end
 
         def set_stage
           @stage = @project.project_stages.find(params[:stage_id])

@@ -3,50 +3,113 @@
      data-action="click->qb--modal#backdrop keydown@window->qb--modal#keydown"
      style="display:flex;position:fixed;inset:0;z-index:60;background:rgba(0,0,0,0.45);align-items:center;justify-content:center;">
   <div data-qb--modal-target="panel"
-       style="position:relative;width:640px;max-height:86vh;background:var(--color-bg);border:1px solid var(--color-line);border-radius:10px;overflow:hidden;display:flex;flex-direction:column;box-shadow:0 20px 50px -10px rgba(0,0,0,0.4);">
+       style="position:relative;width:640px;max-width:calc(100vw - 32px);max-height:86vh;background:var(--color-bg);border:1px solid var(--color-line);border-radius:10px;overflow:hidden;display:flex;flex-direction:column;box-shadow:0 20px 50px -10px rgba(0,0,0,0.4);text-align:left;">
 
     <div style="padding:14px 18px;border-bottom:1px solid var(--color-line);display:flex;justify-content:space-between;align-items:center;">
       <div>
-        <h3 style="margin:0;font-size:15px;font-weight:600;">Aplicar plantilla de etapas</h3>
-        <div style="font-size:12px;color:var(--color-ink-3);margin-top:2px;">Crea las etapas que no existan. Las existentes se mantienen.</div>
+        <h3 style="margin:0;font-size:15px;font-weight:600;color:var(--color-ink);">Aplicar plantilla de etapas</h3>
+        <div style="font-size:12px;color:var(--color-ink-3);margin-top:2px;">Crea las etapas que no existan. Las existentes se mantienen tal cual.</div>
       </div>
-      <button type="button" data-action="click->qb--modal#close" aria-label="Cerrar"
-              style="background:transparent;border:none;color:var(--color-ink-3);cursor:pointer;">
-        <%= render Qb::IconComponent.new(name: :x, size: 16) %>
-      </button>
-    </div>
-
-    <div style="flex:1;overflow:auto;padding:18px;display:flex;flex-direction:column;gap:10px;">
-      <% TEMPLATE.each_with_index do |t, i| %>
-        <div style="border:1px solid var(--color-line);border-radius:8px;padding:12px;background:var(--color-bg-raised);">
-          <div style="display:flex;align-items:center;gap:10px;margin-bottom:6px;">
-            <div style="width:28px;height:28px;border-radius:6px;background:color-mix(in oklab, var(--color-accent) 14%, transparent);color:var(--color-accent);display:flex;align-items:center;justify-content:center;font-family:var(--font-mono);font-weight:600;font-size:13px;">
-              <%= i + 1 %>
-            </div>
-            <div style="flex:1;">
-              <div style="font-weight:600;font-size:13px;"><%= t[:name] %></div>
-              <div style="font-size:11px;color:var(--color-ink-3);"><%= t[:desc] %></div>
-            </div>
-            <span class="qb-mono" style="font-size:10px;color:var(--color-ink-4);background:var(--color-bg-sunken);padding:2px 6px;border-radius:3px;"><%= t[:subs].size %> sub</span>
-          </div>
-          <div style="display:flex;flex-wrap:wrap;gap:4px;margin-left:38px;">
-            <% t[:subs].each do |sub| %>
-              <span style="font-size:11px;padding:3px 8px;background:var(--color-bg-sunken);border-radius:12px;color:var(--color-ink-2);"><%= sub %></span>
-            <% end %>
-          </div>
-        </div>
-      <% end %>
+      <%= render Qb::BtnComponent.new('', variant: :ghost, size: :sm, icon: :x, aria_label: 'Cerrar',
+                                      data: { action: 'click->qb--modal#close' }) %>
     </div>
 
     <%= form_with url: apply_template_constructors_project_stages_path(project), method: :post,
-                  html: { style: 'padding:12px 18px;border-top:1px solid var(--color-line);display:flex;gap:8px;justify-content:flex-end;background:var(--color-bg-raised);' } do %>
-      <button type="button" data-action="click->qb--modal#close" aria-label="Cerrar"
-              style="height:28px;padding:0 10px;background:transparent;color:var(--color-ink-2);border:1px solid transparent;border-radius:5px;font-size:12px;cursor:pointer;">Cancelar</button>
-      <button type="submit"
-              style="display:inline-flex;align-items:center;gap:6px;height:28px;padding:0 10px;background:var(--color-accent);color:var(--color-accent-ink);border:1px solid var(--color-accent);border-radius:5px;font-size:12px;font-weight:500;cursor:pointer;">
-        <%= render Qb::IconComponent.new(name: :layers, size: 13) %>
-        Aplicar plantilla
-      </button>
+                  html: { style: 'display:flex;flex-direction:column;min-height:0;flex:1;' } do %>
+      <div style="flex:1;overflow:auto;padding:18px;display:flex;flex-direction:column;gap:10px;">
+
+        <%# Plantilla base del sistema — sin id, es la constante del service. %>
+        <label style="display:block;border:1px solid var(--color-line);border-radius:8px;padding:12px;background:var(--color-bg-raised);cursor:pointer;">
+          <div style="display:flex;align-items:flex-start;gap:10px;">
+            <input type="radio" name="stage_template_id" value="" checked style="margin-top:3px;">
+            <div style="flex:1;min-width:0;">
+              <div style="display:flex;align-items:baseline;gap:8px;">
+                <div style="font-weight:600;font-size:13px;color:var(--color-ink);">Plantilla base</div>
+                <span class="qb-mono" style="font-size:10px;color:var(--color-ink-4);background:var(--color-bg-sunken);padding:2px 6px;border-radius:3px;">
+                  <%= base_stages.size %> etapas · <%= base_sub_stages_count %> sub
+                </span>
+              </div>
+              <div style="font-size:11px;color:var(--color-ink-3);margin-top:2px;">Estructura estándar de obra: proyecto y gestión, dirección de obra y administración.</div>
+            </div>
+          </div>
+
+          <div style="margin-top:10px;display:flex;flex-direction:column;gap:8px;">
+            <% base_stages.each_with_index do |stage, i| %>
+              <div>
+                <div style="display:flex;align-items:center;gap:8px;">
+                  <div style="width:22px;height:22px;border-radius:5px;background:color-mix(in oklab, var(--color-accent) 14%, transparent);color:var(--color-accent);display:flex;align-items:center;justify-content:center;font-family:var(--font-mono);font-weight:600;font-size:11px;">
+                    <%= i + 1 %>
+                  </div>
+                  <div style="font-size:12px;font-weight:500;color:var(--color-ink-2);"><%= stage[:name] %></div>
+                </div>
+                <div style="display:flex;flex-wrap:wrap;gap:4px;margin:5px 0 0 30px;">
+                  <% stage.fetch(:sub_stages, []).each do |sub| %>
+                    <span style="font-size:11px;padding:2px 8px;background:var(--color-bg-sunken);border-radius:12px;color:var(--color-ink-3);"><%= sub[:name] %></span>
+                  <% end %>
+                </div>
+              </div>
+            <% end %>
+          </div>
+        </label>
+
+        <%# Plantillas guardadas por el constructor. %>
+        <% if saved_templates? %>
+          <div class="qb-mono" style="font-size:10px;color:var(--color-ink-4);text-transform:uppercase;letter-spacing:0.6px;margin-top:4px;">Mis plantillas</div>
+
+          <% saved_templates.each do |template| %>
+            <label style="display:block;border:1px solid var(--color-line);border-radius:8px;padding:12px;background:var(--color-bg-raised);cursor:pointer;">
+              <div style="display:flex;align-items:flex-start;gap:10px;">
+                <input type="radio" name="stage_template_id" value="<%= template.id %>" style="margin-top:3px;">
+                <div style="flex:1;min-width:0;">
+                  <div style="display:flex;align-items:baseline;gap:8px;flex-wrap:wrap;">
+                    <div style="font-weight:600;font-size:13px;color:var(--color-ink);"><%= template.name %></div>
+                    <span class="qb-mono" style="font-size:10px;color:var(--color-ink-4);background:var(--color-bg-sunken);padding:2px 6px;border-radius:3px;"><%= summary_for(template) %></span>
+                    <span style="font-size:10.5px;color:var(--color-ink-4);">Guardada el <%= helpers.qb_fmt_date_short(template.created_at) %></span>
+                  </div>
+                  <% if template.description.present? %>
+                    <div style="font-size:11px;color:var(--color-ink-3);margin-top:2px;"><%= template.description %></div>
+                  <% end %>
+                  <div style="display:flex;flex-wrap:wrap;gap:4px;margin-top:8px;">
+                    <% preview_names(template).each do |item_name| %>
+                      <span style="font-size:11px;padding:2px 8px;background:var(--color-bg-sunken);border-radius:12px;color:var(--color-ink-3);"><%= item_name %></span>
+                    <% end %>
+                  </div>
+                </div>
+              </div>
+            </label>
+          <% end %>
+        <% else %>
+          <div style="border:1px dashed var(--color-line-2);border-radius:8px;padding:12px;font-size:11.5px;color:var(--color-ink-3);line-height:1.5;">
+            Todavía no guardaste plantillas propias. Cargá las etapas de una obra y usá
+            <strong style="color:var(--color-ink-2);">Guardar como plantilla</strong> para reutilizarlas en la próxima.
+          </div>
+        <% end %>
+      </div>
+
+      <%# Toggles. El hidden previo al checkbox garantiza que el "no" también
+          viaje: sin él, destildar no manda nada y el server usa el default. %>
+      <div style="padding:10px 18px;border-top:1px solid var(--color-line);display:flex;gap:18px;flex-wrap:wrap;background:var(--color-bg-raised);">
+        <label style="display:flex;align-items:center;gap:6px;font-size:12px;color:var(--color-ink-2);cursor:pointer;">
+          <input type="hidden" name="apply_dates" value="0">
+          <input type="checkbox" name="apply_dates" value="1" checked>
+          Copiar fechas
+          <span style="font-size:10.5px;color:var(--color-ink-4);">(desde el inicio de la obra)</span>
+        </label>
+        <label style="display:flex;align-items:center;gap:6px;font-size:12px;color:var(--color-ink-2);cursor:pointer;">
+          <input type="hidden" name="apply_budgets" value="0">
+          <input type="checkbox" name="apply_budgets" value="1">
+          Copiar presupuestos
+        </label>
+      </div>
+
+      <div style="padding:12px 18px;border-top:1px solid var(--color-line);display:flex;gap:8px;align-items:center;background:var(--color-bg-raised);">
+        <%= link_to 'Administrar plantillas', constructors_stage_templates_path,
+                    style: 'font-size:11.5px;color:var(--color-ink-3);text-decoration:none;' %>
+        <div style="flex:1;"></div>
+        <%= render Qb::BtnComponent.new('Cancelar', variant: :ghost, size: :sm,
+                                        data: { action: 'click->qb--modal#close' }) %>
+        <%= render Qb::BtnComponent.new('Aplicar plantilla', variant: :primary, size: :sm, icon: :layers, type: 'submit') %>
+      </div>
     <% end %>
   </div>
 </div>

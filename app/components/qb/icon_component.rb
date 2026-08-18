@@ -37,6 +37,7 @@ class Qb::IconComponent < ViewComponent::Base
     upload:           %(<path d="M12 4v12M6 10l6-6 6 6M4 20h16"/>),
     download:         %(<path d="M12 4v12M6 14l6 6 6-6M4 20h16"/>),
     more:             %(<circle cx="6" cy="12" r="1" fill="currentColor"/><circle cx="12" cy="12" r="1" fill="currentColor"/><circle cx="18" cy="12" r="1" fill="currentColor"/>),
+    'more-vertical':  %(<circle cx="12" cy="6" r="1" fill="currentColor"/><circle cx="12" cy="12" r="1" fill="currentColor"/><circle cx="12" cy="18" r="1" fill="currentColor"/>),
     grid:             %(<rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/>),
     list:             %(<path d="M8 6h13M8 12h13M8 18h13"/><circle cx="4" cy="6" r="1" fill="currentColor"/><circle cx="4" cy="12" r="1" fill="currentColor"/><circle cx="4" cy="18" r="1" fill="currentColor"/>),
     kanban:           %(<rect x="3" y="4" width="5" height="14"/><rect x="10" y="4" width="5" height="9"/><rect x="17" y="4" width="5" height="11"/>),
@@ -54,6 +55,9 @@ class Qb::IconComponent < ViewComponent::Base
     person:           %(<circle cx="12" cy="8" r="3.5"/><path d="M4 20c0-4 3.5-6 8-6s8 2 8 6"/>),
     trash:            %(<path d="M4 7h16M9 7V4h6v3M6 7l1 13h10l1-13"/><path d="M10 11v6M14 11v6"/>),
     edit:             %(<path d="M14 4l6 6-11 11H3v-6z"/><path d="M13 5l6 6"/>),
+    eye:              %(<path d="M2 12s3.6-7 10-7 10 7 10 7-3.6 7-10 7-10-7-10-7z"/><circle cx="12" cy="12" r="3"/>),
+    'external-link':  %(<path d="M14 4h6v6"/><path d="M20 4l-9 9"/><path d="M18 14v5a1 1 0 01-1 1H5a1 1 0 01-1-1V7a1 1 0 011-1h5"/>),
+    copy:             %(<rect x="9" y="9" width="11" height="11" rx="2"/><path d="M5 15H4a1 1 0 01-1-1V4a1 1 0 011-1h10a1 1 0 011 1v1"/>)
   }.freeze
 
   FALLBACK = %(<circle cx="12" cy="12" r="4"/>).freeze

@@ -23,10 +23,14 @@
           value: @kpis[:labor_cost_cents] ? qb_fmt_cents(@kpis[:labor_cost_cents]) : '—',
           hint: 'este mes'
         ) %>
+    <%# `owned_projects` a propósito: esta pantalla consolida personas de las
+        obras PROPIAS (Constructors::PeopleController sigue scopeado así porque
+        su #update propaga nombre/teléfono a todas las asignaciones). El KPI
+        tiene que contar lo mismo que las filas de abajo. %>
     <%= render Qb::MetricCellComponent.new(
-          label: 'Proyectos activos',
+          label: 'Obras propias activas',
           value: current_user.owned_projects.in_progress.count,
-          hint: 'donde hay equipo asignado'
+          hint: 'en curso, con equipo asignado'
         ) %>
   </div>
 
@@ -69,7 +73,9 @@
               <div style="display:flex;align-items:center;gap:10px;">
                 <%= render Qb::AvatarComponent.new(name: row[:full_name], size: 26) %>
                 <div>
-                  <div style="font-weight:500;color:var(--color-ink);"><%= row[:full_name] %></div>
+                  <%= link_to constructors_person_path(row[:person_id]), style: 'font-weight:500;color:var(--color-ink);text-decoration:none;' do %>
+                    <%= row[:full_name] %>
+                  <% end %>
                   <% if row[:phone].present? %>
                     <div class="qb-mono" style="font-size:10px;color:var(--color-ink-4);"><%= row[:phone] %></div>
                   <% end %>
@@ -109,8 +115,13 @@
             <td style="padding:0 12px;">
               <%= render Qb::PillComponent.new(row[:status] == 'active' ? 'Activa' : 'Licencia', tone: row[:status] == 'active' ? :ok : :muted, compact: true) %>
             </td>
-            <td style="padding:0 12px;width:24px;color:var(--color-ink-4);">
-              <%= render Qb::IconComponent.new(name: :more, size: 14) %>
+            <td style="padding:0 12px;width:24px;">
+              <%# Ficha global de la persona (consolida sus asignaciones), no el
+                  equipo de una obra puntual. %>
+              <%= link_to constructors_person_path(row[:person_id]), title: 'Ver ficha de la persona',
+                          style: 'color:var(--color-ink-4);text-decoration:none;display:inline-flex;' do %>
+                <%= render Qb::IconComponent.new(name: :'chevron-right', size: 14) %>
+              <% end %>
             </td>
           </tr>
         <% end %>

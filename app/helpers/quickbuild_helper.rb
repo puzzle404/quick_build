@@ -5,7 +5,7 @@
 module QuickbuildHelper
   # "$ 2.5M" / "$ 45k" / "$ 800" / "—"
   def qb_fmt_ars(cents_or_amount, mode: :auto)
-    return '—' if cents_or_amount.nil?
+    return "—" if cents_or_amount.nil?
     n = cents_or_amount.to_f
     abs = n.abs
     case mode
@@ -20,7 +20,7 @@ module QuickbuildHelper
 
   # "$ 12.345.678" — Argentina formatting with thousands separator
   def qb_fmt_ars_full(amount)
-    return '—' if amount.nil?
+    return "—" if amount.nil?
     "$ #{amount.round.to_s.reverse.scan(/\d{1,3}/).join('.').reverse}"
   end
 
@@ -30,7 +30,7 @@ module QuickbuildHelper
   end
 
   def qb_fmt_pct(value)
-    return '—' if value.nil?
+    return "—" if value.nil?
     "#{value.round}%"
   end
 
@@ -39,20 +39,27 @@ module QuickbuildHelper
 
   # "18 abr" — Spanish abbreviated month, no year (matches handoff fmtDate)
   def qb_fmt_date_short(date)
-    return '—' if date.blank?
+    return "—" if date.blank?
     d = date.to_date
     "#{format('%02d', d.day)} #{ES_MONTHS_SHORT[d.month - 1]}"
+  end
+
+  # "18 abr 14:30" — fecha corta + hora 24h, para timestamps donde la hora importa
+  def qb_fmt_datetime_short(time)
+    return "—" if time.blank?
+    t = time.in_time_zone
+    "#{qb_fmt_date_short(t)} #{t.strftime('%H:%M')}"
   end
 
   # Tone helpers for ViewComponents — accept symbols or strings
   def qb_tone_class(tone)
     {
-      ok:     'text-ok',
-      warn:   'text-warn',
-      bad:    'text-bad',
-      info:   'text-info',
-      accent: 'text-accent',
-      muted:  'text-ink-3',
-    }[tone&.to_sym] || 'text-ink-3'
+      ok:     "text-ok",
+      warn:   "text-warn",
+      bad:    "text-bad",
+      info:   "text-info",
+      accent: "text-accent",
+      muted:  "text-ink-3"
+    }[tone&.to_sym] || "text-ink-3"
   end
 end

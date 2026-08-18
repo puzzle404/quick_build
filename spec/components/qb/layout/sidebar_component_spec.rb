@@ -21,7 +21,7 @@ RSpec.describe Qb::Layout::SidebarComponent, type: :component do
   end
 
   it 'renders pinned projects when no project context is active' do
-    pinned = [double('p', id: 42, name: 'Torre Aurora · Edificio', health: :ok, progress: 64, project_short_name: 'Torre Aurora')]
+    pinned = [ double('p', id: 42, name: 'Torre Aurora · Edificio', health: :ok, progress: 64, project_short_name: 'Torre Aurora') ]
     with_request_url '/constructors' do
       render_inline(described_class.new(current: :dashboard, user: user, pinned_projects: pinned))
     end
@@ -34,11 +34,10 @@ RSpec.describe Qb::Layout::SidebarComponent, type: :component do
                                 planned_progress: 68, health: :ok, stages_done: 8, stages_count: 14)
     with_request_url '/constructors/projects/42' do
       render_inline(described_class.new(current: :projects, user: user,
-                                         project: project, project_sub: :overview))
+                                         project: project, project_sub: :stages))
     end
     expect(page).to have_text('En este proyecto')
-    expect(page).to have_text('Resumen')
-    expect(page).to have_text('Planificación')
+    expect(page).to have_text('Etapas')
     expect(page).to have_text('Materiales')
     expect(page).to have_text('Planos · IA')
     expect(page).to have_text('PRJ-042')

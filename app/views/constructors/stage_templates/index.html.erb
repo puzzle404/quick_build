@@ -1,0 +1,61 @@
+<% content_for :qb_crumbs, [{label: 'Inicio'}, {label: 'Plantillas de etapas'}].to_json %>
+
+<div style="padding:18px 20px;">
+  <%= render Qb::SectionHeadComponent.new(
+        title: 'Plantillas de etapas',
+        subtitle: 'Estructuras guardadas desde tus obras. Se aplican desde la obra destino, con el botón «Aplicar plantilla».') %>
+
+  <% if @stage_templates.any? %>
+    <div style="margin-top:14px;border:1px solid var(--color-line);border-radius:8px;overflow:hidden;background:var(--color-bg-raised);">
+      <% @stage_templates.each_with_index do |template, i| %>
+        <div style="display:flex;align-items:flex-start;gap:12px;padding:14px 16px;<%= 'border-top:1px solid var(--color-line);' if i.positive? %>">
+          <div style="flex:1;min-width:0;">
+            <div style="display:flex;align-items:baseline;gap:8px;flex-wrap:wrap;">
+              <div style="font-size:13.5px;font-weight:600;color:var(--color-ink);"><%= template.name %></div>
+              <span class="qb-mono" style="font-size:10px;color:var(--color-ink-4);background:var(--color-bg-sunken);padding:2px 6px;border-radius:3px;">
+                <%= template.root_items_count %> etapas · <%= template.sub_items_count %> sub
+              </span>
+              <span style="font-size:10.5px;color:var(--color-ink-4);">Guardada el <%= qb_fmt_date_short(template.created_at) %></span>
+            </div>
+
+            <% if template.description.present? %>
+              <div style="font-size:12px;color:var(--color-ink-3);margin-top:3px;"><%= template.description %></div>
+            <% end %>
+
+            <% if template.source_project.present? %>
+              <div style="font-size:11px;color:var(--color-ink-4);margin-top:3px;">
+                Origen: <%= link_to template.source_project.name, constructors_project_path(template.source_project),
+                                    style: 'color:var(--color-ink-3);text-decoration:none;' %>
+              </div>
+            <% end %>
+
+            <div style="display:flex;flex-wrap:wrap;gap:4px;margin-top:8px;">
+              <% template.root_items_list.each do |item| %>
+                <span style="font-size:11px;padding:2px 8px;background:var(--color-bg-sunken);border-radius:12px;color:var(--color-ink-3);">
+                  <%= item.name %>
+                </span>
+              <% end %>
+            </div>
+          </div>
+
+          <%= button_to constructors_stage_template_path(template), method: :delete,
+                        form: { data: { turbo_confirm: "¿Eliminar la plantilla «#{template.name}»? Las etapas ya creadas en tus obras no se tocan." } },
+                        style: 'height:28px;padding:0 10px;background:transparent;color:var(--color-bad);border:1px solid var(--color-line-2);border-radius:5px;font-size:12px;cursor:pointer;' do %>
+            Eliminar
+          <% end %>
+        </div>
+      <% end %>
+    </div>
+  <% else %>
+    <div style="margin-top:14px;border:1px dashed var(--color-line-2);border-radius:8px;padding:24px;text-align:center;">
+      <div style="font-size:13.5px;font-weight:600;color:var(--color-ink-2);">Todavía no guardaste plantillas</div>
+      <div style="font-size:12px;color:var(--color-ink-3);margin-top:4px;line-height:1.5;">
+        Cargá las etapas de una obra y usá «Guardar como plantilla» para reutilizar esa estructura en la próxima.
+      </div>
+      <div style="margin-top:14px;">
+        <%= render Qb::BtnComponent.new('Ir a mis obras', variant: :secondary, size: :sm, icon: :layers,
+                                        href: constructors_projects_path) %>
+      </div>
+    </div>
+  <% end %>
+</div>

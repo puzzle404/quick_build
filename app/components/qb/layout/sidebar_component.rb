@@ -76,4 +76,9 @@ class Qb::Layout::SidebarComponent < ViewComponent::Base
   def project_chip_style
     "padding:8px 10px;border-radius:6px;background:color-mix(in oklab, var(--color-accent) 8%, var(--color-bg-sunken));border:1px solid color-mix(in oklab, var(--color-accent) 18%, var(--color-line));"
   end
+
+  # Filas del menú del switcher de cuenta (Perfil / Cerrar sesión).
+  def account_menu_row_style
+    "width:100%;display:flex;align-items:center;gap:8px;padding:7px 10px;background:transparent;border:none;border-radius:4px;color:var(--color-ink);font-size:12px;font-weight:500;cursor:pointer;text-decoration:none;text-align:left;"
+  end
 end

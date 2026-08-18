@@ -1,23 +1,18 @@
 <%
-  tabs = [
-    { value: :overview,   label: 'Resumen',       icon: :home,      href: constructors_project_path(@project) },
-    { value: :planning,   label: 'Planificación', icon: :planning,  count: @project.project_stages.where(parent_id: nil).count, href: constructors_project_stages_path(@project) },
-    { value: :materials,  label: 'Materiales',    icon: :materials, count: @project.material_lists.count, href: constructors_project_material_lists_path(@project) },
-    { value: :blueprints, label: 'Planos · IA',   icon: :blueprint, count: @project.blueprints.count, href: constructors_project_blueprints_path(@project) },
-    { value: :team,       label: 'Equipo',        icon: :people,    count: @project.project_people.count, href: constructors_project_people_path(@project) },
-    { value: :docs,       label: 'Documentos',    icon: :docs,      count: @documents.size, href: constructors_project_documents_path(@project) },
-  ]
 
   doc_kind = ->(d) {
     return 'PDF' unless d.respond_to?(:file) && d.file.attached?
     ext = d.file.filename.to_s.split('.').last.to_s.upcase
     ext.presence || 'DOC'
   }
+
+  # Subir documentos = ProjectPolicy#manage_content? (editor de obra en
+  # adelante), el mismo permiso que pide documents#create/#destroy.
+  can_upload = policy(@project).manage_content?
 %>
 
 <div>
-  <%= render Constructors::Projects::HeaderComponent.new(project: @project) %>
-  <%= render Qb::TabsComponent.new(tabs: tabs, current: :docs) %>
+  <%= render 'constructors/projects/section_tabs', project: @project, current: :docs %>
 
   <%# Toolbar %>
   <div style="display:flex;align-items:center;padding:10px 16px;gap:8px;border-bottom:1px solid var(--color-line);background:var(--color-bg-raised);">
@@ -29,10 +24,12 @@
       </div>
     <% end %>
     <div style="flex:1;"></div>
-    <%= form_with scope: :document, url: constructors_project_documents_path(@project), html: { multipart: true, style: 'display:flex;align-items:center;gap:6px;' } do |f| %>
-      <%= f.file_field :files, multiple: true, accept: '.pdf,application/pdf', direct_upload: true,
-                       style: 'font-size:11px;color:var(--color-ink-2);' %>
-      <%= render Qb::BtnComponent.new('Subir', variant: :primary, size: :xs, icon: :upload, type: 'submit') %>
+    <% if can_upload %>
+      <%= form_with scope: :document, url: constructors_project_documents_path(@project), html: { multipart: true, style: 'display:flex;align-items:center;gap:6px;' } do |f| %>
+        <%= f.file_field :files, multiple: true, accept: '.pdf,application/pdf', direct_upload: true,
+                         style: 'font-size:11px;color:var(--color-ink-2);' %>
+        <%= render Qb::BtnComponent.new('Subir', variant: :primary, size: :xs, icon: :upload, type: 'submit') %>
+      <% end %>
     <% end %>
   </div>
 
@@ -63,9 +60,12 @@
             <td class="qb-mono" style="padding:0 12px;color:var(--color-ink-3);"><%= qb_fmt_date_short(doc.try(:created_at)) %></td>
             <td style="padding:0 12px;width:24px;">
               <% if doc.respond_to?(:file) && doc.file.attached? %>
-                <%= link_to rails_blob_url(doc.file, disposition: 'inline'), target: '_blank', style: 'color:var(--color-ink-4);text-decoration:none;' do %>
-                  <%= render Qb::IconComponent.new(name: :'arrow-right', size: 14) %>
-                <% end %>
+                <%# Abre el archivo en una pestaña nueva: el glifo dice eso, la
+                    flecha genérica de antes no. %>
+                <%= render Qb::BtnComponent.new('', variant: :ghost, size: :xs, icon: :'external-link',
+                      href: rails_blob_url(doc.file, disposition: 'inline'), target: '_blank',
+                      title: 'Abrir el documento en una pestaña nueva',
+                      aria_label: 'Abrir el documento en una pestaña nueva') %>
               <% end %>
             </td>
           </tr>

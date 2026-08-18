@@ -7,8 +7,8 @@
 
     <div style="padding:14px 18px;border-bottom:1px solid var(--color-line);display:flex;justify-content:space-between;align-items:center;">
       <div>
-        <h3 style="margin:0;font-size:15px;font-weight:600;">Invitar miembro al proyecto</h3>
-        <div style="font-size:12px;color:var(--color-ink-3);margin-top:2px;">El usuario debe existir en la plataforma.</div>
+        <h3 style="margin:0;font-size:15px;font-weight:600;">Invitar miembro a la obra</h3>
+        <div style="font-size:12px;color:var(--color-ink-3);margin-top:2px;">El usuario ya tiene que existir en la plataforma.</div>
       </div>
       <button type="button" data-action="click->qb--modal#close" aria-label="Cerrar"
               style="background:transparent;border:none;color:var(--color-ink-3);cursor:pointer;">
@@ -26,10 +26,20 @@
         </label>
 
         <label style="display:flex;flex-direction:column;gap:5px;">
-          <span style="font-size:11px;font-weight:500;color:var(--color-ink-2);">Rol en el proyecto <span style="color:var(--color-accent);">*</span></span>
-          <%= f.select :role, ROLES, { selected: 'editor' }, required: true,
+          <span style="font-size:11px;font-weight:500;color:var(--color-ink-2);">Rol en la obra <span style="color:var(--color-accent);">*</span></span>
+          <%= f.select :role, role_options, { selected: 'editor' }, required: true,
                         style: 'width:100%;padding:8px 10px;font-size:13px;border:1px solid var(--color-line);border-radius:5px;background:var(--color-bg);color:var(--color-ink);outline:none;font-family:inherit;' %>
         </label>
+
+        <%# Qué significa cada rol: elegirlo a ciegas era la forma más fácil de
+            dar de más. El dueño no está en la lista — no se invita. %>
+        <ul style="margin:0;padding:10px 12px;list-style:none;display:flex;flex-direction:column;gap:6px;background:var(--color-bg-sunken);border-radius:5px;">
+          <% role_hints.each do |label, hint| %>
+            <li style="font-size:11px;color:var(--color-ink-3);line-height:1.45;">
+              <strong style="color:var(--color-ink-2);"><%= label %></strong> · <%= hint %>
+            </li>
+          <% end %>
+        </ul>
       </div>
 
       <div style="padding:12px 18px;border-top:1px solid var(--color-line);display:flex;gap:8px;justify-content:flex-end;background:var(--color-bg-raised);">

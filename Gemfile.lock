@@ -115,6 +115,7 @@ GEM
       bigdecimal
       rexml
     crass (1.0.6)
+    csv (3.3.6)
     cuprite (0.17)
       capybara (~> 3.0)
       ferrum (~> 0.17.0)
@@ -489,6 +490,7 @@ DEPENDENCIES
   brakeman
   capybara
   cloudinary
+  csv
   cuprite
   debug
   dotenv-rails

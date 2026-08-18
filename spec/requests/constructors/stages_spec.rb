@@ -17,13 +17,14 @@ RSpec.describe "Constructors::Projects::Stages", type: :request do
                  budget_cents: 500_000)
         end
 
-        it "creates exactly one new stage and redirects to planning" do
+        it "creates exactly one new stage and redirects to the stages page" do
           expect {
             post duplicate_constructors_project_stage_path(project, stage)
           }.to change(ProjectStage, :count).by(1)
 
           # La copia aparece en la lista de etapas (no navegamos a su detalle).
-          expect(response).to redirect_to(constructors_project_stages_path(project))
+          # En desktop el listado es la vista unificada del proyecto.
+          expect(response).to redirect_to(constructors_project_path(project))
         end
 
         it "sets the new stage name with '(copia)' suffix" do

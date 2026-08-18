@@ -1,18 +1,51 @@
 <% content_for :title, 'QB · Styleguide' %>
 
+<%# Catálogo de primitives QB OS. Formato de cada sección:
+    SectionHead + ejemplo renderizado + snippet para copiar (+ tabla de props
+    cuando la API tiene más de dos opciones).
+
+    El código de los snippets va escapado con entidades HTML: si se escriben
+    los tags ERB tal cual, el motor los ejecuta en vez de mostrarlos. %>
+
+<% sections = [
+     ['pills',          'Pills'],
+     ['status-dots',    'Status dots'],
+     ['bars',           'Bars'],
+     ['avatars',        'Avatars'],
+     ['sparklines',     'Sparklines'],
+     ['buttons',        'Buttons'],
+     ['menu',           'Menu (kebab)'],
+     ['tabs',           'Tabs'],
+     ['tabbed-panel',   'Tabbed panel'],
+     ['metric-cells',   'Metric cells'],
+     ['data-grid',      'Data grid'],
+     ['form-group',     'Form group'],
+     ['filter-chip',    'Filter chip'],
+     ['pagination',     'Pagination'],
+     ['icons',          'Icons'],
+     ['widgets',        'Widgets']
+   ] %>
+
 <div style="background:var(--color-bg);color:var(--color-ink);font-family:var(--font-ui);min-height:100vh;padding:32px;">
   <div style="max-width:1200px;margin:0 auto;">
-    <header style="margin-bottom:32px;display:flex;align-items:flex-end;gap:16px;border-bottom:1px solid var(--color-line);padding-bottom:16px;">
+    <header style="margin-bottom:20px;display:flex;align-items:flex-end;gap:16px;border-bottom:1px solid var(--color-line);padding-bottom:16px;">
       <div style="flex:1;">
         <div style="font-family:var(--font-mono);font-size:11px;color:var(--color-ink-3);text-transform:uppercase;letter-spacing:0.8px;">Dev · interno</div>
         <h1 style="margin:4px 0 0;font-size:24px;font-weight:600;letter-spacing:-0.4px;">Quick Build OS · Styleguide</h1>
-        <div style="font-size:12px;color:var(--color-ink-3);margin-top:4px;">Catálogo de primitives QB. No accesible en producción.</div>
+        <div style="font-size:12px;color:var(--color-ink-3);margin-top:4px;">Catálogo de primitives QB. No accesible en producción. Antes de inventar UI, buscá acá el primitive y copiá el snippet.</div>
       </div>
       <span class="qb-mono" style="font-size:11px;color:var(--color-ink-4);"><%= Rails.env %> · <%= Time.current.strftime('%Y-%m-%d %H:%M') %></span>
     </header>
 
+    <%# ─── Índice ─────────────────────────────────────── %>
+    <nav style="margin-bottom:32px;display:flex;flex-wrap:wrap;gap:6px;">
+      <% sections.each do |anchor, label| %>
+        <a href="#<%= anchor %>" style="padding:3px 9px;border:1px solid var(--color-line);border-radius:999px;font-family:var(--font-mono);font-size:11px;color:var(--color-ink-3);text-decoration:none;background:var(--color-bg-raised);"><%= label %></a>
+      <% end %>
+    </nav>
+
     <%# ─── Pills ───────────────────────────────────────── %>
-    <section style="margin-bottom:36px;">
+    <section id="pills" style="margin-bottom:36px;scroll-margin-top:16px;">
       <%= render Qb::SectionHeadComponent.new(title: 'Pills', subtitle: 'Status badges en 6 tones × normal/compact') %>
       <div style="padding:16px;display:flex;gap:8px;flex-wrap:wrap;">
         <% %i[ok warn bad info accent muted].each do |t| %>
@@ -24,10 +57,16 @@
           <%= render Qb::PillComponent.new("#{t} (compact)", tone: t, compact: true) %>
         <% end %>
       </div>
+      <%= render layout: 'dev/styleguide/snippet' do %>
+        &lt;%= render Qb::PillComponent.new('Aprobada', tone: :ok) %&gt;
+        &lt;%= render Qb::PillComponent.new('3 pendientes', tone: :warn, compact: true) %&gt;
+        &lt;%# El label también puede venir como bloque, y mono: alinea números. %&gt;
+        &lt;%= render Qb::PillComponent.new(tone: :muted, mono: true) { qb_fmt_cents(cents) } %&gt;
+      <% end %>
     </section>
 
     <%# ─── Status dots ─────────────────────────────────── %>
-    <section style="margin-bottom:36px;">
+    <section id="status-dots" style="margin-bottom:36px;scroll-margin-top:16px;">
       <%= render Qb::SectionHeadComponent.new(title: 'Status dots') %>
       <div style="padding:16px;display:flex;gap:24px;align-items:center;">
         <% %i[ok warn bad info muted].each do |t| %>
@@ -37,10 +76,13 @@
           </span>
         <% end %>
       </div>
+      <%= render layout: 'dev/styleguide/snippet' do %>
+        &lt;%= render Qb::StatusDotComponent.new(tone: :ok) %&gt;
+      <% end %>
     </section>
 
     <%# ─── Bars ───────────────────────────────────────── %>
-    <section style="margin-bottom:36px;">
+    <section id="bars" style="margin-bottom:36px;scroll-margin-top:16px;">
       <%= render Qb::SectionHeadComponent.new(title: 'Bars', subtitle: 'Progress simple, con plan marker, stacked') %>
       <div style="padding:16px;display:grid;grid-template-columns:repeat(2, 1fr);gap:24px;max-width:600px;">
         <div>
@@ -64,20 +106,31 @@
           <%= render Qb::StackedBarComponent.new(spent: 30, committed: 20, total: 100) %>
         </div>
       </div>
+      <%= render layout: 'dev/styleguide/snippet' do %>
+        &lt;%# value y plan van en % (0-100) y se clampean solos. %&gt;
+        &lt;%= render Qb::BarComponent.new(value: 60, plan: 75, show_plan: true) %&gt;
+        &lt;%= render Qb::BarComponent.new(value: 110, tone: :bad, height: 6) %&gt;
+        &lt;%# Stacked toma valores absolutos, no porcentajes. %&gt;
+        &lt;%= render Qb::StackedBarComponent.new(spent: 30, committed: 20, total: 100) %&gt;
+      <% end %>
     </section>
 
     <%# ─── Avatars ───────────────────────────────────── %>
-    <section style="margin-bottom:36px;">
-      <%= render Qb::SectionHeadComponent.new(title: 'Avatars') %>
+    <section id="avatars" style="margin-bottom:36px;scroll-margin-top:16px;">
+      <%= render Qb::SectionHeadComponent.new(title: 'Avatars', subtitle: 'Iniciales + color derivado del nombre') %>
       <div style="padding:16px;display:flex;gap:14px;align-items:center;">
         <% ['María Fernández', 'Rodrigo Díaz', 'Federico López', 'Ana Ruiz', 'JS', '?'].each do |n| %>
           <%= render Qb::AvatarComponent.new(name: n, size: 32) %>
         <% end %>
       </div>
+      <%= render layout: 'dev/styleguide/snippet' do %>
+        &lt;%# El color sale del nombre. tone: pisa el fondo cuando hace falta forzarlo. %&gt;
+        &lt;%= render Qb::AvatarComponent.new(name: person.full_name, size: 32) %&gt;
+      <% end %>
     </section>
 
     <%# ─── Sparks ─────────────────────────────────────── %>
-    <section style="margin-bottom:36px;">
+    <section id="sparklines" style="margin-bottom:36px;scroll-margin-top:16px;">
       <%= render Qb::SectionHeadComponent.new(title: 'Sparklines', subtitle: 'SVG inline, con plan opcional') %>
       <div style="padding:16px;display:grid;grid-template-columns:repeat(4, 1fr);gap:24px;align-items:center;">
         <div>
@@ -97,11 +150,15 @@
           <%= render Qb::SparkComponent.new(data: [8, 6, 5, 4, 3, 2, 1], tone: :warn, w: 100, h: 28) %>
         </div>
       </div>
+      <%= render layout: 'dev/styleguide/snippet' do %>
+        &lt;%= render Qb::SparkComponent.new(data: avance_por_semana, plan: plan_por_semana,
+                                          w: 100, h: 28, tone: :accent) %&gt;
+      <% end %>
     </section>
 
     <%# ─── Btns ───────────────────────────────────────── %>
-    <section style="margin-bottom:36px;">
-      <%= render Qb::SectionHeadComponent.new(title: 'Buttons', subtitle: 'variants × sizes × icon opcional') %>
+    <section id="buttons" style="margin-bottom:36px;scroll-margin-top:16px;">
+      <%= render Qb::SectionHeadComponent.new(title: 'Buttons', subtitle: 'variants × sizes × icon opcional — el ÚNICO botón de la app constructora') %>
       <div style="padding:16px;display:flex;flex-direction:column;gap:12px;">
         <% %i[xs sm md].each do |size| %>
           <div style="display:flex;gap:8px;align-items:center;">
@@ -112,14 +169,101 @@
             <%= render Qb::BtnComponent.new('Danger', variant: :danger, size: size, icon: :trash) %>
             <%= render Qb::BtnComponent.new('Active ghost', variant: :ghost, size: size, active: true) %>
             <%= render Qb::BtnComponent.new('Sin icon', variant: :primary, size: size) %>
+            <%= render Qb::BtnComponent.new(variant: :ghost, size: size, icon: :edit, aria_label: 'Editar') %>
           </div>
         <% end %>
       </div>
+      <%= render layout: 'dev/styleguide/snippet' do %>
+        &lt;%# Con href sale &lt;a&gt;, sin href sale &lt;button&gt;. %&gt;
+        &lt;%= render Qb::BtnComponent.new('Registrar gasto', variant: :primary, size: :sm, icon: :plus,
+                                        data: { action: 'click-&gt;qb--modal#open' }) %&gt;
+        &lt;%= render Qb::BtnComponent.new('Ver obra', variant: :secondary, size: :sm,
+                                        href: constructors_project_path(project)) %&gt;
+        &lt;%# Botón sólo-ícono: SIEMPRE con aria_label, si no queda mudo para el lector de pantalla. %&gt;
+        &lt;%= render Qb::BtnComponent.new(variant: :ghost, size: :xs, icon: :edit,
+                                        aria_label: 'Editar', href: edit_path) %&gt;
+      <% end %>
+    </section>
+
+    <%# ─── Menu (kebab) ───────────────────────────────── %>
+    <section id="menu" style="margin-bottom:36px;scroll-margin-top:16px;">
+      <%= render Qb::SectionHeadComponent.new(title: 'Qb::MenuComponent', subtitle: 'Menú kebab de acciones — envuelve el controller qb--dropdown (toggle + click afuera + ESC)') %>
+      <div style="padding:16px;display:flex;gap:24px;align-items:flex-start;">
+        <div style="display:flex;flex-direction:column;gap:8px;align-items:flex-start;">
+          <span style="font-size:11px;color:var(--color-ink-3);">sólo ícono · align :right (default)</span>
+          <%= render Qb::MenuComponent.new(items: [
+                { label: 'Exportar etapas (CSV)', icon: :download, href: '#',
+                  title: 'Descargar etapas del proyecto (CSV)' },
+                { label: 'Editar obra', icon: :edit, href: '#' },
+                { divider: true },
+                { label: 'Eliminar obra', icon: :trash, danger: true, href: '#',
+                  data: { turbo_confirm: '¿Eliminar la obra "Casa Vidal"? (demo: no borra nada)' } }
+              ]) %>
+        </div>
+        <div style="display:flex;flex-direction:column;gap:8px;align-items:flex-start;">
+          <span style="font-size:11px;color:var(--color-ink-3);">con label · align :left · size :md</span>
+          <%= render Qb::MenuComponent.new(label: 'Acciones', align: :left, size: :md, min_width: 200, items: [
+                { label: 'Ver ficha', icon: :person, href: '#' },
+                { label: 'Duplicar', icon: :copy, href: '#' }
+              ]) %>
+        </div>
+        <div style="display:flex;flex-direction:column;gap:8px;align-items:flex-start;">
+          <span style="font-size:11px;color:var(--color-ink-3);">todo filtrado por policy → no renderiza</span>
+          <%= render Qb::MenuComponent.new(items: [ nil, nil ]) %>
+          <span class="qb-mono" style="font-size:10px;color:var(--color-ink-4);">(vacío a propósito)</span>
+        </div>
+      </div>
+      <p style="margin:0 16px 0;font-size:11px;color:var(--color-ink-4);">Los ítems del demo apuntan a <span class="qb-mono">#</span> y no ejecutan nada; el snippet muestra el patrón real (Turbo + guards de policy).</p>
+      <%= render layout: 'dev/styleguide/snippet' do %>
+        &lt;%# Los items nil se descartan solos: se puede inlinear el guard de policy
+            y los divisores que quedan sueltos se limpian. Si no sobrevive ningún
+            item, el menú entero no se renderiza. %&gt;
+        &lt;%= render Qb::MenuComponent.new(items: [
+              { label: 'Exportar etapas (CSV)', icon: :download,
+                href: constructors_project_stages_path(project, format: :csv) },
+              ({ label: 'Editar obra', icon: :edit,
+                 href: edit_constructors_project_path(project) } if policy(project).update?),
+              ({ divider: true } if policy(project).destroy?),
+              ({ label: 'Eliminar obra', icon: :trash, danger: true,
+                 href: constructors_project_path(project),
+                 data: { turbo_method: :delete,
+                         turbo_confirm: '¿Eliminar la obra? No se puede deshacer.' } } if policy(project).destroy?)
+            ]) %&gt;
+
+        &lt;%# Con method: el item sale como button_to (form real): la acción anda sin JS. %&gt;
+        &lt;%= render Qb::MenuComponent.new(items: [
+              { label: 'Marcar como pagada', icon: :check,
+                href: pagar_constructors_project_material_list_path(project, list), method: :patch }
+            ]) %&gt;
+      <% end %>
+      <%= render 'dev/styleguide/api', title: 'Props del componente', rows: [
+            ['items:', 'Array<Hash> · requerido', 'Ítems del menú. Los nil se descartan (guards de policy) y los divisores sueltos o repetidos se colapsan.'],
+            ['label:', 'String · nil', 'Texto del trigger. Sin label queda sólo el ícono.'],
+            ['icon:', 'Symbol · :more', 'Ícono del trigger (nombre de Qb::IconComponent).'],
+            ['aria_label:', "String · 'Más acciones'", 'Nombre accesible del trigger.'],
+            ['title:', 'String · nil', 'Tooltip del trigger.'],
+            ['align:', 'Symbol · :right', 'De qué lado se ancla el panel (:right o :left).'],
+            ['variant:', 'Symbol · :secondary', 'Variante del trigger, se pasa tal cual a Qb::BtnComponent.'],
+            ['size:', 'Symbol · :sm', 'Tamaño del trigger (:xs, :sm, :md). Define la separación vertical del panel.'],
+            ['min_width:', 'Integer · 180', 'Ancho mínimo del panel en px.'],
+            ['panel_style:', 'String · nil', 'CSS extra que se concatena al panel (casos raros de posicionamiento).']
+          ] %>
+      <%= render 'dev/styleguide/api', title: 'Claves de cada item', rows: [
+            ['item[:label]', 'String', 'Texto del ítem. Obligatorio salvo en un divider.'],
+            ['item[:href]', 'String', 'Destino del ítem.'],
+            ['item[:icon]', 'Symbol · nil', 'Ícono a la izquierda del texto.'],
+            ['item[:danger]', 'Boolean · false', 'Pinta el ítem con var(--color-bad).'],
+            ['item[:data]', 'Hash · {}', 'Se reenvía verbatim al a/button: turbo_method, turbo_confirm, turbo_frame, turbo.'],
+            ['item[:method]', 'Symbol · nil', 'Si viene, el ítem sale como button_to (form real, anda sin JS).'],
+            ['item[:title]', 'String · nil', 'Tooltip del ítem.'],
+            ['item[:target]', 'String · nil', 'target del link (ej: _blank).'],
+            ['item[:divider]', 'Boolean · false', 'Separador. No cuenta como acción: un menú de puros dividers no se renderiza.']
+          ] %>
     </section>
 
     <%# ─── Tabs ───────────────────────────────────────── %>
-    <section style="margin-bottom:36px;">
-      <%= render Qb::SectionHeadComponent.new(title: 'Tabs') %>
+    <section id="tabs" style="margin-bottom:36px;scroll-margin-top:16px;">
+      <%= render Qb::SectionHeadComponent.new(title: 'Tabs', subtitle: 'Navegación por link (cambia de página)') %>
       <div style="padding:0;border:1px solid var(--color-line);border-radius:6px;overflow:hidden;background:var(--color-bg-raised);">
         <%= render Qb::TabsComponent.new(tabs: [
               { value: :a, label: 'Resumen',   icon: :home,      href: '#a' },
@@ -127,10 +271,48 @@
               { value: :c, label: 'Equipo',    icon: :people,    href: '#c' }
             ], current: :a) %>
       </div>
+      <%= render layout: 'dev/styleguide/snippet' do %>
+        &lt;%# Sin href el tab sale como button (no navega). El slot right: acciones a la derecha. %&gt;
+        &lt;%= render Qb::TabsComponent.new(tabs: [
+              { value: :overview,  label: 'Resumen',    icon: :home,      href: constructors_project_path(project) },
+              { value: :materials, label: 'Materiales', icon: :materials, count: 12,
+                href: constructors_project_material_lists_path(project) }
+            ], current: :overview) %&gt;
+      <% end %>
+    </section>
+
+    <%# ─── Tabbed panel ──────────────────────────────── %>
+    <section id="tabbed-panel" style="margin-bottom:36px;scroll-margin-top:16px;">
+      <%= render Qb::SectionHeadComponent.new(title: 'Qb::TabbedPanelComponent', subtitle: 'Tabs client-side (qb--tabs): cambian el panel sin recargar') %>
+      <div style="border:1px solid var(--color-line);border-radius:6px;overflow:hidden;background:var(--color-bg-raised);">
+        <%= render Qb::TabbedPanelComponent.new do |tp| %>
+          <% tp.with_tab(label: 'Materiales', count: 12) do %>
+            <div style="font-size:12px;color:var(--color-ink-2);">Panel de materiales — cualquier ERB o componente anidado.</div>
+          <% end %>
+          <% tp.with_tab(label: 'Gastos', count: 3) do %>
+            <div style="font-size:12px;color:var(--color-ink-2);">Panel de gastos.</div>
+          <% end %>
+          <% tp.with_tab(label: 'Notas') do %>
+            <div style="font-size:12px;color:var(--color-ink-2);">Panel de notas (sin count).</div>
+          <% end %>
+        <% end %>
+      </div>
+      <%= render layout: 'dev/styleguide/snippet' do %>
+        &lt;%# Los paneles se renderizan visibles y qb--tabs esconde los inactivos al
+            conectar: así los specs rack_test llegan a todos los paneles. %&gt;
+        &lt;%= render Qb::TabbedPanelComponent.new do |tp| %&gt;
+          &lt;% tp.with_tab(label: 'Materiales', count: lists.size) do %&gt;
+            &lt;%= render Constructors::Projects::MaterialsListComponent.new(lists: lists) %&gt;
+          &lt;% end %&gt;
+          &lt;% tp.with_tab(label: 'Gastos', count: expenses.size) do %&gt;
+            &lt;%= render Constructors::Projects::ExpensesListComponent.new(expenses: expenses, project: project) %&gt;
+          &lt;% end %&gt;
+        &lt;% end %&gt;
+      <% end %>
     </section>
 
     <%# ─── Metric cells ───────────────────────────────── %>
-    <section style="margin-bottom:36px;">
+    <section id="metric-cells" style="margin-bottom:36px;scroll-margin-top:16px;">
       <%= render Qb::SectionHeadComponent.new(title: 'Metric cells') %>
       <div style="border:1px solid var(--color-line);border-radius:6px;display:grid;grid-template-columns:repeat(4, 1fr);background:var(--color-bg-raised);overflow:hidden;">
         <%= render Qb::MetricCellComponent.new(label: 'Avance físico', value: '64%', hint: 'plan 68%') %>
@@ -138,19 +320,164 @@
         <%= render Qb::MetricCellComponent.new(label: 'Etapas en riesgo', value: 4, hint: '2 con retraso', tone: :warn) %>
         <%= render Qb::MetricCellComponent.new(label: 'Sobrecosto', value: '+18%', hint: 'crítico', tone: :bad) %>
       </div>
+      <%= render layout: 'dev/styleguide/snippet' do %>
+        &lt;%# Van en una grilla: la celda trae su propio separador. %&gt;
+        &lt;%= render Qb::MetricCellComponent.new(label: 'Avance físico', value: qb_fmt_pct(project.progress),
+                                              hint: "plan #{qb_fmt_pct(project.planned_progress)}") %&gt;
+        &lt;%= render Qb::MetricCellComponent.new(label: 'Sobrecosto', value: '+18%', hint: 'crítico',
+                                              tone: :bad, highlight: true) %&gt;
+      <% end %>
+    </section>
+
+    <%# ─── Data grid ─────────────────────────────────── %>
+    <section id="data-grid" style="margin-bottom:36px;scroll-margin-top:16px;">
+      <%= render Qb::SectionHeadComponent.new(title: 'Qb::DataGridComponent', subtitle: 'Grilla label/valor (dl) con estados vacíos accionables') %>
+      <div style="padding:16px;">
+        <div style="border:1px solid var(--color-line);border-radius:6px;background:var(--color-bg-raised);overflow:hidden;max-width:640px;">
+          <%= render Qb::DataGridComponent.new(items: [
+                { label: 'Documento', value: '30.123.456', mono: true },
+                { label: 'Teléfono', value: nil, empty_href: '#', empty_label: 'Cargar teléfono' },
+                { label: 'Tarifa', value: nil, mono: true },
+                { label: 'Estado', value: render(Qb::PillComponent.new('Activa', tone: :ok)) },
+                { label: 'Obra', value: 'Casa Vidal — Pilar', href: '#' },
+                { label: 'Observaciones', value: 'Entra por el portón de atrás; el capataz abre a las 7.', span: 2 }
+              ]) do |grid| %>
+            <% grid.with_footer do %>
+              <span style="font-size:11px;color:var(--color-ink-4);">El footer ocupa el ancho completo de la grilla.</span>
+            <% end %>
+          <% end %>
+        </div>
+      </div>
+      <%= render layout: 'dev/styleguide/snippet' do %>
+        &lt;%# Un valor vacío muestra un guion, salvo que el item traiga empty_href:
+            ahí ofrece el link para cargarlo (dato que existe en el modelo pero
+            nadie completó). Los items nil se descartan. %&gt;
+        &lt;%= render Qb::DataGridComponent.new(items: [
+              { label: 'Documento', value: person.document_id.presence, mono: true,
+                empty_href: edit_href, empty_label: 'Cargar documento' },
+              { label: 'Estado', value: render(Qb::PillComponent.new('Activa', tone: :ok)) },
+              { label: 'Obra', value: project.name, href: constructors_project_path(project) },
+              { label: 'Observaciones', value: person.notes, span: 2 }
+            ]) %&gt;
+      <% end %>
+      <%= render 'dev/styleguide/api', title: 'Props del componente', rows: [
+            ['items:', 'Array<Hash> · requerido', 'Pares label/valor. Los nil se descartan.'],
+            ['columns:', 'Integer · 2', 'Columnas de la grilla.'],
+            ['padding:', "String · '14px 16px'", 'Padding del dl, para encajar con el card que lo contiene.'],
+            ['bordered:', 'Boolean · true', 'Hairline inferior; false cuando es el último bloque del card.'],
+            ['with_footer', 'slot · opcional', 'Bloque al pie que ocupa todas las columnas.']
+          ] %>
+      <%= render 'dev/styleguide/api', title: 'Claves de cada item', rows: [
+            ['item[:label]', 'String', 'Titulillo mono en versalitas.'],
+            ['item[:value]', 'String / html_safe', 'Valor. Puede ser una pill o un link ya renderizado.'],
+            ['item[:mono]', 'Boolean · false', 'Valor en tipografía mono (números, teléfonos, documentos).'],
+            ['item[:span]', 'Integer · 1', 'Cuántas columnas ocupa el ítem.'],
+            ['item[:href]', 'String · nil', 'Envuelve el valor en un link (color ink, sin subrayado).'],
+            ['item[:empty_href]', 'String · nil', 'Estado vacío accionable: link para cargar el dato faltante.'],
+            ['item[:empty_label]', "String · 'Cargar'", 'Texto de ese link.']
+          ] %>
+      <p style="margin:10px 16px 0;font-size:11px;color:var(--color-ink-4);">Vacío = nil o string en blanco. Un 0 o un false NO cuentan como vacío: se muestran tal cual.</p>
+    </section>
+
+    <%# ─── Form group ────────────────────────────────── %>
+    <section id="form-group" style="margin-bottom:36px;scroll-margin-top:16px;">
+      <%= render Qb::SectionHeadComponent.new(title: 'Qb::FormGroupComponent', subtitle: 'Agrupador de campos: titulillo + hairline + footnote con la regla del bloque') %>
+      <div style="padding:16px;">
+        <div style="max-width:520px;border:1px solid var(--color-line);border-radius:6px;background:var(--color-bg-raised);padding:16px;">
+          <%= render Qb::FormGroupComponent.new(title: 'Identidad') do %>
+            <div class="qb-field" style="margin-bottom:0;">
+              <label class="qb-label">Nombre de la etapa</label>
+              <input class="qb-input" type="text" placeholder="Ej: Cimientos">
+            </div>
+          <% end %>
+
+          <%= render Qb::FormGroupComponent.new(title: 'Cronograma', subtitle: 'opcional',
+                footnote: 'El fin debe ser posterior o igual al inicio.') do %>
+            <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;">
+              <div class="qb-field" style="margin-bottom:0;">
+                <label class="qb-label">Fecha de inicio</label>
+                <input class="qb-input" type="date">
+              </div>
+              <div class="qb-field" style="margin-bottom:0;">
+                <label class="qb-label">Fecha de finalización</label>
+                <input class="qb-input" type="date">
+              </div>
+            </div>
+          <% end %>
+
+          <%= render Qb::FormGroupComponent.new(title: 'Dependencias', collapsible: true, open: false,
+                footnote: 'La etapa no puede empezar antes de que termine su predecesora.') do %>
+            <div class="qb-field" style="margin-bottom:0;">
+              <label class="qb-label">Etapa predecesora</label>
+              <select class="qb-select">
+                <option>— ninguna —</option>
+                <option>Cimientos</option>
+              </select>
+            </div>
+          <% end %>
+        </div>
+      </div>
+      <%= render layout: 'dev/styleguide/snippet' do %>
+        &lt;%= render Qb::FormGroupComponent.new(title: 'Cronograma',
+              footnote: 'El fin debe ser posterior o igual al inicio.') do %&gt;
+          &lt;div class="qb-field" style="margin-bottom:0;"&gt;
+            &lt;%= form.label :start_date, 'Fecha de inicio', class: 'qb-label' %&gt;
+            &lt;%= form.date_field :start_date, class: 'qb-input' %&gt;
+          &lt;/div&gt;
+        &lt;% end %&gt;
+
+        &lt;%# collapsible: para bloques que casi nunca se tocan. Con open: true el
+            campo queda visible — importante para que los system specs lo vean. %&gt;
+        &lt;%= render Qb::FormGroupComponent.new(title: 'Dependencias', collapsible: true,
+              open: stage.predecessor_id.present?) do %&gt;
+          ...
+        &lt;% end %&gt;
+      <% end %>
+      <%= render 'dev/styleguide/api', title: 'Props del componente', rows: [
+            ['title:', 'String · requerido', 'Titulillo mono en versalitas del bloque.'],
+            ['subtitle:', 'String · nil', 'Texto chico a la derecha del título. En modo collapsible, si no viene se muestra "mostrar / ocultar".'],
+            ['footnote:', 'String · nil', 'Párrafo al pie con la regla del bloque.'],
+            ['collapsible:', 'Boolean · false', 'Renderiza el grupo como details/summary.'],
+            ['open:', 'Boolean · true', 'Sólo con collapsible: arranca abierto. En false, los system specs no ven el campo hasta desplegarlo.'],
+            ['content', 'bloque · requerido', 'Los campos (.qb-field) del grupo.']
+          ] %>
+      <p style="margin:10px 16px 0;font-size:11px;color:var(--color-ink-4);">Equivalente mobile: <span class="qb-mono">Qb::Mobile::FormGroupComponent</span>.</p>
     </section>
 
     <%# ─── Filter chip ───────────────────────────────── %>
-    <section style="margin-bottom:36px;">
+    <section id="filter-chip" style="margin-bottom:36px;scroll-margin-top:16px;">
       <%= render Qb::SectionHeadComponent.new(title: 'Filter chip', subtitle: 'Dropdown link-based · cobalto cuando active') %>
       <div style="padding:16px;display:flex;gap:8px;">
         <%= render Qb::FilterChipComponent.new(label: 'Estado', param: :status, value: 'all',      options: [['all', 'Todos'], ['approved', 'Aprobada'], ['draft', 'Borrador']], base_path: '#') %>
         <%= render Qb::FilterChipComponent.new(label: 'Estado', param: :status, value: 'approved', options: [['all', 'Todos'], ['approved', 'Aprobada'], ['draft', 'Borrador']], base_path: '#') %>
       </div>
+      <%= render layout: 'dev/styleguide/snippet' do %>
+        &lt;%# extra_params mantiene los otros filtros al cambiar éste. %&gt;
+        &lt;%= render Qb::FilterChipComponent.new(label: 'Categoría', param: :category,
+              value: @category_filter,
+              options: [['all', 'Todas'], ['labor', 'Mano de obra']],
+              base_path: constructors_expenses_path,
+              extra_params: { stage: @stage_filter }) %&gt;
+      <% end %>
+    </section>
+
+    <%# ─── Pagination ────────────────────────────────── %>
+    <section id="pagination" style="margin-bottom:36px;scroll-margin-top:16px;">
+      <%= render Qb::SectionHeadComponent.new(title: 'Qb::PaginationComponent', subtitle: 'Pie de los index paginados con Pagy — no renderiza si hay una sola página') %>
+      <div style="padding:16px;">
+        <div style="border:1px solid var(--color-line);border-radius:6px;overflow:hidden;">
+          <%= render Qb::PaginationComponent.new(pagy: Pagy.new(count: 137, limit: 20, page: 3), label: 'gastos') %>
+        </div>
+      </div>
+      <%= render layout: 'dev/styleguide/snippet' do %>
+        &lt;%# @pagy viene del controller (pagy(scope)). Va al final del card del listado. %&gt;
+        &lt;%= render Qb::PaginationComponent.new(pagy: @pagy, label: 'gastos') %&gt;
+      <% end %>
+      <p style="margin:10px 16px 0;font-size:11px;color:var(--color-ink-4);">OJO: los links salen como <span class="qb-mono">?page=N</span>, así que pierden los otros parámetros de la query (filtros, búsqueda). Si el listado tiene filtros, hoy hay que tenerlo en cuenta.</p>
     </section>
 
     <%# ─── Icons ──────────────────────────────────────── %>
-    <section style="margin-bottom:36px;">
+    <section id="icons" style="margin-bottom:36px;scroll-margin-top:16px;">
       <%= render Qb::SectionHeadComponent.new(title: 'Icons', subtitle: "#{Qb::IconComponent::ICONS.size} glifos del handoff") %>
       <div style="padding:16px;display:grid;grid-template-columns:repeat(8, 1fr);gap:12px;">
         <% Qb::IconComponent::ICONS.keys.sort.each do |name| %>
@@ -160,6 +487,16 @@
           </div>
         <% end %>
       </div>
+      <%= render layout: 'dev/styleguide/snippet' do %>
+        &lt;%# Un nombre que no está en ICONS cae en el glifo de fallback, no explota. %&gt;
+        &lt;%= render Qb::IconComponent.new(name: :trash, size: 14) %&gt;
+        &lt;%= render Qb::IconComponent.new(name: :search, size: 13, style: 'color:var(--color-ink-4)') %&gt;
+      <% end %>
+    </section>
+
+    <%# ─── Widgets ───────────────────────────────────── %>
+    <section id="widgets" style="margin-bottom:12px;scroll-margin-top:16px;">
+      <%= render Qb::SectionHeadComponent.new(title: 'Widgets', subtitle: 'Componentes de dominio con estados vacíos — no son primitives, pero se reusan') %>
     </section>
 
     <%# ─── ExchangeRates widget ──────────────────────── %>
@@ -174,6 +511,11 @@
               }
             ) %>
       </div>
+      <%= render layout: 'dev/styleguide/snippet' do %>
+        &lt;%# El hash lo produce External::ExchangeRatesFetcher#call. compact: una sola
+            línea para la barra superior del dashboard. %&gt;
+        &lt;%= render Constructors::Dashboard::ExchangeRatesComponent.new(rates: @rates, compact: true) %&gt;
+      <% end %>
     </section>
 
     <%# ─── ExchangeRates widget (stale) ─────────────── %>
@@ -200,6 +542,11 @@
               project: Project.new(location: "CABA")
             ) %>
       </div>
+      <%= render layout: 'dev/styleguide/snippet' do %>
+        &lt;%# El hash lo produce External::WeatherFetcher#call. Sin coordenadas no
+            renderiza nada, salvo en compact: que muestra "sin datos". %&gt;
+        &lt;%= render Constructors::Projects::WeatherComponent.new(forecast: @forecast, project: @project) %&gt;
+      <% end %>
     </section>
 
     <%# ─── ExpensesListComponent (empty state) ───────── %>
@@ -211,6 +558,14 @@
               project:  Project.new
             ) %>
       </div>
+      <%= render layout: 'dev/styleguide/snippet' do %>
+        &lt;%# bare: sin título ni empty state (cuando ya está adentro de un panel).
+            show_stage: agrega la columna Etapa; por default se muestra si la
+            lista no está acotada a una etapa. %&gt;
+        &lt;%= render Constructors::Projects::ExpensesListComponent.new(
+              expenses: @expenses, project: @project, stage: @stage,
+              return_to: constructors_expenses_path) %&gt;
+      <% end %>
     </section>
 
     <%# ─── NotesListComponent (empty state) ─────────── %>
@@ -223,7 +578,17 @@
               project:  Project.new
             ) %>
       </div>
+      <%= render layout: 'dev/styleguide/snippet' do %>
+        &lt;%# noteable puede ser el proyecto o una etapa: de ahí sale el path de borrado. %&gt;
+        &lt;%= render Constructors::Projects::NotesListComponent.new(
+              notes: @notes, noteable: @stage, project: @project) %&gt;
+      <% end %>
     </section>
+
+    <footer style="margin-top:40px;padding-top:16px;border-top:1px solid var(--color-line);font-size:11px;color:var(--color-ink-4);line-height:1.6;">
+      Falta documentar acá: los primitives mobile (<span class="qb-mono">Qb::Mobile::*</span>) y los de layout
+      (<span class="qb-mono">Qb::Layout::*</span>), que hoy sólo se ven en la app corriendo con la variante :mobile.
+    </footer>
 
   </div>
 </div>

@@ -1,0 +1,95 @@
+<% content_for :title, "Editar etapa · #{@project.name}" %>
+<%
+  back = constructors_project_stage_path(@project, @stage)
+  predecessor_candidates = @project.project_stages.root
+                                   .where.not(id: @stage.id)
+                                   .order(:position, :name)
+  progress = @stage.progress.to_i
+%>
+
+<%= render Qb::Mobile::NavBarComponent.new(title: "Editar etapa", back: true, back_href: back) %>
+
+<div style="padding: 8px 4px 0;">
+  <div style="padding: 4px 20px 12px;">
+    <h1 style="margin: 0; font-size: 22px; font-weight: 700; letter-spacing: -0.4px;"><%= @stage.name %></h1>
+    <p style="margin: 4px 0 0; font-size: 13.5px; color: var(--color-ink-3); line-height: 1.4;">
+      Actualizá la información principal, las fechas y el seguimiento.
+    </p>
+  </div>
+
+  <%= form_with model: @stage, url: constructors_project_stage_path(@project, @stage), method: :patch, local: true, html: { style: "padding: 0 16px;" } do |f| %>
+    <% if @stage.errors.any? %>
+      <div role="alert" style="margin-bottom:14px;padding:10px 12px;border-radius:10px;background:color-mix(in oklab, var(--color-bad) 12%, transparent);color:var(--color-bad);font-size:13px;">
+        <%= @stage.errors.full_messages.to_sentence %>
+      </div>
+    <% end %>
+
+    <%= f.hidden_field :parent_id if @stage.parent_id.present? %>
+
+    <%= render Qb::Mobile::FormGroupComponent.new(title: "Identidad") do %>
+      <%= render Qb::Mobile::FormRowComponent.new(
+            label: "Nombre", name: "project_stage[name]",
+            value: @stage.name,
+            placeholder: "Ej: Revoque grueso exterior",
+            required: true) %>
+      <%= render Qb::Mobile::FormRowComponent.new(
+            label: "Descripción", name: "project_stage[description]",
+            value: @stage.description,
+            textarea: true,
+            placeholder: "Detalles, tareas, notas técnicas…") %>
+    <% end %>
+
+    <%= render Qb::Mobile::FormGroupComponent.new(title: "Cronograma") do %>
+      <%= render Qb::Mobile::FormRowComponent.new(
+            label: "Inicio", name: "project_stage[start_date]",
+            type: 'date',
+            value: @stage.start_date) %>
+      <%= render Qb::Mobile::FormRowComponent.new(
+            label: "Fin", name: "project_stage[end_date]",
+            type: 'date',
+            value: @stage.end_date) %>
+    <% end %>
+
+    <%# Avance, responsable y presupuesto: los tres los muestran las cards, el
+        Gantt, la curva S y el CSV, y desde el celular no había forma de
+        tocarlos (sólo «Marcar completada», que fuerza 100). %>
+    <%= render Qb::Mobile::FormGroupComponent.new(title: "Seguimiento",
+          footnote: "El avance va de 0 a 100. El presupuesto se compara contra lo gastado en la curva S.") do %>
+      <%= render Qb::Mobile::FormRowComponent.new(
+            label: "Avance (%)", name: "project_stage[progress]",
+            type: 'number', inputmode: 'numeric',
+            min: 0, max: 100, step: 1,
+            value: progress,
+            helper: "Guardado: #{progress}%.") %>
+      <%= render Qb::Mobile::FormRowComponent.new(
+            label: "Responsable", name: "project_stage[lead]",
+            value: @stage.lead,
+            placeholder: "Ej: Juan Pérez") %>
+      <%# El campo es budget_pesos (texto), NUNCA centavos: el controller
+          convierte con Money::ArsParser y vacío borra el presupuesto. %>
+      <%= render Qb::Mobile::FormAmountRowComponent.new(
+            label: "Presupuesto de la etapa",
+            name: "project_stage[budget_pesos]",
+            cents: @stage.budget_cents,
+            placeholder: "1.500.000",
+            sub: "En pesos (ej: 1.500.000 o 1.500,50). Vacío borra el presupuesto.") %>
+    <% end %>
+
+    <% if predecessor_candidates.any? %>
+      <%= render Qb::Mobile::FormGroupComponent.new(title: "Dependencias", footnote: "La etapa no puede empezar antes de que termine su predecesora.") do %>
+        <%= render Qb::Mobile::FormRowComponent.new(
+              label: "Etapa predecesora", name: "project_stage[predecessor_id]",
+              select: true,
+              value: @stage.predecessor_id,
+              options: [['— Ninguna —', '']] + predecessor_candidates.map { |s| [s.name, s.id] }) %>
+      <% end %>
+    <% end %>
+
+    <div style="display:flex;gap:10px;padding-bottom:24px;">
+      <%= link_to "Cancelar", back,
+            class: "m-btn m-btn--secondary m-btn--md",
+            style: "flex:1;text-decoration:none;" %>
+      <%= f.submit "Guardar cambios", class: "m-btn m-btn--md", style: "flex:1.4;" %>
+    </div>
+  <% end %>
+</div>

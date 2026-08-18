@@ -8,7 +8,7 @@ RSpec.describe 'QB OS · Project show + Overview', type: :system do
   it 'renders the project header with code + status pill + metric strip' do
     visit constructors_project_path(project)
     expect(page).to have_text(/PRJ-\d+/)
-    expect(page).to have_text('En obra')
+    expect(page).to have_text('En progreso')
     expect(page).to have_text('Aurora')
     expect(page).to have_text('Avance físico')
     expect(page).to have_text('Gastos a la fecha')
@@ -16,21 +16,32 @@ RSpec.describe 'QB OS · Project show + Overview', type: :system do
     expect(page).to have_text('Días a entrega')
   end
 
-  it 'renders all 6 inner tabs' do
+  it 'renders the 5 inner tabs (Resumen + Planificación unificados en Etapas)' do
     visit constructors_project_path(project)
-    %w[Resumen Planificación Materiales Equipo Documentos].each do |label|
+    %w[Etapas Materiales Equipo Documentos].each do |label|
       expect(page).to have_text(label)
     end
     expect(page).to have_text('Planos · IA')
+    expect(page).to have_no_text('Planificación')
   end
 
-  it 'renders Overview sections (S-curve, mini-map, risks, team)' do
+  it 'renders the stages workspace (switcher + actions) on the landing page' do
+    visit constructors_project_path(project)
+    expect(page).to have_button('Gantt')
+    expect(page).to have_no_button('WBS')
+    expect(page).to have_button('Nueva etapa')
+    expect(page).to have_button('Aplicar plantilla')
+  end
+
+  it 'renders the project tracking sections (S-curve, map, risks, team)' do
     visit constructors_project_path(project)
     expect(page).to have_text('Curva S · Real vs Plan')
-    expect(page).to have_text('Mini-map de obra')
+    expect(page).to have_text('Mapa de obra')
     expect(page).to have_text('Riesgos y bloqueos')
     expect(page).to have_text('Ubicación')
     expect(page).to have_text('Equipo asignado')
     expect(page).to have_text('Documentos recientes')
+    expect(page).to have_text('Actividad en este proyecto')
+    expect(page).to have_text('Notas del proyecto')
   end
 end

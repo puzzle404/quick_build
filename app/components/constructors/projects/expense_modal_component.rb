@@ -6,8 +6,13 @@ module Constructors
     # is scoped to that stage; otherwise it falls back to the project scope.
     # Uses the qb--modal Stimulus controller (same API as InviteMemberModal).
     class ExpenseModalComponent < ViewComponent::Base
-      # Reuse the canonical category list from the stage-scoped form.
-      CATEGORY_OPTIONS = ExpenseFormComponent::CATEGORY_OPTIONS
+      # Canonical expense category list (label, value) for the select input.
+      CATEGORY_OPTIONS = [
+        [ "Mano de obra", "labor" ],
+        [ "Materiales sueltos", "materials_misc" ],
+        [ "Alquileres", "rentals" ],
+        [ "Otros", "other" ]
+      ].freeze
 
       def initialize(project:, expense: nil, stage: nil)
         @project = project

@@ -3,5 +3,8 @@
 <turbo-frame id="login_modal">
   <%= render Ui::ModalComponent.new(title: "Iniciar Sesión", subtitle: "Ingresá a tu cuenta", size: :sm) do %>
     <%= render "login_form" %>
+    <div class="mt-4 text-center">
+      <%= link_to "¿Olvidaste tu contraseña?", new_password_path, class: "text-sm font-medium text-indigo-600 hover:text-indigo-500 transition" %>
+    </div>
   <% end %>
 </turbo-frame>

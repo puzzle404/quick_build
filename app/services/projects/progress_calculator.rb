@@ -23,8 +23,13 @@ module Projects
 
     private
 
+    # Si el caller ya cargó las etapas (projects#show las lee una sola vez para
+    # toda la pantalla) filtramos en Ruby en vez de repetir el SELECT.
     def root_stages
-      @project.project_stages.root
+      stages = @project.project_stages
+      return stages.to_a.select { |stage| stage.parent_id.nil? } if stages.loaded?
+
+      stages.root
     end
 
     def duration_days(stage)

@@ -17,20 +17,20 @@ class Qb::Mobile::RowComponent < ViewComponent::Base
 
   def call
     icon_html = if @icon
-      bg = @icon_bg ? %(style="background:#{@icon_bg}") : ''
+      bg = @icon_bg ? %(style="background:#{@icon_bg}") : ""
       svg = Qb::Mobile::IconComponent.new(name: @icon, size: 17).call
       %(<div class="m-row-icon" #{bg}>#{svg}</div>)
     else
-      ''
+      ""
     end
-    subtitle_html = @subtitle ? %(<div class="m-row-subtitle">#{ERB::Util.html_escape(@subtitle)}</div>) : ''
-    value_classes = ['m-row-value']
-    value_classes << 'm-row-value--mono' if @value_mono
-    value_html = @value ? %(<span class="#{value_classes.join(' ')}">#{ERB::Util.html_escape(@value)}</span>) : ''
-    chevron_html = @chevron ? %(<span class="m-row-chevron">#{Qb::Mobile::IconComponent.new(name: 'chev-right', size: 16, stroke: 2.2).call}</span>) : ''
+    subtitle_html = @subtitle ? %(<div class="m-row-subtitle">#{ERB::Util.html_escape(@subtitle)}</div>) : ""
+    value_classes = [ "m-row-value" ]
+    value_classes << "m-row-value--mono" if @value_mono
+    value_html = @value ? %(<span class="#{value_classes.join(' ')}">#{ERB::Util.html_escape(@value)}</span>) : ""
+    chevron_html = @chevron ? %(<span class="m-row-chevron">#{Qb::Mobile::IconComponent.new(name: 'chev-right', size: 16, stroke: 2.2).call}</span>) : ""
 
     inner = %(#{icon_html}<div class="m-row-main"><div class="m-row-title">#{ERB::Util.html_escape(@title)}</div>#{subtitle_html}</div>#{value_html}#{chevron_html})
-    data_attrs = @data.map { |k, v| %(data-#{k}="#{ERB::Util.html_escape(v)}") }.join(' ')
+    data_attrs = @data.map { |k, v| %(data-#{k.to_s.dasherize}="#{ERB::Util.html_escape(v)}") }.join(" ")
 
     if @href
       %(<a class="m-row m-row--tap" href="#{@href}" #{data_attrs}>#{inner}</a>).html_safe

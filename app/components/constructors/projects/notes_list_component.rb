@@ -14,6 +14,12 @@ module Constructors
 
       attr_reader :notes, :noteable, :project, :bare
 
+      # Borrar una nota es editor de obra en adelante (NotePolicy). Se pregunta
+      # por nota y no por proyecto porque la policy es la del record.
+      def can_destroy?(note)
+        helpers.policy(note).destroy?
+      end
+
       def delete_path(note)
         if noteable.is_a?(ProjectStage)
           helpers.constructors_project_stage_note_path(project, noteable, note)

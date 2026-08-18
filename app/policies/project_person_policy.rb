@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 class ProjectPersonPolicy < ApplicationPolicy
   def index?
     project_access?
@@ -7,35 +9,19 @@ class ProjectPersonPolicy < ApplicationPolicy
     project_access?
   end
 
+  # Alta/baja y edición de personas = gestionar el equipo: admin de la obra.
   def create?
-    manage?
+    project_manager?
   end
 
   def update?
-    manage?
+    project_manager?
   end
 
   def destroy?
-    manage?
+    project_manager?
   end
 
   alias_method :new?, :create?
   alias_method :edit?, :update?
-
-  private
-
-  def manage?
-    return false unless user
-    user.admin? || owner?
-  end
-
-  def owner?
-    record.project.owner == user
-  end
-
-  def project_access?
-    return false unless user
-    user.admin? || record.project.owner == user || record.project.members.include?(user)
-  end
 end
-

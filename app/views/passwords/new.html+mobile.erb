@@ -1,0 +1,34 @@
+<% content_for :title, "Recuperar contraseña · Quick Build" %>
+
+<%= render Qb::Mobile::NavBarComponent.new(title: "Recuperar contraseña", back: true, back_href: new_session_path) %>
+
+<div style="padding: 20px 24px 24px;">
+  <h1 style="margin: 0 0 8px; font-size: 28px; font-weight: 700; letter-spacing: -0.6px;">¿Olvidaste tu contraseña?</h1>
+  <p style="margin: 0 0 28px; color: var(--color-ink-3); font-size: 14.5px; line-height: 1.45;">
+    Ingresá el email de tu cuenta y te mandamos un enlace para crear una contraseña nueva.
+  </p>
+
+  <%= form_with url: passwords_path, method: :post, data: { turbo_frame: "_top" } do |f| %>
+    <% if flash[:alert] %>
+      <div role="alert" style="margin-bottom:14px;padding:10px 12px;border-radius:10px;background:color-mix(in oklab, var(--color-bad) 12%, transparent);color:var(--color-bad);font-size:13px;">
+        <%= flash[:alert] %>
+      </div>
+    <% end %>
+
+    <%= render Qb::Mobile::FormGroupComponent.new do %>
+      <%= render Qb::Mobile::FormRowComponent.new(
+            label: "Email",
+            name: "email",
+            type: "email",
+            placeholder: "tu@email.com",
+            autocomplete: "email",
+            required: true) %>
+    <% end %>
+
+    <%= render Qb::Mobile::ButtonComponent.new("Enviarme el enlace", variant: :primary, size: :lg, full: true, type: 'submit') %>
+  <% end %>
+
+  <p style="margin: 20px 0 0; text-align: center; font-size: 13px; color: var(--color-ink-3);">
+    ¿La recordaste? <%= link_to "Iniciar sesión", new_session_path, style: "color: var(--color-accent); font-weight: 600; text-decoration: none;", data: { turbo_frame: "_top" } %>
+  </p>
+</div>

@@ -1,17 +1,32 @@
-<div style="display:grid;grid-template-columns:420px 1fr;">
+<%# Grid del panel fijo: WBS · Tarea · Avance · Días · Gasto/Ppto.
+    Se repite en el header y en cada fila — cualquier cambio va en los dos. %>
+<% cols = '40px 1fr 70px 50px 92px' %>
+<div style="display:grid;grid-template-columns:520px 1fr;">
   <%# Left: WBS list %>
   <div style="border-right:1px solid var(--color-line);">
-    <div style="padding:8px 12px;background:var(--color-bg-raised);border-bottom:1px solid var(--color-line);display:grid;grid-template-columns:40px 1fr 70px 50px;gap:8px;font-size:10px;font-family:var(--font-mono);color:var(--color-ink-3);text-transform:uppercase;letter-spacing:0.5px;font-weight:500;">
-      <span>WBS</span><span>Tarea</span><span style="text-align:right;">Avance</span><span style="text-align:right;">Días</span>
+    <%# height:38px = misma altura que el header de meses de la derecha. Con el
+        padding vertical anterior medía 31px y TODAS las barras quedaban 7px
+        más abajo que su etiqueta. %>
+    <div style="height:38px;padding:0 12px;background:var(--color-bg-raised);border-bottom:1px solid var(--color-line);display:grid;grid-template-columns:<%= cols %>;gap:8px;align-items:center;font-size:10px;font-family:var(--font-mono);color:var(--color-ink-3);text-transform:uppercase;letter-spacing:0.5px;font-weight:500;">
+      <span>WBS</span><span>Tarea</span><span style="text-align:right;">Avance</span><span style="text-align:right;">Días</span><span style="text-align:right;">Gastos/Ppto.</span>
     </div>
     <% rows.each do |row| %>
       <% s = row.stage %>
-      <div style="display:grid;grid-template-columns:40px 1fr 70px 50px;gap:8px;padding:0 12px;height:34px;align-items:center;border-bottom:1px solid var(--color-line);padding-left:<%= row.depth.positive? ? 28 : 12 %>px;background:<%= row.depth.positive? ? 'var(--color-bg-sunken)' : 'transparent' %>;">
+      <%# Fila clickeable: carga stages#show en el turbo_frame "stage_detail" y
+          abre el drawer compartido de la vista de etapas (mismo patrón que las
+          cards). La altura fija de 34px mantiene la alineación con las barras. %>
+      <%= link_to constructors_project_stage_path(project, s.object),
+                  title: "#{s.name} · #{s.start_date ? "#{s.start_label} → #{s.end_label}" : 'sin fechas'}",
+                  data: { turbo_frame: 'stage_detail', action: 'click->qb--drawer#open' },
+                  style: "display:grid;grid-template-columns:#{cols};gap:8px;padding:0 12px;height:34px;align-items:center;border-bottom:1px solid var(--color-line);cursor:pointer;text-decoration:none;color:inherit;padding-left:#{row.depth.positive? ? 28 : 12}px;background:#{row.depth.positive? ? 'var(--color-bg-sunken)' : 'transparent'};" do %>
         <span class="qb-mono" style="font-size:11px;color:var(--color-ink-3);"><%= s.code %></span>
         <div style="min-width:0;">
-          <div style="font-size:12px;font-weight:<%= row.depth.positive? ? 400 : 500 %>;color:var(--color-ink);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;"><%= s.name %></div>
+          <div style="display:flex;align-items:center;gap:6px;min-width:0;">
+            <span style="flex:none;display:inline-flex;"><%= render Qb::StatusDotComponent.new(tone: s.status_tone) %></span>
+            <span style="font-size:12px;font-weight:<%= row.depth.positive? ? 400 : 500 %>;color:var(--color-ink);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;"><%= s.name %></span>
+          </div>
           <% if s.lead_label != 'Sin asignar' %>
-            <div style="font-size:10px;color:var(--color-ink-4);"><%= s.lead_label %></div>
+            <div style="font-size:10px;color:var(--color-ink-4);padding-left:12px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;"><%= s.lead_label %></div>
           <% end %>
         </div>
         <div style="display:flex;align-items:center;gap:4px;justify-content:flex-end;">
@@ -19,7 +34,21 @@
           <span class="qb-mono qb-tnum" style="font-size:10px;color:var(--color-ink-3);min-width:22px;text-align:right;"><%= s.progress_value %>%</span>
         </div>
         <span class="qb-mono qb-tnum" style="font-size:11px;color:var(--color-ink-3);text-align:right;"><%= s.days_total ? "#{s.days_total}d" : '—' %></span>
-      </div>
+        <%# Gasto real (Expenses) sobre presupuesto, en centavos ⇒ qb_fmt_cents.
+            Mismo criterio y misma fuente que el bloque GASTOS de las cards. %>
+        <div class="qb-mono qb-tnum" style="font-size:10px;text-align:right;line-height:1.15;overflow:hidden;">
+          <% if show_spend?(row) %>
+            <div style="color:<%= spent_pct_for(row) > 100 ? 'var(--color-bad)' : 'var(--color-ink-2)' %>;font-weight:600;"><%= helpers.qb_fmt_cents(spent_cents_for(row)) %></div>
+            <% if s.budget.positive? %>
+              <div style="color:var(--color-ink-4);">de <%= helpers.qb_fmt_cents(s.budget) %></div>
+            <% else %>
+              <div style="color:var(--color-ink-4);">sin ppto.</div>
+            <% end %>
+          <% else %>
+            <span style="color:var(--color-ink-4);">—</span>
+          <% end %>
+        </div>
+      <% end %>
     <% end %>
   </div>
 
@@ -37,7 +66,8 @@
       </div>
     </div>
 
-    <%# Bars %>
+    <%# Bars — cada fila es también un link al drawer, para que se pueda clickear
+        la barra y no solo la etiqueta de la izquierda. %>
     <div style="position:relative;">
       <% months_grid.each_with_index do |_, i| %>
         <div style="position:absolute;left:<%= (i.to_f / months_grid.size * 100).round(2) %>%;top:0;bottom:0;width:1px;background:var(--color-line);"></div>
@@ -48,16 +78,24 @@
           <% left = pct_at(s.start_date) %>
           <% right = pct_at(s.end_date) %>
           <% width = [right - left, 0.5].max %>
-          <div style="height:34px;border-bottom:1px solid var(--color-line);background:<%= row.depth.positive? ? 'var(--color-bg-sunken)' : 'transparent' %>;position:relative;">
+          <%= link_to constructors_project_stage_path(project, s.object),
+                      title: "#{s.name} · #{s.start_label} → #{s.end_label} · #{s.progress_value}%",
+                      'aria-label': "#{s.name} — ver detalle",
+                      data: { turbo_frame: 'stage_detail', action: 'click->qb--drawer#open' },
+                      style: "display:block;height:34px;border-bottom:1px solid var(--color-line);background:#{row.depth.positive? ? 'var(--color-bg-sunken)' : 'transparent'};position:relative;cursor:pointer;text-decoration:none;color:inherit;" do %>
             <div style="position:absolute;top:8px;height:18px;left:<%= left %>%;width:<%= width %>%;background:<%= bar_color(s) %>;border-radius:3px;display:flex;align-items:center;overflow:hidden;<%= 'box-shadow:inset 0 0 0 1px var(--color-line-2);' if s.progress_value.zero? %>">
               <% if s.progress_value.positive? && s.progress_value < 100 %>
                 <div style="position:absolute;inset:0;width:<%= s.progress_value %>%;background:rgba(0,0,0,0.22);"></div>
               <% end %>
               <span style="position:relative;color:<%= s.progress_value.zero? ? 'var(--color-ink-3)' : 'white' %>;font-size:10px;font-family:var(--font-mono);font-weight:500;padding:0 6px;white-space:nowrap;"><%= s.progress_value %>%</span>
             </div>
-          </div>
+          <% end %>
         <% else %>
-          <div style="height:34px;border-bottom:1px solid var(--color-line);background:<%= row.depth.positive? ? 'var(--color-bg-sunken)' : 'transparent' %>;"></div>
+          <%= link_to constructors_project_stage_path(project, s.object),
+                      title: "#{s.name} · sin fechas",
+                      'aria-label': "#{s.name} — ver detalle",
+                      data: { turbo_frame: 'stage_detail', action: 'click->qb--drawer#open' },
+                      style: "display:block;height:34px;border-bottom:1px solid var(--color-line);background:#{row.depth.positive? ? 'var(--color-bg-sunken)' : 'transparent'};text-decoration:none;color:inherit;" do %><% end %>
         <% end %>
       <% end %>
     </div>

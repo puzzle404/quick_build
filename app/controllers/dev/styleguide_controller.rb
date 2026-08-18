@@ -4,7 +4,7 @@
 # /dev/styleguide in development; the route isn't wired in production.
 class Dev::StyleguideController < ApplicationController
   allow_unauthenticated_access
-  layout 'application'
+  layout "application"
 
   def show; end
 end

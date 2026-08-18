@@ -13,7 +13,7 @@ RSpec.describe 'QB OS · Projects list', type: :system do
     visit constructors_projects_path
     within('main') do
       expect(page).to have_text('Todos')
-      expect(page).to have_text('En obra')
+      expect(page).to have_text('En progreso')
       expect(page).to have_text('Planificados')
       expect(page).to have_text('Finalizados')
     end

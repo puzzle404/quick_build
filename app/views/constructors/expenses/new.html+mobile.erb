@@ -19,7 +19,7 @@
 
 <%= form_with model: @expense, url: form_url, local: true, html: { multipart: true, style: "padding: 0 16px;" } do |f| %>
   <%= render Qb::Mobile::FormGroupComponent.new(title: "Monto") do %>
-    <%= render Qb::Mobile::FormAmountRowComponent.new(label: "Total", name: "expense[amount_cents]", value: @expense.amount_cents) %>
+    <%= render Qb::Mobile::FormAmountRowComponent.new(label: "Total", name: "expense[amount_pesos]", value: @expense.amount_cents ? number_with_precision(@expense.amount_cents / 100.0, precision: 2, separator: ",", delimiter: ".") : nil, sub: "En pesos (ej: 1.500,50)") %>
     <%= render Qb::Mobile::FormRowComponent.new(label: "Moneda", name: "expense[currency]", select: true, options: [['ARS', 'ARS'], ['USD', 'USD']], value: @expense.currency || 'ARS') %>
   <% end %>
 

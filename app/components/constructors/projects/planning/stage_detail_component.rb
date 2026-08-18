@@ -13,6 +13,30 @@ class Constructors::Projects::Planning::StageDetailComponent < ViewComponent::Ba
 
   attr_reader :project, :stage, :sub_stages
 
+  # ─── Permisos ───────────────────────────────────────────────
+  # Todo lo que se puede tocar desde el drawer es editor de obra en adelante.
+  # Se pregunta por record (ProjectStagePolicy / MaterialListPolicy) donde hay
+  # uno, y por ProjectPolicy#manage_content? para los adjuntos, que no tienen
+  # policy propia.
+
+  def can_edit_stage?
+    return @can_edit_stage if defined?(@can_edit_stage)
+
+    @can_edit_stage = helpers.policy(stage).update?
+  end
+
+  def can_manage_content?
+    return @can_manage_content if defined?(@can_manage_content)
+
+    @can_manage_content = helpers.policy(project).manage_content?
+  end
+
+  def can_manage_materials?
+    return @can_manage_materials if defined?(@can_manage_materials)
+
+    @can_manage_materials = helpers.policy(project).manage_materials?
+  end
+
   # ─── Material list helpers ──────────────────────────────────
 
   def linked_lists

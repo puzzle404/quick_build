@@ -55,29 +55,42 @@
         </div>
         <%= render Qb::BarComponent.new(value: stage.progress_value, tone: stage.status == :done ? :ok : stage.status == :doing ? :accent : :muted, height: 4) %>
       </div>
-      <% if stage.budget.positive? %>
+      <%# GASTOS = suma real de Expenses (etapa + sub-etapas). Se muestra
+          también sin presupuesto cargado, que antes dejaba la fila vacía. %>
+      <% if show_spend? %>
         <div style="width:140px;text-align:right;">
           <div style="display:flex;justify-content:space-between;font-size:10px;color:var(--color-ink-4);font-family:var(--font-mono);margin-bottom:3px;">
-            <span>PRESUPUESTO</span>
-            <span class="qb-tnum" style="color:<%= stage.spent_pct > 100 ? 'var(--color-bad)' : 'var(--color-ink-2)' %>;font-weight:600;"><%= stage.spent_pct %>%</span>
+            <span>GASTOS</span>
+            <% if stage.budget.positive? %>
+              <span class="qb-tnum" style="color:<%= spent_pct > 100 ? 'var(--color-bad)' : 'var(--color-ink-2)' %>;font-weight:600;"><%= spent_pct %>%</span>
+            <% end %>
           </div>
-          <div class="qb-mono qb-tnum" style="font-size:11px;color:var(--color-ink-2);"><%= helpers.qb_fmt_ars(stage.spent) %> <span style="color:var(--color-ink-4);">/ <%= helpers.qb_fmt_ars(stage.budget) %></span></div>
+          <div class="qb-mono qb-tnum" style="font-size:11px;color:var(--color-ink-2);">
+            <%= helpers.qb_fmt_cents(spent_cents) %>
+            <% if stage.budget.positive? %>
+              <span style="color:var(--color-ink-4);">/ <%= helpers.qb_fmt_cents(stage.budget) %></span>
+            <% else %>
+              <span style="color:var(--color-ink-4);">sin presup.</span>
+            <% end %>
+          </div>
         </div>
       <% end %>
-      <div style="display:flex;gap:4px;">
-        <%= render Qb::BtnComponent.new('', variant: :ghost, size: :xs, icon: :edit, href: edit_constructors_project_stage_path(project, stage), data: { turbo_frame: 'project_modal' }) %>
-      </div>
+      <% if can_edit_stage? %>
+        <div style="display:flex;gap:4px;">
+          <%= render Qb::BtnComponent.new('', variant: :ghost, size: :xs, icon: :edit, href: edit_constructors_project_stage_path(project, stage), data: { turbo_frame: 'project_modal' }) %>
+        </div>
+      <% end %>
     </div>
   </div>
 
   <%# Sub-stages table (collapsible body) %>
   <% if sub_stages.any? %>
     <div data-qb--expandable-target="body">
-      <div style="display:grid;grid-template-columns:42px 60px 1fr 180px 100px 100px 90px 40px;gap:0;padding:6px 16px;background:var(--color-bg-sunken);font-size:10px;font-family:var(--font-mono);color:var(--color-ink-3);text-transform:uppercase;letter-spacing:0.5px;font-weight:500;border-bottom:1px solid var(--color-line);">
+      <div style="display:grid;grid-template-columns:30px 48px minmax(0,1fr) 132px 44px 86px 60px 26px;gap:0;padding:6px 16px;background:var(--color-bg-sunken);font-size:10px;font-family:var(--font-mono);color:var(--color-ink-3);text-transform:uppercase;letter-spacing:0.5px;font-weight:500;border-bottom:1px solid var(--color-line);">
         <span></span><span>Código</span><span>Sub-etapa</span><span>Período</span><span style="text-align:right;">Días</span><span style="text-align:right;">Avance</span><span style="text-align:right;">Adjuntos</span><span></span>
       </div>
       <% sub_stages.each do |sub| %>
-        <%= link_to constructors_project_stage_path(project, sub), style: 'display:grid;grid-template-columns:42px 60px 1fr 180px 100px 100px 90px 40px;gap:0;padding:8px 16px;border-bottom:1px solid var(--color-line);cursor:pointer;align-items:center;font-size:12px;text-decoration:none;color:inherit;' do %>
+        <%= link_to constructors_project_stage_path(project, sub), style: 'display:grid;grid-template-columns:30px 48px minmax(0,1fr) 132px 44px 86px 60px 26px;gap:0;padding:8px 16px;border-bottom:1px solid var(--color-line);cursor:pointer;align-items:center;font-size:12px;text-decoration:none;color:inherit;' do %>
           <div style="padding-left:8px;"><%= render Qb::StatusDotComponent.new(tone: sub.status_tone == :muted ? :muted : (sub.status == :done ? :ok : :info)) %></div>
           <span class="qb-mono" style="font-size:11px;color:var(--color-ink-3);"><%= sub.code %></span>
           <div style="color:var(--color-ink);font-weight:500;"><%= sub.name %></div>
@@ -93,9 +106,11 @@
           <%= render Qb::IconComponent.new(name: :'chevron-right', size: 13, style: 'color:var(--color-ink-4)') %>
         <% end %>
       <% end %>
-      <div style="padding:8px 16px;background:var(--color-bg-sunken);">
-        <%= render Qb::BtnComponent.new(%(Agregar sub-etapa a "#{stage.name}"), variant: :ghost, size: :xs, icon: :plus, href: new_constructors_project_stage_path(project, parent_id: stage.id), data: { turbo_frame: 'project_modal' }) %>
-      </div>
+      <% if can_edit_stage? %>
+        <div style="padding:8px 16px;background:var(--color-bg-sunken);">
+          <%= render Qb::BtnComponent.new(%(Agregar sub-etapa a "#{stage.name}"), variant: :ghost, size: :xs, icon: :plus, href: new_constructors_project_stage_path(project, parent_id: stage.id), data: { turbo_frame: 'project_modal' }) %>
+        </div>
+      <% end %>
     </div>
   <% end %>
 

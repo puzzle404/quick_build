@@ -377,6 +377,7 @@
     color: var(--color-ink-4);
   }
 
+
   /* ─── Blueprint viewer toolbar · active tool ─────────────── */
   /* The blueprint-viewer Stimulus controller sets data-active="true" on the
      active scale/measure tool button. */
@@ -412,8 +413,15 @@
     background: var(--color-bg-sunken) !important;
   }
 
-  /* Hidden helper used by panels that toggle visibility */
-  .hidden { display: none !important; }
+  /* Hidden helper para los paneles que togglean visibilidad (modales, drawer,
+     dropdowns, cmd palette): llevan `display:flex` inline, y a un estilo inline
+     sólo se lo vence con !important.
+     Acotado al shell de QB OS — los layouts constructor/mobile ponen
+     `data-theme` en <html>; marketing/application no. Sin ese scope, el
+     !important pisaba la utilidad `hidden` de Tailwind en toda la app y dejaba
+     permanentemente ocultos los patrones `hidden lg:flex` de la landing (el
+     link "Iniciar sesión" del navbar, entre otros). */
+  [data-theme] .hidden { display: none !important; }
 
   /* Keyboard chip used by sidebar/cmd palette */
   .qb-kbd {
@@ -689,10 +697,57 @@
     min-height: 96px;
     display: flex; flex-direction: column; justify-content: space-between;
   }
-  .m-kpi--violet  { background: linear-gradient(135deg, oklch(42% 0.22 295) 0%, oklch(55% 0.24 285) 100%); color: #fff; border-color: transparent; }
-  .m-kpi--amber   { background: linear-gradient(135deg, oklch(62% 0.22 45)  0%, oklch(72% 0.21 55)  100%); color: #fff; border-color: transparent; }
-  .m-kpi--sky     { background: linear-gradient(135deg, oklch(50% 0.20 250) 0%, oklch(62% 0.22 230) 100%); color: #fff; border-color: transparent; }
-  .m-kpi--emerald { background: linear-gradient(135deg, oklch(45% 0.15 165) 0%, oklch(58% 0.15 155) 100%); color: #fff; border-color: transparent; }
+
+  /* IMPORTANTE: estos modificadores DEBEN quedar después de sus clases base
+     (.m-card y .m-kpi). Tienen la misma especificidad (0,1,0), así que si se
+     definen antes, la base gana por orden y el gradiente se pierde — pasaba en
+     tema graphite: tarjeta clara con texto blanco, ilegible. */
+  /* ─── Hero gradient cards (.qb-hero--*) ──────────────────── */
+  /* Gradientes reutilizables para cards "hero" (dashboard desktop, KPIs
+     mobile, hero de proyecto). Genéricas a propósito: NO scopear al
+     dashboard. Cada variante define el gradiente de fondo, la tinta
+     principal (blanca) y --qb-hero-ink, la tinta secundaria para
+     labels/hints sobre el gradiente. Con variante night más apagada. */
+  .qb-hero--violet, .qb-hero--amber, .qb-hero--sky, .qb-hero--emerald,
+  .m-kpi--violet, .m-kpi--amber, .m-kpi--sky, .m-kpi--emerald {
+    color: #fff;
+    border-color: transparent;
+    --qb-hero-ink: rgba(255, 255, 255, 0.82);
+  }
+  .qb-hero--violet, .m-kpi--violet {
+    background: linear-gradient(135deg, oklch(42% 0.22 295) 0%, oklch(55% 0.24 285) 100%);
+    --qb-hero-ink: oklch(92% 0.08 295);
+  }
+  .qb-hero--amber, .m-kpi--amber {
+    background: linear-gradient(135deg, oklch(62% 0.22 45) 0%, oklch(72% 0.21 55) 100%);
+    --qb-hero-ink: oklch(96% 0.08 70);
+  }
+  .qb-hero--sky, .m-kpi--sky {
+    background: linear-gradient(135deg, oklch(50% 0.20 250) 0%, oklch(62% 0.22 230) 100%);
+    --qb-hero-ink: oklch(94% 0.08 230);
+  }
+  .qb-hero--emerald, .m-kpi--emerald {
+    background: linear-gradient(135deg, oklch(45% 0.15 165) 0%, oklch(58% 0.15 155) 100%);
+    --qb-hero-ink: oklch(94% 0.10 165);
+  }
+  /* Night: mismos matices con menos luminancia/croma para no encandilar
+     sobre el fondo oscuro. */
+  [data-theme="night"] .qb-hero--violet, [data-theme="night"] .m-kpi--violet {
+    background: linear-gradient(135deg, oklch(34% 0.17 295) 0%, oklch(45% 0.19 285) 100%);
+    --qb-hero-ink: oklch(88% 0.06 295);
+  }
+  [data-theme="night"] .qb-hero--amber, [data-theme="night"] .m-kpi--amber {
+    background: linear-gradient(135deg, oklch(46% 0.15 45) 0%, oklch(56% 0.15 55) 100%);
+    --qb-hero-ink: oklch(92% 0.06 70);
+  }
+  [data-theme="night"] .qb-hero--sky, [data-theme="night"] .m-kpi--sky {
+    background: linear-gradient(135deg, oklch(38% 0.15 250) 0%, oklch(49% 0.16 230) 100%);
+    --qb-hero-ink: oklch(90% 0.06 230);
+  }
+  [data-theme="night"] .qb-hero--emerald, [data-theme="night"] .m-kpi--emerald {
+    background: linear-gradient(135deg, oklch(35% 0.11 165) 0%, oklch(46% 0.12 155) 100%);
+    --qb-hero-ink: oklch(90% 0.07 165);
+  }
   .m-kpi--gradient::after {
     content: ''; position: absolute; top: -30px; right: -30px;
     width: 120px; height: 120px; border-radius: 999px;

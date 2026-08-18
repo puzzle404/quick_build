@@ -22,10 +22,10 @@ class Constructors::Dashboard::EvolutionChartComponent < ViewComponent::Base
 
   def iw; W - PAD_L - PAD_R; end
   def ih; H - PAD_T - PAD_B; end
-  def max_s; [spend.max, 1].compact.max; end
+  def max_s; [ spend.max, 1 ].compact.max; end
 
   def x_at(i)
-    PAD_L + (i.to_f / [months.size - 1, 1].max) * iw
+    PAD_L + (i.to_f / [ months.size - 1, 1 ].max) * iw
   end
 
   def y_bar(v)
@@ -37,18 +37,16 @@ class Constructors::Dashboard::EvolutionChartComponent < ViewComponent::Base
   end
 
   def line_points(arr)
-    arr.each_with_index.map { |v, i| "#{x_at(i).round(1)},#{y_line(v).round(1)}" }.join(' ')
+    arr.each_with_index.map { |v, i| "#{x_at(i).round(1)},#{y_line(v).round(1)}" }.join(" ")
   end
 
   def progress_area_points
     "#{PAD_L},#{y_line(0)} #{line_points(progress)} #{x_at(progress.size - 1)},#{y_line(0)}"
   end
 
+  # Etiquetas del eje de gasto — delega en el formateador canónico QB OS
+  # (QuickbuildHelper#qb_fmt_ars) en vez de duplicar la lógica "$ M/k".
   def short_ars(n)
-    return '0' if n.nil? || n.zero?
-    abs = n.abs
-    return "$ #{(n / 1_000_000.0).round(1)}M" if abs >= 1_000_000
-    return "$ #{(n / 1_000.0).round}k"        if abs >= 1_000
-    "$ #{n.to_i}"
+    helpers.qb_fmt_ars(n)
   end
 end

@@ -1,0 +1,104 @@
+<% content_for :title, "Política de privacidad · Quick Build" %>
+
+<div class="bg-white">
+  <div class="mx-auto max-w-3xl px-6 py-16 sm:py-24 lg:px-8">
+    <p class="text-base font-semibold leading-7 text-indigo-600">Legal</p>
+    <h1 class="mt-2 text-3xl font-bold tracking-tight text-slate-900 sm:text-4xl">Política de privacidad</h1>
+    <p class="mt-3 text-sm text-slate-500">Última actualización: julio de 2026</p>
+
+    <div class="mt-10 space-y-10 text-base leading-7 text-slate-600">
+      <section>
+        <h2 class="text-xl font-semibold text-slate-900">1. Alcance</h2>
+        <p class="mt-3">
+          Esta política describe cómo Quick Build recopila, usa y protege tus datos personales cuando
+          utilizás la plataforma, de acuerdo con la Ley 25.326 de Protección de los Datos Personales
+          de la República Argentina y sus normas complementarias.
+        </p>
+      </section>
+
+      <section>
+        <h2 class="text-xl font-semibold text-slate-900">2. Datos que recopilamos</h2>
+        <ul class="mt-3 list-disc space-y-2 pl-6">
+          <li><span class="font-semibold text-slate-900">Datos de cuenta:</span> nombre, email y contraseña (almacenada de forma cifrada).</li>
+          <li><span class="font-semibold text-slate-900">Datos de uso profesional:</span> obras, etapas, gastos, notas, listas de materiales, personas de obra y asistencias que cargás en la plataforma.</li>
+          <li><span class="font-semibold text-slate-900">Archivos:</span> planos, documentos e imágenes que subís a tus proyectos.</li>
+          <li><span class="font-semibold text-slate-900">Datos técnicos:</span> dirección IP, tipo de dispositivo y navegador, registros de actividad necesarios para la seguridad y el funcionamiento del servicio.</li>
+        </ul>
+      </section>
+
+      <section>
+        <h2 class="text-xl font-semibold text-slate-900">3. Para qué usamos tus datos</h2>
+        <ul class="mt-3 list-disc space-y-2 pl-6">
+          <li>Prestar el servicio: gestionar tu cuenta, tus obras y tus documentos.</li>
+          <li>Procesar funciones de asistencia con IA (por ejemplo, análisis de planos) que vos mismo iniciás.</li>
+          <li>Mantener la seguridad de la plataforma y prevenir usos fraudulentos.</li>
+          <li>Comunicarte novedades del servicio; podés darte de baja de los envíos no esenciales en cualquier momento.</li>
+          <li>Elaborar estadísticas agregadas y anónimas para mejorar el producto.</li>
+        </ul>
+        <p class="mt-3">No vendemos tus datos personales a terceros.</p>
+      </section>
+
+      <section>
+        <h2 class="text-xl font-semibold text-slate-900">4. Con quién compartimos datos</h2>
+        <p class="mt-3">
+          Compartimos datos únicamente con: (a) proveedores de infraestructura y procesamiento que
+          actúan por cuenta y orden nuestra (hosting, almacenamiento de archivos, procesamiento de IA),
+          bajo obligaciones de confidencialidad; (b) otros usuarios, solo cuando vos lo decidís (por
+          ejemplo, al publicar una lista de materiales o invitar a alguien a tu obra); y (c) autoridades,
+          cuando exista una obligación legal.
+        </p>
+      </section>
+
+      <section>
+        <h2 class="text-xl font-semibold text-slate-900">5. Cookies</h2>
+        <p class="mt-3">
+          Usamos cookies propias, esenciales para el funcionamiento del servicio: mantener tu sesión
+          iniciada, recordar preferencias de interfaz y proteger los formularios contra falsificación
+          de solicitudes. No utilizamos cookies de publicidad de terceros.
+        </p>
+      </section>
+
+      <section>
+        <h2 class="text-xl font-semibold text-slate-900">6. Seguridad</h2>
+        <p class="mt-3">
+          Aplicamos medidas técnicas y organizativas razonables para proteger tus datos: cifrado en
+          tránsito, contraseñas con hash seguro, control de acceso por roles y aislamiento de la
+          información de cada cuenta. Ningún sistema es infalible; si detectamos un incidente que
+          afecte tus datos, te lo comunicaremos a la brevedad.
+        </p>
+      </section>
+
+      <section>
+        <h2 class="text-xl font-semibold text-slate-900">7. Conservación</h2>
+        <p class="mt-3">
+          Conservamos tus datos mientras tu cuenta esté activa y por el plazo necesario para cumplir
+          obligaciones legales. Si cerrás tu cuenta, eliminamos o anonimizamos tus datos personales
+          dentro de un plazo razonable, salvo aquellos que debamos retener por ley.
+        </p>
+      </section>
+
+      <section>
+        <h2 class="text-xl font-semibold text-slate-900">8. Tus derechos</h2>
+        <p class="mt-3">
+          Como titular de los datos podés ejercer en forma gratuita los derechos de acceso,
+          rectificación, actualización y supresión, contactándonos desde la
+          <%= link_to "sección de contacto", root_path(anchor: "contacto"), class: "font-semibold text-indigo-600 hover:text-indigo-500" %>.
+          La Agencia de Acceso a la Información Pública, en su carácter de órgano de control de la
+          Ley 25.326, tiene la atribución de atender denuncias y reclamos por incumplimiento de las
+          normas de protección de datos personales.
+        </p>
+      </section>
+
+      <section>
+        <h2 class="text-xl font-semibold text-slate-900">9. Cambios a esta política</h2>
+        <p class="mt-3">
+          Si modificamos esta política de manera sustancial, te lo comunicaremos por email o dentro
+          de la plataforma antes de su entrada en vigencia. La fecha de última actualización figura
+          al inicio de esta página.
+        </p>
+      </section>
+    </div>
+  </div>
+</div>
+
+<%= render Layout::FooterComponent.new %>

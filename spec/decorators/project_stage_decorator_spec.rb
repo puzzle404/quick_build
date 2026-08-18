@@ -47,6 +47,70 @@ RSpec.describe ProjectStageDecorator do
     end
   end
 
+  describe "#code con la etapa padre inyectada" do
+    let(:parent_stage) { create(:project_stage, project: project, position: 2) }
+    let(:stage) { create(:project_stage, project: project, parent_id: parent_stage.id, position: 4) }
+
+    it "devuelve lo mismo que resolviendo el padre por asociación" do
+      decorated.parent_stage = parent_stage
+
+      expect(decorated.code).to eq("2.4")
+    end
+
+    it "no va a la base a buscar el padre" do
+      decorated.parent_stage = parent_stage
+
+      expect(count_queries { decorated.code }).to eq(0)
+    end
+
+    it "sin inyección sigue resolviendo el padre solo" do
+      expect(described_class.new(stage.reload).code).to eq("2.4")
+    end
+  end
+
+  describe "conteos de adjuntos" do
+    let(:stage) { create(:project_stage, project: project) }
+
+    before do
+      Document.insert_all(Array.new(2) do
+        { documentable_type: "ProjectStage", documentable_id: stage.id,
+          created_at: Time.current, updated_at: Time.current }
+      end)
+      Image.insert_all([ { imageable_type: "ProjectStage", imageable_id: stage.id,
+                           created_at: Time.current, updated_at: Time.current } ])
+      create(:material_list, project: project, project_stage: stage)
+    end
+
+    it "sin inyección cuenta con su propia query (drawer de etapa, mobile)" do
+      expect(decorated.docs_count).to eq(2)
+      expect(decorated.images_count).to eq(1)
+      expect(decorated.material_lists_count).to eq(1)
+    end
+
+    it "con Projects::StageCounts inyectado devuelve los mismos números" do
+      plain = described_class.new(stage)
+      decorated.attachment_counts = Projects::StageCounts.for_project(project)
+
+      expect(decorated.docs_count).to eq(plain.docs_count)
+      expect(decorated.images_count).to eq(plain.images_count)
+      expect(decorated.material_lists_count).to eq(plain.material_lists_count)
+    end
+
+    it "con los conteos precargados no dispara ninguna query" do
+      counts = Projects::StageCounts.for_project(project)
+      counts.docs(stage.id) # fuerza las 3 queries agrupadas de una
+      counts.images(stage.id)
+      counts.material_lists(stage.id)
+      decorated.attachment_counts = counts
+
+      queries = count_queries do
+        [ decorated.docs_count, decorated.images_count, decorated.material_lists_count ]
+      end
+
+      expect(queries).to eq(0)
+    end
+  end
+
   describe "#status" do
     context "when progress is 0" do
       let(:stage) { create(:project_stage, project: project, progress: 0) }

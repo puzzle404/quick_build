@@ -1,0 +1,60 @@
+<% content_for :title, "Editar · #{@project.name} · Quick Build" %>
+
+<%= render Qb::Mobile::NavBarComponent.new(title: "Editar obra", back: true, back_href: constructors_project_path(@project)) %>
+
+<div style="padding: 4px 20px 12px;">
+  <h1 style="margin: 0; font-size: 22px; font-weight: 700; letter-spacing: -0.4px;"><%= @project.name %></h1>
+  <p style="margin: 4px 0 0; font-size: 13.5px; color: var(--color-ink-3); line-height: 1.4;">
+    Ajustá los datos clave de la obra. Los cambios se reflejan en los tableros al instante.
+  </p>
+</div>
+
+<%= form_with model: [:constructors, @project], local: true, html: { multipart: true, style: "padding: 0 16px;" } do |f| %>
+  <% if @project.errors.any? %>
+    <div role="alert" style="margin-bottom:14px;padding:10px 12px;border-radius:10px;background:color-mix(in oklab, var(--color-bad) 12%, transparent);color:var(--color-bad);font-size:13px;">
+      <%= @project.errors.full_messages.to_sentence %>
+    </div>
+  <% end %>
+
+  <%= render Qb::Mobile::FormGroupComponent.new(title: "Identidad") do %>
+    <%= render Qb::Mobile::FormRowComponent.new(label: "Nombre", name: "project[name]", value: @project.name, placeholder: "Ej: Torre Palermo · Aurora", required: true) %>
+    <%= render Qb::Mobile::FormRowComponent.new(label: "Cliente", name: "project[client]", value: @project.client, placeholder: "Razón social") %>
+    <%= render Qb::Mobile::FormRowComponent.new(label: "Domicilio", name: "project[location]", value: @project.location, placeholder: "Ej: Av. Colón 1234, Mendoza") %>
+    <%= render Qb::Mobile::FormRowComponent.new(label: "Descripción", name: "project[description]", value: @project.description, placeholder: "Alcance de la obra, notas para el equipo…", textarea: true) %>
+  <% end %>
+
+  <%= render Qb::Mobile::FormGroupComponent.new(title: "Cronograma", footnote: "Estos valores alimentan la curva S y el tablero de hitos.") do %>
+    <%= render Qb::Mobile::FormRowComponent.new(label: "Inicio", name: "project[start_date]", type: 'date', value: @project.start_date) %>
+    <%= render Qb::Mobile::FormRowComponent.new(label: "Entrega", name: "project[end_date]", type: 'date', value: @project.end_date) %>
+  <% end %>
+
+  <%# Budget is stored in cents server-side but exposed in pesos here —
+      same convention as the mobile wizard (project_params converts). %>
+  <%= render Qb::Mobile::FormGroupComponent.new(title: "Presupuesto y estado") do %>
+    <%= render Qb::Mobile::FormAmountRowComponent.new(
+          label: "Presupuesto estimado",
+          name: "project[budget_pesos]",
+          value: @project.budget_cents.to_i.positive? ? (@project.budget_cents.to_i / 100) : nil,
+          sub: "Pesos argentinos. Lo redondeamos a entero al guardar.") %>
+    <%= render Qb::Mobile::FormRowComponent.new(
+          label: "Estado", name: "project[status]", select: true,
+          value: @project.status || 'planned',
+          options: Project.status_options) %>
+  <% end %>
+
+  <%= render Qb::Mobile::FormGroupComponent.new(title: "Adjuntos (opcional)", footnote: "JPG/PNG para fotos, PDF para documentos. Máx. 25 MB por archivo.") do %>
+    <div class="m-frow">
+      <label class="m-frow-label">Fotos</label>
+      <%= f.file_field :images, multiple: true, accept: "image/*", class: "m-frow-input" %>
+    </div>
+    <div class="m-frow">
+      <label class="m-frow-label">Documentos (PDF)</label>
+      <%= f.file_field :document_files, multiple: true, accept: ".pdf,application/pdf", class: "m-frow-input" %>
+    </div>
+  <% end %>
+
+  <div style="display:flex;gap:10px;padding-bottom:24px;">
+    <%= link_to "Cancelar", constructors_project_path(@project), class: "m-btn m-btn--secondary m-btn--md", style: "flex:1;text-decoration:none;" %>
+    <%= f.submit "Guardar cambios", class: "m-btn m-btn--md", style: "flex:1.4;" %>
+  </div>
+<% end %>

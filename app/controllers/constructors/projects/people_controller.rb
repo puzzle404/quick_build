@@ -1,9 +1,14 @@
 class Constructors::Projects::PeopleController < Constructors::BaseController
-  before_action :set_project
+  # Antes: `Project.find` sin scope — era la única sección a la que llegaba
+  # alguien de otra obra (y terminaba en un 500 de Pundit en vez de un 404).
+  before_action :find_project!
   before_action :set_person, only: %i[show edit update destroy]
 
   def index
-    authorize @project.project_people.build
+    # `:index?` (ver el equipo alcanza con acceso a la obra). Con el
+    # `authorize` implícito pedía `create?` = admin de obra, así que un
+    # viewer/editor no podía ni ver el listado.
+    authorize @project.project_people.build, :index?
     @current_qb_section = :projects
     @project = @project.decorate
     @current_qb_project = @project
@@ -25,7 +30,13 @@ class Constructors::Projects::PeopleController < Constructors::BaseController
 
   def show
     authorize @person
-    @recent_attendances = @person.person_attendances.order(occurred_at: :desc).limit(10)
+    # Mismo corte que usa el update de horas para recalcular el total del pie
+    # (PersonAttendance::RECENT_LIMIT): si los dos lados no listan lo mismo,
+    # el total deja de cerrar con las filas que se ven.
+    @recent_attendances = @person.person_attendances
+                                 .recent_first
+                                 .limit(PersonAttendance::RECENT_LIMIT)
+                                 .to_a
   end
 
   def new
@@ -75,15 +86,23 @@ class Constructors::Projects::PeopleController < Constructors::BaseController
 
   private
 
-  def set_project
-    @project = Project.find(params[:project_id])
-  end
-
   def set_person
     @person = @project.project_people.find(params[:id])
   end
 
   def person_params
-    params.require(:project_person).permit(:full_name, :document_id, :phone, :role_title, :status, :start_date, :end_date, :notes)
+    permitted = params.require(:project_person)
+                      .permit(:full_name, :document_id, :phone, :role_title, :status,
+                              :start_date, :end_date, :notes,
+                              :hourly_rate_cents, :hourly_rate_pesos)
+
+    # El form tipea la tarifa en pesos (texto libre es-AR); el modelo guarda
+    # centavos. Mismo patrón que projects_controller/stages_controller.
+    if params[:project_person].key?(:hourly_rate_pesos)
+      pesos = permitted.delete(:hourly_rate_pesos)
+      permitted[:hourly_rate_cents] = pesos.present? ? Money::ArsParser.to_cents(pesos) : nil
+    end
+
+    permitted
   end
 end
