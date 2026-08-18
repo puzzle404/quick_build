@@ -1,6 +1,6 @@
 # frozen_string_literal: true
 
-# Detail body of a project stage rendered inside a Turbo Frame ("stage_detail").
+# Detail body of a project stage rendered inside the global Turbo Frame ("drawer").
 # Redesigned to match the DESPUÉS handoff: hero identity block, metrics row,
 # sub-stage structure group, and a 5-tab work panel (Materiales/Gastos/Notas/
 # Docs/Fotos). Rendered inside the shared drawer shell on the planning view.

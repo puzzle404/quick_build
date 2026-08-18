@@ -1,6 +1,6 @@
 <%# Nueva persona.
-    - turbo_frame_request (botón con data-turbo-frame="project_modal"): modal QB OS
-      dentro del frame project_modal; qb--modal lo auto-abre. Mismo approach que stages/new.
+    - turbo_frame_request (botón con data-turbo-frame="drawer"): Qb::DrawerComponent
+      dentro del frame global "drawer"; qb--drawer lo auto-abre. Mismo approach que stages/new.
     - full page (acceso directo): shell QB OS (section_tabs + header strip) con el form centrado. %>
 <% if turbo_frame_request? %>
   <% content_for(:drawer) do %>

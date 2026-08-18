@@ -26,13 +26,13 @@ RSpec.describe 'QB OS · Stages workspace', type: :system do
 
   # El panel del Gantt arranca con display:none (lo muestra el switcher), así
   # que se inspecciona con visible: :all — rack_test no corre Stimulus.
-  it 'renders gantt rows as links into the stage_detail drawer frame, with the budget column' do
+  it 'renders gantt rows as links into the drawer frame, with the budget column' do
     visit constructors_project_path(project)
     stage = project.project_stages.find_by(name: 'Estructura')
     within('[data-qb--view-switcher-target="panel"][data-view="gantt"]', visible: :all) do
       expect(page).to have_text(:all, 'Gastos/Ppto.')
       expect(page).to have_css(
-        "a[href='#{constructors_project_stage_path(project, stage)}'][data-turbo-frame='stage_detail']",
+        "a[href='#{constructors_project_stage_path(project, stage)}'][data-turbo-frame='drawer']",
         visible: :all, minimum: 1
       )
     end

@@ -180,8 +180,10 @@
         <% end %>
       <% end %>
       <div style="padding:14px 16px;display:flex;flex-direction:column;gap:12px;">
-        <%# turbo_stream target: el create del notes_controller actualiza
-            este contenedor con la lista refrescada (incluye la nueva nota). %>
+        <%# Nota nueva: notes_controller#create no apunta a este contenedor —
+            para notas de proyecto (a diferencia de las de etapa) dispara un
+            turbo_stream.refresh que recarga la página; la lista sale
+            actualizada como efecto de ese refresh, no de un target puntual. %>
         <div id="project_notes_list">
           <%= render Constructors::Projects::NotesListComponent.new(
                 notes: @project.notes.recent_first.includes(:author),

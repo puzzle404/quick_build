@@ -35,9 +35,10 @@ module Constructors
     end
 
     # Renders the mobile expense form. Desktop opens the same form inline via
-    # the `qb--modal` Stimulus controller; the Native shell can't host that
-    # modal, so it loads `/new` instead — the path-config rule routes it as a
-    # bottom-sheet automatically.
+    # the global drawer (turbo_frame "drawer" + `qb--drawer` Stimulus
+    # controller); the Native shell can't host that drawer, so it loads
+    # `/new` instead — the path-config rule routes it as a bottom-sheet
+    # automatically.
     def new
       # El formulario se autoriza como el alta que va a hacer (editor+): con
       # `:show?` un viewer llegaba hasta el form y recién ahí se comía el "no".

@@ -1,7 +1,7 @@
 <%# Subir plano.
-    - turbo_frame_request (botón "Subir plano" con data-turbo-frame="project_modal"):
-      modal QB OS dentro del frame; qb--modal la auto-abre. Mismo approach que
-      Materiales / Etapas / Personas.
+    - turbo_frame_request (botón "Subir plano" con data-turbo-frame="drawer"):
+      Qb::DrawerComponent dentro del frame global; qb--drawer lo auto-abre.
+      Mismo approach que Materiales / Etapas / Personas.
     - full page (acceso directo o re-render con errores de validación):
       shell de secciones QB OS + formulario centrado. %>
 <% if turbo_frame_request? %>

@@ -52,7 +52,7 @@ class Constructors::LibraryController < Constructors::BaseController
   end
 
   # Visor embebido del documento. La index linkea a esta acción con
-  # data-turbo-frame="project_modal" — el visor se abre en un drawer QB OS
+  # data-turbo-frame="drawer" — el visor se abre en el drawer global QB OS
   # con un <iframe> al archivo (PDFs/imágenes el browser los muestra inline).
   def show
     raise Pundit::NotAuthorizedError unless current_user&.constructor?

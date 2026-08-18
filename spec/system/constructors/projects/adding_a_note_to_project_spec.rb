@@ -11,17 +11,14 @@ RSpec.describe "Adding a note to a project", type: :system, js: true do
   before { sign_in_user(owner) }
 
   it "owner can add a note and see it in the list" do
-    # Known pre-existing bug (from Task 16, unrelated to the drawer-trigger
-    # rewiring done in Task 17): NotesController#create's project-scoped
-    # branch responds with `render turbo_stream: turbo_stream.refresh` and no
-    # explicit request_id override, so it defaults to
-    # `request_id: Turbo.current_request_id` — the SAME id as the request
-    # that's currently in flight. Turbo Drive treats that as "this tab
-    # already knows the outcome" and skips the refresh, so in a real browser
-    # the drawer never closes and the notes list never re-renders (the note
-    # itself IS created server-side — see log/test.log during this spec).
-    pending "project-scoped note create doesn't refresh: turbo_stream.refresh no-ops on the originating tab (see comment)"
-
+    # Regression guard for a bug fixed by infra-fix-3/4 (drawer-unification
+    # plan): NotesController#create's project-scoped branch used to respond
+    # with `turbo_stream.refresh` and no explicit request_id override, which
+    # defaulted to `request_id: Turbo.current_request_id` — the SAME id as
+    # the in-flight request. Turbo Drive treated that as "this tab already
+    # knows the outcome" and skipped the refresh, so the drawer never closed
+    # and the notes list never re-rendered. Fixed by passing
+    # `request_id: nil` explicitly (see notes_controller.rb#create).
     visit constructors_project_path(project)
 
     click_on "Agregar nota"

@@ -176,7 +176,8 @@
       <%= render layout: 'dev/styleguide/snippet' do %>
         &lt;%# Con href sale &lt;a&gt;, sin href sale &lt;button&gt;. %&gt;
         &lt;%= render Qb::BtnComponent.new('Registrar gasto', variant: :primary, size: :sm, icon: :plus,
-                                        data: { action: 'click-&gt;qb--modal#open' }) %&gt;
+                                        href: new_constructors_project_expense_path(project),
+                                        data: { turbo_frame: 'drawer', action: 'click-&gt;qb--drawer#open' }) %&gt;
         &lt;%= render Qb::BtnComponent.new('Ver obra', variant: :secondary, size: :sm,
                                         href: constructors_project_path(project)) %&gt;
         &lt;%# Botón sólo-ícono: SIEMPRE con aria_label, si no queda mudo para el lector de pantalla. %&gt;

@@ -59,7 +59,7 @@
     </form>
     <div style="flex:1;"></div>
     <%# La asistencia se marca por fila (botón "Presente") — sin botón global. %>
-    <%# Abre el modal de alta vía Turbo Frame (project_modal) — mismo approach que stages. %>
+    <%# Abre el drawer global de alta vía Turbo Frame ("drawer") — mismo approach que stages. %>
     <% if can_manage_team %>
       <%= render Qb::BtnComponent.new('Invitar persona', variant: :primary, size: :xs, icon: :plus,
             href: new_constructors_project_person_path(@project), data: { turbo_frame: 'drawer', action: 'click->qb--drawer#open' }) %>

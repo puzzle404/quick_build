@@ -1,9 +1,9 @@
 <%# Editar etapa.
-    - turbo_frame_request (lápiz/Editar con data-turbo-frame="project_modal"):
-      modal QB OS dentro del frame project_modal (auto-abre dentro de #project_modal).
+    - turbo_frame_request (lápiz/Editar con data-turbo-frame="drawer"):
+      Qb::DrawerComponent dentro del frame global "drawer" (qb--drawer lo auto-abre).
     - full page (acceso directo): shell QB OS (section_tabs + header strip) con el form centrado.
     Las dos ramas muestran el mismo contexto (código, nombre, estado) porque dentro
-    de la modal no había forma de saber qué etapa se estaba editando. %>
+    del drawer no había forma de saber qué etapa se estaba editando. %>
 <% stage = @stage.decorate %>
 
 <%# Pills de contexto, compartidas por las dos ramas. %>

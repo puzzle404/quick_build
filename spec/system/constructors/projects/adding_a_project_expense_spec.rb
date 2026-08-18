@@ -9,17 +9,14 @@ RSpec.describe "Adding a project-level expense (no stage)", type: :system, js: t
   before { sign_in_user(owner) }
 
   it "owner opens the header modal and registers an expense without a stage" do
-    # Known pre-existing bug (from Task 16, unrelated to the drawer-trigger
-    # rewiring done in Task 17): ExpensesController#create's project-scoped
-    # branch responds with `render turbo_stream: turbo_stream.refresh` and no
-    # explicit request_id override, so turbo_stream.refresh defaults to
-    # `request_id: Turbo.current_request_id` — the SAME id as the request
-    # that's currently in flight. Turbo Drive treats that as "this tab
-    # already knows the outcome" and skips the refresh, so in a real browser
-    # the drawer never closes/refreshes and no flash is ever shown. The
-    # record itself does get created correctly (see the assertions below).
-    pending "project-scoped expense create doesn't refresh: turbo_stream.refresh no-ops on the originating tab (see comment)"
-
+    # Regression guard for a bug fixed by infra-fix-3/4 (drawer-unification
+    # plan): ExpensesController#create's project-scoped branch used to
+    # respond with `turbo_stream.refresh` and no explicit request_id
+    # override, which defaulted to `request_id: Turbo.current_request_id` —
+    # the SAME id as the in-flight request. Turbo Drive treated that as
+    # "this tab already knows the outcome" and skipped the refresh, so the
+    # drawer never closed/refreshed and no flash was ever shown. Fixed by
+    # passing `request_id: nil` explicitly (see expenses_controller.rb#create).
     visit constructors_project_path(project)
 
     # Regression guard: the form must not be reachable until the button opens it.
