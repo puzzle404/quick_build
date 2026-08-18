@@ -19,11 +19,10 @@
 
 <% if turbo_frame_request? %>
   <% content_for(:drawer) do %>
-    <%= render(Qb::DrawerComponent.new(
-          eyebrow: "Planificación · Etapa #{stage.code}",
-          title: @stage.name,
-          size: :lg
-        )) do |d| %>
+    <%# Sin eyebrow:/title: — el slot custom_header reemplaza por completo al
+        header por defecto de Qb::DrawerComponent, así que esos args no se
+        renderizarían nunca. %>
+    <%= render(Qb::DrawerComponent.new(size: :lg)) do |d| %>
       <% d.with_custom_header do %>
         <div class="qb-drawer-header">
           <div class="qb-drawer-header-main">

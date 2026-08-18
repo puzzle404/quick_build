@@ -21,6 +21,10 @@ RSpec.describe "Constructors::Projects::Stages drawer", type: :request do
 
     expect(response).to have_http_status(:ok)
     expect(response.body).to include("Nueva etapa")
+    # Sin esto el ejemplo pasaba con CUALQUIERA de las dos ramas: el título
+    # aparece en las dos. La ausencia del panel del drawer es lo que prueba
+    # que se sirvió la página completa.
+    expect(response.body).not_to include("qb-drawer-panel")
   end
 
   it "closes the drawer and appends the new stage card on create" do
@@ -54,5 +58,8 @@ RSpec.describe "Constructors::Projects::Stages drawer", type: :request do
 
     expect(response).to have_http_status(:ok)
     expect(response.body).to include("Fundaciones")
+    # Idem #new: el nombre de la etapa sale en las dos ramas, así que lo que
+    # distingue la página completa del drawer es que no haya panel.
+    expect(response.body).not_to include("qb-drawer-panel")
   end
 end

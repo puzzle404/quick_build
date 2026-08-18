@@ -14,7 +14,8 @@ RSpec.describe "Planning stage drawer", type: :system, js: true do
     sign_in_user(owner)
     visit constructors_project_stages_path(project)
 
-    # Click the stage: loads the detail into the stage_detail frame + opens the drawer.
+    # Click the stage: loads stages#show into the global "drawer" frame, which
+    # is what makes qb--drawer open the panel.
     click_on "Fundaciones"
     expect(page).to have_text("Fundaciones", wait: 5)
 

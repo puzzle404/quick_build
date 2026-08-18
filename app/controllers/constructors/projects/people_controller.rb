@@ -74,7 +74,7 @@ class Constructors::Projects::PeopleController < Constructors::BaseController
     if @person.update(person_params)
       respond_to do |format|
         format.turbo_stream do
-          if request.variant.include?(:mobile)
+          if mobile_variant?
             redirect_to constructors_project_person_path(@project, @person), notice: "Datos actualizados."
           else
             # La ficha editada puede estar visible en más de un lugar de la

@@ -96,7 +96,7 @@ class Constructors::PeopleController < Constructors::BaseController
     notice = "Datos actualizados en #{@assignments.size} #{@assignments.size == 1 ? 'asignación' : 'asignaciones'}."
     respond_to do |format|
       format.turbo_stream do
-        if request.variant.include?(:mobile)
+        if mobile_variant?
           redirect_to constructors_person_path(@person), notice: notice
         else
           flash[:notice] = notice

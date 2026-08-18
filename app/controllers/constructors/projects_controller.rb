@@ -88,7 +88,7 @@ class Constructors::ProjectsController < Constructors::BaseController
       flash[:notice] = "¡Obra creada correctamente!"
       respond_to do |format|
         format.turbo_stream do
-          if request.variant.include?(:mobile)
+          if mobile_variant?
             redirect_to constructors_project_path(@project)
           else
             # Única excepción de las 18 migradas: crear una obra abandona por
@@ -133,7 +133,7 @@ class Constructors::ProjectsController < Constructors::BaseController
     if persist_project_with_documents(@project)
       respond_to do |format|
         format.turbo_stream do
-          if request.variant.include?(:mobile)
+          if mobile_variant?
             redirect_to constructors_project_path(@project), notice: "Obra actualizada correctamente."
           else
             flash[:notice] = "Obra actualizada correctamente."

@@ -298,7 +298,7 @@ module Constructors
         authorize @project.project_stages.build, :create?
       end
 
-      # Los checkboxes de la modal viajan como "1"/"0" (hidden + checkbox). Si
+      # Los checkboxes del drawer viajan como "1"/"0" (hidden + checkbox). Si
       # el param no vino (POST directo del empty state mobile) manda el default.
       def boolean_param(key, default:)
         raw = params[key]

@@ -19,6 +19,10 @@ RSpec.describe "Adding a note to a project", type: :system, js: true do
     # knows the outcome" and skipped the refresh, so the drawer never closed
     # and the notes list never re-rendered. Fixed by passing
     # `request_id: nil` explicitly (see notes_controller.rb#create).
+    #
+    # The same refresh is also what surfaces the flash notice (the drawer
+    # response itself has no place to render it), so both halves of that fix
+    # are asserted below.
     visit constructors_project_path(project)
 
     click_on "Agregar nota"
@@ -27,5 +31,6 @@ RSpec.describe "Adding a note to a project", type: :system, js: true do
     click_button "Guardar"
 
     expect(page).to have_text("Coordinar con el arquitecto la semana próxima", wait: 5)
+    expect(page).to have_text("Nota agregada correctamente")
   end
 end

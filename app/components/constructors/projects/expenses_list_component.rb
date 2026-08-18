@@ -49,8 +49,8 @@ module Constructors
         helpers.constructors_project_stage_path(project, expense.project_stage)
       end
 
-      # El comprobante se sube desde el modal de gasto; sin este link no había
-      # forma de volver a verlo desde ninguna pantalla.
+      # El comprobante se sube desde el form de gasto (drawer); sin este link
+      # no había forma de volver a verlo desde ninguna pantalla.
       def receipt_path(expense)
         helpers.rails_blob_path(expense.receipt, disposition: :inline)
       end

@@ -36,7 +36,7 @@ class Constructors::Projects::BlueprintsController < Constructors::BaseControlle
     if @blueprint.save
       respond_to do |format|
         format.turbo_stream do
-          if request.variant.include?(:mobile)
+          if mobile_variant?
             redirect_to constructors_project_blueprints_path(@project, selected: @blueprint.id),
                         notice: "Plano subido correctamente."
           else

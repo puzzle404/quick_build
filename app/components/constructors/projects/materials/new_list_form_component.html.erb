@@ -2,8 +2,8 @@
     the controller's params.require(:material_list) expects. Sin scope, el
     POST fallaba con ParameterMissing. El form ya no fuerza turbo_frame:
     siempre queda scoped al frame ambiente ("drawer"); material_lists#create
-    resuelve el destino (stage_detail refrescado, o el detalle de la lista
-    recién creada) sin necesitar un _top. %>
+    resuelve el destino (el drawer de la etapa repoblado con su detalle, o el
+    detalle de la lista recién creada) sin necesitar un _top. %>
 <%= form_with url: helpers.constructors_project_material_lists_path(project), method: :post,
               scope: :material_list,
               html: { style: 'display:flex;flex-direction:column;' } do |f| %>
@@ -29,8 +29,10 @@
 
     <div>
       <div style="font-size:11px;font-weight:500;color:var(--color-ink-2);margin-bottom:5px;">Origen de datos</div>
-      <%= f.hidden_field :source_type, value: 'manual', data: { qb_source_picker_target: 'value' } %>
       <div data-controller="qb--source-picker" style="display:grid;grid-template-columns:repeat(3, 1fr);gap:6px;">
+        <%# El hidden tiene que vivir DENTRO del div del controller: como
+            hermano previo quedaba fuera de su scope y el target no resolvía. %>
+        <%= f.hidden_field :source_type, value: 'manual', data: { qb_source_picker_target: 'value' } %>
         <% SOURCES.each do |s| %>
           <button type="button"
                   data-action="click->qb--source-picker#pick"
