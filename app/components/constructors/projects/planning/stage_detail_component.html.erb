@@ -3,7 +3,7 @@
   <% if stage.object.parent.present? %>
     <%= link_to "← Volver a #{stage.object.parent.name}",
                 constructors_project_stage_path(project, stage.object.parent),
-                data: { turbo_frame: "stage_detail" },
+                data: { turbo_frame: "drawer" },
                 class: "sd-hero-back" %>
   <% end %>
   <div class="sd-hero-top">
@@ -13,8 +13,6 @@
       <%= render Qb::PillComponent.new(tone: :bad) { "Atrasada" } %>
     <% end %>
   </div>
-
-  <div class="sd-hero-title"><h1><%= stage.name %></h1></div>
 
   <% if stage.description.present? %>
     <div class="sd-hero-desc"><%= stage.description %></div>
@@ -89,13 +87,13 @@
       <% if can_edit_stage? %>
         <%= render Qb::BtnComponent.new('Agregar', variant: :ghost, size: :xs, icon: :plus,
               href: new_constructors_project_stage_path(project, parent_id: stage.id),
-              data: { turbo_frame: 'project_modal' }) %>
+              data: { turbo_frame: 'drawer', action: 'click->qb--drawer#open' }) %>
       <% end %>
     </div>
     <% sub_stages.each do |sub| %>
       <%= link_to constructors_project_stage_path(project, sub),
                   class: 'sd-sub-row',
-                  data: { turbo_frame: 'stage_detail' } do %>
+                  data: { turbo_frame: 'drawer', action: 'click->qb--drawer#open' } do %>
         <span class="sd-sub-code"><%= sub.code %></span>
         <div>
           <div class="sd-sub-name"><%= sub.name %></div>
@@ -126,7 +124,7 @@
       <div class="sd-tab-actions">
         <%= render Qb::BtnComponent.new('Nueva lista', variant: :primary, size: :xs, icon: :plus,
               href: new_constructors_project_material_list_path(project, project_stage_id: stage.id),
-              data: { turbo_frame: 'project_modal' }) %>
+              data: { turbo_frame: 'drawer', action: 'click->qb--drawer#open' }) %>
       </div>
     <% end %>
     <div class="sd-list">
@@ -134,7 +132,7 @@
         <div class="sd-list-empty">Todavía no hay listas de materiales en esta etapa.</div>
       <% else %>
         <% linked_lists.each do |list| %>
-          <%= link_to constructors_project_material_list_path(project, list), class: 'sd-list-row', data: { turbo_frame: 'project_modal' } do %>
+          <%= link_to constructors_project_material_list_path(project, list), class: 'sd-list-row', data: { turbo_frame: 'drawer', action: 'click->qb--drawer#open' } do %>
             <div class="sd-list-main">
               <div class="sd-list-title">
                 <%= "#{list.display_number} #{list.name}".strip %>
@@ -203,7 +201,7 @@
       <div class="sd-tab-actions">
         <%= render Qb::BtnComponent.new('Agregar documentos', variant: :primary, size: :xs, icon: :plus,
               href: new_constructors_project_stage_document_path(project, stage.object),
-              data: { turbo_frame: 'project_modal' }) %>
+              data: { turbo_frame: 'drawer', action: 'click->qb--drawer#open' }) %>
       </div>
     <% end %>
     <% if stage.object.documents.empty? %>
@@ -220,7 +218,7 @@
       <div class="sd-tab-actions">
         <%= render Qb::BtnComponent.new('Agregar imágenes', variant: :primary, size: :xs, icon: :plus,
               href: new_constructors_project_stage_image_path(project, stage.object),
-              data: { turbo_frame: 'project_modal' }) %>
+              data: { turbo_frame: 'drawer', action: 'click->qb--drawer#open' }) %>
       </div>
     <% end %>
     <% if stage.object.images.empty? %>
@@ -250,10 +248,10 @@
             data: { turbo_method: :post }) %>
       <%= render Qb::BtnComponent.new('Editar', variant: :secondary, size: :xs,
             href: edit_constructors_project_stage_path(project, stage),
-            data: { turbo_frame: 'project_modal' }) %>
+            data: { turbo_frame: 'drawer', action: 'click->qb--drawer#open' }) %>
       <%= render Qb::BtnComponent.new('Marcar completada', variant: :primary, size: :xs, icon: :check,
             href: complete_constructors_project_stage_path(project, stage),
-            data: { turbo_method: :patch, turbo_frame: 'stage_detail' }) %>
+            data: { turbo_method: :patch, turbo_frame: 'drawer' }) %>
     </div>
   </div>
 <% end %>

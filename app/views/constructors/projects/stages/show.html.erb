@@ -1,12 +1,22 @@
-<%# Detalle de etapa. Dentro del drawer de Etapas llega como turbo_frame
-    request → solo el contenido del frame. Entrando directo (link del
-    dashboard, bookmark) se envuelve en el shell del proyecto. %>
+<%# Detalle de etapa. Dentro del drawer llega como turbo_frame request → solo
+    el contenido del frame, envuelto en el chrome del drawer (header con
+    eyebrow/título, cuerpo, sin footer propio — el footer de acciones vive
+    dentro de StageDetailComponent). Entrando directo (link del dashboard,
+    bookmark) se envuelve en el shell del proyecto y se renderiza como
+    contenido plano: el drawer global del layout sigue ahí y "Editar"/las
+    sub-etapas lo abren igual como overlay flotante, sin necesitar un frame
+    local propio (evita el id duplicado "drawer" en la misma página). %>
 <% if turbo_frame_request? %>
-  <%= turbo_frame_tag "stage_detail" do %>
-    <%= render Constructors::Projects::Planning::StageDetailComponent.new(
-          project: @project, stage: @stage, sub_stages: @sub_stages) %>
+  <% content_for(:drawer) do %>
+    <%= render(Qb::DrawerComponent.new(
+          eyebrow: "#{@stage.decorate.code} · Planificación",
+          title: @stage.name,
+          size: :lg
+        )) do %>
+      <%= render Constructors::Projects::Planning::StageDetailComponent.new(
+            project: @project, stage: @stage, sub_stages: @sub_stages) %>
+    <% end %>
   <% end %>
-  <%= turbo_frame_tag "project_modal" %>
 <% else %>
   <div>
     <%= render 'constructors/projects/section_tabs', project: @project, current: :stages %>
@@ -24,11 +34,8 @@
     </div>
 
     <div style="padding:16px 20px;">
-      <%= turbo_frame_tag "stage_detail" do %>
-        <%= render Constructors::Projects::Planning::StageDetailComponent.new(
-              project: @project, stage: @stage, sub_stages: @sub_stages) %>
-      <% end %>
+      <%= render Constructors::Projects::Planning::StageDetailComponent.new(
+            project: @project, stage: @stage, sub_stages: @sub_stages) %>
     </div>
   </div>
-  <%= turbo_frame_tag "project_modal" %>
 <% end %>

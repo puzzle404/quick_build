@@ -32,10 +32,9 @@ RSpec.describe Constructors::Projects::Planning::StageDetailComponent, type: :co
     expect(page).to have_css(".sd-code-pill")
   end
 
-  it "renders the stage name in the hero h1" do
-    rendered
-    expect(page).to have_css(".sd-hero-title h1", text: "Fundaciones")
-  end
+  # El <h1> con el nombre de la etapa ya no vive en el componente: ahora lo
+  # renderiza el header de Qb::DrawerComponent en el call site (ver
+  # spec/requests/constructors/projects/stages_spec.rb).
 
   it "renders the description when present" do
     rendered
@@ -146,7 +145,7 @@ RSpec.describe Constructors::Projects::Planning::StageDetailComponent, type: :co
 
     rendered
 
-    expect(page).to have_css(".sd-hero-title h1", text: "Fundaciones")
+    expect(page).to have_css(".sd-code-pill")
     expect(page).to have_no_css(".sd-footer")
     expect(page).to have_no_text("Nuevo gasto")
     expect(page).to have_no_text("Nueva nota")

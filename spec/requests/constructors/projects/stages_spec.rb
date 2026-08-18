@@ -32,4 +32,27 @@ RSpec.describe "Constructors::Projects::Stages drawer", type: :request do
     expect(response.body).to include('turbo-stream action="update" target="drawer"')
     expect(response.body).to include('turbo-stream action="append" target="planning_stages"')
   end
+
+  # StageDetailComponent ya no renderiza su propio <h1>: el título vive en el
+  # header de Qb::DrawerComponent, provisto por stages/show.html.erb vía
+  # content_for(:drawer). Este es el call site que prueba ese título.
+  it "renders the drawer panel with the stage title for a turbo-frame request to #show" do
+    stage = create(:project_stage, project: project, name: "Fundaciones")
+
+    get constructors_project_stage_path(project, stage), headers: { "Turbo-Frame" => "drawer" }
+
+    expect(response).to have_http_status(:ok)
+    expect(response.body).to include('id="drawer"')
+    expect(response.body).to include("qb-drawer-title")
+    expect(response.body).to include("Fundaciones")
+  end
+
+  it "renders the full-page fallback for a normal request to #show" do
+    stage = create(:project_stage, project: project, name: "Fundaciones")
+
+    get constructors_project_stage_path(project, stage)
+
+    expect(response).to have_http_status(:ok)
+    expect(response.body).to include("Fundaciones")
+  end
 end

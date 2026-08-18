@@ -12,12 +12,12 @@
     </div>
     <% rows.each do |row| %>
       <% s = row.stage %>
-      <%# Fila clickeable: carga stages#show en el turbo_frame "stage_detail" y
+      <%# Fila clickeable: carga stages#show en el turbo_frame "drawer" y
           abre el drawer compartido de la vista de etapas (mismo patrón que las
           cards). La altura fija de 34px mantiene la alineación con las barras. %>
       <%= link_to constructors_project_stage_path(project, s.object),
                   title: "#{s.name} · #{s.start_date ? "#{s.start_label} → #{s.end_label}" : 'sin fechas'}",
-                  data: { turbo_frame: 'stage_detail', action: 'click->qb--drawer#open' },
+                  data: { turbo_frame: 'drawer', action: 'click->qb--drawer#open' },
                   style: "display:grid;grid-template-columns:#{cols};gap:8px;padding:0 12px;height:34px;align-items:center;border-bottom:1px solid var(--color-line);cursor:pointer;text-decoration:none;color:inherit;padding-left:#{row.depth.positive? ? 28 : 12}px;background:#{row.depth.positive? ? 'var(--color-bg-sunken)' : 'transparent'};" do %>
         <span class="qb-mono" style="font-size:11px;color:var(--color-ink-3);"><%= s.code %></span>
         <div style="min-width:0;">
@@ -81,7 +81,7 @@
           <%= link_to constructors_project_stage_path(project, s.object),
                       title: "#{s.name} · #{s.start_label} → #{s.end_label} · #{s.progress_value}%",
                       'aria-label': "#{s.name} — ver detalle",
-                      data: { turbo_frame: 'stage_detail', action: 'click->qb--drawer#open' },
+                      data: { turbo_frame: 'drawer', action: 'click->qb--drawer#open' },
                       style: "display:block;height:34px;border-bottom:1px solid var(--color-line);background:#{row.depth.positive? ? 'var(--color-bg-sunken)' : 'transparent'};position:relative;cursor:pointer;text-decoration:none;color:inherit;" do %>
             <div style="position:absolute;top:8px;height:18px;left:<%= left %>%;width:<%= width %>%;background:<%= bar_color(s) %>;border-radius:3px;display:flex;align-items:center;overflow:hidden;<%= 'box-shadow:inset 0 0 0 1px var(--color-line-2);' if s.progress_value.zero? %>">
               <% if s.progress_value.positive? && s.progress_value < 100 %>
@@ -94,7 +94,7 @@
           <%= link_to constructors_project_stage_path(project, s.object),
                       title: "#{s.name} · sin fechas",
                       'aria-label': "#{s.name} — ver detalle",
-                      data: { turbo_frame: 'stage_detail', action: 'click->qb--drawer#open' },
+                      data: { turbo_frame: 'drawer', action: 'click->qb--drawer#open' },
                       style: "display:block;height:34px;border-bottom:1px solid var(--color-line);background:#{row.depth.positive? ? 'var(--color-bg-sunken)' : 'transparent'};text-decoration:none;color:inherit;" do %><% end %>
         <% end %>
       <% end %>

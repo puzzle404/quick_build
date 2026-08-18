@@ -19,7 +19,7 @@
     </div>
 
     <%= link_to constructors_project_stage_path(project, stage),
-                data: { turbo_frame: "stage_detail", action: "click->qb--drawer#open" },
+                data: { turbo_frame: "drawer", action: "click->qb--drawer#open" },
                 style: "min-width:0;cursor:pointer;text-align:left;color:inherit;display:block;width:100%;text-decoration:none;" do %>
       <div style="display:flex;align-items:center;gap:8px;margin-bottom:3px;flex-wrap:wrap;">
         <h3 style="margin:0;font-size:15px;font-weight:600;color:var(--color-ink);"><%= stage.name %></h3>
@@ -77,7 +77,7 @@
       <% end %>
       <% if can_edit_stage? %>
         <div style="display:flex;gap:4px;">
-          <%= render Qb::BtnComponent.new('', variant: :ghost, size: :xs, icon: :edit, href: edit_constructors_project_stage_path(project, stage), data: { turbo_frame: 'project_modal' }) %>
+          <%= render Qb::BtnComponent.new('', variant: :ghost, size: :xs, icon: :edit, href: edit_constructors_project_stage_path(project, stage), data: { turbo_frame: 'drawer', action: 'click->qb--drawer#open' }) %>
         </div>
       <% end %>
     </div>
@@ -108,7 +108,7 @@
       <% end %>
       <% if can_edit_stage? %>
         <div style="padding:8px 16px;background:var(--color-bg-sunken);">
-          <%= render Qb::BtnComponent.new(%(Agregar sub-etapa a "#{stage.name}"), variant: :ghost, size: :xs, icon: :plus, href: new_constructors_project_stage_path(project, parent_id: stage.id), data: { turbo_frame: 'project_modal' }) %>
+          <%= render Qb::BtnComponent.new(%(Agregar sub-etapa a "#{stage.name}"), variant: :ghost, size: :xs, icon: :plus, href: new_constructors_project_stage_path(project, parent_id: stage.id), data: { turbo_frame: 'drawer', action: 'click->qb--drawer#open' }) %>
         </div>
       <% end %>
     </div>
