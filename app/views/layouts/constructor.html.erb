@@ -27,7 +27,7 @@
   </head>
 
   <body class="qb-os" <%= "data-hotwire-native" if hotwire_native_app? %>
-        data-controller="qb--keyboard qb--tweaks qb--mobile-detect"
+        data-controller="qb--keyboard qb--tweaks qb--mobile-detect qb--drawer"
         data-qb--tweaks-persist-value="<%= current_user.present? %>"
         data-qb--tweaks-initial-value='<%= { theme: current_user&.theme || "graphite", accent: current_user&.accent || "cobalt", density: current_user&.density || "cozy", layout: "sidebar" }.to_json %>'>
     <div style="display:flex;min-height:100vh;">
@@ -103,7 +103,7 @@
         Las vistas nunca declaran su propio <turbo-frame id="drawer">: sólo
         proveen contenido con content_for(:drawer), o el layout terminaría
         emitiendo un id duplicado. %>
-    <div data-controller="qb--drawer">
+    <div>
       <div class="qb-drawer-shell" data-qb--drawer-target="dialog"
            data-action="click->qb--drawer#backdrop keydown@window->qb--drawer#keydown">
         <div class="qb-drawer-backdrop"></div>
