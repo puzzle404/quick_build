@@ -5,11 +5,12 @@ RSpec.describe 'Project membership management', type: :system do
   let!(:member) { create(:user) }
   let!(:project) { create(:project, owner: constructor) }
 
-  # The redesign moved the inline form to a centered modal opened by the
-  # "Invitar" button in the Equipo asignado section. The dialog renders in
-  # the DOM but starts hidden via inline display:none — qb--modal#open
-  # toggles it on click. In rack_test (no JS) we can submit the form by
-  # passing visible: :all (or :hidden) when finding inputs.
+  # The redesign moved the inline form to a self-contained qb--drawer
+  # instance (InviteMemberDrawerComponent) opened by the "Invitar" button in
+  # the Equipo asignado section. The dialog renders in the DOM but starts
+  # closed (no .qb-drawer-open class) — qb--drawer#open toggles it on click.
+  # In rack_test (no JS/CSS) we can submit the form by passing visible: :all
+  # (or :hidden) when finding inputs.
   it 'constructor adds and views members' do
     sign_in_user(constructor)
     visit constructors_project_path(project)

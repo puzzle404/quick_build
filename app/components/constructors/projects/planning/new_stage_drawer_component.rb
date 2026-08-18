@@ -15,6 +15,6 @@ class Constructors::Projects::Planning::NewStageDrawerComponent < ViewComponent:
   attr_reader :project, :root_stages
 
   def parent_options
-    [['— Etapa raíz —', '']] + root_stages.map { |s| [s.try(:code).to_s.empty? ? s.name : "#{s.code} · #{s.name}", s.id] }
+    [ [ "— Etapa raíz —", "" ] ] + root_stages.map { |s| [ s.try(:code).to_s.empty? ? s.name : "#{s.code} · #{s.name}", s.id ] }
   end
 end
