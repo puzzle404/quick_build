@@ -51,7 +51,7 @@ class Constructors::Projects::PeopleController < Constructors::BaseController
       respond_to do |format|
         format.turbo_stream do
           render turbo_stream: [
-            turbo_stream.update("project_modal", ""),
+            turbo_stream.update("drawer", ""),
             turbo_stream.remove("people_empty_row"),
             turbo_stream.append("people_rows",
               partial: "constructors/projects/people/person_row",
@@ -72,7 +72,22 @@ class Constructors::Projects::PeopleController < Constructors::BaseController
   def update
     authorize @person
     if @person.update(person_params)
-      redirect_to constructors_project_person_path(@project, @person), notice: "Datos actualizados."
+      respond_to do |format|
+        format.turbo_stream do
+          if request.variant.include?(:mobile)
+            redirect_to constructors_project_person_path(@project, @person), notice: "Datos actualizados."
+          else
+            # La ficha editada puede estar visible en más de un lugar de la
+            # página actual (fila del listado, resumen del equipo): un simple
+            # patch del frame "drawer" la cerraría pero dejaría esos otros
+            # lugares con el dato viejo. El refresh nativo de Turbo 8 cierra
+            # el drawer (la próxima carga no trae contenido para él) Y
+            # refresca toda la página actual en un solo paso.
+            render turbo_stream: turbo_stream.refresh
+          end
+        end
+        format.html { redirect_to constructors_project_person_path(@project, @person), notice: "Datos actualizados." }
+      end
     else
       render :edit, status: :unprocessable_entity
     end

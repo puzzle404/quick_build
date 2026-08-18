@@ -75,8 +75,7 @@
 
   <div style="display:flex;align-items:center;gap:8px;margin-top:4px;padding-top:14px;border-top:1px solid var(--color-line);">
     <div style="flex:1;"></div>
-    <%# _top: dentro del modal (project_modal) navega al índice en vez de cargarlo dentro del frame. %>
-    <%= render Qb::BtnComponent.new("Cancelar", variant: :secondary, size: :md, href: cancel_href, data: { turbo_frame: '_top' }) %>
+    <%= render Qb::BtnComponent.new("Cancelar", variant: :secondary, size: :md, data: { action: 'click->qb--drawer#close' }) %>
     <%= render Qb::BtnComponent.new(submit_label, variant: :primary, size: :md, type: 'submit') %>
   </div>
 <% end %>

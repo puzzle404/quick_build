@@ -62,7 +62,7 @@
     <%# Abre el modal de alta vía Turbo Frame (project_modal) — mismo approach que stages. %>
     <% if can_manage_team %>
       <%= render Qb::BtnComponent.new('Invitar persona', variant: :primary, size: :xs, icon: :plus,
-            href: new_constructors_project_person_path(@project), data: { turbo_frame: 'project_modal' }) %>
+            href: new_constructors_project_person_path(@project), data: { turbo_frame: 'drawer', action: 'click->qb--drawer#open' }) %>
     <% end %>
   </div>
 
@@ -111,5 +111,3 @@
   </div>
 </div>
 
-<%# Destino del modal "Invitar persona" (Turbo Frame). %>
-<%= turbo_frame_tag "project_modal" %>
