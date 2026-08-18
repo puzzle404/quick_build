@@ -1066,7 +1066,7 @@ git commit -m "feat(drawer): unifica detalle y edición de etapa en un solo pane
 
 - [ ] **Step 1: Convert `stages/images/new.html.erb`**
 
-Replace the full contents of `app/views/constructors/projects/stages/images/new.html.erb`:
+Replace ONLY the `<% if turbo_frame_request? %>...<% else %>` portion (do NOT touch anything from `<% else %>` onward — that full-page fallback is preserved verbatim, per spec §1):
 
 ```erb
 <% if turbo_frame_request? %>
@@ -1088,33 +1088,13 @@ Replace the full contents of `app/views/constructors/projects/stages/images/new.
     <% end %>
   <% end %>
 <% else %>
-  <%= render 'constructors/projects/section_tabs', project: @project, current: :stages %>
-
-  <div style="padding:14px 20px;border-bottom:1px solid var(--color-line);">
-    <div style="font-size:10px;font-family:var(--font-mono);text-transform:uppercase;letter-spacing:0.7px;color:var(--color-accent);margin-bottom:4px;">Imágenes</div>
-    <h3 style="margin:0;font-size:15px;font-weight:600;color:var(--color-ink);">Agregar imágenes</h3>
-    <div style="font-size:12px;color:var(--color-ink-3);margin-top:2px;">Subir fotos a <strong><%= @stage.name %></strong></div>
-  </div>
-
-  <div style="padding:24px 20px;">
-    <div class="qb-card" style="max-width:520px;margin:0 auto;padding:16px;">
-      <%= form_with scope: :image, url: constructors_project_stage_images_path(@project, @stage), multipart: true, class: "space-y-5" do |form| %>
-        <div class="qb-field">
-          <%= form.label :files, "Seleccionar imágenes", class: "qb-label" %>
-          <%= form.file_field :files, multiple: true, accept: "image/*",
-                              style: "font-size:12px;color:var(--color-ink-2);width:100%;" %>
-          <p style="margin-top:4px;font-size:11px;color:var(--color-ink-3);">Formatos recomendados: JPG o PNG (hasta 25 MB cada imagen).</p>
-        </div>
-        <%= render Qb::BtnComponent.new('Subir imágenes', variant: :primary, type: 'submit') %>
-      <% end %>
-    </div>
-  </div>
-<% end %>
 ```
+
+Everything from `<% else %>` to the matching `<% end %>` at the end of the file is the file's EXISTING full-page fallback (currently: `<% project = @project.decorate %>`, `section_tabs`, a header strip titled "Nueva foto", and a centered form at `max-width:560px` with a `href`-based Cancelar button pointing back to the stage) — leave it completely untouched. Only the `<% if turbo_frame_request? %>` branch (and the old `qb--modal`/`turbo_frame_tag "project_modal"` markup it replaces) changes.
 
 - [ ] **Step 2: Convert `stages/documents/new.html.erb`**
 
-Same transformation, mirroring Step 1's structure exactly but for documents:
+Same transformation, mirroring Step 1's structure exactly but for documents — replace ONLY the `<% if turbo_frame_request? %>...<% else %>` portion, leave everything from `<% else %>` onward untouched:
 
 ```erb
 <% if turbo_frame_request? %>
@@ -1136,29 +1116,9 @@ Same transformation, mirroring Step 1's structure exactly but for documents:
     <% end %>
   <% end %>
 <% else %>
-  <%= render 'constructors/projects/section_tabs', project: @project, current: :stages %>
-
-  <div style="padding:14px 20px;border-bottom:1px solid var(--color-line);">
-    <div style="font-size:10px;font-family:var(--font-mono);text-transform:uppercase;letter-spacing:0.7px;color:var(--color-accent);margin-bottom:4px;">Documentos</div>
-    <h3 style="margin:0;font-size:15px;font-weight:600;color:var(--color-ink);">Agregar documentos</h3>
-    <div style="font-size:12px;color:var(--color-ink-3);margin-top:2px;">Subir archivos a <strong><%= @stage.name %></strong></div>
-  </div>
-
-  <div style="padding:24px 20px;">
-    <div class="qb-card" style="max-width:520px;margin:0 auto;padding:16px;">
-      <%= form_with scope: :document, url: constructors_project_stage_documents_path(@project, @stage), multipart: true, class: "space-y-5" do |form| %>
-        <div class="qb-field">
-          <%= form.label :files, "Seleccionar archivos", class: "qb-label" %>
-          <%= form.file_field :files, multiple: true, accept: ".pdf,application/pdf",
-                              style: "font-size:12px;color:var(--color-ink-2);width:100%;" %>
-          <p style="margin-top:4px;font-size:11px;color:var(--color-ink-3);">Formatos admitidos: PDF (hasta 25 MB cada uno).</p>
-        </div>
-        <%= render Qb::BtnComponent.new('Subir documentos', variant: :primary, type: 'submit') %>
-      <% end %>
-    </div>
-  </div>
-<% end %>
 ```
+
+Everything from `<% else %>` onward (existing header strip titled "Nuevo documento", form at `max-width:560px`, `href`-based Cancelar) stays exactly as it is today.
 
 - [ ] **Step 3: Manual smoke check**
 
@@ -1990,16 +1950,121 @@ with:
 
 - [ ] **Step 2: Add a drawer branch to `people/edit.html.erb`** (global — today full-page only)
 
-Replace the full contents of `app/views/constructors/people/edit.html.erb`:
+The current file (verified directly, not reconstructed from memory) is:
 
 ```erb
-<% if turbo_frame_request? %>
-  <% content_for(:drawer) do %>
-    <%= render(Qb::DrawerComponent.new(eyebrow: "Equipo", title: "Editar persona", subtitle: @person.full_name, size: :md)) do %>
+<% content_for :qb_crumbs, [{ label: 'Inicio' }, { label: 'Personas' }, { label: @person.full_name }, { label: 'Editar' }].to_json %>
+<% content_for :title, "Editar #{@person.full_name} · Quick Build" %>
+
+<div>
+  <%# Header strip %>
+  <div style="padding:14px 20px;border-bottom:1px solid var(--color-line);display:flex;align-items:flex-end;gap:16px;">
+    <div style="flex:1;">
+      <div style="font-size:11px;font-family:var(--font-mono);color:var(--color-ink-3);text-transform:uppercase;letter-spacing:0.8px;">Personas · global</div>
+      <h1 style="margin:3px 0 0;font-size:20px;font-weight:600;letter-spacing:-0.3px;">Editar datos de <%= @person.full_name %></h1>
+      <div style="font-size:12px;color:var(--color-ink-3);margin-top:2px;">
+        Los cambios se aplican a sus <%= @assignments.size %> <%= @assignments.size == 1 ? 'asignación' : 'asignaciones' %> en obra.
+        <%= link_to '← Volver a la ficha', constructors_person_path(@person), style: 'color:var(--color-accent);text-decoration:none;margin-left:8px;' %>
+      </div>
+    </div>
+  </div>
+
+  <div style="padding:24px 20px;border-bottom:1px solid var(--color-line);">
+    <div style="max-width:560px;margin:0 auto;">
       <% if flash.now[:alert].present? %>
         <div class="qb-form-error" style="margin-bottom:14px;"><%= flash.now[:alert] %></div>
       <% end %>
 
+      <%# Sólo la identidad: es lo único que se propaga a todas las asignaciones.
+          Rol, vigencia, tarifa y notas son por obra y viven en el form de obra. %>
+      <%= form_with model: @person, url: constructors_person_path(@person), method: :patch,
+                    scope: :project_person, data: { turbo_frame: "_top" } do |f| %>
+        <%= render Qb::FormGroupComponent.new(title: 'Identidad',
+              footnote: 'Nombre + teléfono son la clave que agrupa a la persona entre obras.') do %>
+          <div class="qb-field">
+            <%= f.label :full_name, 'Nombre y apellido', class: "qb-label" %>
+            <%= f.text_field :full_name, class: "qb-input", required: true %>
+          </div>
+
+          <div class="qb-field">
+            <%= f.label :phone, 'Teléfono', class: "qb-label" %>
+            <%= f.text_field :phone, class: "qb-input" %>
+          </div>
+
+          <div class="qb-field" style="margin-bottom:0;">
+            <%= f.label :document_id, 'Documento', class: "qb-label" %>
+            <%= f.text_field :document_id, class: "qb-input" %>
+          </div>
+        <% end %>
+
+        <div style="display:flex;align-items:center;gap:8px;padding-top:14px;border-top:1px solid var(--color-line);">
+          <div style="flex:1;"></div>
+          <%= render Qb::BtnComponent.new('Cancelar', variant: :secondary, size: :md, href: constructors_person_path(@person)) %>
+          <%= render Qb::BtnComponent.new('Guardar cambios', variant: :primary, size: :md, type: :submit) %>
+        </div>
+      <% end %>
+    </div>
+  </div>
+
+  <%# Contexto: qué asignaciones se van a actualizar %>
+  <%= render Qb::SectionHeadComponent.new(title: 'Asignaciones afectadas',
+        subtitle: 'Rol, vigencia, tarifa y notas se editan dentro de cada obra.') %>
+  <table class="qb-table">
+    <thead>
+      <tr style="background:var(--color-bg-raised);">
+        <th>Obra</th>
+        <th>Rol</th>
+        <th>Estado</th>
+        <th style="text-align:right;"></th>
+      </tr>
+    </thead>
+    <tbody>
+      <% @assignments.each do |a| %>
+        <% active = a.status.to_s == 'active' %>
+        <tr>
+          <td>
+            <span class="qb-mono" style="font-size:10px;color:var(--color-ink-3);"><%= a.project.decorate.code %></span>
+            <span style="display:block;"><%= a.project.name %></span>
+          </td>
+          <td style="color:var(--color-ink-2);"><%= a.role_title.presence || '—' %></td>
+          <td>
+            <%= render Qb::PillComponent.new(active ? 'Activa' : 'Inactiva', tone: active ? :ok : :muted, compact: true) %>
+          </td>
+          <td style="text-align:right;white-space:nowrap;">
+            <%= link_to 'Editar en obra', edit_constructors_project_person_path(a.project, a),
+                  style: 'color:var(--color-accent);text-decoration:none;font-size:12px;' %>
+          </td>
+        </tr>
+      <% end %>
+    </tbody>
+  </table>
+</div>
+```
+
+Wrap it as follows — add the `<% if turbo_frame_request? %>` drawer branch, keep the `content_for` calls unconditional at the top (harmless during a frame request, needed for the full-page case), and move everything from the current single body into the `<% else %>` branch, completely unchanged:
+
+```erb
+<% content_for :qb_crumbs, [{ label: 'Inicio' }, { label: 'Personas' }, { label: @person.full_name }, { label: 'Editar' }].to_json %>
+<% content_for :title, "Editar #{@person.full_name} · Quick Build" %>
+
+<% if turbo_frame_request? %>
+  <% content_for(:drawer) do %>
+    <%= render(Qb::DrawerComponent.new(
+          eyebrow: "Personas · global",
+          title: "Editar datos de #{@person.full_name}",
+          subtitle: "Los cambios se aplican a sus #{@assignments.size} #{@assignments.size == 1 ? 'asignación' : 'asignaciones'} en obra.",
+          size: :md
+        )) do %>
+      <% if flash.now[:alert].present? %>
+        <div class="qb-form-error" style="margin-bottom:14px;"><%= flash.now[:alert] %></div>
+      <% end %>
+
+      <%# Sólo la identidad: es lo único que se propaga a todas las asignaciones.
+          Rol, vigencia, tarifa y notas son por obra y viven en el form de obra.
+          La tabla de "Asignaciones afectadas" de la página completa no se
+          repite acá — mismo criterio que la edición de obra (Task 15): el
+          drawer muestra sólo los campos editables, el contexto de sólo
+          lectura queda para el fallback de página completa. %>
       <%= form_with model: @person, url: constructors_person_path(@person), method: :patch,
                     scope: :project_person do |f| %>
         <%= render Qb::FormGroupComponent.new(title: 'Identidad',
@@ -2008,27 +2073,113 @@ Replace the full contents of `app/views/constructors/people/edit.html.erb`:
             <%= f.label :full_name, 'Nombre y apellido', class: "qb-label" %>
             <%= f.text_field :full_name, class: "qb-input", required: true %>
           </div>
+
           <div class="qb-field">
             <%= f.label :phone, 'Teléfono', class: "qb-label" %>
             <%= f.text_field :phone, class: "qb-input" %>
           </div>
-          <div class="qb-field">
+
+          <div class="qb-field" style="margin-bottom:0;">
             <%= f.label :document_id, 'Documento', class: "qb-label" %>
             <%= f.text_field :document_id, class: "qb-input" %>
           </div>
         <% end %>
 
         <div style="display:flex;align-items:center;gap:8px;margin-top:14px;">
-          <%= render Qb::BtnComponent.new('Guardar', variant: :primary, type: 'submit') %>
-          <%= render Qb::BtnComponent.new('Cancelar', variant: :secondary, data: { action: 'click->qb--drawer#close' }) %>
+          <%= render Qb::BtnComponent.new('Guardar cambios', variant: :primary, size: :md, type: :submit) %>
+          <%= render Qb::BtnComponent.new('Cancelar', variant: :secondary, size: :md, data: { action: 'click->qb--drawer#close' }) %>
         </div>
       <% end %>
     <% end %>
   <% end %>
 <% else %>
+  <div>
+    <%# Header strip %>
+    <div style="padding:14px 20px;border-bottom:1px solid var(--color-line);display:flex;align-items:flex-end;gap:16px;">
+      <div style="flex:1;">
+        <div style="font-size:11px;font-family:var(--font-mono);color:var(--color-ink-3);text-transform:uppercase;letter-spacing:0.8px;">Personas · global</div>
+        <h1 style="margin:3px 0 0;font-size:20px;font-weight:600;letter-spacing:-0.3px;">Editar datos de <%= @person.full_name %></h1>
+        <div style="font-size:12px;color:var(--color-ink-3);margin-top:2px;">
+          Los cambios se aplican a sus <%= @assignments.size %> <%= @assignments.size == 1 ? 'asignación' : 'asignaciones' %> en obra.
+          <%= link_to '← Volver a la ficha', constructors_person_path(@person), style: 'color:var(--color-accent);text-decoration:none;margin-left:8px;' %>
+        </div>
+      </div>
+    </div>
+
+    <div style="padding:24px 20px;border-bottom:1px solid var(--color-line);">
+      <div style="max-width:560px;margin:0 auto;">
+        <% if flash.now[:alert].present? %>
+          <div class="qb-form-error" style="margin-bottom:14px;"><%= flash.now[:alert] %></div>
+        <% end %>
+
+        <%# Sólo la identidad: es lo único que se propaga a todas las asignaciones.
+            Rol, vigencia, tarifa y notas son por obra y viven en el form de obra. %>
+        <%= form_with model: @person, url: constructors_person_path(@person), method: :patch,
+                      scope: :project_person, data: { turbo_frame: "_top" } do |f| %>
+          <%= render Qb::FormGroupComponent.new(title: 'Identidad',
+                footnote: 'Nombre + teléfono son la clave que agrupa a la persona entre obras.') do %>
+            <div class="qb-field">
+              <%= f.label :full_name, 'Nombre y apellido', class: "qb-label" %>
+              <%= f.text_field :full_name, class: "qb-input", required: true %>
+            </div>
+
+            <div class="qb-field">
+              <%= f.label :phone, 'Teléfono', class: "qb-label" %>
+              <%= f.text_field :phone, class: "qb-input" %>
+            </div>
+
+            <div class="qb-field" style="margin-bottom:0;">
+              <%= f.label :document_id, 'Documento', class: "qb-label" %>
+              <%= f.text_field :document_id, class: "qb-input" %>
+            </div>
+          <% end %>
+
+          <div style="display:flex;align-items:center;gap:8px;padding-top:14px;border-top:1px solid var(--color-line);">
+            <div style="flex:1;"></div>
+            <%= render Qb::BtnComponent.new('Cancelar', variant: :secondary, size: :md, href: constructors_person_path(@person)) %>
+            <%= render Qb::BtnComponent.new('Guardar cambios', variant: :primary, size: :md, type: :submit) %>
+          </div>
+        <% end %>
+      </div>
+    </div>
+
+    <%# Contexto: qué asignaciones se van a actualizar %>
+    <%= render Qb::SectionHeadComponent.new(title: 'Asignaciones afectadas',
+          subtitle: 'Rol, vigencia, tarifa y notas se editan dentro de cada obra.') %>
+    <table class="qb-table">
+      <thead>
+        <tr style="background:var(--color-bg-raised);">
+          <th>Obra</th>
+          <th>Rol</th>
+          <th>Estado</th>
+          <th style="text-align:right;"></th>
+        </tr>
+      </thead>
+      <tbody>
+        <% @assignments.each do |a| %>
+          <% active = a.status.to_s == 'active' %>
+          <tr>
+            <td>
+              <span class="qb-mono" style="font-size:10px;color:var(--color-ink-3);"><%= a.project.decorate.code %></span>
+              <span style="display:block;"><%= a.project.name %></span>
+            </td>
+            <td style="color:var(--color-ink-2);"><%= a.role_title.presence || '—' %></td>
+            <td>
+              <%= render Qb::PillComponent.new(active ? 'Activa' : 'Inactiva', tone: active ? :ok : :muted, compact: true) %>
+            </td>
+            <td style="text-align:right;white-space:nowrap;">
+              <%= link_to 'Editar en obra', edit_constructors_project_person_path(a.project, a),
+                    style: 'color:var(--color-accent);text-decoration:none;font-size:12px;' %>
+            </td>
+          </tr>
+        <% end %>
+      </tbody>
+    </table>
+  </div>
+<% end %>
 ```
 
-(This frame-request branch mirrors the EXACT field set the existing full-page form already edits — `full_name`/`phone`/`document_id` only, via the same `Qb::FormGroupComponent` wrapper, per the existing code comment "Sólo la identidad: es lo único que se propaga a todas las asignaciones. Rol, vigencia, tarifa y notas son por obra y viven en el form de obra." Read the current file first and copy its `form_with`'s exact field list/order/labels if it differs at all from what's reconstructed above — this task must not change which fields are editable, only add the drawer branch around the identical field set. Everything from `<% else %>` onward — `section_tabs`, header strip, and the existing `Qb::FormGroupComponent`-wrapped form at `max-width:560px` — is copied verbatim from the file as it exists today, completely unchanged.)
+This is a straight wrap: the `<% else %>` branch is the file's exact pre-existing body, untouched. The frame-request branch reuses the identical field set (`full_name`/`phone`/`document_id`, same `Qb::FormGroupComponent`), with the "Asignaciones afectadas" table deliberately left out of the drawer (same scope decision as Task 15's project-edit drawer: the panel shows only what's editable, read-only context stays on the full-page fallback) — note this explicitly in the implementation, it's not an oversight.
 
 - [ ] **Step 3: Manual smoke check**
 
