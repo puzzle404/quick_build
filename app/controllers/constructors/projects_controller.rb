@@ -85,7 +85,22 @@ class Constructors::ProjectsController < Constructors::BaseController
 
     if persist_project_with_documents(@project)
       flash[:new_project] = true
-      redirect_to constructors_project_path(@project), notice: "¡Obra creada correctamente!"
+      flash[:notice] = "¡Obra creada correctamente!"
+      respond_to do |format|
+        format.turbo_stream do
+          if request.variant.include?(:mobile)
+            redirect_to constructors_project_path(@project)
+          else
+            # Única excepción de las 18 migradas: crear una obra abandona por
+            # completo el contexto actual (sidebar, obra activa, etc.), así
+            # que un patch in-place del frame "drawer" no alcanza — hace
+            # falta una navegación real de página. El flash ya quedó seteado
+            # en esta respuesta y se muestra en la página de destino.
+            render turbo_stream: turbo_stream.action(:redirect, constructors_project_path(@project))
+          end
+        end
+        format.html { redirect_to constructors_project_path(@project) }
+      end
     else
       flash.now[:alert] = "Revisa los datos y vuelve a intentarlo."
       render :new, status: :unprocessable_entity
