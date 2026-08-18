@@ -23,7 +23,7 @@
         <span style="font-size:12px;">Esta obra todavía no está ubicada en el mapa.</span>
       </div>
       <% if edit_path.present? %>
-        <%= render Qb::BtnComponent.new("Ubicar en el mapa", variant: :secondary, size: :xs, href: edit_path) %>
+        <%= render Qb::BtnComponent.new("Ubicar en el mapa", variant: :secondary, size: :xs, href: edit_path, data: { turbo_frame: 'drawer', action: 'click->qb--drawer#open' }) %>
       <% end %>
     </div>
   <% end %>

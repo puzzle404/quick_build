@@ -73,7 +73,8 @@
       <% end %>
       <% if policy(@material_list).update? %>
         <%= render Qb::BtnComponent.new('Editar', variant: :primary, size: :sm, icon: :edit,
-              href: edit_constructors_project_material_list_path(@project, @material_list)) %>
+              href: edit_constructors_project_material_list_path(@project, @material_list),
+              data: { turbo_frame: 'drawer', action: 'click->qb--drawer#open' }) %>
       <% end %>
     </div>
   </div>

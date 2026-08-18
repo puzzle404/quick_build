@@ -29,7 +29,7 @@
           href: show_path, data: { turbo_frame: '_top' }) %>
     <% if helpers.policy(stage).update? %>
       <%= render Qb::BtnComponent.new('Editar', variant: :secondary, size: :sm,
-            href: edit_path, data: { turbo_frame: '_top' }) %>
+            href: edit_path, data: { turbo_frame: 'drawer', action: 'click->qb--drawer#open' }) %>
     <% end %>
   </footer>
 </article>
