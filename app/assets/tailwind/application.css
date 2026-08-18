@@ -941,3 +941,73 @@
     letter-spacing: -0.5px; color: var(--color-ink); padding: 0;
   }
 }
+
+@layer components {
+  /* ─── Drawer lateral global (Qb::DrawerComponent + layouts/constructor) ───
+     El frame #drawer vive una sola vez en el layout; es display:contents para
+     no interferir con el flex del shell — el panel visual real es el div raíz
+     que renderiza Qb::DrawerComponent (el único que carga ancho/transform). */
+  .qb-drawer-shell {
+    position: fixed; inset: 0; z-index: 70;
+    display: flex; justify-content: flex-end;
+    opacity: 0; pointer-events: none;
+    transition: opacity .18s ease-out;
+  }
+  .qb-drawer-shell.qb-drawer-open { opacity: 1; pointer-events: auto; }
+  .qb-drawer-shell.qb-drawer-no-transition,
+  .qb-drawer-shell.qb-drawer-no-transition .qb-drawer-panel { transition: none !important; }
+
+  .qb-drawer-backdrop {
+    position: absolute; inset: 0;
+    background: color-mix(in oklab, var(--color-ink) 45%, transparent);
+  }
+
+  turbo-frame#drawer { display: contents; }
+
+  .qb-drawer-panel {
+    position: relative;
+    height: 100vh;
+    width: var(--qb-drawer-width, 560px);
+    max-width: 100vw;
+    background: var(--color-bg);
+    border-left: 1px solid var(--color-line);
+    box-shadow: -8px 0 24px -8px rgba(0,0,0,.25);
+    display: flex; flex-direction: column;
+    transform: translateX(100%);
+    transition: transform .18s ease-out;
+    outline: none;
+  }
+  .qb-drawer-shell.qb-drawer-open .qb-drawer-panel { transform: translateX(0); }
+
+  .qb-drawer-header {
+    flex: 0 0 auto; padding: 16px 20px; border-bottom: 1px solid var(--color-line);
+    display: flex; align-items: flex-start; gap: 12px;
+  }
+  .qb-drawer-header-main { flex: 1; min-width: 0; }
+  .qb-drawer-eyebrow {
+    font-family: var(--font-mono); font-size: 11px; text-transform: uppercase;
+    letter-spacing: .8px; color: var(--color-ink-3);
+  }
+  .qb-drawer-title { margin: 3px 0 0; font-size: 18px; font-weight: 600; letter-spacing: -.3px; color: var(--color-ink); }
+  .qb-drawer-subtitle { margin-top: 6px; font-size: 12px; color: var(--color-ink-3); display: flex; align-items: center; gap: 8px; flex-wrap: wrap; }
+  .qb-drawer-close {
+    flex: 0 0 auto; width: 28px; height: 28px; display: flex; align-items: center; justify-content: center;
+    border: none; background: transparent; color: var(--color-ink-3); border-radius: var(--radius-sm); cursor: pointer;
+  }
+  .qb-drawer-close:hover { background: var(--color-bg-sunken); color: var(--color-ink); }
+
+  .qb-drawer-body { flex: 1; overflow: auto; padding: 18px 20px; }
+  .qb-drawer-footer {
+    flex: 0 0 auto; padding: 12px 20px; border-top: 1px solid var(--color-line);
+    display: flex; align-items: center; justify-content: flex-end; gap: 8px;
+    background: var(--color-bg-raised);
+  }
+
+  turbo-frame#drawer[busy] .qb-drawer-body,
+  turbo-frame#drawer[busy] .qb-drawer-footer { opacity: .5; pointer-events: none; }
+
+  @media (prefers-reduced-motion: reduce) {
+    .qb-drawer-shell, .qb-drawer-panel { transition-duration: .01ms !important; }
+    .qb-drawer-panel { transform: none !important; }
+  }
+}
