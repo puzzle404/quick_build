@@ -1,280 +1,278 @@
 import { Controller } from "@hotwired/stimulus"
-// El orden importa: leaflet-control-geocoder es UMD y lee globalThis.L, que
-// solo existe porque el bundle de leaflet lo setea al evaluarse. Si se invierten
-// estos dos imports, el geocoder explota con TypeError.
-import L from "leaflet"
-import "leaflet-control-geocoder"
+import { googleMapsAvailable, loadGoogleMaps, distanceMeters } from "google_maps"
 
-const DEFAULT_CENTER = [-32.8895, -68.8458] // Mendoza
-const DEFAULT_ZOOM = 13
-const LOCATED_ZOOM = 16
-
-// Sesgo suave hacia Argentina: Nominatim prioriza lo que cae dentro del
-// viewbox pero (con bounded=0) sigue devolviendo obras fuera del país.
-const AR_VIEWBOX = "-73.6,-21.8,-53.6,-55.1"
-
-// Nominatim pide como máximo 1 request/segundo. El control de búsqueda ya
-// debouncea solo (suggestTimeout); el reverse del marcador lo debounceamos acá
-// para no disparar un request por cada micro-arrastre.
-const REVERSE_DEBOUNCE_MS = 800
+// Dirección + ubicación de la obra, al estilo PedidosYa / Airbnb:
+//   1. Un solo campo "Dirección": mientras se escribe aparecen sugerencias de
+//      Google (Places API New) debajo del campo.
+//   2. Elegir una sugerencia completa la dirección y centra el mapa ahí, con un
+//      pin FIJO en el medio: se mueve el mapa (no el pin) para ajustar el punto
+//      exacto de la obra. Mover el mapa nunca cambia la dirección.
+//   3. Si el pin termina lejos de la dirección elegida se avisa; al compartir
+//      manda la dirección.
+// Sin GOOGLE_MAPS_API_KEY el campo funciona como texto libre y el mapa avisa
+// que falta configurarlo.
+const DEFAULT_CENTER = { lat: -34.6037, lng: -58.3816 } // CABA
+const LOCATED_ZOOM = 17
+const SUGGEST_DEBOUNCE_MS = 250
+const FAR_FROM_ADDRESS_M = 150
 
 export default class extends Controller {
   static targets = [
-    "map",
-    "latitude",
-    "longitude",
-    "location",
-    "suggestion",
-    "suggestionAddress"
+    "input", "suggestions", "mapWrap", "map", "latitude", "longitude",
+    "hint", "unavailable", "manualButton"
   ]
 
   connect() {
-    // Se lee ANTES de tocar nada: define si la obra ya estaba georreferenciada.
-    const alreadyLocated = this.hasSavedCoordinates
+    this.suggestionsList = []
+    this.activeIndex = -1
+    this.anchor = null // punto de la dirección elegida
 
-    this.initializeMap()
-    this.addTileLayer()
-    this.addMarker()
-    this.addGeocoder()
-
-    // Solo pedimos la ubicación del dispositivo cuando la obra todavía no tiene
-    // coordenadas (alta nueva). Antes corría siempre y al abrir /edit desde otra
-    // ciudad reubicaba la obra en donde estaba parado quien editaba.
-    if (!alreadyLocated) this.enableGeolocation()
-
-    setTimeout(() => this.map?.invalidateSize(), 0)
+    if (!googleMapsAvailable()) {
+      this.unavailableTarget.hidden = false
+      if (this.hasManualButtonTarget) this.manualButtonTarget.hidden = true
+      return
+    }
+    if (this.savedLatLng) this.showMap(this.savedLatLng)
   }
 
   disconnect() {
-    clearTimeout(this.reverseTimeout)
-    this.reverseTimeout = null
-    this.map?.remove()
+    clearTimeout(this.suggestTimer)
+    clearTimeout(this.searchingTimer)
+    this.idleListener?.remove()
     this.map = null
-    this.marker = null
   }
 
-  // --- Inicialización ---
-  initializeMap() {
-    // Turbo puede restaurar un snapshot que ya tiene los panes que Leaflet
-    // inyectó. Los sacamos para no montar el mapa nuevo encima de los restos
-    // del anterior. Ojo: se borran SOLO los nodos de Leaflet, porque en el
-    // wizard de alta los hidden lat/lng viven dentro de este contenedor.
-    this.mapTarget
-      .querySelectorAll(":scope > .leaflet-pane, :scope > .leaflet-control-container")
-      .forEach((node) => node.remove())
+  // --- Autocomplete ---
+  query() {
+    clearTimeout(this.suggestTimer)
+    const text = this.inputTarget.value.trim()
+    if (!googleMapsAvailable() || text.length < 3) return this.closeSuggestions()
 
-    const center = this.savedLatLng
-    this.map = L.map(this.mapTarget).setView(
-      center || DEFAULT_CENTER,
-      center ? LOCATED_ZOOM : DEFAULT_ZOOM
-    )
+    this.suggestTimer = setTimeout(() => this.fetchSuggestions(text), SUGGEST_DEBOUNCE_MS)
   }
 
-  addTileLayer() {
-    L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png", {
-      attribution: "&copy; OpenStreetMap",
-      maxZoom: 19,
-      detectRetina: true
-    }).addTo(this.map)
-  }
-
-  // --- Marcador ---
-  addMarker() {
-    this.marker = L.marker(this.map.getCenter(), { draggable: true }).addTo(this.map)
-    this.marker.on("dragend", this.updateCoordinatesFromMarker.bind(this))
-  }
-
-  updateCoordinatesFromMarker(event) {
-    const latlng = event.target.getLatLng()
-    this.writeCoordinates(latlng)
-    this.scheduleReverseGeocode(latlng)
-  }
-
-  // --- Geolocalización ---
-  enableGeolocation() {
-    if (!navigator.geolocation) return
-
-    navigator.geolocation.getCurrentPosition(
-      this.setLocationFromDevice.bind(this),
-      this.handleGeolocationError.bind(this)
-    )
-  }
-
-  // Acá NO hacemos reverse geocoding a propósito: la posición que reporta el
-  // navegador suele ser la del proveedor de internet y puede estar a kilómetros.
-  // Sirve para centrar el mapa, no para escribir un domicilio que después queda
-  // guardado como si alguien lo hubiera verificado.
-  setLocationFromDevice(position) {
-    if (!this.map) return // la respuesta puede llegar después de navegar
-
-    const { latitude, longitude } = position.coords
-    this.map.setView([latitude, longitude], LOCATED_ZOOM)
-    this.marker.setLatLng([latitude, longitude])
-    this.writeCoordinates({ lat: latitude, lng: longitude })
-  }
-
-  handleGeolocationError(error) {
-    console.warn("No se pudo obtener la geolocalización:", error.message)
-  }
-
-  // --- Buscador de direcciones ---
-  addGeocoder() {
-    // geocodingQueryParams lo usa la búsqueda; reverseQueryParams, el reverse
-    // del marcador. Son dos bolsas distintas: si el idioma va sólo en la
-    // primera, las direcciones del marcador vuelven en inglés.
-    this.searchGeocoder = L.Control.Geocoder.nominatim({
-      geocodingQueryParams: {
-        "accept-language": "es",
-        viewbox: AR_VIEWBOX,
-        bounded: 0
-      },
-      reverseQueryParams: {
-        "accept-language": "es"
+  async fetchSuggestions(text) {
+    // Respuesta lenta: "Buscando direcciones…" con el anillo en la lista.
+    clearTimeout(this.searchingTimer)
+    this.searchingTimer = setTimeout(() => this.showSearching(), 300)
+    try {
+      const places = await this.places()
+      this.sessionToken ||= new places.AutocompleteSessionToken()
+      const request = {
+        input: text,
+        sessionToken: this.sessionToken,
+        includedRegionCodes: ["ar"],
+        language: "es",
+        region: "ar"
       }
+      if (this.map) request.origin = this.map.getCenter()
+
+      const { suggestions } = await places.AutocompleteSuggestion.fetchAutocompleteSuggestions(request)
+      clearTimeout(this.searchingTimer)
+      // Llegó tarde: el usuario siguió escribiendo.
+      if (text !== this.inputTarget.value.trim()) return
+      this.renderSuggestions(suggestions.map((s) => s.placePrediction).filter(Boolean))
+    } catch (error) {
+      clearTimeout(this.searchingTimer)
+      console.warn("No se pudieron buscar direcciones:", error)
+      this.closeSuggestions()
+    }
+  }
+
+  renderSuggestions(predictions) {
+    this.suggestionsList = predictions
+    this.activeIndex = -1
+    const list = this.suggestionsTarget
+    list.replaceChildren()
+    if (predictions.length === 0) return this.closeSuggestions()
+
+    predictions.forEach((prediction, index) => {
+      const item = document.createElement("li")
+      item.setAttribute("role", "option")
+      item.id = `${this.inputTarget.id}-opt-${index}`
+      item.className = "qb-addr-option"
+      item.dataset.index = index
+      item.dataset.action = "mousedown->project-map#pick"
+
+      const main = document.createElement("span")
+      main.className = "qb-addr-option-main"
+      main.textContent = prediction.mainText?.toString() || prediction.text.toString()
+      const secondary = document.createElement("span")
+      secondary.className = "qb-addr-option-secondary"
+      secondary.textContent = prediction.secondaryText?.toString() || ""
+      item.append(main, secondary)
+      list.append(item)
     })
 
-    // El control sólo engancha el listener de "input" (o sea, sugerir mientras
-    // se escribe) si el geocoder implementa suggest(), y la clase Nominatim del
-    // vendor no lo implementa: define geocode() y reverse() nada más. Sin esto
-    // hay que apretar Enter para buscar. El resto de los geocoders del paquete
-    // resuelven suggest delegando en geocode, así que hacemos lo mismo.
-    // El control debouncea (suggestTimeout) y descarta respuestas viejas por su
-    // cuenta, así que no se le pega a Nominatim en cada tecla.
-    this.searchGeocoder.suggest = (query, context) => this.searchGeocoder.geocode(query, context)
+    const credit = document.createElement("li")
+    credit.className = "qb-addr-credit"
+    credit.setAttribute("aria-hidden", "true")
+    credit.textContent = "Sugerencias de Google"
+    list.append(credit)
 
-    L.Control.geocoder({
-      geocoder: this.searchGeocoder,
-      defaultMarkGeocode: false,
-      collapsed: false,
-      position: "topright",
-      placeholder: "Buscá una dirección…",
-      errorMessage: "No encontramos esa dirección",
-      iconLabel: "Buscar dirección",
-      queryMinLength: 3,
-      suggestMinLength: 4,
-      suggestTimeout: 700
+    list.hidden = false
+    this.inputTarget.setAttribute("aria-expanded", "true")
+  }
+
+  showSearching() {
+    const item = document.createElement("li")
+    item.className = "qb-addr-searching"
+    const ring = document.createElement("span")
+    ring.className = "qb-spinner-ring"
+    ring.style.setProperty("--qb-spinner-size", "12px")
+    ring.style.setProperty("--qb-spinner-stroke", "1.5px")
+    item.append(ring, document.createTextNode("Buscando direcciones…"))
+    this.suggestionsTarget.replaceChildren(item)
+    this.suggestionsTarget.hidden = false
+  }
+
+  closeSuggestions() {
+    clearTimeout(this.searchingTimer)
+    if (!this.hasSuggestionsTarget) return
+    this.suggestionsTarget.hidden = true
+    this.suggestionsTarget.replaceChildren()
+    this.suggestionsList = []
+    this.inputTarget.setAttribute("aria-expanded", "false")
+    this.inputTarget.removeAttribute("aria-activedescendant")
+  }
+
+  keydown(event) {
+    if (this.suggestionsTarget.hidden) return
+    const count = this.suggestionsList.length
+
+    if (event.key === "ArrowDown" || event.key === "ArrowUp") {
+      event.preventDefault()
+      const step = event.key === "ArrowDown" ? 1 : -1
+      this.activeIndex = (this.activeIndex + step + count) % count
+      this.highlight()
+    } else if (event.key === "Enter" && this.activeIndex >= 0) {
+      // Enter elige la sugerencia en vez de mandar el form.
+      event.preventDefault()
+      this.choose(this.suggestionsList[this.activeIndex])
+    } else if (event.key === "Escape") {
+      this.closeSuggestions()
+    }
+  }
+
+  highlight() {
+    this.suggestionsTarget.querySelectorAll(".qb-addr-option").forEach((el, i) => {
+      el.classList.toggle("is-active", i === this.activeIndex)
+      if (i === this.activeIndex) this.inputTarget.setAttribute("aria-activedescendant", el.id)
     })
-      .on("markgeocode", this.handleGeocode.bind(this))
-      .addTo(this.map)
   }
 
-  // Elegir un resultado del buscador es una acción explícita: acá SÍ pisamos el
-  // domicilio, porque es exactamente lo que el usuario pidió.
-  handleGeocode(event) {
-    const { center, name } = event.geocode
-
-    this.map.setView(center, LOCATED_ZOOM)
-    this.marker.setLatLng(center)
-    this.writeCoordinates(center)
-
-    clearTimeout(this.reverseTimeout)
-    this.reverseToken = (this.reverseToken || 0) + 1
-
-    const input = this.locationInput
-    if (input && name) input.value = name
-    this.hideSuggestion()
+  // mousedown (no click): el blur del input cierra la lista antes que el click.
+  pick(event) {
+    event.preventDefault()
+    const index = Number(event.currentTarget.dataset.index)
+    this.choose(this.suggestionsList[index])
   }
 
-  // --- Reverse geocoding (arrastrar el marcador completa la dirección) ---
-  scheduleReverseGeocode(latlng) {
-    clearTimeout(this.reverseTimeout)
-    const token = (this.reverseToken || 0) + 1
-    this.reverseToken = token
-    this.reverseTimeout = setTimeout(() => this.reverseGeocode(latlng, token), REVERSE_DEBOUNCE_MS)
+  blur() {
+    setTimeout(() => this.closeSuggestions(), 150)
   }
 
-  async reverseGeocode(latlng, token) {
-    if (!this.map || !this.searchGeocoder) return
-
-    const scale = this.map.options.crs.scale(this.map.getZoom())
-    let results = []
+  async choose(prediction) {
+    if (!prediction) return
+    this.closeSuggestions()
+    this.inputTarget.value = prediction.text.toString()
 
     try {
-      results = await this.searchGeocoder.reverse(latlng, scale)
+      const place = prediction.toPlace()
+      await place.fetchFields({ fields: ["formattedAddress", "location"] })
+      // Termina la sesión de autocomplete (así Google la cobra como una sola).
+      this.sessionToken = null
+
+      if (place.formattedAddress) this.inputTarget.value = place.formattedAddress
+      if (place.location) {
+        const point = { lat: place.location.lat(), lng: place.location.lng() }
+        this.anchor = point
+        await this.showMap(point, { zoom: LOCATED_ZOOM })
+      }
     } catch (error) {
-      console.warn("No se pudo resolver la dirección del marcador:", error)
+      console.warn("No se pudo obtener la ubicación de la dirección:", error)
+    }
+  }
+
+  // "¿No encontrás la dirección? Marcala en el mapa" (lotes, rutas, obradores).
+  async manual(event) {
+    event?.preventDefault()
+    this.anchor = null
+    this.hintTarget.hidden = true
+    await this.showMap(this.savedLatLng || DEFAULT_CENTER, { zoom: this.savedLatLng ? LOCATED_ZOOM : 12 })
+  }
+
+  // --- Mapa con pin fijo al centro ---
+  async showMap(point, { zoom = LOCATED_ZOOM } = {}) {
+    this.mapWrapTarget.hidden = false
+    let maps
+    try {
+      maps = await this.mapsLibrary()
+    } catch (error) {
+      console.warn(error)
+      this.unavailableTarget.hidden = false
+      this.mapWrapTarget.hidden = true
       return
     }
+    if (!this.element.isConnected) return
 
-    // Llegó tarde: el usuario movió el marcador otra vez o se fue de la página.
-    if (token !== this.reverseToken || !this.map) return
-
-    const address = results?.[0]?.name
-    const input = this.locationInput
-    if (!address || !input) return
-
-    const current = input.value.trim()
-
-    if (current === "") {
-      // Campo vacío: completamos directo, no hay nada que perder.
-      input.value = address
-      this.hideSuggestion()
-    } else if (current === address) {
-      this.hideSuggestion()
+    if (!this.map) {
+      this.map = new maps.Map(this.mapTarget, {
+        center: point,
+        zoom,
+        disableDefaultUI: true,
+        zoomControl: true,
+        clickableIcons: false,
+        gestureHandling: "greedy"
+      })
+      this.idleListener = this.map.addListener("idle", () => this.syncFromMap())
     } else {
-      // Ya hay un domicilio escrito a mano (ej. "Obrador km 3, s/n"): no lo
-      // pisamos en silencio, lo ofrecemos y que decida el usuario.
-      this.showSuggestion(address)
+      this.map.setCenter(point)
+      this.map.setZoom(zoom)
     }
+    this.writeCoordinates(point)
+    this.updateHint(point)
   }
 
-  // --- Chip "Usar esta dirección" ---
-  showSuggestion(address) {
-    this.pendingAddress = address
-    if (!this.hasSuggestionTarget) return
-
-    if (this.hasSuggestionAddressTarget) this.suggestionAddressTarget.textContent = address
-    this.suggestionTarget.style.display = "flex"
+  syncFromMap() {
+    const center = this.map?.getCenter()
+    if (!center) return
+    const point = { lat: center.lat(), lng: center.lng() }
+    this.writeCoordinates(point)
+    this.updateHint(point)
   }
 
-  hideSuggestion() {
-    this.pendingAddress = null
-    if (!this.hasSuggestionTarget) return
-
-    this.suggestionTarget.style.display = "none"
-  }
-
-  acceptSuggestion(event) {
-    event?.preventDefault()
-
-    const input = this.locationInput
-    if (input && this.pendingAddress) input.value = this.pendingAddress
-    this.hideSuggestion()
-  }
-
-  dismissSuggestion(event) {
-    event?.preventDefault()
-    this.hideSuggestion()
+  updateHint(point) {
+    if (!this.anchor) return
+    const meters = distanceMeters(this.anchor, point)
+    if (meters > FAR_FROM_ADDRESS_M) {
+      const label = meters >= 1000 ? `${(meters / 1000).toFixed(1).replace(".", ",")} km` : `${Math.round(meters)} m`
+      this.hintTarget.textContent = `El pin quedó a ${label} de la dirección. Está bien si la obra está ahí: al compartir se usa la dirección escrita.`
+      this.hintTarget.hidden = false
+    } else {
+      this.hintTarget.hidden = true
+    }
   }
 
   // --- Helpers ---
-  writeCoordinates({ lat, lng }) {
-    this.latitudeTarget.value = lat
-    this.longitudeTarget.value = lng
+  async places() {
+    await loadGoogleMaps()
+    return google.maps.importLibrary("places")
   }
 
-  get locationInput() {
-    if (this.hasLocationTarget) return this.locationTarget
+  async mapsLibrary() {
+    await loadGoogleMaps()
+    return google.maps.importLibrary("maps")
+  }
 
-    // Fallback para el wizard de alta, donde el input Domicilio todavía vive
-    // fuera del elemento del controller y no puede ser target.
-    return document.querySelector("input[name='project[location]']")
+  writeCoordinates({ lat, lng }) {
+    this.latitudeTarget.value = lat.toFixed(7)
+    this.longitudeTarget.value = lng.toFixed(7)
   }
 
   get savedLatLng() {
-    const lat = this.parseCoordinate(this.latitudeTarget.value)
-    const lng = this.parseCoordinate(this.longitudeTarget.value)
-    return lat === null || lng === null ? null : [lat, lng]
-  }
-
-  get hasSavedCoordinates() {
-    return this.savedLatLng !== null
-  }
-
-  // parseFloat("0") es 0, que es falsy: hay que chequear con Number.isFinite y
-  // no con `||`, o una coordenada 0 se trataría como "sin dato".
-  parseCoordinate(value) {
-    const parsed = parseFloat(value)
-    return Number.isFinite(parsed) ? parsed : null
+    const lat = parseFloat(this.latitudeTarget.value)
+    const lng = parseFloat(this.longitudeTarget.value)
+    return Number.isFinite(lat) && Number.isFinite(lng) ? { lat, lng } : null
   }
 }

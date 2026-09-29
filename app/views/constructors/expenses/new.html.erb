@@ -32,10 +32,20 @@
           </div>
           <div class="qb-field" style="margin-bottom:0;">
             <%= form.label :amount_pesos, "Monto (ARS)", class: "qb-label" %>
-            <%= form.text_field :amount_pesos, required: true, inputmode: "decimal", placeholder: "1.500,50",
-                                value: @expense.amount_cents ? number_with_precision(@expense.amount_cents / 100.0, precision: 2, separator: ",", delimiter: ".") : nil, class: "qb-input" %>
+            <%= render Qb::MoneyFieldComponent.new(form: form, method: :amount_pesos, required: true,
+                  value: qb_money_input_value(@expense.amount_cents)) %>
           </div>
         </div>
+
+        <%# Desde la pestaña Gastos (sin etapa en la URL) se puede imputar igual
+            a una etapa; desde el drawer de una etapa ya viene fijada. %>
+        <% if @stage.nil? && (stage_options = stage_select_options).any? %>
+          <div class="qb-field" style="margin-top:12px;">
+            <%= form.label :project_stage_id, "Etapa (opcional)", class: "qb-label" %>
+            <%= form.select :project_stage_id, [ [ "— Sin etapa (gasto general de la obra) —", "" ] ] + stage_options,
+                  { selected: @expense.project_stage_id }, class: "qb-select" %>
+          </div>
+        <% end %>
 
         <div class="qb-field" style="margin-top:12px;">
           <%= form.label :category, "Categoría", class: "qb-label" %>

@@ -64,7 +64,7 @@
                   <% if expense.material_list.present? %>
                     <div style="font-size:11px;color:var(--color-ink-4);margin-top:2px;">
                       Pago de lista
-                      <%= link_to "#{expense.material_list.display_number} #{expense.material_list.name}".strip,
+                      <%= link_to "#{expense.material_list.code} #{expense.material_list.name}".strip,
                             material_list_path(expense),
                             style: 'color:var(--color-accent);text-decoration:none;' %>
                     </div>

@@ -36,8 +36,9 @@
 
   <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;">
     <div class="qb-field" style="margin-bottom:0;">
-      <%= form.label :estimated_cost_cents, "Costo estimado (centavos)", class: "qb-label" %>
-      <%= form.number_field :estimated_cost_cents, class: "qb-input" %>
+      <%= form.label :estimated_cost_pesos, "Costo unitario estimado", class: "qb-label" %>
+      <%= render Qb::MoneyFieldComponent.new(form: form, method: :estimated_cost_pesos,
+            value: helpers.qb_money_input_value(material_item.estimated_cost_cents)) %>
     </div>
     <div class="qb-field" style="margin-bottom:0;">
       <%= form.label :confidence_label, "Confianza / fuente", class: "qb-label" %>

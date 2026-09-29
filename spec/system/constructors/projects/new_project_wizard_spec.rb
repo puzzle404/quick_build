@@ -2,25 +2,25 @@
 
 require "rails_helper"
 
-# JS (Cuprite): el picker Leaflet (project-map) sólo se inicializa con Stimulus,
-# así que en rack_test el mapa no arranca.
+# JS (Cuprite): el picker de Google Maps (project-map, stub en
+# spec/support/google_maps_stub.rb) sólo se inicializa con Stimulus.
 #
 # El alta dejó de ser un wizard multi-paso: la plantilla de etapas se aplica
 # desde el header del proyecto (elegirla antes de crear la obra era pedirle al
 # usuario que decidiera algo que todavía no sabe), y con ese paso afuera el
 # formulario entra en una sola pantalla.
-RSpec.describe "New project form", type: :system, js: true do
+RSpec.describe "New project form", type: :system, js: true, google_maps: true do
   let(:constructor) { create(:user, :constructor) }
 
-  it "muestra el picker Leaflet y el formulario completo en una sola pantalla" do
+  it "muestra el campo de dirección con mapa y el formulario completo en una sola pantalla" do
     sign_in_user(constructor)
+    stub_google_maps!
     visit new_constructors_project_path
 
     expect(page).to have_content("Crear una obra")
 
-    expect(page).to have_css("#project-map.leaflet-container", wait: 5)
-    expect(page).to have_css(".leaflet-control-geocoder", wait: 5)
-    expect(page).to have_css("#project-map .leaflet-marker-icon", wait: 5)
+    expect(page).to have_field("Dirección de la obra")
+    expect(page).to have_button("¿No encontrás la dirección? Marcá la obra en el mapa")
 
     # Todos los campos son alcanzables sin pasos intermedios.
     expect(page).to have_field("project[location]")
@@ -35,15 +35,14 @@ RSpec.describe "New project form", type: :system, js: true do
 
   it "guarda la dirección y las coordenadas del marcador" do
     sign_in_user(constructor)
+    stub_google_maps!
     visit new_constructors_project_path
-
-    expect(page).to have_css("#project-map.leaflet-container", wait: 5)
 
     fill_in "project[name]",        with: "Obra con mapa"
     fill_in "project[location]",    with: "Av. Colón 1234, Mendoza"
     fill_in "project[description]", with: "Refacción del hall"
 
-    # El controller escribe lat/lng en los hidden fields al mover el marcador.
+    # El controller escribe lat/lng en los hidden fields al mover el mapa.
     page.execute_script(<<~JS)
       document.querySelector("input[name='project[latitude]']").value  = "-32.8895"
       document.querySelector("input[name='project[longitude]']").value = "-68.8458"

@@ -15,7 +15,7 @@
           <% if private? %><%= render Qb::PillComponent.new('Privada', tone: :muted, compact: true) %><% end %>
           <% if stage_name %><span class="qb-mono" style="font-size:10px;color:var(--color-ink-4);"><%= stage_name %></span><% end %>
         </div>
-        <h2 style="margin:0;font-size:16px;font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;"><%= "#{list.display_number} #{list.name}".strip %></h2>
+        <h2 style="margin:0;font-size:16px;font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;"><%= "#{list.code} #{list.name}".strip %></h2>
       </div>
       <%# data-turbo=false: descarga directa del CSV sin interceptar la navegación
           (el drawer vive dentro del frame global "drawer"). %>
@@ -106,7 +106,7 @@
 
     <%# Items table (scrollable body) %>
     <div style="flex:1;overflow:auto;">
-      <div style="position:sticky;top:0;z-index:1;display:grid;grid-template-columns:32px 1fr 100px 90px 130px 110px 90px 40px;padding:8px 16px;background:var(--color-bg-raised);border-bottom:1px solid var(--color-line);font-size:10px;font-family:var(--font-mono);color:var(--color-ink-3);text-transform:uppercase;letter-spacing:0.5px;font-weight:500;">
+      <div style="position:sticky;top:0;z-index:1;display:grid;grid-template-columns:32px minmax(0,1fr) 80px 80px 120px 110px 90px 32px;column-gap:10px;padding:8px 16px;background:var(--color-bg-raised);border-bottom:1px solid var(--color-line);font-size:10px;font-family:var(--font-mono);color:var(--color-ink-3);text-transform:uppercase;letter-spacing:0.5px;font-weight:500;">
         <span>#</span><span>Material · Descripción</span>
         <span style="text-align:right;">Cant.</span><span>Unidad</span>
         <span style="text-align:right;">Precio est.</span><span style="text-align:right;">Subtotal</span>
@@ -115,7 +115,7 @@
 
       <% items.each_with_index do |item, idx| %>
         <% subtotal = (item.quantity.to_f * item.estimated_cost_cents.to_i).round %>
-        <div style="display:grid;grid-template-columns:32px 1fr 100px 90px 130px 110px 90px 40px;padding:10px 16px;border-bottom:1px solid var(--color-line);align-items:center;font-size:12px;">
+        <div style="display:grid;grid-template-columns:32px minmax(0,1fr) 80px 80px 120px 110px 90px 32px;column-gap:10px;padding:10px 16px;border-bottom:1px solid var(--color-line);align-items:center;font-size:12px;">
           <span class="qb-mono" style="font-size:10px;color:var(--color-ink-4);"><%= sprintf('%02d', idx + 1) %></span>
           <div style="min-width:0;">
             <div style="font-weight:500;color:var(--color-ink);"><%= item.name %></div>
@@ -148,23 +148,27 @@
         </div>
       <% end %>
 
-      <%# Inline add — Turbo-submit form to existing material_items#create %>
+      <%# Alta inline. Sin scope los campos viajaban sueltos (name, quantity…)
+          y material_items#create —que hace require(:material_item)— respondía
+          400: el drawer "se cerraba" y el ítem no se guardaba. Apunta al frame
+          del drawer (no _top): el controller redirige al show y el detalle se
+          re-renderiza acá mismo con el ítem nuevo. %>
       <% if can_edit? %>
       <%= form_with url: constructors_project_material_list_material_items_path(project, list),
+                    scope: :material_item,
                     method: :post,
-                    data: { turbo_frame: '_top' },
-                    html: { style: 'display:grid;grid-template-columns:32px 1fr 100px 90px 130px 110px 90px 40px;padding:10px 16px;border-bottom:1px solid var(--color-line);align-items:center;background:color-mix(in oklab, var(--color-accent) 4%, var(--color-bg));' } do |f| %>
-        <%= f.hidden_field :material_list_id, value: list.id %>
+                    data: { turbo_frame: 'drawer' },
+                    html: { style: 'display:grid;grid-template-columns:32px minmax(0,1fr) 80px 80px 120px 110px 90px 32px;column-gap:10px;padding:10px 16px;border-bottom:1px solid var(--color-line);align-items:center;background:color-mix(in oklab, var(--color-accent) 4%, var(--color-bg));' } do |f| %>
         <%= render Qb::IconComponent.new(name: :plus, size: 12, style: 'color:var(--color-accent)') %>
-        <%= f.text_field :name, required: true, placeholder: 'Nombre del material',
+        <%= f.text_field :name, required: true, placeholder: 'Nombre del material', autofocus: items.empty?,
                          style: 'border:none;outline:none;background:transparent;color:var(--color-ink);font-size:12px;width:100%;padding:0;' %>
         <%= f.number_field :quantity, step: 'any', required: true, placeholder: '0',
                             style: 'border:none;outline:none;background:transparent;color:var(--color-ink);font-size:12px;text-align:right;font-family:var(--font-mono);width:100%;padding:0;' %>
         <%= f.select :unit, %w[u kg m³ m² m lt bolsa barra placa set rollo tacho],
                       { selected: 'u' },
                       style: 'border:none;outline:none;background:transparent;font-size:11px;color:var(--color-ink-3);width:100%;padding:0;' %>
-        <%= f.number_field :estimated_cost_cents, step: 1, placeholder: '0',
-                            style: 'border:none;outline:none;background:transparent;color:var(--color-ink);font-size:12px;text-align:right;font-family:var(--font-mono);width:100%;padding:0;' %>
+        <%= render Qb::MoneyFieldComponent.new(form: f, method: :estimated_cost_pesos, compact: true, placeholder: '0',
+              'aria-label': 'Precio unitario estimado') %>
         <span class="qb-mono qb-tnum" style="text-align:right;color:var(--color-ink-4);">—</span>
         <span style="font-size:10px;color:var(--color-ink-4);">—</span>
         <button type="submit" style="background:transparent;border:none;color:var(--color-ok);cursor:pointer;padding:2px;" title="Agregar">

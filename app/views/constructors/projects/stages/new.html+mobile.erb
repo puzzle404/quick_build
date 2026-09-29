@@ -26,13 +26,14 @@
       <% if is_sub %>
         <%= f.hidden_field :parent_id %>
         <%= render Qb::Mobile::FormPickerRowComponent.new(label: "Etapa padre", value: @stage.parent.name, href: nil) %>
-      <% else %>
+      <% elsif parents.any? %>
+        <%# Sin etapas principales no hay de qué colgarla: el campo sobra. %>
         <%= render Qb::Mobile::FormRowComponent.new(
-              label: "Etapa padre",
+              label: "Sub-etapa de",
               name: "project_stage[parent_id]",
               select: true,
               value: @stage.parent_id,
-              options: [['— Etapa raíz —', '']] + parents.map { |s| [s.name, s.id] }) %>
+              options: [['— Ninguna (etapa principal) —', '']] + parents.map { |s| [s.name, s.id] }) %>
       <% end %>
       <%= render Qb::Mobile::FormRowComponent.new(
             label: "Nombre", name: "project_stage[name]",

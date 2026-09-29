@@ -39,11 +39,7 @@
     <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;">
       <div class="qb-field" style="margin-bottom:0;">
         <%= form.label :hourly_rate_pesos, "Tarifa ($/hora)", class: "qb-label" %>
-        <div style="position:relative;">
-          <span class="qb-mono" style="position:absolute;left:10px;top:50%;transform:translateY(-50%);font-size:12px;color:var(--color-ink-4);">$</span>
-          <%= form.text_field :hourly_rate_pesos, value: hourly_rate_pesos_value, class: "qb-input",
-                inputmode: "decimal", placeholder: "0", style: "padding-left:22px;" %>
-        </div>
+        <%= render Qb::MoneyFieldComponent.new(form: form, method: :hourly_rate_pesos, value: hourly_rate_pesos_value) %>
       </div>
       <div class="qb-field" style="margin-bottom:0;">
         <%= form.label :status, "Estado", class: "qb-label" %>

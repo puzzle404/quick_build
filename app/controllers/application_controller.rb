@@ -11,6 +11,7 @@ class ApplicationController < ActionController::Base
   helper Pagy::Frontend
 
   before_action :set_mobile_variant
+  before_action :apply_dev_response_delay, if: -> { Rails.env.development? }
   layout :pick_default_layout
 
   private
@@ -42,6 +43,22 @@ class ApplicationController < ActionController::Base
     when "mobile"  then cookies[:qb_force_mobile_variant] = { value: "1", path: "/" }
     when "desktop" then cookies.delete(:qb_force_mobile_variant, path: "/")
     end
+  end
+
+  # Solo development: `?_delay=2` frena TODAS las respuestas 2 s (tope 5) hasta
+  # `?_delay=0`, vía cookie. Sirve para ver los estados de carga (barra,
+  # overlay de Bloques, esqueleto del drawer, botón ocupado) en localhost,
+  # donde las páginas responden en ~200 ms y ninguno llega a aparecer.
+  DEV_DELAY_COOKIE = :qb_dev_delay
+
+  def apply_dev_response_delay
+    if params.key?(:_delay)
+      seconds = params[:_delay].to_f.clamp(0, 5)
+      seconds.positive? ? cookies[DEV_DELAY_COOKIE] = { value: seconds.to_s, path: "/" } : cookies.delete(DEV_DELAY_COOKIE, path: "/")
+    end
+
+    delay = cookies[DEV_DELAY_COOKIE].to_f.clamp(0, 5)
+    sleep(delay) if delay.positive?
   end
 
   # Sources of "this is a phone-shaped client" — any one is enough:

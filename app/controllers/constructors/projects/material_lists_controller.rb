@@ -156,7 +156,7 @@ class Constructors::Projects::MaterialListsController < Constructors::BaseContro
       currency: "ARS",
       category: :materials_misc,
       incurred_on: Date.current,
-      description: "Pago lista #{@material_list.display_number} #{@material_list.name}".squish
+      description: "Pago lista #{@material_list.code} #{@material_list.name}".squish
     )
     authorize expense, :create?
 

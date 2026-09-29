@@ -44,13 +44,15 @@ RSpec.describe 'QB OS · Stages workspace', type: :system do
     expect(page).to have_text('Mampostería')
   end
 
-  it 'renders the Aplicar plantilla and Nueva etapa drawers (closed by default)' do
+  it 'renders the Aplicar plantilla drawer (closed) and Nueva etapa as a link to its own route' do
     visit constructors_project_path(project)
     expect(page).to have_button('Aplicar plantilla')
-    expect(page).to have_button('Nueva etapa')
+    # "Nueva etapa" ya no viaja embebido en la página: abre stages#new en el
+    # drawer global.
+    expect(page).to have_link('Nueva etapa', href: new_constructors_project_stage_path(project))
     # Click-driven qb--drawer instances (TemplateDrawerComponent,
-    # SaveTemplateDrawerComponent, NewStageDrawerComponent — none has a #new
-    # route to frame-scope against) exist in the DOM but start closed —
+    # SaveTemplateDrawerComponent, InviteMemberDrawerComponent — none has a
+    # #new route to frame-scope against) exist in the DOM but start closed —
     # qb-drawer-shell stays at opacity:0 until qb--drawer#open fires.
     expect(page).to have_css('.qb-drawer-shell[data-qb--drawer-target="dialog"]', visible: :all, minimum: 3)
   end

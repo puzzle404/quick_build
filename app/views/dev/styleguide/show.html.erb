@@ -187,6 +187,18 @@
     </section>
 
     <%# ─── Menu (kebab) ───────────────────────────────── %>
+    <section id="spinners" style="margin-bottom:36px;scroll-margin-top:16px;">
+      <%= render Qb::SectionHeadComponent.new(title: 'Qb::SpinnerComponent', subtitle: 'Bloques = marca de carga (página, drawer) · Anillo = chico (botones, inline). Los botones de submit lo muestran solos (qb--loading).') %>
+      <div style="padding:16px;display:flex;align-items:center;gap:32px;flex-wrap:wrap;">
+        <%= render Qb::SpinnerComponent.new(variant: :blocks, size: 32, label: "Cargando obra…") %>
+        <%= render Qb::SpinnerComponent.new(variant: :blocks, size: 16) %>
+        <%= render Qb::SpinnerComponent.new(variant: :ring, size: 24) %>
+        <%= render Qb::SpinnerComponent.new(variant: :ring, size: 12, label: "Buscando…", stacked: false) %>
+        <%= render Qb::BtnComponent.new('Guardando…', variant: :primary, size: :sm, icon: :check, css_class: 'qb-is-busy') %>
+        <span class="qb-skeleton" style="width:160px;height:12px;"></span>
+      </div>
+    </section>
+
     <section id="menu" style="margin-bottom:36px;scroll-margin-top:16px;">
       <%= render Qb::SectionHeadComponent.new(title: 'Qb::MenuComponent', subtitle: 'Menú kebab de acciones — envuelve el controller qb--dropdown (toggle + click afuera + ESC)') %>
       <div style="padding:16px;display:flex;gap:24px;align-items:flex-start;">

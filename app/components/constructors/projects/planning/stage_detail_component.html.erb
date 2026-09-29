@@ -137,7 +137,7 @@
           <%= link_to constructors_project_material_list_path(project, list), class: 'sd-list-row', data: { turbo_frame: 'drawer', action: 'click->qb--drawer#open' } do %>
             <div class="sd-list-main">
               <div class="sd-list-title">
-                <%= "#{list.display_number} #{list.name}".strip %>
+                <%= "#{list.code} #{list.name}".strip %>
                 <%= render Qb::PillComponent.new(tone: list_status_tone(list), compact: true) { list_status_label(list) } %>
               </div>
               <div class="sd-list-meta"><%= list.material_items.size %> ítems</div>

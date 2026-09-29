@@ -13,13 +13,32 @@ import { Controller } from "@hotwired/stimulus"
 //   </div>
 export default class extends Controller {
   static targets = ["tab", "panel"]
+  static values = { storageKey: String }
 
   connect() {
-    this._activate(this._activeIndex())
+    this._activate(this._storedIndex() ?? this._activeIndex())
   }
 
   select(event) {
     this._activate(event.currentTarget.dataset.index)
+    this._store(event.currentTarget.dataset.index)
+  }
+
+  // sessionStorage: sobrevive a refreshes/F5 de la pestaña, no se arrastra a
+  // otras. try/catch: puede no estar disponible (modo privado, bloqueado).
+  _storedIndex() {
+    if (!this.storageKeyValue) return null
+    try {
+      const idx = sessionStorage.getItem(this.storageKeyValue)
+      return this.tabTargets.some(tab => tab.dataset.index === idx) ? idx : null
+    } catch (_error) {
+      return null
+    }
+  }
+
+  _store(idx) {
+    if (!this.storageKeyValue) return
+    try { sessionStorage.setItem(this.storageKeyValue, idx) } catch (_error) { /* sin storage: no se recuerda */ }
   }
 
   _activeIndex() {

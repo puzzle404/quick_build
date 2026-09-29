@@ -37,15 +37,17 @@
             project: @reference_weather_project,
             compact: true,
             location_override: @reference_weather_location) %>
-      <%# "Reporte" abre la vista imprimible; el CSV queda como volcado de datos.
+      <%# Exportaciones agrupadas en un menú "…" (menos texto en el header).
+          "Reporte" abre la vista imprimible; el CSV es el volcado de datos.
           data-turbo:false en el CSV: sin eso Turbo intercepta el link y el
           navegador no dispara la descarga. %>
-      <%= render Qb::BtnComponent.new('Exportar datos', variant: :ghost, size: :sm, icon: :download,
-            href: constructors_root_path(format: :csv), data: { turbo: false },
-            title: 'Descargar la cartera en CSV para planilla') %>
-      <%= render Qb::BtnComponent.new('Reporte', variant: :secondary, size: :sm, icon: :doc,
-            href: constructors_report_path, title: 'Reporte imprimible de la cartera') %>
-      <%= render Qb::BtnComponent.new('Nuevo proyecto', variant: :primary, size: :sm, icon: :plus, href: new_constructors_project_path) %>
+      <%= render Qb::MenuComponent.new(aria_label: 'Exportar', title: 'Exportar', items: [
+            { label: 'Reporte imprimible', icon: :doc, href: constructors_report_path,
+              title: 'Reporte imprimible de la cartera' },
+            { label: 'Exportar datos (CSV)', icon: :download, href: constructors_root_path(format: :csv),
+              data: { turbo: false }, title: 'Descargar la cartera en CSV para planilla' },
+          ]) %>
+      <%# Sin "Nuevo proyecto": ya está siempre en el sidebar (+ ⌘N). %>
     </div>
   </div>
 

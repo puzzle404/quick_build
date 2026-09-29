@@ -32,11 +32,14 @@
           <!-- CTA buttons -->
           <div class="mt-10 flex flex-col sm:flex-row items-start gap-4 sm:gap-6">
             <%= link_to new_registration_path, class: "group relative inline-flex items-center justify-center gap-2 rounded-xl bg-indigo-600 px-6 py-3.5 text-base font-semibold text-white shadow-lg shadow-indigo-500/30 transition-all duration-300 hover:bg-indigo-500 hover:shadow-xl hover:shadow-indigo-500/40 hover:-translate-y-0.5 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600" do %>
-              Comenzar gratis
+              Registrarse gratis
               <svg class="h-5 w-5 transition-transform duration-300 group-hover:translate-x-1" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor">
                 <path stroke-linecap="round" stroke-linejoin="round" d="M13.5 4.5L21 12m0 0l-7.5 7.5M21 12H3" />
               </svg>
             <% end %>
+
+            <%= link_to "Iniciar sesión", new_session_path, data: { turbo_frame: "login_modal" },
+                  class: "inline-flex items-center justify-center rounded-xl px-6 py-3.5 text-base font-semibold text-white ring-1 ring-inset ring-white/40 bg-white/10 backdrop-blur-sm transition-colors duration-200 hover:bg-white/20" %>
             
             <%= link_to "#features", class: "group inline-flex items-center gap-2 text-base font-semibold text-white transition-colors duration-200 hover:text-indigo-300" do %>
               <span class="flex h-10 w-10 items-center justify-center rounded-full bg-white/10 backdrop-blur-sm transition-all duration-300 group-hover:bg-white/20 group-hover:scale-110 ring-1 ring-white/20">

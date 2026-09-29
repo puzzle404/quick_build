@@ -25,12 +25,28 @@ RSpec.describe "Adding a note to a project", type: :system, js: true do
     # are asserted below.
     visit constructors_project_path(project)
 
-    click_on "Agregar nota"
+    # Las notas viven en la sección "Bitácora" del rail del proyecto; el form
+    # completo (con título) abre en el drawer desde "Nota con título".
+    within(".qb-project-rail") { click_on "Nota con título" }
 
-    fill_in "Nota", with: "Coordinar con el arquitecto la semana próxima"
-    click_button "Guardar"
+    within("#drawer") do
+      fill_in "Nota", with: "Coordinar con el arquitecto la semana próxima"
+      click_button "Guardar"
+    end
 
     expect(page).to have_text("Coordinar con el arquitecto la semana próxima", wait: 5)
     expect(page).to have_text("Nota agregada correctamente")
+  end
+
+  it "owner can add a quick note from the rail" do
+    visit constructors_project_path(project)
+
+    within(".qb-project-rail") do
+      fill_in "note[body]", with: "Llegó el hormigón de la losa 3"
+      click_button "Guardar nota"
+    end
+
+    expect(page).to have_css(".qb-toast", text: "Nota agregada correctamente", wait: 5)
+    within("#project_notes_list") { expect(page).to have_text("Llegó el hormigón de la losa 3") }
   end
 end

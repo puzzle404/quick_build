@@ -16,7 +16,7 @@
 <%= render Qb::Mobile::NavBarComponent.new(title: "Editar lista", back: true, back_href: back) %>
 
 <div style="padding: 4px 20px 12px;">
-  <h1 style="margin: 0; font-size: 22px; font-weight: 700; letter-spacing: -0.4px;"><%= "#{@material_list.display_number} #{@material_list.name}".strip %></h1>
+  <h1 style="margin: 0; font-size: 22px; font-weight: 700; letter-spacing: -0.4px;"><%= "#{@material_list.code} #{@material_list.name}".strip %></h1>
   <p style="margin: 4px 0 0; font-size: 13.5px; color: var(--color-ink-3); line-height: 1.4;">
     Actualizá los datos para mantener la lista al día.
   </p>

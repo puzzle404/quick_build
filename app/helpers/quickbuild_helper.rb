@@ -29,6 +29,21 @@ module QuickbuildHelper
     qb_fmt_ars((cents.to_i / 100.0).round)
   end
 
+  # Key de navegador de Google Maps (Maps JavaScript API + Places API New).
+  # Credentials primero, ENV como alternativa para dev/deploys simples.
+  def qb_google_maps_api_key
+    Rails.application.credentials.dig(:google_maps, :api_key).presence || ENV["GOOGLE_MAPS_API_KEY"].presence
+  end
+
+  # Valor inicial de un Qb::MoneyFieldComponent: "1.500" / "1.500,50" (sin "$",
+  # que lo pone el componente). Round-trip exacto con Money::ArsParser.
+  def qb_money_input_value(cents)
+    return nil if cents.blank?
+
+    number_with_precision(cents.to_i / 100.0, precision: (cents.to_i % 100).zero? ? 0 : 2,
+                          separator: ",", delimiter: ".")
+  end
+
   def qb_fmt_pct(value)
     return "—" if value.nil?
     "#{value.round}%"

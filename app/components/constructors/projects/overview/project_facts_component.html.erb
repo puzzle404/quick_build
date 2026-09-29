@@ -1,0 +1,22 @@
+<div>
+  <div class="qb-rail-subhead" style="padding-top:14px;">
+    Cargado al crear la obra
+    <span style="flex:1;"></span>
+    <% if can_edit? %>
+      <%= render Qb::BtnComponent.new('Editar datos', variant: :ghost, size: :xs, icon: :edit, href: edit_path, data: edit_data) %>
+    <% end %>
+  </div>
+
+  <%# Ubicación primero: es el dato que más se consulta y se comparte. %>
+  <%= render Constructors::Projects::Overview::MiniMapComponent.new(project: project) %>
+
+  <%= render Qb::DataGridComponent.new(items: items, columns: 2, bordered: false) %>
+
+  <%# Sin pronóstico (API caída o sin key) el componente no renderiza. %>
+  <% if weather.render? %>
+    <div class="qb-rail-block" style="border-top:1px solid var(--color-line);">
+      <div class="qb-rail-subhead">Clima en la obra</div>
+      <%= render weather %>
+    </div>
+  <% end %>
+</div>

@@ -43,7 +43,7 @@ RSpec.describe 'Constructors::People', type: :request do
       get new_constructors_project_person_path(project)
 
       expect(response).to have_http_status(:ok)
-      expect(response.body).not_to include('qb-drawer-panel')
+      expect(body_without_templates).not_to include('qb-drawer-panel')
       expect(response.body).to include(%(href="#{constructors_project_people_path(project)}"))
       # Substring exacto con la comilla de cierre: "qb--drawer#back" solo
       # apunta al botón de Cancelar/‹ volver — "qb--drawer#backdrop" (el click
@@ -58,7 +58,7 @@ RSpec.describe 'Constructors::People', type: :request do
       get edit_constructors_project_person_path(project, person)
 
       expect(response).to have_http_status(:ok)
-      expect(response.body).not_to include('qb-drawer-panel')
+      expect(body_without_templates).not_to include('qb-drawer-panel')
       expect(response.body).to include(%(href="#{constructors_project_person_path(project, person)}"))
       # Substring exacto con la comilla de cierre: "qb--drawer#back" solo
       # apunta al botón de Cancelar/‹ volver — "qb--drawer#backdrop" (el click
@@ -71,7 +71,7 @@ RSpec.describe 'Constructors::People', type: :request do
       get new_constructors_project_person_path(project), headers: { 'Turbo-Frame' => 'drawer' }
 
       expect(response).to have_http_status(:ok)
-      expect(response.body).to include('qb-drawer-panel')
+      expect(body_without_templates).to include('qb-drawer-panel')
       expect(response.body).to include('qb--drawer#back')
     end
   end

@@ -56,17 +56,15 @@ module Constructors
 
         if @stage.save
           respond_to do |format|
+            # Refresh y no append+vaciar "drawer": el refresh cierra cualquier
+            # drawer (antes uno click-driven quedaba abierto y el usuario
+            # reenviaba el form: etapas repetidas), ubica sub-etapas bajo su
+            # padre y reemplaza el empty state; el flash lo consume el GET del
+            # refresh. `request_id: nil` porque con el id del propio request
+            # Turbo descarta el refresh.
             format.turbo_stream do
-              decorated_stage = @stage.decorate
-              render turbo_stream: [
-                turbo_stream.update("drawer", ""),
-                turbo_stream.append("planning_stages",
-                  Constructors::Projects::Planning::StageCardComponent.new(
-                    project: @project.decorate,
-                    stage: decorated_stage,
-                    sub_stages: @stage.sub_stages.order(:position, :name)
-                  ))
-              ]
+              flash[:notice] = "Etapa creada correctamente."
+              render turbo_stream: turbo_stream.refresh(request_id: nil)
             end
             format.html { redirect_to stages_page_path, notice: "Etapa creada correctamente." }
           end

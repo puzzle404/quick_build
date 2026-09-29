@@ -5,6 +5,14 @@
     <meta name="viewport" content="width=device-width,initial-scale=1">
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="mobile-web-app-capable" content="yes">
+    <%# Recarga completa al llegar acá por Turbo (ej: cerrar sesión desde el
+        constructor): Turbo sólo reemplaza el <body> y el <html> quedaba con el
+        data-theme del layout constructor, que activa `[data-theme] .hidden`
+        con !important y escondía el navbar ("Iniciar sesión"/"Registrarse")
+        hasta refrescar a mano. Nunca en respuestas de turbo-frame: ahí Turbo
+        lo toma como "recargá todo" y el modal de login de la landing se
+        convertía en una navegación a /session/new. %>
+    <% unless turbo_frame_request? %><meta name="turbo-visit-control" content="reload"><% end %>
     <%= csrf_meta_tags %>
     <%= csp_meta_tag %>
 

@@ -1,0 +1,13 @@
+<%# data-turbo-temporary: que el snapshot de la caché de Turbo no lo guarde,
+    o volver atrás re-mostraría un aviso viejo. %>
+<div class="qb-toast qb-toast--<%= tone %>" role="<%= role %>" data-turbo-temporary
+     data-controller="qb--toast" data-qb--toast-duration-value="<%= duration_ms %>"
+     data-action="mouseenter->qb--toast#pause mouseleave->qb--toast#resume"
+     style="--qb-toast-duration: <%= duration_ms %>ms;">
+  <span class="qb-toast-icon"><%= render Qb::IconComponent.new(name: icon, size: 14) %></span>
+  <div class="qb-toast-msg"><%= message %></div>
+  <button type="button" class="qb-toast-close" aria-label="Cerrar aviso" data-action="click->qb--toast#dismiss">
+    <%= render Qb::IconComponent.new(name: :x, size: 12) %>
+  </button>
+  <span class="qb-toast-timer" aria-hidden="true"></span>
+</div>
