@@ -29,7 +29,7 @@ class Constructors::Projects::Blueprints::ViewerComponent < ViewComponent::Base
   # workspace. Arrancan ocultos con `.hidden` (regla `[data-theme] .hidden` con
   # !important, que gana sobre el display:flex inline) y el JS los muestra
   # sacando/poniendo esa clase — igual que antes.
-  MODAL_BACKDROP = "display:flex;position:fixed;inset:0;z-index:60;background:rgba(0,0,0,0.5);" \
+  MODAL_BACKDROP = "display:flex;position:fixed;inset:0;z-index:60;background:var(--color-scrim);" \
                    "align-items:center;justify-content:center;padding:20px;"
 
   MODAL_PANEL = "width:100%;max-width:448px;border-radius:10px;background:var(--color-bg-raised);" \

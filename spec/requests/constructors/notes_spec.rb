@@ -87,7 +87,7 @@ RSpec.describe "Constructors::Notes", type: :request do
       # respuesta turbo-stream buscando <turbo-stream> y descartaría el form.
       expect(response.media_type).to eq("text/html")
       expect(response.body).to include('id="drawer"')
-      expect(response.body).to include("qb-drawer-panel")
+      expect(body_without_templates).to include("qb-drawer-panel")
       expect(response.body).to include("No pudimos guardar la nota")
       expect(response.body).to include("Sin cuerpo")
     end
@@ -98,7 +98,7 @@ RSpec.describe "Constructors::Notes", type: :request do
            headers: { "Turbo-Frame" => "drawer" }
 
       expect(response).to have_http_status(:unprocessable_entity)
-      expect(response.body).to include("qb-drawer-panel")
+      expect(body_without_templates).to include("qb-drawer-panel")
       expect(response.body).to include("No pudimos guardar la nota")
     end
 
@@ -123,7 +123,7 @@ RSpec.describe "Constructors::Notes", type: :request do
       get new_constructors_project_note_path(project), headers: { "Turbo-Frame" => "drawer" }
 
       expect(response).to have_http_status(:ok)
-      expect(response.body).to include("qb-drawer-panel")
+      expect(body_without_templates).to include("qb-drawer-panel")
     end
   end
 

@@ -5,7 +5,7 @@
        role="dialog" aria-modal="true" aria-label="Buscar"
        data-action="click->qb--cmd-palette#backdrop"
        class="hidden"
-       style="display:none;position:fixed;inset:0;background:rgba(10,14,24,0.35);z-index:100;align-items:flex-start;justify-content:center;padding-top:12vh;">
+       style="display:none;position:fixed;inset:0;background:var(--color-scrim);z-index:100;align-items:flex-start;justify-content:center;padding-top:12vh;">
     <div style="width:560px;max-height:70vh;display:flex;flex-direction:column;background:var(--color-bg-raised);border:1px solid var(--color-line-2);border-radius:10px;box-shadow:0 20px 60px rgba(0,0,0,0.25);overflow:hidden;">
       <%# Search input %>
       <div style="display:flex;align-items:center;gap:10px;padding:12px 14px;border-bottom:1px solid var(--color-line);">
@@ -22,8 +22,8 @@
       <%# Results · llenado dinámicamente por qb--cmd-palette#_render %>
       <div data-qb--cmd-palette-target="results"
            style="overflow:auto;padding:6px;flex:1;">
-        <div style="padding:32px;text-align:center;color:var(--color-ink-4);font-size:12px;">
-          Cargando…
+        <div style="padding:32px;display:flex;justify-content:center;">
+          <%= render Qb::SpinnerComponent.new(variant: :ring, size: 18, label: "Cargando…", stacked: false) %>
         </div>
       </div>
 

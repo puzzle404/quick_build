@@ -27,6 +27,10 @@
 
   --radius:    6px;
   --radius-sm: 4px;
+
+  /* Velo detrás de drawers/modales/sheets. Token propio (no derivado de
+     --color-ink): en Night la tinta es casi blanca y el velo salía blanco. */
+  --color-scrim: oklch(18% 0.012 270 / 0.42);
 }
 
 /* Night theme override (data-theme="night") */
@@ -43,6 +47,7 @@
   --color-accent:      oklch(78% 0.17 75);
   --color-accent-ink:  oklch(18% 0.05 75);
   --color-accent-soft: oklch(30% 0.08 75);
+  --color-scrim:       oklch(8% 0.015 250 / 0.68);
   --color-ok:          oklch(72% 0.15 155);
   --color-warn:        oklch(78% 0.17 75);
   --color-bad:         oklch(68% 0.19 25);
@@ -116,8 +121,44 @@
 }
 
 @layer components {
-  .leaflet-container {
-    width: 100% !important;
+  /* Mapas de Google con pin fijo al centro (project-map, qb--mini-map): se
+     mueve el mapa debajo del pin, como en las apps de delivery. */
+  .qb-pin-map {
+    position: relative; width: 100%; overflow: hidden;
+    border-radius: var(--radius); border: 1px solid var(--color-line);
+    background: var(--color-bg-sunken);
+  }
+  .qb-pin-map-pin {
+    position: absolute; left: 50%; top: 50%; z-index: 1;
+    transform: translate(-50%, -100%); pointer-events: none;
+    filter: drop-shadow(0 2px 3px rgba(0,0,0,.35));
+  }
+  .qb-pin-map-pin path { fill: var(--color-accent); }
+  .qb-pin-map-pin circle { fill: var(--color-bg); }
+
+  /* Sugerencias de dirección (project-map): dropdown propio con tokens QB OS
+     en lugar del widget de Google. */
+  .qb-addr-suggestions {
+    position: absolute; left: 0; right: 0; top: calc(100% + 4px); z-index: 20;
+    margin: 0; padding: 4px; list-style: none;
+    background: var(--color-bg-raised); border: 1px solid var(--color-line-2);
+    border-radius: var(--radius); box-shadow: 0 12px 28px -12px rgba(0,0,0,.4);
+    max-height: 280px; overflow-y: auto;
+  }
+  .qb-addr-option {
+    display: flex; flex-direction: column; gap: 1px;
+    padding: 7px 9px; border-radius: 4px; cursor: pointer;
+  }
+  .qb-addr-option:hover, .qb-addr-option.is-active { background: var(--color-bg-sunken); }
+  .qb-addr-option-main { font-size: 13px; color: var(--color-ink); }
+  .qb-addr-option-secondary { font-size: 11px; color: var(--color-ink-3); }
+  .qb-addr-searching {
+    display: flex; align-items: center; gap: 8px;
+    padding: 9px; font-size: 12px; color: var(--color-ink-3);
+  }
+  .qb-addr-credit {
+    padding: 6px 9px 3px; font-size: 10px; color: var(--color-ink-4);
+    text-align: right; font-family: var(--font-mono);
   }
 
   /* ─── Responsive · tablet/mobile breakpoints ─────────────── */
@@ -205,7 +246,7 @@
     z-index: 60;
     align-items: flex-end;
     justify-content: center;
-    background: color-mix(in oklab, var(--color-ink) 45%, transparent);
+    background: var(--color-scrim);
   }
   .qb-sheet-panel {
     width: 100%;
@@ -301,6 +342,154 @@
   }
   .qb-textarea { resize: vertical; min-height: 64px; }
   .qb-input:disabled, .qb-select:disabled { opacity: 0.6; cursor: not-allowed; }
+
+  /* ─── Estados de carga (diseño: artifact "Quick Build · Spinner de carga") ───
+     Bloques = la marca de carga (páginas, drawer, paneles). Anillo = tamaño
+     chico (botones guardando, búsquedas inline). Todo aparece recién pasados
+     ~300 ms (qb--loading / qb--drawer) para no parpadear en cargas rápidas. */
+  .qb-spinner-blocks {
+    display: inline-grid; grid-template-columns: repeat(2, 1fr);
+    gap: var(--qb-spinner-gap, 3px);
+    width: var(--qb-spinner-size, 28px); height: var(--qb-spinner-size, 28px);
+    flex-shrink: 0;
+  }
+  .qb-spinner-blocks > span {
+    border-radius: 2px; background: var(--qb-spinner-color, var(--color-accent));
+    animation: qb-spinner-block 1.2s cubic-bezier(.6,0,.4,1) infinite;
+  }
+  /* Orden de colocación: arriba-izq → arriba-der → abajo-der → abajo-izq. */
+  .qb-spinner-blocks > span:nth-child(2) { animation-delay: .3s; }
+  .qb-spinner-blocks > span:nth-child(4) { animation-delay: .6s; }
+  .qb-spinner-blocks > span:nth-child(3) { animation-delay: .9s; }
+  @keyframes qb-spinner-block {
+    0%, 100% { opacity: .18; transform: scale(.72); }
+    30%      { opacity: 1;   transform: scale(1); }
+    60%      { opacity: .18; transform: scale(.72); }
+  }
+
+  .qb-spinner-ring {
+    display: inline-block; box-sizing: border-box; flex-shrink: 0;
+    width: var(--qb-spinner-size, 16px); height: var(--qb-spinner-size, 16px);
+    border-radius: 50%;
+    border: var(--qb-spinner-stroke, 2px) solid var(--qb-spinner-track, var(--color-line-2));
+    border-top-color: var(--qb-spinner-color, var(--color-accent));
+    animation: qb-spinner-spin .84s cubic-bezier(.55,.15,.45,.85) infinite;
+  }
+  @keyframes qb-spinner-spin { to { transform: rotate(360deg); } }
+
+  .qb-spinner-label {
+    font-family: var(--font-mono); font-size: 11px; letter-spacing: .6px;
+    text-transform: uppercase; color: var(--color-ink-3);
+  }
+
+  /* Esqueleto (drawer cargando). */
+  .qb-skeleton {
+    display: block; border-radius: 4px;
+    background: linear-gradient(90deg, var(--color-line) 0%, var(--color-line-2) 50%, var(--color-line) 100%);
+    background-size: 200% 100%;
+    animation: qb-skeleton 1.4s ease-in-out infinite;
+  }
+  @keyframes qb-skeleton { from { background-position: 100% 0; } to { background-position: -100% 0; } }
+
+  /* Barra de progreso de Turbo (navegación): fina, color de acento. */
+
+  /* Overlay de página lenta: cubre el área de contenido (no el sidebar). */
+  .qb-page-loader {
+    position: fixed; top: 0; right: 0; bottom: 0; left: var(--qb-sidebar-w, 0px); z-index: 45;
+    display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 14px;
+    /* Casi opaco + blur: con 72% el texto de atrás se mezclaba con "Cargando…". */
+    background: color-mix(in oklab, var(--color-bg) 90%, transparent);
+    -webkit-backdrop-filter: blur(3px); backdrop-filter: blur(3px);
+    opacity: 0; visibility: hidden; transition: opacity .18s ease, visibility 0s linear .18s;
+  }
+  html.qb-page-loading .qb-page-loader { opacity: 1; visibility: visible; transition: opacity .18s ease; }
+
+  /* Botón mientras su form se envía: el ícono se reemplaza por el anillo. */
+  .qb-is-busy { cursor: progress !important; opacity: .85; }
+  .qb-is-busy > svg:first-child { display: none; }
+  .qb-is-busy::before {
+    content: ""; display: inline-block; box-sizing: border-box; flex-shrink: 0;
+    width: 13px; height: 13px; border-radius: 50%;
+    border: 2px solid color-mix(in oklab, currentColor 30%, transparent);
+    border-top-color: currentColor;
+    animation: qb-spinner-spin .84s cubic-bezier(.55,.15,.45,.85) infinite;
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .qb-spinner-blocks > span, .qb-spinner-ring, .qb-skeleton, .qb-is-busy::before { animation-duration: 3s; }
+  }
+
+  /* Qb::ToastStackComponent / Qb::ToastComponent — flash como toasts abajo a
+     la derecha. Entran de izquierda a derecha y salen siguiendo el mismo
+     sentido. z-index por encima del drawer (70): un "Gasto registrado" tiene
+     que verse aunque el panel siga abierto. */
+  .qb-toasts {
+    position: fixed; right: 20px; bottom: 20px; z-index: 80;
+    display: flex; flex-direction: column; align-items: flex-end; gap: 8px;
+    pointer-events: none; max-width: calc(100vw - 32px);
+  }
+  .qb-toast {
+    pointer-events: auto; position: relative; overflow: hidden;
+    display: flex; align-items: flex-start; gap: 10px;
+    width: 360px; max-width: 100%;
+    padding: 12px 12px 14px 12px;
+    background: var(--color-bg-raised); color: var(--color-ink);
+    border: 1px solid var(--color-line-2); border-left: 3px solid var(--qb-toast-tone);
+    border-radius: var(--radius);
+    box-shadow: 0 10px 30px -10px rgba(0,0,0,.35);
+    font-size: 13px; line-height: 1.4;
+    opacity: 0; transform: translateX(-32px);
+  }
+  .qb-toast--ok   { --qb-toast-tone: var(--color-ok); }
+  .qb-toast--bad  { --qb-toast-tone: var(--color-bad); }
+  .qb-toast--warn { --qb-toast-tone: var(--color-warn); }
+  .qb-toast--info { --qb-toast-tone: var(--color-info); }
+  .qb-toast-icon { color: var(--qb-toast-tone); flex-shrink: 0; margin-top: 1px; display: inline-flex; }
+  .qb-toast-msg { flex: 1; min-width: 0; }
+  .qb-toast-close {
+    flex-shrink: 0; background: transparent; border: none; cursor: pointer;
+    color: var(--color-ink-4); padding: 2px; display: inline-flex;
+  }
+  .qb-toast-close:hover { color: var(--color-ink); }
+  .qb-toast-timer {
+    position: absolute; left: 0; bottom: 0; height: 2px; width: 100%;
+    background: var(--qb-toast-tone); opacity: .5; transform-origin: left;
+  }
+  .qb-toast.qb-toast-in { animation: qb-toast-enter .32s cubic-bezier(.2,.8,.2,1) forwards; }
+  .qb-toast.qb-toast-in .qb-toast-timer { animation: qb-toast-timer var(--qb-toast-duration, 5000ms) linear forwards; }
+  .qb-toast.qb-toast-paused .qb-toast-timer { animation-play-state: paused; }
+  .qb-toast.qb-toast-out { opacity: 1; transform: none; animation: qb-toast-leave .24s ease-in forwards; }
+  @keyframes qb-toast-enter { from { opacity: 0; transform: translateX(-32px); } to { opacity: 1; transform: none; } }
+  @keyframes qb-toast-leave { from { opacity: 1; transform: none; } to { opacity: 0; transform: translateX(110%); } }
+  @keyframes qb-toast-timer { from { transform: scaleX(1); } to { transform: scaleX(0); } }
+  @media (prefers-reduced-motion: reduce) {
+    .qb-toast.qb-toast-in, .qb-toast.qb-toast-out { animation-duration: .01ms; }
+  }
+  /* Teléfono: por encima de la barra inferior (constructor angosto y layout mobile). */
+  @media (max-width: 767.98px) {
+    .qb-toasts { right: 12px; left: 12px; bottom: calc(76px + env(safe-area-inset-bottom)); align-items: stretch; }
+    .qb-toast { width: auto; }
+  }
+
+  /* Qb::MoneyFieldComponent — prefijo de moneda dentro del input + dígitos
+     tabulares mono, alineados a la derecha como en las tablas de montos. */
+  .qb-money { position: relative; display: block; width: 100%; }
+  .qb-money-currency {
+    position: absolute; left: 10px; top: 50%; transform: translateY(-50%);
+    font-family: var(--font-mono); font-size: 12px; color: var(--color-ink-3);
+    pointer-events: none;
+  }
+  .qb-money-input {
+    font-family: var(--font-mono);
+    font-variant-numeric: tabular-nums;
+    text-align: right;
+  }
+  .qb-money .qb-input.qb-money-input { padding-left: 24px; }
+  .qb-money--compact .qb-money-currency { left: 0; font-size: 11px; }
+  .qb-money--compact .qb-money-input {
+    border: none; outline: none; background: transparent; color: var(--color-ink);
+    font-size: 12px; width: 100%; padding: 0 0 0 12px;
+  }
 
   /* Qb::FileFieldComponent — input[type=file] real oculto (accesible, un
      <label for> lo abre sin JS) + trigger con look de botón + nombre del
@@ -495,6 +684,115 @@
   }
   .qb-tab--active .qb-tab-count { color: var(--color-accent); background: color-mix(in oklab, var(--color-accent) 14%, transparent); }
   .qb-tab-panel { padding: 14px 16px; min-height: 130px; }
+  .qb-tabbed--flush .qb-tab-panel { padding: 0; min-height: 0; }
+
+  /* Rail del proyecto (projects#show). Sin alto fijo ni scroll propio:
+     qb--sticky-fit le pone .is-sticky (pegado bajo la topbar de 48px) sólo
+     cuando entra entero en la pantalla; si no, fluye con la página. */
+  .qb-project-rail { min-width: 0; align-self: start; background: var(--color-bg); }
+  .qb-project-rail.is-sticky { position: sticky; top: 48px; }
+  /* Las tabs en una línea, repartidas parejo. */
+  .qb-project-rail .qb-tabs { padding: 0 8px; gap: 0; }
+  .qb-project-rail .qb-tab { flex: 1; justify-content: center; height: 42px; }
+
+  /* Bloques dentro de un tab del rail: subtítulo liviano (sin la caja de
+     Qb::SectionHeadComponent) para que no parezca una pila de secciones. */
+  .qb-rail-block { padding: 14px 0 4px; border-bottom: 1px solid var(--color-line); }
+  .qb-rail-block:last-child { border-bottom: none; }
+  .qb-rail-subhead {
+    display: flex; align-items: center; gap: 8px; padding: 0 16px 6px;
+    font-family: var(--font-mono); font-size: 10.5px; letter-spacing: .7px;
+    text-transform: uppercase; color: var(--color-ink-3); font-weight: 500;
+  }
+  .qb-rail-subhead a, .qb-rail-subhead button { text-transform: none; letter-spacing: 0; font-family: var(--font-ui); }
+  .qb-rail-count {
+    font-size: 10px; color: var(--color-ink-2); background: var(--color-bg-sunken);
+    padding: 1px 6px; border-radius: 3px; letter-spacing: 0;
+  }
+  .qb-rail-link {
+    font-family: var(--font-ui); text-transform: none; letter-spacing: 0;
+    font-size: 11.5px; color: var(--color-accent); text-decoration: none;
+  }
+
+  /* Texto sólo para lectores de pantalla (labels de inputs sin label visible). */
+  .qb-sr-only {
+    position: absolute; width: 1px; height: 1px; padding: 0; margin: -1px;
+    overflow: hidden; clip: rect(0, 0, 0, 0); white-space: nowrap; border: 0;
+  }
+
+  /* Bitácora del proyecto (LogbookComponent): composer + historial. */
+  .qb-composer {
+    border: 1px solid var(--color-line-2); border-radius: var(--radius);
+    background: var(--color-bg-raised); transition: border-color .15s ease;
+  }
+  .qb-composer:focus-within { border-color: var(--color-accent); }
+  .qb-composer-input {
+    display: block; width: 100%; box-sizing: border-box; resize: vertical; min-height: 44px;
+    border: none; outline: none; background: transparent; padding: 10px 12px 4px;
+    font-family: var(--font-ui); font-size: 13px; line-height: 1.45; color: var(--color-ink);
+  }
+  .qb-composer-input::placeholder { color: var(--color-ink-4); }
+  .qb-composer-foot { display: flex; align-items: center; gap: 8px; padding: 6px 8px 8px 12px; }
+  .qb-composer-link {
+    display: inline-flex; align-items: center; gap: 5px; font-size: 11.5px;
+    color: var(--color-ink-3); text-decoration: none;
+  }
+  .qb-composer-link:hover { color: var(--color-ink); }
+
+  /* Control segmentado chico (filtros). */
+  .qb-seg { display: inline-flex; padding: 2px; border-radius: 6px; background: var(--color-bg-sunken); border: 1px solid var(--color-line); }
+  .qb-seg-btn {
+    height: 22px; padding: 0 9px; border: none; border-radius: 4px; cursor: pointer;
+    background: transparent; font-family: var(--font-ui); font-size: 11.5px; color: var(--color-ink-3);
+  }
+  .qb-seg-btn:hover { color: var(--color-ink); }
+  .qb-seg-btn[aria-pressed="true"] { background: var(--color-bg-raised); color: var(--color-ink); box-shadow: 0 1px 2px rgba(0,0,0,.2); font-weight: 500; }
+
+  /* Historial: línea de tiempo con ícono por tipo. */
+  .qb-timeline { list-style: none; margin: 0; padding: 6px 16px 16px; }
+  .qb-timeline-item { position: relative; display: flex; gap: 12px; padding: 10px 0; }
+  .qb-timeline-item::before {
+    content: ""; position: absolute; left: 11px; top: 34px; bottom: -10px; width: 1px; background: var(--color-line);
+  }
+  .qb-timeline-item:last-child::before { display: none; }
+  .qb-timeline-icon {
+    flex-shrink: 0; width: 23px; height: 23px; border-radius: 50%;
+    display: inline-flex; align-items: center; justify-content: center;
+  }
+  .qb-timeline-icon--note { background: color-mix(in oklab, var(--color-accent) 16%, transparent); color: var(--color-accent); }
+  .qb-timeline-icon--activity { background: var(--color-bg-sunken); color: var(--color-ink-3); border: 1px solid var(--color-line); }
+  .qb-timeline-body { flex: 1; min-width: 0; padding-top: 2px; }
+  .qb-timeline-title { font-size: 12.5px; font-weight: 600; color: var(--color-ink); line-height: 1.4; }
+  .qb-timeline-title--plain { font-weight: 500; white-space: pre-line; }
+  .qb-timeline-text { font-size: 12px; color: var(--color-ink-2); margin-top: 2px; line-height: 1.45; white-space: pre-line; }
+  .qb-timeline-meta {
+    display: flex; align-items: center; gap: 8px; margin-top: 4px;
+    font-family: var(--font-mono); font-size: 10px; color: var(--color-ink-4);
+  }
+  .qb-timeline-delete { margin-left: auto; color: var(--color-ink-4); display: inline-flex; padding: 2px; transition: opacity .15s ease; }
+  /* Con mouse, el tacho aparece al pasar por la entrada; en touch queda siempre. */
+  @media (hover: hover) {
+    .qb-timeline-delete { opacity: 0; }
+    .qb-timeline-item:hover .qb-timeline-delete, .qb-timeline-delete:focus-visible { opacity: 1; }
+  }
+  .qb-timeline-delete:hover { color: var(--color-bad); }
+  .qb-log[data-expanded="false"] .qb-timeline-item--extra { display: none; }
+  .qb-clamp-3 { display: -webkit-box; -webkit-line-clamp: 3; -webkit-box-orient: vertical; overflow: hidden; }
+  .qb-timeline-empty { padding: 14px 0; font-size: 12px; color: var(--color-ink-4); list-style: none; }
+  /* Filtro Todo / Notas / Actividad por atributo (qb--log-filter). */
+  .qb-log[data-filter="notes"] [data-kind="activity"],
+  .qb-log[data-filter="activity"] [data-kind="note"] { display: none !important; }
+
+  .qb-health-strip {
+    flex-shrink: 0; display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 8px;
+    padding: 12px; border-bottom: 1px solid var(--color-line);
+  }
+  .qb-health-cell {
+    padding: 8px 10px; border: 1px solid var(--color-line); border-radius: var(--radius);
+    background: var(--color-bg-raised);
+  }
+  .qb-health-label { font-size: 10.5px; color: var(--color-ink-3); }
+  .qb-health-value { font-size: 15px; font-weight: 600; margin-top: 2px; color: var(--color-ink); }
 
   /* ─── Stage Detail (drawer) redesign ─────────────────────── */
   .sd-hero { padding: 16px 18px; background: var(--color-bg); border-bottom: 1px solid var(--color-line); display: flex; flex-direction: column; gap: 12px; }
@@ -995,16 +1293,27 @@
 
   .qb-drawer-backdrop {
     position: absolute; inset: 0;
-    background: color-mix(in oklab, var(--color-ink) 45%, transparent);
+    background: var(--color-scrim);
   }
 
   turbo-frame#drawer { display: contents; }
+
+  body.qb-os:has(.qb-sidebar) { --qb-sidebar-w: 224px; }
+  body.qb-os:has(.qb-sidebar.qb-sidebar-collapsed) { --qb-sidebar-w: 56px; }
+  @media (max-width: 1023.98px) {
+    body.qb-os:has(.qb-sidebar:not(.qb-sidebar-expanded)) { --qb-sidebar-w: 56px; }
+  }
+  @media (max-width: 767.98px) {
+    body.qb-os { --qb-sidebar-w: 0px !important; }
+  }
 
   .qb-drawer-panel {
     position: relative;
     height: 100vh;
     width: var(--qb-drawer-width, 560px);
-    max-width: 100vw;
+    /* Nunca tapa el sidebar: el drawer :xl (880px) se lo comía entero en
+       notebooks. --qb-sidebar-w sigue el estado real del rail (abajo). */
+    max-width: calc(100vw - var(--qb-sidebar-w, 0px));
     background: var(--color-bg);
     border-left: 1px solid var(--color-line);
     box-shadow: -8px 0 24px -8px rgba(0,0,0,.25);
@@ -1047,3 +1356,8 @@
     .qb-drawer-panel { transform: none !important; }
   }
 }
+
+/* Barra de progreso de Turbo: fuera de @layer a propósito. Turbo inyecta su
+   propio <style> sin capa (azul #0076ff) y el CSS sin capa siempre le gana a
+   cualquier @layer, sin importar la especificidad. */
+html .turbo-progress-bar { height: 2px; background: var(--color-accent); }

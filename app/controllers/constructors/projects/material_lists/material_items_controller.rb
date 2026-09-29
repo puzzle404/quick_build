@@ -22,6 +22,19 @@ class Constructors::Projects::MaterialLists::MaterialItemsController < Construct
       return
     end
 
+    # Alta inline desde el drawer de la lista (ListDetailComponent): el drawer
+    # no tiene los targets del turbo_stream de la página completa, así que se
+    # redirige al show y el frame "drawer" se re-renderiza con el ítem nuevo.
+    if turbo_frame_request?
+      if @material_item.save
+        redirect_to constructors_project_material_list_path(@project, @material_list), status: :see_other
+      else
+        redirect_to constructors_project_material_list_path(@project, @material_list),
+                    status: :see_other, alert: "No pudimos agregar el material. Revisá los datos."
+      end
+      return
+    end
+
     respond_to do |format|
       if @material_item.save
         @material_items = @material_list.material_items.order(created_at: :desc)
@@ -47,7 +60,13 @@ class Constructors::Projects::MaterialLists::MaterialItemsController < Construct
     @material_items = @material_list.material_items.order(created_at: :desc)
     @material_item = @material_list.material_items.build
 
-    # Mismo criterio que en create: mobile no tiene los targets del desktop.
+    # Mismo criterio que en create: ni mobile ni el drawer tienen los targets
+    # del turbo_stream de la página completa.
+    if turbo_frame_request?
+      redirect_to constructors_project_material_list_path(@project, @material_list), status: :see_other
+      return
+    end
+
     if request.variant.include?(:mobile)
       redirect_to constructors_project_material_list_path(@project, @material_list),
                   notice: "Material eliminado de la lista."
@@ -82,6 +101,6 @@ class Constructors::Projects::MaterialLists::MaterialItemsController < Construct
   end
 
   def material_item_params
-    params.require(:material_item).permit(:name, :description, :quantity, :unit, :estimated_cost_cents, :confidence_label, :notes)
+    params.require(:material_item).permit(:name, :description, :quantity, :unit, :estimated_cost_cents, :estimated_cost_pesos, :confidence_label, :notes)
   end
 end

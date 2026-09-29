@@ -36,7 +36,7 @@
   <div style="padding:14px 20px;border-bottom:1px solid var(--color-line);display:flex;align-items:flex-end;gap:16px;">
     <div style="flex:1;min-width:0;">
       <div style="font-size:11px;font-family:var(--font-mono);color:var(--color-ink-3);text-transform:uppercase;letter-spacing:0.8px;"><%= @project.code %> · Materiales</div>
-      <h2 style="margin:3px 0 0;font-size:18px;font-weight:600;letter-spacing:-0.3px;"><%= "#{@material_list.display_number} #{@material_list.name}".strip %></h2>
+      <h2 style="margin:3px 0 0;font-size:18px;font-weight:600;letter-spacing:-0.3px;"><%= "#{@material_list.code} #{@material_list.name}".strip %></h2>
       <div style="font-size:12px;color:var(--color-ink-3);margin-top:4px;display:flex;align-items:center;gap:8px;flex-wrap:wrap;">
         <%= render Qb::PillComponent.new(status_label, tone: status_tone, compact: true) %>
         <span><%= source_label %></span>

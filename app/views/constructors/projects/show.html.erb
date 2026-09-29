@@ -52,10 +52,11 @@
     <%# "Exportar" vive en el header del proyecto (header_component): era el
         mismo CSV, duplicado a 200px de distancia. %>
     <% if can.manage_content? %>
-      <div data-controller="qb--drawer" style="display:contents;">
-        <%= render Qb::BtnComponent.new('Nueva etapa', variant: :primary, size: :sm, icon: :plus, data: { action: 'click->qb--drawer#open' }) %>
-        <%= render Constructors::Projects::Planning::NewStageDrawerComponent.new(project: @project, root_stages: @root_stages) %>
-      </div>
+      <%# Ruta propia (stages#new) en el drawer global: el form ya no viaja
+          embebido en el HTML del proyecto. %>
+      <%= render Qb::BtnComponent.new('Nueva etapa', variant: :primary, size: :sm, icon: :plus,
+            href: new_constructors_project_stage_path(@project),
+            data: { turbo_frame: 'drawer', action: 'click->qb--drawer#open' }) %>
     <% end %>
   </div>
 
@@ -88,7 +89,7 @@
       <%# Cards view %>
       <div data-qb--view-switcher-target="panel" data-view="cards">
         <% if @root_stages.any? %>
-          <div id="planning_stages" style="padding:16px;display:flex;flex-direction:column;gap:12px;">
+          <div id="planning_stages" style="padding:12px 16px;display:flex;flex-direction:column;gap:8px;">
             <% @root_stages.each do |stage| %>
               <%# sort_by sobre la asociación eager-loaded (.order dispararía 1 query por etapa).
                   expense_totals inyectado: sin él cada card se pega a la base por su cuenta. %>
@@ -121,78 +122,44 @@
       </div>
     </div>
 
-    <%# Rail de seguimiento — de lo más accionable a lo más estático. %>
-    <aside style="min-width:0;">
-      <%# Sin botón "PNG": la curva S es un SVG inline, no un canvas exportable. %>
-      <%= render Qb::SectionHeadComponent.new(title: 'Curva S · Real vs Plan') %>
-      <%= render Constructors::Projects::Overview::SCurveComponent.new(project: @project, width: 380, height: 190) %>
-
-      <%= render Qb::SectionHeadComponent.new(title: 'Riesgos y bloqueos') %>
-      <%= render Constructors::Projects::Overview::RisksPanelComponent.new(project: @project) %>
-
-      <%= render Qb::SectionHeadComponent.new(title: 'Mapa de obra', subtitle: 'Color = salud de la etapa') %>
-      <%= render Constructors::Projects::Overview::StageHeatmapComponent.new(stages: @root_stages) %>
-
-      <%= render Qb::SectionHeadComponent.new(title: 'Clima') %>
-      <%= render Constructors::Projects::WeatherComponent.new(forecast: @weather_forecast, project: @project) %>
-
-      <%# Chips = usuarios con acceso a la obra. El rol que muestran es el de la
-          MEMBRESÍA, así que van las memberships (con el owner adelante), no los
-          User: `user.role` es el rol de plataforma y decía "Constructor" para
-          todos. La gestión completa (cambiar rol / quitar) vive en Equipo. %>
-      <div data-controller="qb--drawer">
-        <%= render Qb::SectionHeadComponent.new(title: 'Equipo asignado') do |c| %>
-          <% if can.manage_team? %>
-            <% c.with_right { render Qb::BtnComponent.new('Invitar', variant: :ghost, size: :xs, icon: :plus, data: { action: 'click->qb--drawer#open' }) } %>
-          <% end %>
+    <%# Rail del proyecto. Dos tabs:
+          · Seguimiento — cómo viene la obra (salud, curva S, alertas,
+            vencimientos) y su bitácora compacta.
+          · Datos de la obra — la ficha cargada al crearla (ubicación, cliente,
+            fechas, presupuesto…).
+        Sin scroll propio: qb--sticky-fit lo deja pegado arriba sólo si entra
+        en la pantalla; si no, fluye con la página. Lo que ya vive en otra tab
+        (equipo, documentos, estado de cada etapa) no se repite acá. %>
+    <% notes = @project.notes.recent_first.includes(:author).to_a %>
+    <% risks = Constructors::Projects::Overview::RisksPanelComponent.new(project: @project, stages: @root_stages) %>
+    <aside class="qb-project-rail" aria-label="Seguimiento de la obra" data-controller="qb--sticky-fit">
+      <%= render Qb::TabbedPanelComponent.new(storage_key: "qb_project_rail_tab", flush: true) do |tp| %>
+        <% tp.with_tab(label: 'Seguimiento', key: :seguimiento) do %>
+          <%= render Constructors::Projects::Overview::HealthStripComponent.new(project: @project, stages: @root_stages) %>
+          <div class="qb-rail-block">
+            <div class="qb-rail-subhead">Curva S · real vs plan</div>
+            <%# Sin botón "PNG": la curva S es un SVG inline, no un canvas exportable. %>
+            <%= render Constructors::Projects::Overview::SCurveComponent.new(project: @project, width: 380, height: 190) %>
+          </div>
+          <div class="qb-rail-block">
+            <div class="qb-rail-subhead">Alertas <span class="qb-rail-count"><%= risks.items.size %></span></div>
+            <%= render risks %>
+          </div>
+          <div class="qb-rail-block">
+            <div class="qb-rail-subhead">Próximos vencimientos</div>
+            <%= render Constructors::Projects::Overview::UpcomingDeadlinesComponent.new(project: @project, stages: @root_stages) %>
+          </div>
+          <div class="qb-rail-block" style="padding-top:14px;">
+            <div class="qb-rail-subhead">Bitácora <span class="qb-rail-count"><%= notes.size %></span></div>
+            <%= render Constructors::Projects::Overview::LogbookComponent.new(project: @project, notes: notes, activity_entries: @activity_entries) %>
+          </div>
         <% end %>
-        <%= render Constructors::Projects::Overview::TeamChipsComponent.new(project: @project, limit: 6) %>
-        <% if can.manage_team? %>
-          <%= render Constructors::Projects::Overview::InviteMemberDrawerComponent.new(project: @project) %>
-        <% end %>
-      </div>
 
-      <%= render Qb::SectionHeadComponent.new(title: 'Documentos recientes') %>
-      <%= render Constructors::Projects::Overview::RecentDocsComponent.new(documents: @recent_documents) %>
-
-      <%= render Qb::SectionHeadComponent.new(title: 'Ubicación') %>
-      <%= render Constructors::Projects::Overview::MiniMapComponent.new(lat: @project.latitude, lng: @project.longitude) %>
-    </aside>
-  </div>
-
-  <%# ── Bitácora ────────────────────────────────────────────────────────
-      Contenido de lectura larga: ocupa el ancho completo debajo del
-      workspace, en dos columnas parejas. %>
-  <div style="display:grid;grid-template-columns:1fr 1fr;gap:0;border-top:1px solid var(--color-line-2);">
-    <div style="border-right:1px solid var(--color-line);">
-      <%= render Qb::SectionHeadComponent.new(title: 'Actividad en este proyecto') %>
-      <%= render Constructors::Dashboard::ActivityFeedComponent.new(entries: @activity_entries) %>
-    </div>
-
-    <div>
-      <%= render Qb::SectionHeadComponent.new(title: 'Notas del proyecto', subtitle: 'Bitácora de reuniones y decisiones de obra') do |c| %>
-        <% if can.manage_content? %>
-          <% c.with_right do %>
-            <%= render Qb::BtnComponent.new('Agregar nota', variant: :primary, size: :xs, icon: :plus,
-                  href: new_constructors_project_note_path(@project),
-                  data: { turbo_frame: 'drawer', action: 'click->qb--drawer#open' }) %>
-          <% end %>
+        <% tp.with_tab(label: 'Datos de la obra', key: :datos) do %>
+          <%= render Constructors::Projects::Overview::ProjectFactsComponent.new(project: @project, weather_forecast: @weather_forecast) %>
         <% end %>
       <% end %>
-      <div style="padding:14px 16px;display:flex;flex-direction:column;gap:12px;">
-        <%# Nota nueva: notes_controller#create no apunta a este contenedor —
-            para notas de proyecto (a diferencia de las de etapa) dispara un
-            turbo_stream.refresh que recarga la página; la lista sale
-            actualizada como efecto de ese refresh, no de un target puntual. %>
-        <div id="project_notes_list">
-          <%= render Constructors::Projects::NotesListComponent.new(
-                notes: @project.notes.recent_first.includes(:author),
-                noteable: @project,
-                project: @project
-              ) %>
-        </div>
-      </div>
-    </div>
+    </aside>
   </div>
 
 </div>

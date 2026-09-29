@@ -53,7 +53,20 @@ RSpec.describe MaterialList, type: :model do
     it "asigna #1 a la primera lista del proyecto" do
       list = create(:material_list, project: project)
       expect(list.number).to eq(1)
-      expect(list.display_number).to eq("#1")
+      expect(list.code).to eq("L01")
+    end
+
+    it "arma el código con la inicial de la etapa (sin acentos) y el número de la obra" do
+      replanteo = create(:project_stage, project: project, name: "Replanteo")
+      revoques  = create(:project_stage, project: project, name: "Revoques")
+      obrador   = create(:project_stage, project: project, name: "Óbrador")
+
+      r1 = create(:material_list, project: project, project_stage: replanteo)
+      rv = create(:material_list, project: project, project_stage: revoques)
+      r2 = create(:material_list, project: project, project_stage: replanteo)
+      o1 = create(:material_list, project: project, project_stage: obrador)
+
+      expect([ r1, rv, r2, o1 ].map(&:code)).to eq(%w[R01 R02 R03 O04])
     end
 
     it "asigna correlativo dentro del mismo proyecto" do

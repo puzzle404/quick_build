@@ -16,7 +16,8 @@ RSpec.describe "Planning stage drawer", type: :system, js: true do
 
     # Click the stage: loads stages#show into the global "drawer" frame, which
     # is what makes qb--drawer open the panel.
-    click_on "Fundaciones"
+    # Acotado a la lista: "Próximos vencimientos" (rail) también linkea la etapa.
+    within("#planning_stages") { click_on "Fundaciones" }
     expect(page).to have_text("Fundaciones", wait: 5)
 
     find(".qb-tab", text: /Gastos/).click

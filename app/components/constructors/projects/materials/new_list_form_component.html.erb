@@ -11,6 +11,7 @@
     <label style="display:flex;flex-direction:column;gap:5px;">
       <span style="font-size:11px;font-weight:500;color:var(--color-ink-2);">Nombre <span style="color:var(--color-accent);">*</span></span>
       <%= f.text_field :name, required: true, placeholder: 'Ej: Hierros para estructura · Losas 1°–3°', class: "qb-input" %>
+      <span style="font-size:10.5px;color:var(--color-ink-4);">Además del nombre, la lista recibe un código automático con la inicial de su etapa (ej: R01).</span>
     </label>
 
     <% if stage %>

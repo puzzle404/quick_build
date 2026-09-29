@@ -27,8 +27,22 @@ class MaterialList < ApplicationRecord
                   associated_against: { project_stage: [ :name, :description ] },
                   using: { tsearch: { prefix: true } }
 
-  def display_number
-    number.present? ? "##{number}" : ""
+  # Prefijo de las listas sin etapa ("L01").
+  UNSTAGED_CODE_PREFIX = "L"
+
+  # Código corto de la lista: inicial de la etapa + número correlativo de la
+  # obra ("R01" para una lista de Replanteo). El número es único por obra, así
+  # que dos etapas con la misma inicial (Replanteo/Revoques) nunca chocan:
+  # R01, R02 (Revoques), R03… El nombre sigue existiendo aparte.
+  def code
+    return "" if number.blank?
+
+    "#{code_prefix}#{number.to_s.rjust(2, '0')}"
+  end
+
+  def code_prefix
+    initial = I18n.transliterate(project_stage&.name.to_s.strip)[/[A-Za-z0-9]/]
+    initial ? initial.upcase : UNSTAGED_CODE_PREFIX
   end
 
   # "Pagada" se deriva de tener gastos asociados: borrar el gasto la

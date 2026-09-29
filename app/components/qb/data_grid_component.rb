@@ -4,7 +4,8 @@
 # las fichas de persona y en los detalles de etapa.
 #
 # items: [{ label:, value:, mono: false, span: 1, href: nil, empty_href: nil,
-#           empty_label: 'Cargar' }]
+#           empty_label: 'Cargar', empty_data: nil }]
+# (`empty_data`: data-* del link de carga, ej. abrirlo en el drawer.)
 #
 # El valor puede venir html_safe (una pill, un link): ERB lo respeta. Si el
 # valor está vacío se muestra un guion, salvo que el item traiga `empty_href`,

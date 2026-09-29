@@ -1,50 +1,63 @@
 import { Controller } from "@hotwired/stimulus"
-// Mismo orden que project_map_controller: leaflet primero, siempre.
-import L from "leaflet"
+import { googleMapsAvailable, loadGoogleMaps } from "google_maps"
 
-// Mapa de solo lectura para el rail del proyecto. Todas las interacciones están
-// apagadas a propósito: el mapa vive dentro de una columna que scrollea y no
-// debe robarle la rueda ni el gesto táctil al usuario. Para ver el mapa de
-// verdad está el link "Ver en mapa" al lado.
+// Mapa de solo lectura del rail del proyecto (Google Maps). Sin gestos: vive
+// en una columna que scrollea y no debe robarle la rueda ni el touch. El pin
+// es el overlay fijo de .qb-pin-map (la obra siempre queda al centro).
 export default class extends Controller {
   static values = {
     lat: Number,
     lng: Number,
     zoom: { type: Number, default: 15 }
   }
+  static targets = ["canvas", "fallback"]
 
   connect() {
     if (!Number.isFinite(this.latValue) || !Number.isFinite(this.lngValue)) return
+    if (!googleMapsAvailable()) return this.showFallback()
 
-    // Turbo puede restaurar un snapshot con los panes ya inyectados.
-    this.element.replaceChildren()
+    // En un tab oculto (rail del proyecto → "Obra") el contenedor mide 0 y
+    // Google dibuja un mapa vacío que no se repinta al mostrarlo: se espera a
+    // que tenga tamaño real.
+    if (this.canvasTarget.offsetWidth === 0) {
+      this.resizeObserver = new ResizeObserver(() => {
+        if (this.canvasTarget.offsetWidth === 0) return
+        this.resizeObserver.disconnect()
+        this.resizeObserver = null
+        this.mount()
+      })
+      this.resizeObserver.observe(this.canvasTarget)
+      return
+    }
+    this.mount()
+  }
 
-    this.map = L.map(this.element, {
-      zoomControl: false,
-      attributionControl: false,
-      dragging: false,
-      scrollWheelZoom: false,
-      doubleClickZoom: false,
-      boxZoom: false,
-      keyboard: false,
-      touchZoom: false,
-      tap: false
-    }).setView([this.latValue, this.lngValue], this.zoomValue)
+  async mount() {
+    try {
+      await loadGoogleMaps()
+      const { Map } = await google.maps.importLibrary("maps")
+      if (!this.element.isConnected) return
 
-    L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png", {
-      maxZoom: 19,
-      detectRetina: true
-    }).addTo(this.map)
-
-    L.marker([this.latValue, this.lngValue]).addTo(this.map)
-
-    // El rail puede tener ancho 0 en el primer frame; sin esto los tiles quedan
-    // grises o mal recortados.
-    setTimeout(() => this.map?.invalidateSize(), 0)
+      this.map = new Map(this.canvasTarget, {
+        center: { lat: this.latValue, lng: this.lngValue },
+        zoom: this.zoomValue,
+        disableDefaultUI: true,
+        gestureHandling: "none",
+        keyboardShortcuts: false,
+        clickableIcons: false
+      })
+    } catch (error) {
+      console.warn(error)
+      this.showFallback()
+    }
   }
 
   disconnect() {
-    this.map?.remove()
+    this.resizeObserver?.disconnect()
     this.map = null
+  }
+
+  showFallback() {
+    if (this.hasFallbackTarget) this.fallbackTarget.hidden = false
   }
 }

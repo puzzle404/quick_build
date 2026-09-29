@@ -26,10 +26,8 @@
         </div>
         <div class="qb-field">
           <%= f.label :budget_pesos, "Presupuesto estimado (ARS)", class: "qb-label" %>
-          <%= f.text_field :budget_pesos, inputmode: 'decimal', placeholder: '1.500.000',
-                value: (f.object.budget_cents.present? ? number_with_precision(f.object.budget_cents / 100.0, precision: 2, separator: ',', delimiter: '.') : nil),
-                class: "qb-input" %>
-          <p style="font-size:10.5px;color:var(--color-ink-4);margin-top:4px;">En pesos. Podés usar puntos de miles y coma decimal.</p>
+          <%= render Qb::MoneyFieldComponent.new(form: f, method: :budget_pesos, placeholder: '1.500.000',
+                value: qb_money_input_value(f.object.budget_cents)) %>
         </div>
         <div class="qb-field">
           <%= f.label :status, "Estado inicial", class: "qb-label" %>
@@ -38,15 +36,7 @@
 
         <div style="margin-top:16px;padding-top:14px;border-top:1px solid var(--color-line);">
           <div style="font-size:11px;color:var(--color-ink-3);font-family:var(--font-mono);text-transform:uppercase;letter-spacing:0.6px;margin-bottom:8px;">Ubicación de la obra</div>
-          <div class="qb-field">
-            <%= f.label :location, "Domicilio", class: "qb-label" %>
-            <%= f.text_field :location, placeholder: 'Ej. Av. Colón 1234, Mendoza', class: "qb-input", data: { project_map_target: "location" } %>
-          </div>
-          <div id="project-map" style="width:100%;height:220px;margin-top:10px;overflow:hidden;border-radius:var(--radius);border:1px solid var(--color-line);"
-               data-controller="project-map" data-project-map-target="map">
-            <%= f.hidden_field :latitude, data: { project_map_target: "latitude" } %>
-            <%= f.hidden_field :longitude, data: { project_map_target: "longitude" } %>
-          </div>
+          <%= render "constructors/projects/location_fields", f: f, map_height: 220 %>
         </div>
 
         <div style="display:flex;align-items:center;gap:8px;margin-top:16px;">
@@ -107,10 +97,8 @@
             </label>
             <label style="display:flex;flex-direction:column;gap:4px;">
               <span style="font-size:11px;color:var(--color-ink-3);font-family:var(--font-mono);text-transform:uppercase;letter-spacing:0.6px;">Presupuesto estimado (ARS)</span>
-              <%= f.text_field :budget_pesos, inputmode: 'decimal', placeholder: '1.500.000',
-                                  value: (f.object.budget_cents.present? ? number_with_precision(f.object.budget_cents / 100.0, precision: 2, separator: ',', delimiter: '.') : nil),
-                                  style: 'width:100%;height:34px;padding:0 10px;border:1px solid var(--color-line);border-radius:5px;background:var(--color-bg);color:var(--color-ink);font-size:13px;outline:none;font-family:var(--font-mono);' %>
-              <span style="font-size:10.5px;color:var(--color-ink-4);">En pesos. Podés usar puntos de miles y coma decimal.</span>
+              <%= render Qb::MoneyFieldComponent.new(form: f, method: :budget_pesos, placeholder: '1.500.000',
+                    value: qb_money_input_value(f.object.budget_cents)) %>
             </label>
             <label style="display:flex;flex-direction:column;gap:4px;">
               <span style="font-size:11px;color:var(--color-ink-3);font-family:var(--font-mono);text-transform:uppercase;letter-spacing:0.6px;">Estado inicial</span>
@@ -119,26 +107,10 @@
             </label>
           </div>
 
-          <%# Ubicación · el domicilio se escribe a mano en una línea y el mapa
-              georreferencia la obra (lat/lng en hidden fields). Buscar una
-              dirección en el geocoder del mapa también completa el domicilio. %>
+          <%# Ubicación: domicilio escrito + punto en el mapa (ver el partial). %>
           <div style="margin-top:20px;padding-top:16px;border-top:1px solid var(--color-line);">
-            <div style="display:flex;align-items:baseline;gap:8px;margin-bottom:10px;">
-              <div style="font-size:11px;color:var(--color-ink-3);font-family:var(--font-mono);text-transform:uppercase;letter-spacing:0.6px;">Ubicación de la obra</div>
-              <div style="font-size:10.5px;color:var(--color-ink-4);">Buscá la dirección con la lupa del mapa o arrastrá el marcador</div>
-            </div>
-            <label style="display:flex;flex-direction:column;gap:4px;">
-              <span style="font-size:11px;color:var(--color-ink-3);font-family:var(--font-mono);text-transform:uppercase;letter-spacing:0.6px;">Domicilio</span>
-              <%= f.text_field :location, placeholder: 'Ej. Av. Colón 1234, Mendoza',
-                                style: 'width:100%;height:34px;padding:0 10px;border:1px solid var(--color-line);border-radius:5px;background:var(--color-bg);color:var(--color-ink);font-size:13px;outline:none;' %>
-            </label>
-            <div id="project-map"
-                 style="width:100%;height:260px;margin-top:10px;overflow:hidden;border-radius:6px;border:1px solid var(--color-line);"
-                 data-controller="project-map"
-                 data-project-map-target="map">
-              <%= f.hidden_field :latitude, data: { project_map_target: "latitude" } %>
-              <%= f.hidden_field :longitude, data: { project_map_target: "longitude" } %>
-            </div>
+            <div style="font-size:11px;color:var(--color-ink-3);font-family:var(--font-mono);text-transform:uppercase;letter-spacing:0.6px;margin-bottom:10px;">Ubicación de la obra</div>
+            <%= render "constructors/projects/location_fields", f: f, map_height: 260 %>
           </div>
         </div>
 

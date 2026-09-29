@@ -69,6 +69,17 @@ module Constructors
           stage.parent&.id
         end
 
+        # Alta de etapa principal: el padre se puede elegir, plegado (lo
+        # normal es crear una principal) y sólo si hay de qué colgarla. Desde
+        # "Agregar sub-etapa" el padre ya viene fijado en un hidden.
+        def parent_selector?
+          !stage.persisted? && parent_field_value.blank? && parent_candidates.any?
+        end
+
+        def parent_candidates
+          @parent_candidates ||= project.project_stages.root.order(:position, :name).pluck(:name, :id)
+        end
+
         # Solo ofrecemos etapas raíz como predecesoras (las sub-etapas no actúan
         # como predecesoras de cronograma). El modelo igual valida mismo-proyecto/ciclo.
         def predecessor_candidates

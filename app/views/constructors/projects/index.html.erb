@@ -20,7 +20,7 @@
     </div>
     <%= render Qb::BtnComponent.new('Exportar CSV', variant: :secondary, size: :sm, icon: :download,
           href: constructors_projects_path(format: :csv, status: (@status_filter unless @status_filter == 'all'), q: @query.presence)) %>
-    <%= render Qb::BtnComponent.new('Nuevo proyecto', variant: :primary, size: :sm, icon: :plus, href: new_constructors_project_path) %>
+    <%# Sin "Nuevo proyecto" acá: el sidebar ya lo tiene siempre a la vista (+ ⌘N). %>
   </div>
 
   <%# Tabs + search + view switch %>

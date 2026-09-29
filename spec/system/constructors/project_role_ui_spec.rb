@@ -12,8 +12,10 @@ require "rails_helper"
 # abrirlo. Lo que queremos garantizar es que ni siquiera se renderice.
 RSpec.describe "Acciones de obra según el rol del miembro", type: :system do
   # Acciones de escritura de la landing de la obra (Etapas).
-  EDITOR_ACTIONS = [ "Registrar gasto", "Nueva etapa", "Aplicar plantilla", "Agregar nota" ].freeze
-  ADMIN_ACTIONS  = [ "Editar proyecto", "Invitar", "Cambiar portada" ].freeze
+  EDITOR_ACTIONS = [ "Registrar gasto", "Nueva etapa", "Aplicar plantilla", "Nota con título" ].freeze
+  # "Invitar" ya no está en la vista de proyecto (el rail no repite el equipo):
+  # se chequea en la tab Equipo, más abajo.
+  ADMIN_ACTIONS  = [ "Editar proyecto", "Cambiar portada" ].freeze
   OWNER_ACTIONS  = [ "Eliminar obra" ].freeze
 
   let(:owner)  { create(:user, :constructor) }

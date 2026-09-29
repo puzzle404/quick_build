@@ -145,7 +145,7 @@ RSpec.describe "Constructors::Expenses", type: :request do
       # respuesta turbo-stream buscando <turbo-stream> y descartaría el form.
       expect(response.media_type).to eq("text/html")
       expect(response.body).to include('id="drawer"')
-      expect(response.body).to include("qb-drawer-panel")
+      expect(body_without_templates).to include("qb-drawer-panel")
       expect(response.body).to include("No pudimos guardar el gasto")
       expect(response.body).to include("Monto (ARS)")
     end
@@ -156,7 +156,7 @@ RSpec.describe "Constructors::Expenses", type: :request do
            headers: { "Turbo-Frame" => "drawer" }
 
       expect(response).to have_http_status(:unprocessable_entity)
-      expect(response.body).to include("qb-drawer-panel")
+      expect(body_without_templates).to include("qb-drawer-panel")
       expect(response.body).to include("No pudimos guardar el gasto")
     end
 
@@ -181,7 +181,7 @@ RSpec.describe "Constructors::Expenses", type: :request do
       get new_constructors_project_expense_path(project), headers: { "Turbo-Frame" => "drawer" }
 
       expect(response).to have_http_status(:ok)
-      expect(response.body).to include("qb-drawer-panel")
+      expect(body_without_templates).to include("qb-drawer-panel")
     end
   end
 
@@ -242,6 +242,46 @@ RSpec.describe "Constructors::Expenses", type: :request do
         patch mark_as_paid_constructors_project_material_list_path(project, material_list)
       }.not_to change(Expense, :count)
       expect(response).to have_http_status(:not_found)
+    end
+  end
+
+  describe "imputar a una etapa desde la pestaña Gastos" do
+    before { sign_in(owner) }
+
+    it "el form de proyecto ofrece las etapas (con sub-etapas) y un monto con máscara" do
+      root = create(:project_stage, project: project, name: "Replanteo")
+      create(:project_stage, project: project, parent: root, name: "Niveles")
+
+      get new_constructors_project_expense_path(project), headers: { "Turbo-Frame" => "drawer" }
+
+      expect(response.body).to include('name="expense[project_stage_id]"')
+      expect(response.body).to include("Replanteo", "↳ Niveles")
+      expect(response.body).to include('data-controller="qb--money-input"')
+    end
+
+    it "guarda el gasto en la etapa elegida" do
+      post constructors_project_expenses_path(project),
+           params: { expense: valid_params[:expense].except(:amount_cents).merge(amount_pesos: "1.500,50", project_stage_id: stage.id) }
+
+      expense = Expense.order(:id).last
+      expect(expense.project_stage).to eq(stage)
+      expect(expense.amount_cents).to eq(150_050)
+    end
+
+    it "rechaza una etapa de otra obra" do
+      foreign = create(:project_stage, project: create(:project, owner: other))
+
+      expect {
+        post constructors_project_expenses_path(project),
+             params: { expense: valid_params[:expense].merge(project_stage_id: foreign.id) }
+      }.not_to change(Expense, :count)
+    end
+
+    it "la pestaña Gastos tiene un solo botón Registrar gasto (el del header)" do
+      get constructors_project_expenses_path(project)
+
+      expect(response.body.scan(">Registrar gasto<").size + response.body.scan("Registrar gasto</a>").size).to be >= 1
+      expect(response.body.scan(%r{href="#{Regexp.escape(new_constructors_project_expense_path(project))}"}).size).to eq(1)
     end
   end
 end

@@ -1,0 +1,23 @@
+<div class="qb-health-strip">
+  <div class="qb-health-cell">
+    <div class="qb-health-label">Real vs plan</div>
+    <div class="qb-mono qb-tnum qb-health-value"><%= progress %>% <span style="font-size:11px;color:<%= delta_tone %>;">Δ <%= delta_label %></span></div>
+  </div>
+  <div class="qb-health-cell">
+    <div class="qb-health-label">Riesgos</div>
+    <div class="qb-mono qb-health-value" style="color:<%= risks_count.positive? ? 'var(--color-warn)' : 'var(--color-ok)' %>;">
+      <%= risks_count.positive? ? pluralize(risks_count, 'abierto', plural: 'abiertos') : 'Sin riesgos' %>
+    </div>
+  </div>
+  <div class="qb-health-cell" style="min-width:0;">
+    <div class="qb-health-label"><%= next_overdue? ? 'Vencida' : 'Próx. vence' %></div>
+    <% if next_stage %>
+      <div class="qb-health-value" style="font-size:12.5px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;color:<%= next_overdue? ? 'var(--color-bad)' : 'var(--color-ink)' %>;"
+           title="<%= next_stage.name %>">
+        <%= next_stage.name %> · <%= helpers.qb_fmt_date_short(next_stage.end_date) %>
+      </div>
+    <% else %>
+      <div class="qb-health-value" style="font-size:12.5px;color:var(--color-ink-4);">—</div>
+    <% end %>
+  </div>
+</div>

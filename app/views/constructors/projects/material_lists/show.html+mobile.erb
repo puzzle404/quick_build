@@ -27,8 +27,8 @@
 <%# Identity %>
 <div style="padding: 4px 20px 14px;">
   <div style="display:flex;align-items:center;gap:10px;margin-bottom:10px;flex-wrap:wrap;">
-    <% if ml.respond_to?(:display_number) && ml.display_number.present? %>
-      <span class="mono" style="font-size:11px;color:var(--color-ink-3);background:var(--color-bg-sunken);padding:3px 8px;border-radius:4px;font-weight:600;"><%= ml.display_number %></span>
+    <% if ml.code.present? %>
+      <span class="mono" style="font-size:11px;color:var(--color-ink-3);background:var(--color-bg-sunken);padding:3px 8px;border-radius:4px;font-weight:600;"><%= ml.code %></span>
     <% end %>
     <%= render Qb::Mobile::PillComponent.new(status_label_es, tone: status_tone, dense: true) %>
     <% if ml.source_type != 'manual' %>
@@ -96,7 +96,7 @@
         <%= render Qb::Mobile::FormRowComponent.new(label: "Cantidad", name: "material_item[quantity]", type: 'number', placeholder: "0", required: true) %>
         <%= render Qb::Mobile::FormRowComponent.new(label: "Unidad", name: "material_item[unit]", placeholder: "u, kg, m²", required: true) %>
       </div>
-      <%= render Qb::Mobile::FormAmountRowComponent.new(label: "Costo unitario", name: "material_item[estimated_cost_cents]") %>
+      <%= render Qb::Mobile::FormAmountRowComponent.new(label: "Costo unitario", name: "material_item[estimated_cost_pesos]") %>
     <% end %>
     <%= render Qb::Mobile::ButtonComponent.new("Agregar ítem", variant: :primary, size: :md, full: true, type: 'submit', icon: :plus) %>
   <% end %>

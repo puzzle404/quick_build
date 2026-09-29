@@ -1,5 +1,5 @@
 <% active_idx = active_index %>
-<div data-controller="qb--tabs">
+<div data-controller="qb--tabs"<% if storage_key %> data-qb--tabs-storage-key-value="<%= storage_key %>"<% end %><% if flush? %> class="qb-tabbed--flush"<% end %>>
   <div class="qb-tabs">
     <% tabs.each_with_index do |tab, i| %>
       <button class="qb-tab<%= i == active_idx ? ' qb-tab--active' : '' %>"

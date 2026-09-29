@@ -5,6 +5,9 @@
     <input class="m-frow-amount-input"
            type="text"
            inputmode="decimal"
+           autocomplete="off"
+           data-controller="qb--money-input"
+           data-action="input->qb--money-input#format keydown->qb--money-input#keydown"
            name="<%= @name %>"
            value="<%= display_value %>"
            placeholder="<%= @placeholder %>"/>

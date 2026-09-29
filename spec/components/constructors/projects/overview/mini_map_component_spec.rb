@@ -3,7 +3,7 @@
 require "rails_helper"
 
 RSpec.describe Constructors::Projects::Overview::MiniMapComponent, type: :component do
-  it "monta un Leaflet real cuando la obra tiene coordenadas" do
+  it "monta el mapa de Google cuando la obra tiene coordenadas" do
     render_inline(described_class.new(lat: -32.8895, lng: -68.8458))
 
     node = page.find("[data-controller='qb--mini-map']")
@@ -12,11 +12,11 @@ RSpec.describe Constructors::Projects::Overview::MiniMapComponent, type: :compon
     expect(page.text).to include("-32.8895, -68.8458")
   end
 
-  it "linkea a OpenStreetMap con el marcador en la obra" do
+  it "linkea a Google Maps con el punto de la obra" do
     render_inline(described_class.new(lat: -32.8895, lng: -68.8458))
 
     link = page.find_link("Ver en mapa ↗")
-    expect(link["href"]).to start_with("https://www.openstreetmap.org/?mlat=-32.889500&mlon=-68.845800")
+    expect(link["href"]).to eq("https://www.google.com/maps/search/?api=1&query=-32.889500%2C-68.845800")
     expect(link["target"]).to eq("_blank")
   end
 

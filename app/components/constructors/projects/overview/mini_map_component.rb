@@ -1,7 +1,7 @@
 # frozen_string_literal: true
 
-# Mini-mapa de la obra para el rail de seguimiento. Es un Leaflet real de solo
-# lectura (sin drag ni zoom, para no secuestrar el scroll del rail).
+# Mini-mapa de la obra para el rail de seguimiento. Es un Google Maps real de
+# solo lectura (sin drag ni zoom, para no secuestrar el scroll del rail).
 #
 # Cuando la obra no tiene coordenadas mostramos un vacío honesto con acceso a
 # ubicarla: hoy la mayoría de los proyectos está en ese caso y dibujar algo que
@@ -31,12 +31,11 @@ class Constructors::Projects::Overview::MiniMapComponent < ViewComponent::Base
     "#{sprintf('%.4f', lat)}, #{sprintf('%.4f', lng)}"
   end
 
-  # Link a OpenStreetMap con el marcador puesto en la obra.
-  def osm_url
+  # Link a Google Maps con el punto de la obra.
+  def maps_url
     return nil unless located?
 
-    "https://www.openstreetmap.org/?mlat=#{coord(lat)}&mlon=#{coord(lng)}" \
-      "#map=#{zoom}/#{coord(lat)}/#{coord(lng)}"
+    "https://www.google.com/maps/search/?api=1&query=#{ERB::Util.url_encode("#{coord(lat)},#{coord(lng)}")}"
   end
 
   # Path para ir a ubicar la obra. Si no nos pasaron el proyecto lo tomamos del

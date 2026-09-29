@@ -33,8 +33,9 @@ RSpec.describe "Project management", type: :system do
     sign_in_user(constructor)
     visit new_constructors_project_path
 
-    # El picker Leaflet y el domicilio viven en el mismo formulario.
-    expect(page).to have_css("#project-map")
+    # El mapa (Google Maps) y la dirección viven en el mismo formulario; el
+    # mapa arranca oculto hasta elegir una dirección.
+    expect(page).to have_css("#project-map", visible: :all)
     expect(page).to have_content("Crear una obra")
     # Fuera del alta: los planos se cargan desde Documentos y la plantilla de
     # etapas se aplica desde el header del proyecto.
@@ -49,8 +50,8 @@ RSpec.describe "Project management", type: :system do
     sign_in_user(constructor)
     visit edit_constructors_project_path(project)
 
-    fill_in "Name", with: "Obra Norte Renovada"
-    select "In progress", from: "Status"
+    fill_in "Nombre", with: "Obra Norte Renovada"
+    select Project::STATUS_LABELS.fetch("in_progress"), from: "Estado"
     click_button "Actualizar obra"
 
     expect(page).to have_content("Obra actualizada correctamente.")

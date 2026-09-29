@@ -23,11 +23,12 @@
     <%= stylesheet_link_tag :app, "data-turbo-track": "reload" %>
     <%= javascript_importmap_tags %>
     <%= render "layouts/ui_kit_head" %>
-    <%= stylesheet_link_tag "https://unpkg.com/leaflet/dist/leaflet.css" %>
+    <% if (maps_key = qb_google_maps_api_key).present? %><meta name="google-maps-api-key" content="<%= maps_key %>"><% end %>
   </head>
 
   <body class="qb-os" <%= "data-hotwire-native" if hotwire_native_app? %>
-        data-controller="qb--keyboard qb--tweaks qb--mobile-detect qb--drawer"
+        data-controller="qb--keyboard qb--tweaks qb--mobile-detect qb--drawer qb--loading"
+        data-qb--drawer-global-value="true"
         data-qb--tweaks-persist-value="<%= current_user.present? %>"
         data-qb--tweaks-initial-value='<%= { theme: current_user&.theme || "graphite", accent: current_user&.accent || "cobalt", density: current_user&.density || "cozy", layout: "sidebar" }.to_json %>'>
     <div style="display:flex;min-height:100vh;">
@@ -65,12 +66,12 @@
               has_alerts: qb_has_alerts
             ) %>
 
-        <% if notice %>
-          <div role="status" style="margin:12px 16px;padding:8px 12px;background:color-mix(in oklab, var(--color-ok) 14%, transparent);color:var(--color-ok);border-radius:5px;font-size:13px;"><%= notice %></div>
-        <% end %>
-        <% if alert %>
-          <div role="alert" style="margin:12px 16px;padding:8px 12px;background:color-mix(in oklab, var(--color-bad) 14%, transparent);color:var(--color-bad);border-radius:5px;font-size:13px;"><%= alert %></div>
-        <% end %>
+        <%= render Qb::ToastStackComponent.new(notice: notice, alert: alert) %>
+
+        <%# Página lenta (qb--loading): Bloques sobre el área de contenido. %>
+        <div class="qb-page-loader" aria-hidden="true" data-turbo-permanent id="qb_page_loader">
+          <%= render Qb::SpinnerComponent.new(variant: :blocks, size: 32, label: "Cargando…") %>
+        </div>
 
         <div style="flex:1;min-width:0;">
           <%= yield %>
@@ -104,10 +105,15 @@
         proveen contenido con content_for(:drawer), o el layout terminaría
         emitiendo un id duplicado. %>
     <div>
-      <div class="qb-drawer-shell" role="dialog" aria-modal="true"
+      <%# Permanente (id fijo): Turbo lo conserva entre renders y qb--drawer
+          decide en turbo:before-render si sigue abierto (refresh ajeno) o se
+          cierra (navegación, o guardado del propio drawer). %>
+      <div id="qb_drawer_shell" data-turbo-permanent class="qb-drawer-shell" role="dialog" aria-modal="true"
            data-qb--drawer-target="dialog"
            data-action="click->qb--drawer#backdrop keydown@window->qb--drawer#keydown">
         <div class="qb-drawer-backdrop"></div>
+        <%# Esqueleto que qb--drawer clona en el frame si un GET tarda. %>
+        <template data-qb--drawer-target="skeleton"><%= render Qb::DrawerSkeletonComponent.new %></template>
         <%= turbo_frame_tag "drawer", data: { "qb--drawer-target": "frame" } do %>
           <%= yield :drawer %>
         <% end %>
