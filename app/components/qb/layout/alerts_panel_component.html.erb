@@ -1,0 +1,19 @@
+<div>
+  <% if alerts.empty? %>
+    <div style="padding:22px 14px;text-align:center;color:var(--color-ink-3);font-size:12px;">Sin alertas</div>
+  <% else %>
+    <% alerts.each_with_index do |a, i| %>
+      <%= link_to helpers.constructors_project_path(a[:project]),
+                  style: "display:flex;align-items:flex-start;gap:10px;padding:10px 12px;text-decoration:none;#{'border-bottom:1px solid var(--color-line);' unless i == alerts.size - 1}" do %>
+        <div style="margin-top:2px;"><%= render Qb::StatusDotComponent.new(tone: a[:tone]) %></div>
+        <div style="flex:1;min-width:0;">
+          <div style="font-size:12px;color:var(--color-ink);font-weight:500;line-height:1.35;"><%= a[:message] %></div>
+          <div style="font-size:11px;color:var(--color-ink-3);margin-top:2px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">
+            <span class="qb-mono" style="color:var(--color-ink-4);"><%= a[:label] %></span> · <%= a[:when] %>
+          </div>
+        </div>
+        <%= render Qb::IconComponent.new(name: :'chevron-right', size: 12, style: 'color:var(--color-ink-4);margin-top:3px;flex-shrink:0;') %>
+      <% end %>
+    <% end %>
+  <% end %>
+</div>

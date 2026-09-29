@@ -1,0 +1,14 @@
+<div class="<%= wrapper_class %>" data-controller="qb--file-field">
+  <label class="qb-file-field-trigger">
+    <%= render Qb::IconComponent.new(name: :upload, size: 13) %>
+    <span><%= trigger_label %></span>
+    <%= form.file_field method,
+          multiple: multiple,
+          accept: accept,
+          direct_upload: direct_upload,
+          required: required,
+          class: "qb-file-field-input",
+          data: { qb__file_field_target: "input", action: "change->qb--file-field#update" } %>
+  </label>
+  <span class="qb-file-field-name" data-qb--file-field-target="name">Ningún archivo seleccionado</span>
+</div>

@@ -1,0 +1,26 @@
+<% content_for :title, "Nueva nota · #{@project.name}" %>
+<%
+  back = @stage ? constructors_project_stage_path(@project, @stage) : constructors_project_path(@project)
+  form_url = @stage ? constructors_project_stage_notes_path(@project, @stage) : constructors_project_notes_path(@project)
+%>
+
+<%= render Qb::Mobile::NavBarComponent.new(title: "Nueva nota", back: true, back_href: back) %>
+
+<div style="padding: 4px 20px 12px;">
+  <h1 style="margin: 0; font-size: 22px; font-weight: 700; letter-spacing: -0.4px;">Agregar nota</h1>
+  <p style="margin: 4px 0 0; font-size: 13.5px; color: var(--color-ink-3); line-height: 1.4;">
+    <%= @stage ? "Queda visible en la etapa #{@stage.name}." : "Queda visible en el resumen del proyecto." %>
+  </p>
+</div>
+
+<%= form_with model: @note, url: form_url, local: true, html: { style: "padding: 0 16px;" } do |f| %>
+  <%= render Qb::Mobile::FormGroupComponent.new do %>
+    <%= render Qb::Mobile::FormRowComponent.new(label: "Título", name: "note[title]", value: @note.title, placeholder: "Ej: Inspección municipal", required: true) %>
+    <%= render Qb::Mobile::FormRowComponent.new(label: "Contenido", name: "note[body]", value: @note.body, textarea: true, placeholder: "Detalles, contexto, próximas acciones…") %>
+  <% end %>
+
+  <div style="display:flex;gap:10px;padding-bottom:24px;">
+    <%= link_to "Cancelar", back, class: "m-btn m-btn--secondary m-btn--md", style: "flex:1;text-decoration:none;" %>
+    <%= f.submit "Guardar nota", class: "m-btn m-btn--md", style: "flex:1.4;" %>
+  </div>
+<% end %>

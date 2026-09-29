@@ -1,0 +1,18 @@
+<div data-controller="qb--dropdown" style="position:relative;">
+  <button type="button" data-action="click->qb--dropdown#toggle"
+          style="height:28px;padding:0 10px;background:<%= active? ? 'color-mix(in oklab, var(--color-accent) 10%, transparent)' : 'var(--color-bg)' %>;border:1px solid var(--color-line);border-radius:5px;color:var(--color-ink);cursor:pointer;font-size:12px;display:inline-flex;align-items:center;gap:6px;">
+    <span style="color:var(--color-ink-3);"><%= label %>:</span>
+    <span style="font-weight:500;"><%= current_label %></span>
+    <%= render Qb::IconComponent.new(name: :'chevron-down', size: 11) %>
+  </button>
+  <div data-qb--dropdown-target="menu"
+       class="hidden"
+       style="display:none;position:absolute;top:32px;left:0;z-index:41;min-width:180px;background:var(--color-bg);border:1px solid var(--color-line);border-radius:6px;box-shadow:0 8px 20px -4px rgba(0,0,0,0.25);padding:4px;max-height:320px;overflow:auto;">
+    <% options.each do |v, label_text| %>
+      <%= link_to url_for_value(v),
+                  style: "display:block;width:100%;padding:6px 10px;background:#{v.to_s == value ? 'color-mix(in oklab, var(--color-accent) 10%, transparent)' : 'transparent'};border:none;border-radius:4px;text-align:left;color:#{v.to_s == value ? 'var(--color-accent)' : 'var(--color-ink)'};font-size:12px;text-decoration:none;" do %>
+        <%= label_text %>
+      <% end %>
+    <% end %>
+  </div>
+</div>

@@ -1,0 +1,10 @@
+<div style="padding:10px 16px;border-right:1px solid var(--color-line);<%= 'background:var(--color-bg-sunken);' if highlight %>">
+  <div style="font-size:10px;font-family:var(--font-mono);color:var(--color-ink-4);text-transform:uppercase;letter-spacing:0.7px;margin-bottom:3px;"><%= label %></div>
+  <div class="qb-mono qb-tnum" style="font-size:18px;font-weight:600;color:<%= value_color %>;letter-spacing:-0.3px;"><%= value %></div>
+  <% if hint %>
+    <div style="font-size:10.5px;color:<%= hint_color %>;margin-top:2px;"><%= hint %></div>
+  <% end %>
+  <% if extra? %>
+    <div style="margin-top:8px;"><%= extra %></div>
+  <% end %>
+</div>

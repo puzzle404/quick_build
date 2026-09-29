@@ -1,0 +1,46 @@
+<% content_for :title, "Subir plano · #{@project.name}" %>
+<% back = constructors_project_blueprints_path(@project) %>
+
+<%= render Qb::Mobile::NavBarComponent.new(title: "Nuevo plano", back: true, back_href: back) %>
+
+<div style="padding: 4px 20px 12px;">
+  <h1 style="margin: 0; font-size: 22px; font-weight: 700; letter-spacing: -0.4px;">Subir plano</h1>
+  <p style="margin: 4px 0 0; font-size: 13.5px; color: var(--color-ink-3); line-height: 1.4;">
+    Cargá un plano arquitectónico en formato JPG o PNG.
+  </p>
+</div>
+
+<%= form_with model: @blueprint, url: constructors_project_blueprints_path(@project), local: true, html: { multipart: true, style: "padding: 0 16px;" } do |f| %>
+  <% if @blueprint.errors.any? %>
+    <div role="alert" style="margin-bottom:14px;padding:10px 12px;border-radius:10px;background:color-mix(in oklab, var(--color-bad) 12%, transparent);color:var(--color-bad);font-size:13px;">
+      <%= @blueprint.errors.full_messages.to_sentence %>
+    </div>
+  <% end %>
+
+  <%= render Qb::Mobile::FormGroupComponent.new(title: "Datos") do %>
+    <%= render Qb::Mobile::FormRowComponent.new(
+          label: "Nombre", name: "blueprint[name]",
+          value: @blueprint.name,
+          placeholder: "Ej: Planta baja - Arquitectura",
+          required: true) %>
+    <%= render Qb::Mobile::FormRowComponent.new(
+          label: "Descripción", name: "blueprint[description]",
+          value: @blueprint.description,
+          textarea: true,
+          placeholder: "Ej: Plano de arquitectura con distribución de ambientes") %>
+  <% end %>
+
+  <%= render Qb::Mobile::FormGroupComponent.new(title: "Archivo", footnote: "Formatos aceptados: JPG, PNG. Tamaño máximo: 10 MB.") do %>
+    <div class="m-frow">
+      <label class="m-frow-label">Archivo del plano</label>
+      <%= f.file_field :file, accept: "image/jpeg,image/png,image/jpg", class: "m-frow-input" %>
+    </div>
+  <% end %>
+
+  <div style="display:flex;gap:10px;padding-bottom:24px;">
+    <%= link_to "Cancelar", back,
+          class: "m-btn m-btn--secondary m-btn--md",
+          style: "flex:1;text-decoration:none;" %>
+    <%= f.submit "Subir plano", class: "m-btn m-btn--md", style: "flex:1.4;" %>
+  </div>
+<% end %>

@@ -1,0 +1,69 @@
+<div data-controller="qb--log-filter">
+  <% if can_add_note? %>
+    <%# Nota rápida: notes#create responde un turbo_stream.refresh y la nota
+        aparece arriba del historial. Para una nota con título, el form
+        completo abre en el drawer. %>
+    <div style="padding:2px 16px 8px;">
+      <%= form_with url: constructors_project_notes_path(project), scope: :note, method: :post, html: { class: "qb-composer" } do |f| %>
+        <%= f.label :body, "Nueva nota", class: "qb-sr-only" %>
+        <%= f.text_area :body, required: true, rows: 2, placeholder: "Anotá algo de la obra: una visita, una decisión, un problema…",
+              class: "qb-composer-input" %>
+        <div class="qb-composer-foot">
+          <%= link_to new_constructors_project_note_path(project), class: "qb-composer-link",
+                data: { turbo_frame: "drawer", action: "click->qb--drawer#open" } do %>
+            <%= render Qb::IconComponent.new(name: :edit, size: 12) %> Nota con título
+          <% end %>
+          <span style="flex:1;"></span>
+          <%= render Qb::BtnComponent.new('Guardar nota', variant: :primary, size: :xs, type: 'submit') %>
+        </div>
+      <% end %>
+    </div>
+  <% end %>
+
+  <div style="display:flex;align-items:center;gap:8px;padding:6px 16px 0;">
+    <span style="flex:1;font-size:11px;color:var(--color-ink-3);">Historial</span>
+    <div class="qb-seg" role="group" aria-label="Filtrar historial">
+      <% filters.each do |value, label| %>
+        <button type="button" class="qb-seg-btn" aria-pressed="<%= value == 'all' %>"
+                data-qb--log-filter-target="button" data-value="<%= value %>"
+                data-action="qb--log-filter#pick"><%= label %></button>
+      <% end %>
+    </div>
+  </div>
+
+  <ol class="qb-log qb-timeline" data-qb--log-filter-target="list" data-filter="all" data-expanded="false" id="project_notes_list">
+    <% if entries.empty? %>
+      <li class="qb-timeline-empty">Todavía no hay notas ni actividad.</li>
+    <% end %>
+    <% entries.each_with_index do |e, i| %>
+      <li class="qb-timeline-item<%= ' qb-timeline-item--extra' if i >= visible %>" data-kind="<%= e.kind %>">
+        <span class="qb-timeline-icon qb-timeline-icon--<%= e.kind %>" aria-hidden="true">
+          <%= render Qb::IconComponent.new(name: e.kind == 'note' ? :doc : :clock, size: 11) %>
+        </span>
+        <div class="qb-timeline-body">
+          <% if e.title %><div class="qb-timeline-title"><%= e.title %></div><% end %>
+          <% if e.body.present? %>
+            <%# Resumida a 3 líneas; el texto completo en el title (y en el detalle). %>
+            <div class="<%= 'qb-clamp-3 ' if clamp? %><%= e.title ? 'qb-timeline-text' : 'qb-timeline-title qb-timeline-title--plain' %>" title="<%= e.body %>"><%= e.body %></div>
+          <% end %>
+          <div class="qb-timeline-meta">
+            <span><%= e.kind == 'note' ? 'Nota' : 'Actividad' %><%= " · #{e.meta}" if e.meta %></span>
+            <% if e.note && can_destroy?(e.note) %>
+              <%= link_to constructors_project_note_path(project, e.note), class: "qb-timeline-delete",
+                    title: "Eliminar nota", "aria-label": "Eliminar nota",
+                    data: { turbo_method: :delete, turbo_confirm: "¿Eliminar esta nota?", turbo_frame: "_top" } do %>
+                <%= render Qb::IconComponent.new(name: :trash, size: 12) %>
+              <% end %>
+            <% end %>
+          </div>
+        </div>
+      </li>
+    <% end %>
+  </ol>
+  <% if entries.size > visible %>
+    <div style="padding:0 16px 14px;">
+      <button type="button" class="qb-composer-link" style="background:none;border:none;cursor:pointer;padding:0;"
+              data-qb--log-filter-target="more" data-action="qb--log-filter#toggleMore">Ver todo (<%= entries.size %>)</button>
+    </div>
+  <% end %>
+</div>

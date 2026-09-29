@@ -1,0 +1,68 @@
+<%# Subir plano.
+    - turbo_frame_request (botón "Subir plano" con data-turbo-frame="drawer"):
+      Qb::DrawerComponent dentro del frame global; qb--drawer lo auto-abre.
+      Mismo approach que Materiales / Etapas / Personas.
+    - full page (acceso directo o re-render con errores de validación):
+      shell de secciones QB OS + formulario centrado. %>
+<% if turbo_frame_request? %>
+  <% content_for(:drawer) do %>
+    <%= render(Qb::DrawerComponent.new(eyebrow: "Planos", title: "Subir plano", size: :lg)) do %>
+      <%= render Constructors::Projects::Blueprints::UploadFormComponent.new(
+            project: @project, blueprint: @blueprint) %>
+    <% end %>
+  <% end %>
+<% else %>
+  <%= render 'constructors/projects/section_tabs', project: @project, current: :blueprints %>
+
+  <%# Header strip %>
+  <div style="padding:14px 20px;border-bottom:1px solid var(--color-line);display:flex;align-items:flex-end;gap:16px;">
+    <div style="flex:1;min-width:0;">
+      <div style="font-size:11px;font-family:var(--font-mono);color:var(--color-ink-3);text-transform:uppercase;letter-spacing:0.8px;"><%= @project.decorate.code %> · Planos</div>
+      <h2 style="margin:3px 0 0;font-size:18px;font-weight:600;letter-spacing:-0.3px;">Subir plano</h2>
+      <div style="font-size:12px;color:var(--color-ink-3);margin-top:2px;">
+        Cargá un plano arquitectónico en formato JPG o PNG · <%= link_to '← Volver a planos', constructors_project_blueprints_path(@project), style: 'color:var(--color-accent);text-decoration:none;font-size:12px;' %>
+      </div>
+    </div>
+  </div>
+
+  <%# Formulario %>
+  <div style="padding:24px 20px;border-bottom:1px solid var(--color-line);">
+    <div style="max-width:560px;margin:0 auto;">
+      <%= form_with model: @blueprint, url: constructors_project_blueprints_path(@project), html: { multipart: true } do |f| %>
+
+        <% if @blueprint.errors.any? %>
+          <div class="qb-form-error">
+            <p style="font-weight:600;margin:0 0 4px;">Hay <%= pluralize(@blueprint.errors.count, "error") %> que impiden guardar el plano:</p>
+            <ul style="margin:0;padding-left:16px;">
+              <% @blueprint.errors.full_messages.each do |message| %>
+                <li><%= message %></li>
+              <% end %>
+            </ul>
+          </div>
+        <% end %>
+
+        <div class="qb-field">
+          <%= f.label :name, "Nombre del plano", class: "qb-label" %>
+          <%= f.text_field :name, placeholder: "Ej: Planta baja - Arquitectura", class: "qb-input" %>
+        </div>
+
+        <div class="qb-field">
+          <%= f.label :description, "Descripción (opcional)", class: "qb-label" %>
+          <%= f.text_area :description, rows: 3, placeholder: "Ej: Plano de arquitectura con distribución de ambientes", class: "qb-textarea" %>
+        </div>
+
+        <div class="qb-field">
+          <%= f.label :file, "Archivo del plano", class: "qb-label" %>
+          <%= render Qb::FileFieldComponent.new(form: f, method: :file, trigger_label: "Elegir plano",
+                                                accept: "image/jpeg,image/png,image/jpg", direct_upload: true) %>
+          <p style="font-size:11px;color:var(--color-ink-4);margin-top:4px;">Formatos aceptados: JPG, PNG. Tamaño máximo: 10MB</p>
+        </div>
+
+        <div class="qb-form-actions">
+          <%= render Qb::BtnComponent.new("Cancelar", variant: :secondary, size: :sm, href: constructors_project_blueprints_path(@project)) %>
+          <%= render Qb::BtnComponent.new("Subir plano", variant: :primary, size: :sm, type: 'submit') %>
+        </div>
+      <% end %>
+    </div>
+  </div>
+<% end %>

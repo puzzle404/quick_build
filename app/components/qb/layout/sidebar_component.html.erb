@@ -1,0 +1,123 @@
+<aside data-controller="qb--sidebar"
+       class="qb-sidebar"
+       data-qb--sidebar-storage-key-value="qb_sidebar_collapsed"
+       style="flex-shrink:0;height:100vh;position:sticky;top:0;display:flex;flex-direction:column;border-right:1px solid var(--color-line);background:var(--color-bg-raised);transition:width .2s ease;">
+
+  <%# Marca + switcher de cuenta unificados: antes eran dos bloques apilados
+      (marca estática "Quick Build" + switcher con el nombre de la empresa),
+      que mostraban el mismo texto dos veces cuando la cuenta no tiene
+      company_name propio (cae al mismo fallback "Quick Build" — ver
+      display_company). Ahora es un único botón: el ícono de marca queda
+      siempre visible (sin data-qb-sidebar-label) para que el rail colapsado
+      conserve la identidad; el nombre + plan + flecha se ocultan colapsado
+      pero el botón sigue abriendo el menú (Perfil / Cerrar sesión). %>
+  <div data-controller="qb--dropdown" style="position:relative;margin:8px;">
+    <button type="button"
+            data-action="click->qb--dropdown#toggle"
+            aria-label="Menú de cuenta"
+            style="width:100%;padding:8px 10px;text-align:left;background:var(--color-bg);border:1px solid var(--color-line);border-radius:6px;display:flex;align-items:center;gap:10px;cursor:pointer;color:var(--color-ink);">
+      <div style="width:26px;height:26px;border-radius:6px;background:var(--color-ink);color:var(--color-bg);display:flex;align-items:center;justify-content:center;font-family:var(--font-mono);font-weight:700;font-size:14px;letter-spacing:-0.5px;flex-shrink:0;">◱</div>
+      <div data-qb-sidebar-label style="flex:1;overflow:hidden;line-height:1.15;">
+        <div style="font-size:13px;font-weight:600;letter-spacing:-0.1px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;"><%= display_company %></div>
+        <div style="font-size:10px;color:var(--color-ink-3);font-family:var(--font-mono);letter-spacing:0.4px;">PLAN PRO</div>
+      </div>
+      <span data-qb-sidebar-label style="flex-shrink:0;display:flex;">
+        <%= render Qb::IconComponent.new(name: :'chevron-down', size: 12, style: 'color:var(--color-ink-3)') %>
+      </span>
+    </button>
+    <div data-qb--dropdown-target="menu"
+         class="hidden"
+         style="display:none;position:absolute;top:calc(100% + 4px);left:0;right:0;z-index:41;background:var(--color-bg);border:1px solid var(--color-line);border-radius:6px;box-shadow:0 8px 20px -4px rgba(0,0,0,0.25);padding:4px;">
+      <%= link_to helpers.edit_registration_path, style: account_menu_row_style do %>
+        <%= render Qb::IconComponent.new(name: :settings, size: 13, style: 'color:var(--color-ink-3);flex-shrink:0;') %>
+        <span>Perfil</span>
+      <% end %>
+      <%= button_to helpers.session_path, method: :delete, form: { style: 'margin:0;' }, style: account_menu_row_style do %>
+        <%= render Qb::IconComponent.new(name: :'arrow-right', size: 13, style: 'color:var(--color-ink-3);flex-shrink:0;') %>
+        <span>Cerrar sesión</span>
+      <% end %>
+    </div>
+  </div>
+
+  <%# New project CTA %>
+  <div style="padding:0 8px 4px;">
+    <%= link_to new_project_url, id: "qb-sidebar-new-project", data: { turbo_frame: "drawer", action: "click->qb--drawer#open" }, style: 'width:100%;height:32px;display:flex;align-items:center;justify-content:flex-start;gap:8px;padding:0 10px;background:var(--color-accent);color:var(--color-accent-ink);border:none;border-radius:5px;cursor:pointer;font-size:12px;font-weight:600;text-decoration:none;' do %>
+      <%= render Qb::IconComponent.new(name: :plus, size: 14) %>
+      <span data-qb-sidebar-label>Nuevo proyecto</span>
+      <span data-qb-sidebar-label style="margin-left:auto;font-size:10px;opacity:.8;font-family:var(--font-mono);">⌘N</span>
+    <% end %>
+  </div>
+
+  <%# Primary nav %>
+  <nav id="qb-sidebar-nav" aria-label="Navegación principal" style="padding:8px;flex:1;overflow:auto;">
+    <% nav_items.each do |item| %>
+      <%= link_to item[:url], style: nav_link_style(item), 'aria-current': (item[:active] ? 'page' : nil) do %>
+        <% if item[:active] %>
+          <span data-qb-sidebar-label style="position:absolute;left:-8px;top:6px;bottom:6px;width:2px;background:var(--color-accent);border-radius:2px;"></span>
+        <% end %>
+        <%= render Qb::IconComponent.new(name: item[:icon], size: 15, style: "color:#{item[:active] ? 'var(--color-ink)' : 'var(--color-ink-3)'};flex-shrink:0;") %>
+        <span data-qb-sidebar-label style="flex:1;text-align:left;"><%= item[:label] %></span>
+        <% if item[:badge_kind] == :project_count && @project_count %>
+          <span data-qb-sidebar-label class="qb-mono" style="font-size:10px;color:var(--color-ink-3);background:var(--color-bg-sunken);padding:0 5px;height:16px;border-radius:3px;display:inline-flex;align-items:center;"><%= @project_count %></span>
+        <% end %>
+      <% end %>
+    <% end %>
+
+    <% if project %>
+      <%# Active project chip %>
+      <div data-qb-sidebar-label style="margin-top:14px;margin-bottom:4px;padding:0 6px;">
+        <div style="<%= project_chip_style %>">
+          <div style="display:flex;align-items:center;gap:6px;margin-bottom:4px;">
+            <%= render Qb::StatusDotComponent.new(tone: project_health) %>
+            <span class="qb-mono" style="font-size:9.5px;color:var(--color-ink-3);letter-spacing:0.5px;"><%= project_code %></span>
+          </div>
+          <div style="font-size:12px;font-weight:600;color:var(--color-ink);line-height:1.25;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;"><%= project_short_name %></div>
+          <div style="font-size:10.5px;color:var(--color-ink-3);margin-top:2px;display:flex;justify-content:space-between;">
+            <span><%= project_progress %>% avance</span>
+            <span class="qb-mono" style="color:var(--color-ink-4);"><%= project_stages_done %>/<%= project_stages_count %> etapas</span>
+          </div>
+          <div style="margin-top:6px;">
+            <%= render Qb::BarComponent.new(value: project_progress, tone: (project_health == :bad ? :bad : project_health == :warn ? :warn : :accent), height: 3) %>
+          </div>
+        </div>
+      </div>
+
+      <%# La lista "En este proyecto" (Etapas/Materiales/Gastos/Planos/Equipo/
+          Documentos) vivía acá duplicada 1:1 con los tabs de arriba del
+          contenido (_section_tabs.html.erb) — mismos links, mismo estado
+          activo, y esos tabs además muestran contadores que acá no había.
+          Se saca de la sidebar de escritorio; project_nav_items/project_url
+          siguen vivos en Qb::Layout::Navigation porque Qb::Layout::MobileSheetComponent
+          los usa para el sheet "Más" — mobile no tiene tabs de sección, así
+          que ahí no hay duplicación que sacar. %>
+    <% elsif pinned_projects.any? %>
+      <div data-qb-sidebar-label style="margin-top:14px;padding:6px 10px 4px;font-size:10px;font-family:var(--font-mono);color:var(--color-ink-4);letter-spacing:1px;text-transform:uppercase;font-weight:500;">Fijados</div>
+      <% pinned_projects.first(4).each do |p| %>
+        <%= link_to helpers.constructors_project_path(p), style: 'width:100%;display:flex;align-items:center;gap:8px;padding:0 10px;height:28px;margin-bottom:1px;background:transparent;color:var(--color-ink-2);border:none;border-radius:5px;cursor:pointer;font-size:12px;text-decoration:none;' do %>
+          <%= render Qb::StatusDotComponent.new(tone: p.try(:health) || :ok) %>
+          <span data-qb-sidebar-label style="flex:1;text-align:left;overflow:hidden;white-space:nowrap;text-overflow:ellipsis;"><%= p.respond_to?(:project_short_name) ? p.project_short_name : p.name.to_s.split('·').first&.strip %></span>
+          <span data-qb-sidebar-label class="qb-mono" style="font-size:10px;color:var(--color-ink-4);"><%= p.try(:progress).to_i %>%</span>
+        <% end %>
+      <% end %>
+    <% end %>
+  </nav>
+
+  <%# Footer: search trigger + collapse toggle %>
+  <div style="padding:8px;border-top:1px solid var(--color-line);">
+    <button type="button" data-controller="qb--cmd-palette-trigger"
+            data-action="click->qb--cmd-palette-trigger#open"
+            style="width:100%;height:30px;display:flex;align-items:center;gap:8px;padding:0 10px;background:var(--color-bg-sunken);border:1px solid var(--color-line);border-radius:5px;color:var(--color-ink-3);font-size:12px;cursor:pointer;">
+      <%= render Qb::IconComponent.new(name: :search, size: 13) %>
+      <span data-qb-sidebar-label>Buscar o saltar…</span>
+      <span data-qb-sidebar-label class="qb-kbd" style="margin-left:auto;">⌘K</span>
+    </button>
+    <button type="button"
+            data-action="click->qb--sidebar#toggle"
+            aria-label="Contraer barra lateral"
+            aria-controls="qb-sidebar-nav"
+            style="margin-top:4px;width:100%;height:26px;background:transparent;border:none;color:var(--color-ink-4);font-size:11px;cursor:pointer;display:flex;align-items:center;gap:6px;padding:0 10px;">
+      <%= render Qb::IconComponent.new(name: :'chevron-right', size: 12, css_class: 'qb-collapse-icon') %>
+      <span data-qb-sidebar-label>Contraer</span>
+    </button>
+  </div>
+</aside>

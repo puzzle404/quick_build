@@ -1,0 +1,113 @@
+<% content_for :title, "Perfil · Quick Build" %>
+<%
+  name = @user.email.to_s.split('@').first.titleize
+  company_name = (@user.try(:company)&.name rescue nil)
+%>
+
+<div class="mx-auto max-w-3xl px-4 py-10">
+  <%# Hero %>
+  <div class="flex items-center gap-5">
+    <div class="flex h-16 w-16 items-center justify-center rounded-full bg-indigo-600 text-2xl font-bold text-white">
+      <%= name.first(1).upcase %>
+    </div>
+    <div>
+      <h1 class="text-2xl font-bold tracking-tight text-slate-900"><%= name %></h1>
+      <p class="text-sm text-slate-500">
+        <%= @user.role.to_s.humanize %><% if company_name.present? %> · <%= company_name %><% end %>
+      </p>
+    </div>
+    <div class="ml-auto">
+      <%= link_to "Ir a la app", constructors_root_path, class: "inline-flex items-center rounded-xl bg-indigo-600 px-4 py-2.5 text-sm font-semibold text-white hover:bg-indigo-500 transition-colors" %>
+    </div>
+  </div>
+
+  <%# Cuenta %>
+  <div class="mt-8">
+    <h2 class="text-xs font-semibold uppercase tracking-wide text-slate-400">Cuenta</h2>
+    <div class="mt-2 divide-y divide-slate-100 rounded-2xl border border-slate-200 bg-white">
+      <div class="flex items-center justify-between px-5 py-4">
+        <span class="text-sm font-medium text-slate-700">Email</span>
+        <span class="text-sm text-slate-500"><%= @user.email %></span>
+      </div>
+      <% if @user.phone.present? %>
+        <div class="flex items-center justify-between px-5 py-4">
+          <span class="text-sm font-medium text-slate-700">Teléfono</span>
+          <span class="text-sm text-slate-500"><%= @user.phone %></span>
+        </div>
+      <% end %>
+      <% if @user.address.present? %>
+        <div class="flex items-center justify-between px-5 py-4">
+          <span class="text-sm font-medium text-slate-700">Dirección</span>
+          <span class="text-sm text-slate-500"><%= @user.address %></span>
+        </div>
+      <% end %>
+      <div class="flex items-center justify-between px-5 py-4">
+        <span class="text-sm font-medium text-slate-700">Idioma</span>
+        <span class="text-sm text-slate-500">Español (AR)</span>
+      </div>
+    </div>
+  </div>
+
+  <%# Apariencia — mismas chips que el Perfil mobile; persisten vía qb--tweaks
+      (localStorage + PATCH /preferences). Se aplican dentro de la app del
+      constructor, no en estas páginas públicas. %>
+  <div class="mt-8"
+       data-controller="qb--tweaks"
+       data-qb--tweaks-persist-value="true"
+       data-qb--tweaks-initial-value='<%= { theme: @user.theme, accent: @user.accent, density: @user.density }.to_json %>'>
+    <h2 class="text-xs font-semibold uppercase tracking-wide text-slate-400">Apariencia</h2>
+    <div class="mt-2 divide-y divide-slate-100 rounded-2xl border border-slate-200 bg-white">
+      <% themes = [%w[graphite Claro], %w[night Oscuro]] %>
+      <% densities = [%w[compact Compacta], %w[cozy Cómoda], %w[relaxed Espaciosa]] %>
+      <% accents = [%w[cobalt Cobalto], %w[kiln Ladrillo], %w[moss Verde], %w[safety Naranja], %w[ink Tinta]] %>
+      <% [["Tema", "theme", themes, @user.theme],
+          ["Densidad", "density", densities, @user.density],
+          ["Color", "accent", accents, @user.accent]].each do |label, key, options, current| %>
+        <div class="px-5 py-4">
+          <div class="text-xs font-semibold uppercase tracking-wide text-slate-400"><%= label %></div>
+          <div class="mt-2 flex flex-wrap gap-2">
+            <% options.each do |val, opt_name| %>
+              <% active = (current.to_s == val) %>
+              <button type="button"
+                      data-action="click->qb--tweaks#set"
+                      data-qb--tweaks-key-param="<%= key %>"
+                      data-qb--tweaks-value-param="<%= val %>"
+                      class="rounded-full border px-3.5 py-1.5 text-sm font-semibold transition-colors cursor-pointer <%= active ? 'border-indigo-600 bg-indigo-50 text-indigo-700' : 'border-slate-200 text-slate-600 hover:border-slate-300' %>"><%= opt_name %></button>
+            <% end %>
+          </div>
+        </div>
+      <% end %>
+      <p class="px-5 py-3 text-xs text-slate-400">Los cambios se aplican dentro de la app del constructor.</p>
+    </div>
+  </div>
+
+  <%# Datos %>
+  <div class="mt-8">
+    <h2 class="text-xs font-semibold uppercase tracking-wide text-slate-400">Datos</h2>
+    <div class="mt-2 divide-y divide-slate-100 rounded-2xl border border-slate-200 bg-white">
+      <%# El link va al listado de obras, que muestra las propias MÁS aquellas
+          donde soy miembro: el número tiene que ser el mismo o el usuario ve
+          "2" acá y tres filas allá. Por eso también deja de decir "Mis". %>
+      <%= link_to constructors_projects_path, class: "flex items-center justify-between px-5 py-4 hover:bg-slate-50 transition-colors" do %>
+        <span class="text-sm font-medium text-slate-700">Obras</span>
+        <span class="text-sm text-slate-400"><%= (current_user.accessible_projects.count rescue 0) %> ›</span>
+      <% end %>
+      <%= link_to constructors_people_path, class: "flex items-center justify-between px-5 py-4 hover:bg-slate-50 transition-colors" do %>
+        <span class="text-sm font-medium text-slate-700">Personas</span>
+        <span class="text-sm text-slate-400">›</span>
+      <% end %>
+      <%= link_to constructors_library_path, class: "flex items-center justify-between px-5 py-4 hover:bg-slate-50 transition-colors" do %>
+        <span class="text-sm font-medium text-slate-700">Biblioteca</span>
+        <span class="text-sm text-slate-400">›</span>
+      <% end %>
+    </div>
+  </div>
+
+  <%# Cerrar sesión %>
+  <div class="mt-8">
+    <%= button_to "Cerrar sesión", session_path, method: :delete,
+          class: "w-full rounded-2xl border border-rose-200 bg-white px-5 py-3.5 text-sm font-semibold text-rose-600 hover:bg-rose-50 transition-colors cursor-pointer" %>
+  </div>
+
+  <p class="mt-6 text-center font-mono text-xs text-slate-400">Quick Build · v0.1.0</p>
+</div>

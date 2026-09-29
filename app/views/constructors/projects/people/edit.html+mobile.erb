@@ -1,0 +1,83 @@
+<% content_for :title, "Editar persona · #{@project.name}" %>
+<% back = constructors_project_person_path(@project, @person) %>
+
+<%= render Qb::Mobile::NavBarComponent.new(title: "Editar persona", back: true, back_href: back) %>
+
+<div style="padding: 4px 20px 12px;">
+  <h1 style="margin: 0; font-size: 22px; font-weight: 700; letter-spacing: -0.4px;"><%= @person.full_name %></h1>
+  <p style="margin: 4px 0 0; font-size: 13.5px; color: var(--color-ink-3); line-height: 1.4;">
+    Actualizá la información del trabajador.
+  </p>
+</div>
+
+<%= form_with model: @person, url: constructors_project_person_path(@project, @person), method: :patch, local: true, html: { style: "padding: 0 16px;" } do |f| %>
+  <% if @person.errors.any? %>
+    <div role="alert" style="margin-bottom:14px;padding:10px 12px;border-radius:10px;background:color-mix(in oklab, var(--color-bad) 12%, transparent);color:var(--color-bad);font-size:13px;">
+      <%= @person.errors.full_messages.to_sentence %>
+    </div>
+  <% end %>
+
+  <%= render Qb::Mobile::FormGroupComponent.new(title: "Datos") do %>
+    <%= render Qb::Mobile::FormRowComponent.new(
+          label: "Nombre y apellido", name: "project_person[full_name]",
+          value: @person.full_name,
+          placeholder: "Ej: Juana Pérez",
+          required: true) %>
+    <%= render Qb::Mobile::FormRowComponent.new(
+          label: "Rol / oficio", name: "project_person[role_title]",
+          value: @person.role_title,
+          placeholder: "Ej: Oficial albañil") %>
+    <%= render Qb::Mobile::FormRowComponent.new(
+          label: "Documento", name: "project_person[document_id]",
+          value: @person.document_id,
+          placeholder: "DNI / CUIL") %>
+    <%= render Qb::Mobile::FormRowComponent.new(
+          label: "Teléfono", name: "project_person[phone]",
+          type: 'tel',
+          value: @person.phone,
+          placeholder: "Ej: 11 5555 5555") %>
+  <% end %>
+
+  <%# Igual que en el alta: la tarifa se tipea en pesos (hourly_rate_pesos) y
+      el controller la convierte con Money::ArsParser. Borrar el campo la
+      limpia (usa key?, no present?). %>
+  <%= render Qb::Mobile::FormGroupComponent.new(title: "Condiciones",
+        footnote: "Tarifa de referencia por hora en esta obra. El costo de mano de obra se calcula sobre las horas registradas.") do %>
+    <%= render Qb::Mobile::FormAmountRowComponent.new(
+          label: "Tarifa por hora",
+          name: "project_person[hourly_rate_pesos]",
+          cents: @person.hourly_rate_cents,
+          placeholder: "4.500",
+          sub: "En pesos por hora (ej: 4.500 o 4.500,50). Vacío borra la tarifa.") %>
+  <% end %>
+
+  <%= render Qb::Mobile::FormGroupComponent.new(title: "Estado y fechas") do %>
+    <%= render Qb::Mobile::FormRowComponent.new(
+          label: "Estado", name: "project_person[status]", select: true,
+          value: @person.status,
+          options: [['Activo', 'active'], ['Inactivo', 'inactive']]) %>
+    <%= render Qb::Mobile::FormRowComponent.new(
+          label: "Inicio", name: "project_person[start_date]",
+          type: 'date',
+          value: @person.start_date) %>
+    <%= render Qb::Mobile::FormRowComponent.new(
+          label: "Fin", name: "project_person[end_date]",
+          type: 'date',
+          value: @person.end_date) %>
+  <% end %>
+
+  <%= render Qb::Mobile::FormGroupComponent.new(title: "Notas") do %>
+    <%= render Qb::Mobile::FormRowComponent.new(
+          label: "Notas", name: "project_person[notes]",
+          value: @person.notes,
+          textarea: true,
+          placeholder: "Acuerdos, jornal, observaciones…") %>
+  <% end %>
+
+  <div style="display:flex;gap:10px;padding-bottom:24px;">
+    <%= link_to "Cancelar", back,
+          class: "m-btn m-btn--secondary m-btn--md",
+          style: "flex:1;text-decoration:none;" %>
+    <%= f.submit "Guardar cambios", class: "m-btn m-btn--md", style: "flex:1.4;" %>
+  </div>
+<% end %>

@@ -1,0 +1,95 @@
+<% content_for :title, "Gastos · #{@project.name}" %>
+<%
+  base_path = constructors_project_expenses_path(@project)
+  category_labels = Constructors::Projects::ExpensesListComponent::CATEGORY_LABELS
+  by_category = @summary.by_category
+  expenses_total_cents = by_category.values.sum
+  filtered = @category_filter != 'all' || (@stage_filter.present? && @stage_filter != 'all')
+  chips = [['all', 'Todas']] + category_labels.map { |value, label| [value, label] }
+  can_load_expenses = policy(@project).manage_content?
+%>
+
+<%= render Qb::Mobile::NavBarComponent.new(title: @project.name, back: true, back_href: constructors_project_path(@project)) %>
+
+<div style="padding: 4px 20px 12px;">
+  <h1 style="margin: 0; font-size: 24px; font-weight: 700; letter-spacing: -0.5px;">Gastos</h1>
+  <div style="font-size: 13px; color: var(--color-ink-3); margin-top: 4px;">
+    <%= pluralize(@expenses_count, 'gasto') %> · <%= qb_fmt_cents(expenses_total_cents) %> en total
+  </div>
+</div>
+
+<%# Filtro por categoría (chips horizontales) %>
+<div style="display:flex;gap:8px;overflow-x:auto;padding:0 20px 12px;-webkit-overflow-scrolling:touch;">
+  <% chips.each do |value, label| %>
+    <%
+      active = @category_filter == value
+      href = value == 'all' ? base_path : "#{base_path}?#{{ category: value }.to_query}"
+    %>
+    <%= link_to label, href,
+          style: "flex-shrink:0;padding:6px 12px;border-radius:999px;font-size:12.5px;font-weight:600;text-decoration:none;white-space:nowrap;border:1px solid #{active ? 'var(--color-accent)' : 'var(--color-line)'};background:#{active ? 'var(--color-accent)' : 'var(--color-bg-sunken)'};color:#{active ? 'var(--color-accent-ink)' : 'var(--color-ink-2)'};" %>
+  <% end %>
+</div>
+
+<%= render Qb::Mobile::SectionComponent.new(title: "Movimientos") do |section| %>
+  <% if can_load_expenses %>
+    <% section.with_action do %>
+      <%= render Qb::Mobile::ButtonComponent.new("Gasto", size: :sm, icon: :plus,
+            href: new_constructors_project_expense_path(@project)) %>
+    <% end %>
+  <% end %>
+
+  <% if @expenses.any? %>
+    <%= render Qb::Mobile::CardComponent.new(bleed: true) do %>
+      <% @expenses.each do |expense| %>
+        <%
+          stage_label = expense.project_stage&.name || 'Sin etapa'
+          subtitle = "#{qb_fmt_date_short(expense.incurred_on)} · #{category_labels[expense.category.to_s] || expense.category} · #{stage_label}"
+        %>
+        <% if expense.receipt.attached? %>
+          <%= render Qb::Mobile::RowComponent.new(
+                icon: :money,
+                title: expense.description.presence || 'Sin descripción',
+                subtitle: "#{subtitle} · ver comprobante",
+                value: qb_fmt_cents(expense.amount_cents),
+                value_mono: true,
+                href: rails_blob_path(expense.receipt, disposition: :inline)) %>
+        <% else %>
+          <%= render Qb::Mobile::RowComponent.new(
+                icon: :money,
+                title: expense.description.presence || 'Sin descripción',
+                subtitle: subtitle,
+                value: qb_fmt_cents(expense.amount_cents),
+                value_mono: true,
+                chevron: false) %>
+        <% end %>
+      <% end %>
+    <% end %>
+  <% else %>
+    <%= render Qb::Mobile::CardComponent.new do %>
+      <div style="text-align:center;padding:14px 8px;color:var(--color-ink-3);font-size:13.5px;">
+        <% if filtered %>
+          Ningún gasto con esos filtros.
+          <div style="margin-top:6px;"><%= link_to 'Limpiar filtros', base_path, style: 'color:var(--color-accent);text-decoration:none;font-weight:600;' %></div>
+        <% elsif can_load_expenses %>
+          Sin gastos registrados. Cargá el primero con “Gasto”.
+        <% else %>
+          Sin gastos registrados en esta obra.
+        <% end %>
+      </div>
+    <% end %>
+  <% end %>
+<% end %>
+
+<% if @pagy.pages > 1 %>
+  <div style="display:flex;justify-content:center;gap:10px;padding:4px 20px 16px;font-size:13px;">
+    <% if @pagy.prev %>
+      <%= link_to 'Anterior', "#{base_path}?#{request.query_parameters.merge(page: @pagy.prev).to_query}", style: 'color:var(--color-accent);text-decoration:none;font-weight:600;' %>
+    <% end %>
+    <span class="mono" style="color:var(--color-ink-3);"><%= @pagy.page %> / <%= @pagy.pages %></span>
+    <% if @pagy.next %>
+      <%= link_to 'Siguiente', "#{base_path}?#{request.query_parameters.merge(page: @pagy.next).to_query}", style: 'color:var(--color-accent);text-decoration:none;font-weight:600;' %>
+    <% end %>
+  </div>
+<% end %>
+
+<div style="height: 24px;"></div>

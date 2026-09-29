@@ -1,0 +1,52 @@
+<% if turbo_frame_request? %>
+  <% content_for(:drawer) do %>
+    <%= render(Qb::DrawerComponent.new(eyebrow: "Imágenes", title: "Agregar imágenes", subtitle: @stage.name, size: :lg)) do %>
+      <%= form_with scope: :image, url: constructors_project_stage_images_path(@project, @stage), multipart: true, class: "space-y-5" do |form| %>
+        <div class="qb-field">
+          <%= form.label :files, "Seleccionar imágenes", class: "qb-label" %>
+          <%= render Qb::FileFieldComponent.new(form: form, method: :files, trigger_label: "Elegir imágenes",
+                                                multiple: true, accept: "image/*") %>
+          <p style="margin-top:4px;font-size:11px;color:var(--color-ink-3);">Formatos recomendados: JPG o PNG (hasta 25 MB cada imagen).</p>
+        </div>
+
+        <div style="display:flex;align-items:center;gap:8px;margin-top:14px;">
+          <%= render Qb::BtnComponent.new('Subir imágenes', variant: :primary, type: 'submit') %>
+          <%= render Qb::BtnComponent.new('Cancelar', variant: :secondary, data: { action: 'click->qb--drawer#back' }) %>
+        </div>
+      <% end %>
+    <% end %>
+  <% end %>
+<% else %>
+  <% project = @project.decorate %>
+  <%= render 'constructors/projects/section_tabs', project: project, current: :stages %>
+
+  <%# Header strip %>
+  <div style="padding:14px 20px;border-bottom:1px solid var(--color-line);display:flex;align-items:flex-end;gap:16px;">
+    <div style="flex:1;">
+      <div style="font-size:11px;font-family:var(--font-mono);color:var(--color-ink-3);text-transform:uppercase;letter-spacing:0.8px;"><%= project.code %> · Planificación</div>
+      <h2 style="margin:3px 0 0;font-size:18px;font-weight:600;letter-spacing:-0.3px;">Nueva foto</h2>
+      <div style="font-size:12px;color:var(--color-ink-3);margin-top:2px;">
+        Subí fotos a <strong><%= @stage.name %></strong> para documentar el avance
+        · <%= link_to '← Volver a la etapa', constructors_project_stage_path(@project, @stage), style: 'color:var(--color-accent);text-decoration:none;font-size:12px;' %>
+      </div>
+    </div>
+  </div>
+
+  <div style="padding:28px 20px;">
+    <div style="max-width:560px;margin:0 auto;">
+      <%= form_with scope: :image, url: constructors_project_stage_images_path(@project, @stage), multipart: true, class: "space-y-5" do |form| %>
+        <div class="qb-field">
+          <%= form.label :files, "Seleccionar imágenes", class: "qb-label" %>
+          <%= render Qb::FileFieldComponent.new(form: form, method: :files, trigger_label: "Elegir imágenes",
+                                                multiple: true, accept: "image/*") %>
+          <p style="margin-top:4px;font-size:11px;color:var(--color-ink-3);">Formatos recomendados: JPG o PNG (hasta 25 MB cada imagen).</p>
+        </div>
+
+        <div style="display:flex;align-items:center;gap:12px;">
+          <%= render Qb::BtnComponent.new('Subir imágenes', variant: :primary, type: 'submit') %>
+          <%= render Qb::BtnComponent.new('Cancelar', variant: :secondary, href: constructors_project_stage_path(@project, @stage)) %>
+        </div>
+      <% end %>
+    </div>
+  </div>
+<% end %>

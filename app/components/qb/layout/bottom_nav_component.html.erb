@@ -1,0 +1,16 @@
+<nav class="qb-bottom-nav" aria-label="Navegación principal">
+  <% nav_items.each do |item| %>
+    <%= link_to item[:url], style: tab_style(item[:active]), "aria-current": (item[:active] ? "page" : nil) do %>
+      <%= render Qb::IconComponent.new(name: item[:icon], size: 20) %>
+      <span style="overflow:hidden;text-overflow:ellipsis;white-space:nowrap;max-width:100%;"><%= label_for(item) %></span>
+    <% end %>
+  <% end %>
+
+  <button type="button"
+          data-action="click->qb--bottom-sheet#open"
+          aria-label="Más opciones"
+          style="<%= tab_style(false) %>">
+    <%= render Qb::IconComponent.new(name: :more, size: 20) %>
+    <span>Más</span>
+  </button>
+</nav>

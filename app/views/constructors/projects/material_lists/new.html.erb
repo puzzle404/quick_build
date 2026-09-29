@@ -1,0 +1,37 @@
+<%# Nueva lista de materiales.
+    - turbo_frame_request (desde un botón con data-turbo-frame="drawer"):
+      renderiza el Qb::DrawerComponent dentro del frame global "drawer"; el
+      controller qb--drawer lo auto-abre al cargarse. Mismo approach que
+      stages/new (sidebar de etapa).
+    - full page (acceso directo o re-render con errores): shell de secciones
+      QB OS + formulario centrado. %>
+<% if turbo_frame_request? %>
+  <% content_for(:drawer) do %>
+    <%= render(Qb::DrawerComponent.new(eyebrow: "Materiales", title: "Nueva lista de materiales", size: :lg)) do %>
+      <%= render Constructors::Projects::Materials::NewListFormComponent.new(
+            project: @project, stage: @material_list.project_stage) %>
+    <% end %>
+  <% end %>
+<% else %>
+  <%= render 'constructors/projects/section_tabs', project: @project, current: :materials %>
+
+  <div>
+    <%# Header strip %>
+    <div style="padding:14px 20px;border-bottom:1px solid var(--color-line);display:flex;align-items:flex-end;gap:16px;">
+      <div style="flex:1;min-width:0;">
+        <div style="font-size:11px;font-family:var(--font-mono);color:var(--color-ink-3);text-transform:uppercase;letter-spacing:0.8px;"><%= @project.code %> · Materiales</div>
+        <h2 style="margin:3px 0 0;font-size:18px;font-weight:600;letter-spacing:-0.3px;">Nueva lista de materiales</h2>
+        <div style="font-size:12px;color:var(--color-ink-3);margin-top:2px;">
+          Creá una lista por etapa o general, manual o desde PDF/Excel ·
+          <%= link_to "← Volver a listas", constructors_project_material_lists_path(@project),
+                      style: "color:var(--color-accent);text-decoration:none;font-size:12px;" %>
+        </div>
+      </div>
+    </div>
+
+    <%# Formulario centrado %>
+    <div style="max-width:720px;margin:0 auto;padding:24px 20px;">
+      <%= render "form" %>
+    </div>
+  </div>
+<% end %>

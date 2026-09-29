@@ -1,0 +1,28 @@
+<div class="qb-drawer-panel" data-qb--drawer-target="panel" tabindex="-1" style="--qb-drawer-width: <%= @width %>;">
+  <% if custom_header? %>
+    <%= custom_header %>
+  <% else %>
+    <div class="qb-drawer-header">
+      <button type="button" class="qb-drawer-back" data-qb--drawer-target="backButton"
+              data-action="click->qb--drawer#back" aria-label="Volver" style="display:none;">
+        <%= render Qb::IconComponent.new(name: :'chevron-left', size: 16) %>
+      </button>
+      <div class="qb-drawer-header-main">
+        <% if @eyebrow.present? %><div class="qb-drawer-eyebrow"><%= @eyebrow %></div><% end %>
+        <% if @title.present? %><h2 class="qb-drawer-title"><%= @title %></h2><% end %>
+        <% if @subtitle.present? %><div class="qb-drawer-subtitle"><%= @subtitle %></div><% end %>
+      </div>
+      <button type="button" class="qb-drawer-close" data-action="click->qb--drawer#close" aria-label="Cerrar">
+        <%= render Qb::IconComponent.new(name: :x, size: 16) %>
+      </button>
+    </div>
+  <% end %>
+
+  <div class="qb-drawer-body">
+    <%= content %>
+  </div>
+
+  <% if footer? %>
+    <div class="qb-drawer-footer"><%= footer %></div>
+  <% end %>
+</div>

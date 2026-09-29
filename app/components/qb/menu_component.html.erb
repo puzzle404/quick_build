@@ -1,0 +1,33 @@
+<div data-controller="qb--dropdown" style="position:relative;">
+  <%= render Qb::BtnComponent.new(label, variant: variant, size: size, icon: icon,
+                                  aria_label: aria_label, title: title,
+                                  data: { action: 'click->qb--dropdown#toggle' }) %>
+
+  <%# class="hidden" para el controller + display:none inline porque .hidden
+      está acotada a [data-theme] en application.css. %>
+  <div data-qb--dropdown-target="menu" class="hidden" role="menu" style="<%= panel_style %>">
+    <% items.each do |item| %>
+      <% if item[:divider] %>
+        <div role="separator" style="height:1px;margin:4px 6px;background:var(--color-line);"></div>
+      <% elsif item[:method] %>
+        <%# button_to = form real: la acción sigue andando sin JS. %>
+        <%= button_to item[:href],
+                      **hover_attrs.merge(method: item[:method], data: item[:data] || {},
+                                          title: item[:title], role: 'menuitem',
+                                          form: { style: 'display:block;' },
+                                          style: item_style(item)) do %>
+          <% if item[:icon] %><%= render Qb::IconComponent.new(name: item[:icon], size: 13) %><% end %>
+          <%= item[:label] %>
+        <% end %>
+      <% else %>
+        <%= link_to item[:href],
+                    **hover_attrs.merge(data: item[:data] || {}, title: item[:title],
+                                        target: item[:target], role: 'menuitem',
+                                        style: item_style(item)).compact do %>
+          <% if item[:icon] %><%= render Qb::IconComponent.new(name: item[:icon], size: 13) %><% end %>
+          <%= item[:label] %>
+        <% end %>
+      <% end %>
+    <% end %>
+  </div>
+</div>

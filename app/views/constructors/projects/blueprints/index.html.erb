@@ -1,0 +1,48 @@
+<%# Planos — vista única: header strip + workspace (lista + visor). El
+    visor real (canvas, escala, mediciones) vive acá; blueprints#show en
+    desktop redirige a esta URL con ?selected=:id. Análisis con IA: en
+    pausa (ver WorkspaceComponent), no eliminado. %>
+<%
+  with_scale = @blueprints.count { |bp| bp.scale_ratio.present? }
+  with_measurements = @blueprints.count { |bp| bp.measurements.is_a?(Hash) && (bp.measurements['groups'] || []).any? }
+
+  # Planos/documentos/fotos no tienen policy propia: autorizan por
+  # ProjectPolicy#manage_content? (editor de obra en adelante), igual que el
+  # controller (blueprints#new/create/update_scale/update_measurements/destroy).
+  can_upload = policy(@project).manage_content?
+%>
+<div>
+  <%= render 'constructors/projects/section_tabs', project: @project, current: :blueprints %>
+
+  <%# Header strip %>
+  <div style="padding:14px 20px;border-bottom:1px solid var(--color-line);display:flex;align-items:flex-end;gap:16px;">
+    <div style="flex:1;min-width:0;">
+      <div style="font-size:11px;font-family:var(--font-mono);color:var(--color-ink-3);text-transform:uppercase;letter-spacing:0.8px;"><%= @project.code %></div>
+      <h2 style="margin:3px 0 0;font-size:18px;font-weight:600;letter-spacing:-0.3px;">Planos</h2>
+      <div style="font-size:12px;color:var(--color-ink-3);margin-top:2px;">
+        <%= pluralize(@blueprints.size, 'plano') %> · <%= with_scale %> con escala · <%= with_measurements %> con mediciones
+      </div>
+    </div>
+    <% if can_upload %>
+      <%= render Qb::BtnComponent.new('Subir plano', variant: :primary, size: :sm, icon: :upload,
+                                      href: new_constructors_project_blueprint_path(@project),
+                                      data: { turbo_frame: 'drawer', action: 'click->qb--drawer#open' }) %>
+    <% end %>
+  </div>
+
+  <% if @blueprints.any? %>
+    <%= render Constructors::Projects::Blueprints::WorkspaceComponent.new(
+          project: @project,
+          blueprints: @blueprints,
+          selected: @selected_blueprint,
+          construction_items: @construction_items) %>
+  <% else %>
+    <div style="padding:60px;margin:16px;text-align:center;color:var(--color-ink-4);font-size:13px;border:1px dashed var(--color-line);border-radius:10px;">
+      <%= render Qb::IconComponent.new(name: :blueprint, size: 32, style: 'margin-bottom:8px;opacity:0.5;') %>
+      <div>Aún no se cargaron planos.</div>
+      <% if can_upload %>
+        <div style="font-size:11px;color:var(--color-ink-4);margin-top:6px;">Subí planos arquitectónicos para comenzar a medir y calcular materiales.</div>
+      <% end %>
+    </div>
+  <% end %>
+</div>

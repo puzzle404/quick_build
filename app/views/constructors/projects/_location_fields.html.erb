@@ -1,0 +1,53 @@
+<%# Dirección + ubicación de la obra (alta en drawer, alta en página y edición).
+    Flujo tipo PedidosYa/Airbnb, con Google Maps (controller project-map):
+      1. Un solo campo "Dirección de la obra" con sugerencias debajo.
+      2. Al elegir una, aparece el mapa con un pin fijo al centro: se mueve el
+         mapa para ajustar el punto exacto. Mover el mapa no toca la dirección.
+    La dirección es el dato que se comparte; lat/lng georreferencian la obra.
+    Locals: f (form builder), map_height (px, default 260). %>
+<% map_height = local_assigns.fetch(:map_height, 260) %>
+<% located = f.object.latitude.present? && f.object.longitude.present? %>
+<div data-controller="project-map">
+  <div class="qb-field" style="margin-bottom:6px;">
+    <%= f.label :location, "Dirección de la obra", class: "qb-label" %>
+    <div style="position:relative;">
+      <%= f.text_field :location, placeholder: "Escribí calle y altura, ej: Av. Colón 1234, Mendoza",
+            class: "qb-input", autocomplete: "off", role: "combobox",
+            "aria-autocomplete": "list", "aria-expanded": "false",
+            "aria-controls": "#{f.object_name}_location_suggestions",
+            data: { project_map_target: "input",
+                    action: "input->project-map#query keydown->project-map#keydown blur->project-map#blur" } %>
+      <ul id="<%= f.object_name %>_location_suggestions" class="qb-addr-suggestions" role="listbox" hidden
+          data-project-map-target="suggestions"></ul>
+    </div>
+    <span style="font-size:10.5px;color:var(--color-ink-4);">Elegí la dirección de la lista. Después podés sumarle piso, lote o una referencia: es el texto que se comparte.</span>
+  </div>
+
+  <div data-project-map-target="mapWrap" <%= "hidden" unless located %> style="margin-top:10px;">
+    <div class="qb-pin-map" style="height:<%= map_height.to_i %>px;">
+      <div id="project-map" data-project-map-target="map" style="position:absolute;inset:0;"></div>
+      <%# Pin fijo: se mueve el mapa debajo, como en las apps de delivery. %>
+      <svg class="qb-pin-map-pin" width="30" height="40" viewBox="0 0 30 40" aria-hidden="true">
+        <path d="M15 1C7.3 1 1 7.2 1 14.9 1 25.3 15 39 15 39s14-13.7 14-24.1C29 7.2 22.7 1 15 1z" />
+        <circle cx="15" cy="15" r="5" />
+      </svg>
+    </div>
+    <div style="font-size:11px;color:var(--color-ink-3);margin-top:6px;">Mové el mapa para dejar el pin justo sobre la obra.</div>
+    <div data-project-map-target="hint" hidden style="font-size:11px;color:var(--color-warn);margin-top:4px;"></div>
+  </div>
+
+  <div data-project-map-target="unavailable" hidden
+       style="margin-top:8px;padding:10px 12px;border:1px dashed var(--color-line-2);border-radius:var(--radius);background:var(--color-bg-sunken);font-size:11.5px;color:var(--color-ink-3);">
+    El mapa no está disponible (falta configurar Google Maps). Podés guardar la dirección igual y ubicar la obra más tarde.
+  </div>
+
+  <div style="margin-top:8px;">
+    <button type="button" data-project-map-target="manualButton" data-action="project-map#manual"
+            style="background:none;border:none;padding:0;font-size:11.5px;color:var(--color-accent);cursor:pointer;">
+      ¿No encontrás la dirección? Marcá la obra en el mapa
+    </button>
+  </div>
+
+  <%= f.hidden_field :latitude, data: { project_map_target: "latitude" } %>
+  <%= f.hidden_field :longitude, data: { project_map_target: "longitude" } %>
+</div>

@@ -1,0 +1,35 @@
+<%# Sección "Evolución" del dashboard, envuelta en un Turbo Frame para que el
+    selector de rango (6/12 meses) recargue solo el gráfico vía
+    constructors_evolution_chart_path (dashboard#evolution_chart). %>
+<%
+  ev_labels = (evolution[:labels] || []).map { |l| l.to_s.split(' ').first }  # 'Apr 2026' → 'Apr'
+  ev_spend = (evolution.dig(:series, :estimated_cents, :values) || []).map { |c| (c.to_f / 100).round }
+  ev_progress = (evolution.dig(:series, :stages_started, :values) || []).map(&:to_f)
+  ev_plan = (evolution.dig(:series, :stages_completed, :values) || []).map(&:to_f)
+%>
+<%= turbo_frame_tag "evolution-chart" do %>
+  <%= render Qb::SectionHeadComponent.new(
+        title: "Evolución · #{selected_months} meses",
+        subtitle: 'Avance físico real vs plan · Gasto mensual'
+      ) do |c| %>
+    <% c.with_right do %>
+      <div data-controller="time-range"
+           data-time-range-url-value="<%= constructors_evolution_chart_path %>"
+           data-time-range-frame-value="evolution-chart">
+        <select class="qb-select"
+                style="width:auto;font-size:12px;padding:4px 8px;cursor:pointer;"
+                aria-label="Rango de meses del gráfico"
+                data-action="change->time-range#change">
+          <option value="6" <%= 'selected' if selected_months == 6 %>>Últimos 6 meses</option>
+          <option value="12" <%= 'selected' if selected_months == 12 %>>Últimos 12 meses</option>
+        </select>
+      </div>
+    <% end %>
+  <% end %>
+  <%= render Constructors::Dashboard::EvolutionChartComponent.new(
+        months: ev_labels,
+        spend: ev_spend,
+        progress: ev_progress,
+        plan: ev_plan
+      ) %>
+<% end %>

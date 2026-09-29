@@ -1,0 +1,31 @@
+<%# Nueva persona.
+    - turbo_frame_request (botón con data-turbo-frame="drawer"): Qb::DrawerComponent
+      dentro del frame global "drawer"; qb--drawer lo auto-abre. Mismo approach que stages/new.
+    - full page (acceso directo): shell QB OS (section_tabs + header strip) con el form centrado. %>
+<% if turbo_frame_request? %>
+  <% content_for(:drawer) do %>
+    <%= render(Qb::DrawerComponent.new(eyebrow: "Equipo", title: "Nueva persona", subtitle: "Cargá los datos básicos del trabajador u oficio", size: :lg)) do %>
+      <%= render Constructors::Projects::People::PersonFormComponent.new(project: @project, person: @person, in_drawer: true) %>
+    <% end %>
+  <% end %>
+<% else %>
+  <%= render 'constructors/projects/section_tabs', project: @project, current: :team %>
+
+  <%# Header strip %>
+  <div style="padding:14px 20px;border-bottom:1px solid var(--color-line);display:flex;align-items:flex-end;gap:16px;">
+    <div style="flex:1;">
+      <div style="font-size:11px;font-family:var(--font-mono);color:var(--color-ink-3);text-transform:uppercase;letter-spacing:0.8px;"><%= @project.decorate.code %> · Equipo</div>
+      <h2 style="margin:3px 0 0;font-size:18px;font-weight:600;letter-spacing:-0.3px;">Nueva persona</h2>
+      <div style="font-size:12px;color:var(--color-ink-3);margin-top:2px;">
+        Cargá los datos básicos del trabajador u oficio
+        · <%= link_to '← Volver al equipo', constructors_project_people_path(@project), style: 'color:var(--color-accent);text-decoration:none;font-size:12px;' %>
+      </div>
+    </div>
+  </div>
+
+  <div style="padding:28px 20px;">
+    <div style="max-width:560px;margin:0 auto;">
+      <%= render Constructors::Projects::People::PersonFormComponent.new(project: @project, person: @person) %>
+    </div>
+  </div>
+<% end %>

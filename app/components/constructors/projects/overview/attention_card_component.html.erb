@@ -1,0 +1,30 @@
+<section class="qb-rail-card" aria-label="Requiere atención">
+  <div class="qb-rail-card-head">
+    <span class="qb-rail-card-title">Requiere atención</span>
+    <% if items.any? %><span class="qb-rail-badge qb-rail-badge--<%= items.first.tone %>"><%= items.size %></span><% end %>
+  </div>
+
+  <% if items.empty? %>
+    <div class="qb-attention-row">
+      <span class="qb-attention-tile qb-attention-tile--ok" aria-hidden="true">✓</span>
+      <div class="qb-attention-text">
+        <div class="qb-attention-title">Todo en orden</div>
+        <div class="qb-attention-body">Nada vencido ni por vencer en los próximos <%= SOON_DAYS %> días.</div>
+      </div>
+    </div>
+  <% else %>
+    <% shown_items.each do |item| %>
+      <div class="qb-attention-row">
+        <span class="qb-attention-tile qb-attention-tile--<%= item.tone %> qb-mono" aria-hidden="true"><%= item.glyph %></span>
+        <div class="qb-attention-text">
+          <div class="qb-attention-title"><%= item.title %></div>
+          <div class="qb-attention-body" title="<%= item.body %>"><%= item.body %></div>
+        </div>
+        <%= link_to item.cta, item.href, class: "qb-rail-action", data: item.data %>
+      </div>
+    <% end %>
+    <% if hidden_count.positive? %>
+      <div class="qb-attention-more">+ <%= hidden_count %> más para revisar</div>
+    <% end %>
+  <% end %>
+</section>

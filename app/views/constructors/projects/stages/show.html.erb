@@ -1,0 +1,37 @@
+<%# Detalle de etapa. Dentro del drawer llega como turbo_frame request → solo
+    el contenido del frame, envuelto en el chrome del drawer (header con
+    eyebrow/título, cuerpo, sin footer propio — el footer de acciones vive
+    dentro de StageDetailComponent). Entrando directo (link del dashboard,
+    bookmark) se envuelve en el shell del proyecto y se renderiza como
+    contenido plano: el drawer global del layout sigue ahí y "Editar"/las
+    sub-etapas lo abren igual como overlay flotante, sin necesitar un frame
+    local propio (evita el id duplicado "drawer" en la misma página). %>
+<% if turbo_frame_request? %>
+  <% content_for(:drawer) do %>
+    <%# Mismo partial que usa material_lists#create para repoblar el drawer con
+        el detalle de la etapa: un solo lugar define el chrome del drawer. %>
+    <%= render "constructors/projects/stages/detail_drawer",
+          project: @project, stage: @stage.decorate, sub_stages: @sub_stages, active_tab: @active_tab %>
+  <% end %>
+<% else %>
+  <div>
+    <%= render 'constructors/projects/section_tabs', project: @project, current: :stages %>
+
+    <%# Header strip %>
+    <div style="padding:14px 20px;border-bottom:1px solid var(--color-line);display:flex;align-items:flex-end;gap:16px;">
+      <div style="flex:1;">
+        <div style="font-size:11px;font-family:var(--font-mono);color:var(--color-ink-3);text-transform:uppercase;letter-spacing:0.8px;"><%= @project.decorate.code %> · Etapas</div>
+        <h2 style="margin:3px 0 0;font-size:18px;font-weight:600;letter-spacing:-0.3px;"><%= @stage.name %></h2>
+        <div style="font-size:12px;color:var(--color-ink-3);margin-top:2px;">
+          <%= @sub_stages.size %> <%= @sub_stages.size == 1 ? 'sub-etapa' : 'sub-etapas' %> · <%= @stage.progress.to_i %>% de avance
+          <%= link_to '← Volver a etapas', constructors_project_path(@project), style: 'color:var(--color-accent);text-decoration:none;margin-left:8px;' %>
+        </div>
+      </div>
+    </div>
+
+    <div style="padding:16px 20px;">
+      <%= render Constructors::Projects::Planning::StageDetailComponent.new(
+            project: @project, stage: @stage, sub_stages: @sub_stages, active_tab: @active_tab) %>
+    </div>
+  </div>
+<% end %>

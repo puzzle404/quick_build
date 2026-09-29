@@ -1,0 +1,37 @@
+<%= form_with model: blueprint,
+              url: helpers.constructors_project_blueprints_path(project),
+              html: { multipart: true, style: 'display:flex;flex-direction:column;' } do |f| %>
+  <% if blueprint.errors.any? %>
+    <div class="qb-form-error">
+      <p style="font-weight:600;margin:0 0 4px;">No se pudo subir el plano:</p>
+      <ul style="margin:0;padding-left:16px;">
+        <% blueprint.errors.full_messages.each do |message| %>
+          <li><%= message %></li>
+        <% end %>
+      </ul>
+    </div>
+  <% end %>
+
+  <div class="qb-field">
+    <%= f.label :name, 'Nombre del plano', class: 'qb-label' %>
+    <%= f.text_field :name, required: true, placeholder: 'Ej: Planta baja · Arquitectura', class: 'qb-input' %>
+  </div>
+
+  <div class="qb-field">
+    <%= f.label :description, 'Descripción (opcional)', class: 'qb-label' %>
+    <%= f.text_area :description, rows: 2, placeholder: 'Ej: distribución de ambientes, revisión 3', class: 'qb-textarea' %>
+  </div>
+
+  <div class="qb-field">
+    <%= f.label :file, 'Archivo del plano', class: 'qb-label' %>
+    <%= render Qb::FileFieldComponent.new(form: f, method: :file, trigger_label: "Elegir plano",
+                                          required: true, accept: 'image/jpeg,image/png,image/jpg',
+                                          direct_upload: true) %>
+    <p style="font-size:11px;color:var(--color-ink-4);margin:4px 0 0;">JPG o PNG, hasta 10MB. Después definís la escala y medís sobre el plano.</p>
+  </div>
+
+  <div style="display:flex;align-items:center;gap:8px;margin-top:14px;">
+    <%= render Qb::BtnComponent.new('Subir plano', variant: :primary, icon: :upload, type: 'submit') %>
+    <%= render Qb::BtnComponent.new('Cancelar', variant: :secondary, data: { action: 'click->qb--drawer#back' }) %>
+  </div>
+<% end %>

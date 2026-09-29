@@ -1,0 +1,142 @@
+<%# Etapas — landing del proyecto. Unifica el viejo "Resumen" con
+    "Planificación": arriba el workspace de etapas (cards/Gantt) a ancho
+    completo, abajo el seguimiento del proyecto en la grilla de 2 columnas.
+    El panel WBS se eliminó: era un layout duplicado (sus datos ya están en las
+    cards, en el drawer de etapa y en el CSV de "Exportar"). Lo único que le
+    faltaba al Gantt —StatusDot, gasto/presupuesto y filas clickeables— se
+    migró al GanttComponent. %>
+<%
+  total = @root_stages.size
+  done = @root_stages.count { |s| s.progress.to_i >= 100 }
+  in_progress_count = @root_stages.count { |s| s.progress.to_i.positive? && s.progress.to_i < 100 }
+  pending_count = @root_stages.count { |s| s.progress.to_i.zero? }
+
+  # Permisos de la obra en un solo lugar: `manage_content?` = editor o más
+  # (etapas, gastos, notas, archivos), `manage_team?` = admin de obra o más.
+  # Ojo con chequear el rol a mano acá: la matriz vive en las policies.
+  can = policy(@project)
+%>
+
+<div data-controller="qb--view-switcher"
+     data-qb--view-switcher-storage-key-value="qb_planning_view"
+     data-qb--view-switcher-default-value="cards">
+
+  <%= render 'constructors/projects/section_tabs', project: @project, current: :stages %>
+
+  <%# Workspace (izq) + panel de la obra (der). El panel arranca a la altura
+      del título "Etapas" (no debajo): así entra entero en la pantalla y se ve
+      sin scrollear ni hacer click. %>
+  <div style="display:grid;grid-template-columns:minmax(0,1fr) 380px;gap:0;align-items:start;">
+    <div style="border-right:1px solid var(--color-line);min-width:0;">
+
+  <%# Page header — etapas + acciones de planificación %>
+  <div style="padding:14px 20px 12px;border-bottom:1px solid var(--color-line);display:flex;align-items:flex-end;gap:16px;">
+    <div style="flex:1;">
+      <div style="font-size:11px;font-family:var(--font-mono);color:var(--color-ink-3);text-transform:uppercase;letter-spacing:0.8px;"><%= @project.code %> · <%= @project.name.to_s.split('·').first&.strip %></div>
+      <h2 style="margin:3px 0 0;font-size:18px;font-weight:600;letter-spacing:-0.3px;">Etapas</h2>
+      <div style="font-size:12px;color:var(--color-ink-3);margin-top:2px;">
+        <% if total.positive? %>
+          <%= total %> etapas principales · <%= done %> completadas · <%= in_progress_count %> en curso · <%= pending_count %> pendientes
+        <% else %>
+          Sin etapas cargadas todavía
+        <% end %>
+      </div>
+    </div>
+    <% if can.manage_content? %>
+      <div data-controller="qb--drawer" style="display:contents;">
+        <%= render Qb::BtnComponent.new('Aplicar plantilla', variant: :ghost, size: :sm, icon: :layers, data: { action: 'click->qb--drawer#open' }) %>
+        <%= render Constructors::Projects::Planning::TemplateDrawerComponent.new(project: @project) %>
+      </div>
+    <% end %>
+    <%# "Guardar como plantilla" sólo LEE la obra (stage_templates#create pide
+        :show?) y la plantilla queda a nombre de quien la guarda, así que
+        alcanza con poder ver la obra. %>
+    <div data-controller="qb--drawer" style="display:contents;">
+      <%= render Qb::BtnComponent.new('Guardar como plantilla', variant: :ghost, size: :sm, icon: :layers, data: { action: 'click->qb--drawer#open' }) %>
+      <%= render Constructors::Projects::Planning::SaveTemplateDrawerComponent.new(project: @project) %>
+    </div>
+    <%# "Exportar" vive en el header del proyecto (header_component): era el
+        mismo CSV, duplicado a 200px de distancia. %>
+    <% if can.manage_content? %>
+      <%# Ruta propia (stages#new) en el drawer global: el form ya no viaja
+          embebido en el HTML del proyecto. %>
+      <%= render Qb::BtnComponent.new('Nueva etapa', variant: :primary, size: :sm, icon: :plus,
+            href: new_constructors_project_stage_path(@project),
+            data: { turbo_frame: 'drawer', action: 'click->qb--drawer#open' }) %>
+    <% end %>
+  </div>
+
+      <%# View switcher %>
+      <div style="display:flex;align-items:center;padding:0 16px;border-bottom:1px solid var(--color-line);background:var(--color-bg-raised);gap:4px;height:40px;">
+        <%# 2 vistas, igual que mobile (stages/index.html+mobile.erb). Si se
+            agrega una tercera, sumar acá y crear su panel más abajo: el
+            switcher cae al default si la vista guardada no existe. %>
+        <% [
+          { k: 'cards', l: 'Etapas',  icon: :stages },
+          { k: 'gantt', l: 'Gantt',   icon: :gantt },
+        ].each do |t| %>
+          <button type="button"
+                  data-qb--view-switcher-target="btn" data-view="<%= t[:k] %>"
+                  data-action="click->qb--view-switcher#switch"
+                  data-qb--view-switcher-view-param="<%= t[:k] %>"
+                  style="height:40px;padding:0 14px;background:transparent;border:none;border-bottom:2px solid transparent;color:var(--color-ink-3);cursor:pointer;font-size:13px;font-weight:500;margin-bottom:-1px;display:inline-flex;align-items:center;gap:6px;">
+            <%= render Qb::IconComponent.new(name: t[:icon], size: 13) %><%= t[:l] %>
+          </button>
+        <% end %>
+        <div style="flex:1;"></div>
+        <span class="qb-mono" style="font-size:11px;color:var(--color-ink-3);">Hoy · <%= qb_fmt_date_short(Date.current) %></span>
+      </div>
+
+      <%# Cards view %>
+      <div data-qb--view-switcher-target="panel" data-view="cards">
+        <% if @root_stages.any? %>
+          <div id="planning_stages" style="padding:12px 16px;display:flex;flex-direction:column;gap:8px;">
+            <% @root_stages.each do |stage| %>
+              <%# sort_by sobre la asociación eager-loaded (.order dispararía 1 query por etapa).
+                  expense_totals inyectado: sin él cada card se pega a la base por su cuenta. %>
+              <%= render Constructors::Projects::Planning::StageCardComponent.new(project: @project, stage: stage, sub_stages: stage.sub_stages.sort_by { |s| [s.position.to_i, s.name.to_s] }, expense_totals: @stage_expense_totals) %>
+            <% end %>
+          </div>
+        <% else %>
+          <div id="planning_stages" style="padding:60px;text-align:center;color:var(--color-ink-3);font-size:13px;">
+            <% if can.manage_content? %>
+              Aún no hay etapas. Aplicá la plantilla base o creá una nueva para empezar.
+            <% else %>
+              Aún no hay etapas cargadas en esta obra.
+            <% end %>
+          </div>
+        <% end %>
+      </div>
+
+      <%# Gantt — vista densa: ancho mínimo + scroll horizontal propio para que
+          no se comprima en la columna (el timeline recortaba las etiquetas de
+          las barras). El mínimo subió a 960px porque el panel fijo pasó de
+          420px a 520px al sumar la columna Gastos/Ppto. %>
+      <div data-qb--view-switcher-target="panel" data-view="gantt" style="display:none;overflow-x:auto;">
+        <% if @root_stages.any? %>
+          <div style="min-width:960px;">
+            <%= render Constructors::Projects::Planning::GanttComponent.new(project: @project, root_stages: @root_stages, expense_totals: @stage_expense_totals) %>
+          </div>
+        <% else %>
+          <div style="padding:60px;text-align:center;color:var(--color-ink-3);font-size:13px;">No hay etapas para mostrar en el Gantt.</div>
+        <% end %>
+      </div>
+    </div>
+
+    <%# Panel de la obra — 3 tarjetas siempre a la vista, sin tabs (diseño:
+        artifact "Quick Build · Panel de la obra (ronda 2)", estilo tarjetas):
+          · Avance de obra — real vs plan con los MISMOS números del header.
+          · Requiere atención — lo que pide una acción, con su acción.
+          · Datos de la obra — mapa, dirección (se comparte), cliente, plazo y
+            presupuesto.
+        La bitácora tiene su propia tab (Bitácora) y equipo/documentos las
+        suyas: el panel no repite lo que vive en otra sección.
+        qb--sticky-fit lo deja pegado arriba sólo si entra en la pantalla. %>
+    <aside class="qb-project-rail" aria-label="Panel de la obra" data-controller="qb--sticky-fit">
+      <%= render Constructors::Projects::Overview::ProgressCardComponent.new(project: @project) %>
+      <%= render Constructors::Projects::Overview::AttentionCardComponent.new(project: @project, stages: @root_stages) %>
+      <%= render Constructors::Projects::Overview::ObraCardComponent.new(project: @project) %>
+    </aside>
+  </div>
+
+</div>

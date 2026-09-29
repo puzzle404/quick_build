@@ -1,0 +1,124 @@
+<%# Gantt mobile — timeline horizontal simple sobre datos reales (start_date/end_date).
+    Locals: project, root_stages (raíces ordenadas por position, con sub_stages precargadas).
+    Las etapas sin fechas van al grupo "Sin fechas" debajo del gráfico. %>
+<%
+  months_es = %w[ene feb mar abr may jun jul ago sep oct nov dic]
+
+  rows = []
+  root_stages.each do |root|
+    rows << [root.decorate, 0]
+    # sort_by sobre la asociación precargada (.order dispararía 1 query por etapa)
+    root.sub_stages.sort_by { |s| [s.position.to_i, s.name.to_s] }.each do |sub|
+      rows << [sub.decorate, 1]
+    end
+  end
+
+  dated, undated = rows.partition { |s, _| s.start_date.present? && s.end_date.present? }
+
+  # done → ok · doing → accent · pending → line-2 (mismo criterio que el status del decorator)
+  bar_color = lambda do |s|
+    case s.status
+    when :done  then 'var(--color-ok)'
+    when :doing then 'var(--color-accent)'
+    else             'var(--color-line-2)'
+    end
+  end
+
+  if dated.any?
+    range_start = dated.map { |s, _| s.start_date }.min.beginning_of_month
+    range_end   = [dated.map { |s, _| s.end_date }.max, Date.current].max.end_of_month
+    total_days  = [(range_end - range_start).to_i, 1].max
+    pct = ->(date) { (((date - range_start).to_f / total_days) * 100).clamp(0, 100).round(2) }
+
+    months = []
+    cursor = range_start
+    while cursor <= range_end
+      months << cursor
+      cursor = cursor >> 1
+    end
+
+    today_pct = Date.current.between?(range_start, range_end) ? pct.call(Date.current) : nil
+    label_w   = 104
+    chart_w   = [months.size * 72, 400].max
+  end
+%>
+
+<div style="padding:0 0 16px;">
+  <% if dated.any? %>
+    <%# Leyenda %>
+    <div style="display:flex;gap:14px;padding:0 20px 10px;font-size:11px;color:var(--color-ink-3);">
+      <span style="display:inline-flex;align-items:center;gap:5px;"><span style="width:8px;height:8px;border-radius:2px;background:var(--color-ok);"></span>Completada</span>
+      <span style="display:inline-flex;align-items:center;gap:5px;"><span style="width:8px;height:8px;border-radius:2px;background:var(--color-accent);"></span>En curso</span>
+      <span style="display:inline-flex;align-items:center;gap:5px;"><span style="width:8px;height:8px;border-radius:2px;background:var(--color-line-2);"></span>Pendiente</span>
+    </div>
+
+    <%# Chart con scroll horizontal %>
+    <div style="overflow-x:auto;-webkit-overflow-scrolling:touch;">
+      <div style="min-width:<%= label_w + chart_w %>px;padding:0 16px;">
+        <%# Header de meses %>
+        <div style="display:flex;">
+          <div style="width:<%= label_w %>px;flex-shrink:0;border-bottom:1px solid var(--color-line);"></div>
+          <div style="flex:1;position:relative;height:24px;border-bottom:1px solid var(--color-line);">
+            <% months.each do |m| %>
+              <div style="position:absolute;left:<%= pct.call(m) %>%;top:0;bottom:0;width:1px;background:var(--color-line);"></div>
+              <span style="position:absolute;left:<%= pct.call(m) %>%;top:5px;padding-left:5px;font-size:10px;font-family:var(--font-mono);color:var(--color-ink-4);text-transform:uppercase;letter-spacing:0.5px;white-space:nowrap;">
+                <%= months_es[m.month - 1] %><%= " ’#{m.strftime('%y')}" if m == months.first || m.month == 1 %>
+              </span>
+            <% end %>
+          </div>
+        </div>
+
+        <%# Filas: etiquetas a la izquierda, barras a la derecha (mismo orden y altura) %>
+        <div style="display:flex;">
+          <div style="width:<%= label_w %>px;flex-shrink:0;">
+            <% dated.each do |s, depth| %>
+              <div style="height:30px;display:flex;align-items:center;border-bottom:1px solid var(--color-line);padding-left:<%= depth.positive? ? 12 : 0 %>px;">
+                <span style="font-size:<%= depth.positive? ? 11 : 12 %>px;font-weight:<%= depth.positive? ? 400 : 600 %>;color:<%= depth.positive? ? 'var(--color-ink-3)' : 'var(--color-ink)' %>;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;"><%= s.name %></span>
+              </div>
+            <% end %>
+          </div>
+          <div style="flex:1;position:relative;">
+            <% months.each do |m| %>
+              <div style="position:absolute;left:<%= pct.call(m) %>%;top:0;bottom:0;width:1px;background:var(--color-line);"></div>
+            <% end %>
+            <% if today_pct %>
+              <div style="position:absolute;left:<%= today_pct %>%;top:0;bottom:0;width:1px;background:var(--color-accent);z-index:2;"></div>
+            <% end %>
+            <% dated.each do |s, depth| %>
+              <% left  = pct.call(s.start_date) %>
+              <% width = [pct.call(s.end_date) - left, 1.0].max %>
+              <div style="height:30px;border-bottom:1px solid var(--color-line);position:relative;">
+                <div style="position:absolute;top:<%= depth.positive? ? 10 : 8 %>px;height:<%= depth.positive? ? 10 : 14 %>px;left:<%= left %>%;width:<%= width %>%;border-radius:3px;background:<%= bar_color.call(s) %>;<%= 'box-shadow:inset 0 0 0 1px var(--color-line-2);' if s.status == :pending %>"></div>
+              </div>
+            <% end %>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <% if today_pct %>
+      <div style="padding:8px 20px 0;font-size:11px;color:var(--color-ink-3);font-family:var(--font-mono);">
+        <span style="color:var(--color-accent);">│</span> Hoy · <%= qb_fmt_date_short(Date.current) %>
+      </div>
+    <% end %>
+  <% else %>
+    <div style="padding:24px 20px;text-align:center;color:var(--color-ink-3);font-size:13px;">
+      Ninguna etapa tiene fechas cargadas todavía. Asigná inicio y fin a una etapa para ver el Gantt.
+    </div>
+  <% end %>
+
+  <% if undated.any? %>
+    <div style="padding:16px 20px 0;">
+      <div style="font-size:11px;font-family:var(--font-mono);color:var(--color-ink-4);text-transform:uppercase;letter-spacing:0.6px;margin-bottom:8px;">Sin fechas · <%= undated.size %></div>
+      <div style="display:flex;flex-direction:column;gap:6px;">
+        <% undated.each do |s, depth| %>
+          <div style="display:flex;align-items:center;gap:8px;padding-left:<%= depth.positive? ? 12 : 0 %>px;">
+            <span style="width:8px;height:8px;border-radius:2px;flex-shrink:0;background:<%= bar_color.call(s) %>;<%= 'box-shadow:inset 0 0 0 1px var(--color-line-2);' if s.status == :pending %>"></span>
+            <span style="font-size:12.5px;color:var(--color-ink-2);min-width:0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;"><%= s.name %></span>
+            <span class="mono" style="font-size:11px;color:var(--color-ink-4);margin-left:auto;flex-shrink:0;"><%= s.progress_value %>%</span>
+          </div>
+        <% end %>
+      </div>
+    </div>
+  <% end %>
+</div>

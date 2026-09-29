@@ -1,22 +1,50 @@
 {
-  "name": "QuickBuild",
-  "icons": [
+  "name": "Quick Build",
+  "short_name": "Quick Build",
+  "id": "/constructors",
+  "start_url": "/constructors",
+  "scope": "/",
+  "display": "standalone",
+  "display_override": ["standalone", "minimal-ui"],
+  "orientation": "portrait-primary",
+  "lang": "es",
+  "dir": "ltr",
+  "description": "Sistema operativo para constructores: proyectos, planificación, materiales, planos y documentación.",
+  "categories": ["business", "productivity"],
+  "theme_color": "#fbfaf8",
+  "background_color": "#fbfaf8",
+  "shortcuts": [
     {
-      "src": "/icon.png",
-      "type": "image/png",
-      "sizes": "512x512"
+      "name": "Nuevo proyecto",
+      "short_name": "Nuevo",
+      "url": "/constructors/projects/new",
+      "icons": [{ "src": "/icon-192.png", "sizes": "192x192" }]
     },
     {
-      "src": "/icon.png",
+      "name": "Buscar",
+      "short_name": "Buscar",
+      "url": "/constructors/search",
+      "icons": [{ "src": "/icon-192.png", "sizes": "192x192" }]
+    }
+  ],
+  "icons": [
+    {
+      "src": "/icon-192.png",
+      "type": "image/png",
+      "sizes": "192x192",
+      "purpose": "any"
+    },
+    {
+      "src": "/icon-512.png",
+      "type": "image/png",
+      "sizes": "512x512",
+      "purpose": "any"
+    },
+    {
+      "src": "/icon-maskable-512.png",
       "type": "image/png",
       "sizes": "512x512",
       "purpose": "maskable"
     }
-  ],
-  "start_url": "/",
-  "display": "standalone",
-  "scope": "/",
-  "description": "QuickBuild.",
-  "theme_color": "red",
-  "background_color": "red"
+  ]
 }

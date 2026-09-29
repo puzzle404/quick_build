@@ -1,0 +1,5 @@
+<% if object && object.errors[field].present? %>
+  <div class="mt-1 text-sm text-red-600">
+    <%= object.errors[field].join(', ') %>
+  </div>
+<% end %>

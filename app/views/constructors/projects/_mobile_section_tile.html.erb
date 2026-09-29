@@ -1,0 +1,30 @@
+<%# Section tile (mobile project overview grid).
+    Locals: icon, label, sub, tone (:warn/:accent/:info/:muted), badge (optional), href %>
+<%
+  bg = case tone
+       when :warn   then 'color-mix(in oklab, var(--color-warn) 14%, transparent)'
+       when :accent then 'color-mix(in oklab, var(--color-accent) 14%, transparent)'
+       when :info   then 'color-mix(in oklab, var(--color-info) 14%, transparent)'
+       else              'var(--color-bg-sunken)'
+       end
+  fg = case tone
+       when :warn   then 'var(--color-warn)'
+       when :accent then 'var(--color-accent)'
+       when :info   then 'var(--color-info)'
+       else              'var(--color-ink-2)'
+       end
+%>
+<%= link_to href, style: "text-decoration:none;color:inherit;display:block;" do %>
+  <%= render Qb::Mobile::CardComponent.new(padding: 14) do %>
+    <div style="position:relative;">
+      <% if defined?(badge) && badge.present? %>
+        <span style="position:absolute;top:-4px;right:-4px;font-size:9px;font-family:var(--font-mono);font-weight:700;padding:2px 6px;background:var(--color-accent);color:var(--color-accent-ink);border-radius:4px;letter-spacing:0.5px;"><%= badge %></span>
+      <% end %>
+      <div style="width:32px;height:32px;border-radius:8px;background:<%= bg %>;color:<%= fg %>;display:flex;align-items:center;justify-content:center;margin-bottom:10px;">
+        <%= render Qb::Mobile::IconComponent.new(name: icon, size: 17) %>
+      </div>
+      <div style="font-size:14px;font-weight:600;color:var(--color-ink);"><%= label %></div>
+      <div style="font-size:11.5px;color:var(--color-ink-3);margin-top:2px;line-height:1.35;"><%= sub %></div>
+    </div>
+  <% end %>
+<% end %>

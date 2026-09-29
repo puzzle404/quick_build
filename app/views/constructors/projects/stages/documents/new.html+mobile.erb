@@ -1,0 +1,27 @@
+<% content_for :title, "Agregar documentos · #{@stage.name}" %>
+<% back = constructors_project_stage_path(@project, @stage) %>
+
+<%= render Qb::Mobile::NavBarComponent.new(title: "Documentos", back: true, back_href: back) %>
+
+<div style="padding: 4px 20px 12px;">
+  <h1 style="margin: 0; font-size: 22px; font-weight: 700; letter-spacing: -0.4px;">Agregar documentos</h1>
+  <p style="margin: 4px 0 0; font-size: 13.5px; color: var(--color-ink-3); line-height: 1.4;">
+    Se suben a la etapa <%= @stage.name %>.
+  </p>
+</div>
+
+<%= form_with scope: :document, url: constructors_project_stage_documents_path(@project, @stage), local: true, html: { multipart: true, style: "padding: 0 16px;" } do |f| %>
+  <%= render Qb::Mobile::FormGroupComponent.new(title: "Archivos", footnote: "Formatos admitidos: PDF (hasta 25 MB cada uno).") do %>
+    <div class="m-frow">
+      <label class="m-frow-label">Seleccionar archivos</label>
+      <%= f.file_field :files, multiple: true, accept: ".pdf,application/pdf", class: "m-frow-input" %>
+    </div>
+  <% end %>
+
+  <div style="display:flex;gap:10px;padding-bottom:24px;">
+    <%= link_to "Cancelar", back,
+          class: "m-btn m-btn--secondary m-btn--md",
+          style: "flex:1;text-decoration:none;" %>
+    <%= f.submit "Subir documentos", class: "m-btn m-btn--md", style: "flex:1.4;" %>
+  </div>
+<% end %>

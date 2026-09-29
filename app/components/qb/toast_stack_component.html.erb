@@ -1,0 +1,5 @@
+<div id="qb_toasts" class="qb-toasts" aria-live="polite">
+  <% toasts.each do |message, tone| %>
+    <%= render Qb::ToastComponent.new(message: message, tone: tone) %>
+  <% end %>
+</div>

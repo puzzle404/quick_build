@@ -23,5 +23,14 @@ module QuickBuild
     #
     # config.time_zone = "Central Time (US & Canada)"
     # config.eager_load_paths << Rails.root.join("extras")
+    
+    config.active_job.queue_adapter = :solid_queue
+
+    # Spanish-Argentina locale + timezone — used by qb_fmt_date_short,
+    # number formatters, and ActionView helpers like time_ago_in_words.
+    config.i18n.default_locale = :"es-AR"
+    config.i18n.available_locales = [:"es-AR", :en]
+    config.i18n.fallbacks = [:en]
+    config.time_zone = "Buenos Aires"
   end
 end
