@@ -1,0 +1,16 @@
+<%# Bitácora de la obra (tab propia): nota rápida + historial completo de
+    notas y actividad. Antes vivía comprimida en el panel lateral de la vista
+    de etapas; acá tiene el ancho y el alto que necesita una lectura larga. %>
+<%= render 'constructors/projects/section_tabs', project: @project, current: :logbook %>
+
+<div style="padding:14px 20px 12px;border-bottom:1px solid var(--color-line);display:flex;align-items:flex-end;gap:16px;">
+  <div style="flex:1;">
+    <div style="font-size:11px;font-family:var(--font-mono);color:var(--color-ink-3);text-transform:uppercase;letter-spacing:0.8px;"><%= @project.code %> · <%= @project.name.to_s.split('·').first&.strip %></div>
+    <h2 style="margin:3px 0 0;font-size:18px;font-weight:600;letter-spacing:-0.3px;">Bitácora</h2>
+    <div style="font-size:12px;color:var(--color-ink-3);margin-top:2px;">Reuniones, visitas, decisiones y todo lo que fue pasando en la obra.</div>
+  </div>
+</div>
+
+<div style="max-width:760px;padding:14px 4px 24px;">
+  <%= render Constructors::Projects::Overview::LogbookComponent.new(project: @project, notes: @notes, activity_entries: @activity_entries, visible: 50, clamp: false) %>
+</div>

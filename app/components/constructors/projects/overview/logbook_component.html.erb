@@ -44,7 +44,7 @@
           <% if e.title %><div class="qb-timeline-title"><%= e.title %></div><% end %>
           <% if e.body.present? %>
             <%# Resumida a 3 líneas; el texto completo en el title (y en el detalle). %>
-            <div class="qb-clamp-3 <%= e.title ? 'qb-timeline-text' : 'qb-timeline-title qb-timeline-title--plain' %>" title="<%= e.body %>"><%= e.body %></div>
+            <div class="<%= 'qb-clamp-3 ' if clamp? %><%= e.title ? 'qb-timeline-text' : 'qb-timeline-title qb-timeline-title--plain' %>" title="<%= e.body %>"><%= e.body %></div>
           <% end %>
           <div class="qb-timeline-meta">
             <span><%= e.kind == 'note' ? 'Nota' : 'Actividad' %><%= " · #{e.meta}" if e.meta %></span>

@@ -182,12 +182,15 @@ Maps are **Google Maps** (Leaflet/OpenStreetMap were removed — don't reintrodu
 
 ### Project show page (`projects#show`)
 
-- **Left column:** stage cards (compact) or the Gantt.
-- **Right rail** (`.qb-project-rail`): 2 tabs via `Qb::TabbedPanelComponent` with `storage_key:` (the chosen tab survives refreshes) and `flush: true`.
-  - **Seguimiento:** `HealthStripComponent` (real vs plan from `progress_percent`, the same number as the header KPI), S-curve, `RisksPanelComponent` (derived alerts, max 3, with optional CTA), `UpcomingDeadlinesComponent`, and `LogbookComponent` (quick note plus one timeline of notes and activity, with a Todo/Notas/Actividad filter).
-  - **Datos de la obra:** `ProjectFactsComponent`, the creation data with the map; empty fields link to the edit drawer.
-- **No nested scroll areas.** `qb--sticky-fit` makes the rail sticky only while it fits in the viewport; otherwise it flows with the page. A sticky rail taller than the window hid its bottom part.
-- **Don't duplicate** in the rail what already has its own section tab (team, documents, per-stage status).
+- **Left column:** the "Etapas" header strip plus stage cards (compact) or the Gantt.
+- **Right panel** (`.qb-project-rail`): 3 cards that are always visible, with **no tabs**. The design is the Claude Design artifact "Quick Build · Panel de la obra (ronda 2)", cards style. The panel starts level with the "Etapas" title, so it fits on screen without scrolling.
+  - **`ProgressCardComponent`** (Avance de obra): real = `progress_percent`, plan = `planned_progress`, the **same numbers as the header KPI**, plus a delta pill. The seeded `progress_curve` is ignored because only `db/seeds/redesign_demo.rb` writes it. The chart is a straight approximation to today's value, since there are no monthly snapshots.
+  - **`AttentionCardComponent`** (Requiere atención): overdue delivery (→ edit drawer), overcost (→ Gastos), overdue stages (→ anchor `#card_project_stage_<id>` on the stage card), and stages due within 14 days (→ stage drawer). Max 3 shown. "Behind plan" is intentionally absent, because the progress card already says it.
+  - **`ObraCardComponent`** (Datos de la obra): Google map with share / open-in-Maps (only when located), the address (the data that gets shared), client, term and budget. Missing data links to the edit drawer.
+- **The logbook has its own section tab**, "Bitácora" (`notes#index`, `LogbookComponent`: quick note plus the notes + activity timeline). Project-note create/destroy redirect there.
+- **No nested scroll areas.** `qb--sticky-fit` makes the panel sticky only while it fits in the viewport.
+- **Don't duplicate** in the panel what already has its own section tab (team, documents, logbook, per-stage status).
+- `#items` of `AttentionCardComponent` can be called before render, so it uses `Rails.application.routes.url_helpers` / `ApplicationController.helpers`, never `helpers`.
 
 ### Mobile, PWA & Hotwire Native
 

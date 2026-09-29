@@ -29,7 +29,7 @@ RSpec.describe "Constructors::Notes", type: :request do
         note = Note.last
         expect(note.noteable).to eq(project)
         expect(note.author).to eq(owner)
-        expect(response).to redirect_to(constructors_project_path(project))
+        expect(response).to redirect_to(constructors_project_notes_path(project))
       end
     end
 
@@ -105,7 +105,7 @@ RSpec.describe "Constructors::Notes", type: :request do
     it "conserva el redirect + alert cuando el POST no viene de un frame (mobile / página completa)" do
       post constructors_project_notes_path(project), params: invalid_params
 
-      expect(response).to redirect_to(constructors_project_path(project))
+      expect(response).to redirect_to(constructors_project_notes_path(project))
       expect(flash[:alert]).to be_present
     end
   end
@@ -116,7 +116,7 @@ RSpec.describe "Constructors::Notes", type: :request do
     it "redirige en vez de servir una página en blanco" do
       get new_constructors_project_note_path(project)
 
-      expect(response).to redirect_to(constructors_project_path(project))
+      expect(response).to redirect_to(constructors_project_notes_path(project))
     end
 
     it "sirve el drawer cuando la request viene del frame" do
@@ -146,6 +146,27 @@ RSpec.describe "Constructors::Notes", type: :request do
       expect {
         delete constructors_project_stage_note_path(project, stage, note)
       }.to change(Note, :count).by(-1)
+    end
+  end
+
+  describe "GET #index (tab Bitácora)" do
+    it "muestra la bitácora de la obra: nota rápida + historial de notas y actividad" do
+      sign_in(owner)
+      create(:note, noteable: project, author: owner, title: "Visita del cliente", body: "Pidió cambiar la grifería")
+
+      get constructors_project_notes_path(project)
+
+      expect(response).to have_http_status(:ok)
+      expect(response.body).to include("Bitácora", "Visita del cliente", "Pidió cambiar la grifería")
+      expect(response.body).to include('name="note[body]"')
+    end
+
+    it "no deja entrar a quien no tiene acceso a la obra" do
+      sign_in(create(:user, :constructor))
+
+      get constructors_project_notes_path(project)
+
+      expect(response).to have_http_status(:not_found).or have_http_status(:redirect)
     end
   end
 end

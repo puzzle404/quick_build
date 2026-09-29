@@ -23,7 +23,8 @@ module Qb
         { key: :expenses,   label: "Gastos",        icon: :money },
         { key: :blueprints, label: "Planos",        icon: :blueprint },
         { key: :team,       label: "Equipo",        icon: :people },
-        { key: :docs,       label: "Documentos",    icon: :docs }
+        { key: :docs,       label: "Documentos",    icon: :docs },
+        { key: :logbook,    label: "Bitácora",      icon: :doc }
       ].freeze
 
       def nav_items
@@ -44,6 +45,7 @@ module Qb
         when :blueprints then helpers.constructors_project_blueprints_path(project)
         when :team       then helpers.constructors_project_people_path(project)
         when :docs       then helpers.constructors_project_documents_path(project)
+        when :logbook    then helpers.constructors_project_notes_path(project)
         end
       rescue NoMethodError
         "#"

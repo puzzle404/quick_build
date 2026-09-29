@@ -686,33 +686,112 @@
   .qb-tab-panel { padding: 14px 16px; min-height: 130px; }
   .qb-tabbed--flush .qb-tab-panel { padding: 0; min-height: 0; }
 
-  /* Rail del proyecto (projects#show). Sin alto fijo ni scroll propio:
-     qb--sticky-fit le pone .is-sticky (pegado bajo la topbar de 48px) sólo
-     cuando entra entero en la pantalla; si no, fluye con la página. */
-  .qb-project-rail { min-width: 0; align-self: start; background: var(--color-bg); }
+  /* Panel de la obra (projects#show, diseño "Panel de la obra · ronda 2",
+     estilo tarjetas): 3 tarjetas siempre a la vista, sin tabs. Sin alto
+     fijo ni scroll propio: qb--sticky-fit le pone .is-sticky (pegado bajo la
+     topbar de 48px) sólo cuando entra entero en la pantalla. */
+  .qb-project-rail {
+    min-width: 0; align-self: start; box-sizing: border-box;
+    padding: 10px 12px 12px; display: flex; flex-direction: column; gap: 8px;
+  }
   .qb-project-rail.is-sticky { position: sticky; top: 48px; }
-  /* Las tabs en una línea, repartidas parejo. */
-  .qb-project-rail .qb-tabs { padding: 0 8px; gap: 0; }
-  .qb-project-rail .qb-tab { flex: 1; justify-content: center; height: 42px; }
 
-  /* Bloques dentro de un tab del rail: subtítulo liviano (sin la caja de
-     Qb::SectionHeadComponent) para que no parezca una pila de secciones. */
-  .qb-rail-block { padding: 14px 0 4px; border-bottom: 1px solid var(--color-line); }
-  .qb-rail-block:last-child { border-bottom: none; }
-  .qb-rail-subhead {
-    display: flex; align-items: center; gap: 8px; padding: 0 16px 6px;
-    font-family: var(--font-mono); font-size: 10.5px; letter-spacing: .7px;
+  .qb-rail-card {
+    border: 1px solid var(--color-line); border-radius: 10px;
+    background: var(--color-bg-raised); padding: 12px 14px;
+  }
+  .qb-rail-card--flush { padding: 0; overflow: hidden; }
+  .qb-rail-card-head { display: flex; align-items: center; gap: 8px; min-height: 20px; }
+  .qb-rail-card-title {
+    flex: 1; font-family: var(--font-mono); font-size: 10.5px; letter-spacing: .8px;
     text-transform: uppercase; color: var(--color-ink-3); font-weight: 500;
   }
-  .qb-rail-subhead a, .qb-rail-subhead button { text-transform: none; letter-spacing: 0; font-family: var(--font-ui); }
-  .qb-rail-count {
-    font-size: 10px; color: var(--color-ink-2); background: var(--color-bg-sunken);
-    padding: 1px 6px; border-radius: 3px; letter-spacing: 0;
+  .qb-rail-card-empty { margin: 10px 0 2px; font-size: 12px; color: var(--color-ink-3); line-height: 1.45; }
+  .qb-rail-link { font-size: 11.5px; color: var(--color-accent); text-decoration: none; }
+  .qb-rail-link:hover { text-decoration: underline; }
+  .qb-rail-action {
+    flex-shrink: 0; display: inline-flex; align-items: center; height: 26px; padding: 0 10px;
+    border-radius: 6px; border: 1px solid var(--color-line-2); background: transparent;
+    font-size: 11.5px; font-weight: 500; color: var(--color-ink); text-decoration: none; white-space: nowrap;
   }
-  .qb-rail-link {
-    font-family: var(--font-ui); text-transform: none; letter-spacing: 0;
-    font-size: 11.5px; color: var(--color-accent); text-decoration: none;
+  .qb-rail-action:hover { border-color: var(--color-accent); color: var(--color-accent); }
+
+  /* Chips de estado (delta y badge): mismos tonos que las pills. */
+  .qb-rail-delta, .qb-rail-badge {
+    font-family: var(--font-mono); font-size: 11px; font-weight: 600;
+    padding: 2px 8px; border-radius: 999px;
   }
+  .qb-rail-badge { min-width: 18px; text-align: center; padding: 1px 7px; font-size: 10.5px; }
+  .qb-rail-delta--ok, .qb-rail-badge--ok { background: color-mix(in oklab, var(--color-ok) 18%, transparent); color: var(--color-ok); }
+  .qb-rail-delta--warn, .qb-rail-badge--warn { background: color-mix(in oklab, var(--color-warn) 18%, transparent); color: var(--color-warn); }
+  .qb-rail-delta--bad, .qb-rail-badge--bad { background: color-mix(in oklab, var(--color-bad) 20%, transparent); color: var(--color-bad); }
+  .qb-rail-badge--neutral { background: var(--color-bg-sunken); color: var(--color-ink-2); }
+
+  /* Avance de obra */
+  .qb-progress-figures { display: flex; align-items: baseline; gap: 18px; margin-top: 8px; }
+  .qb-progress-real { font-size: 30px; font-weight: 600; letter-spacing: -1px; color: var(--color-ink); }
+  .qb-progress-plan { font-size: 18px; font-weight: 500; color: var(--color-ink-2); }
+  .qb-progress-caption { font-size: 11.5px; color: var(--color-ink-3); margin-left: 6px; }
+  .qb-progress-chart { display: block; width: 100%; height: 70px; margin-top: 8px; overflow: visible; }
+  .qb-chart-base { stroke: var(--color-line-2); }
+  .qb-chart-grid { stroke: var(--color-line); stroke-dasharray: 2 4; }
+  .qb-chart-plan { fill: none; stroke: var(--color-ink-3); stroke-width: 1.5; stroke-dasharray: 4 4; vector-effect: non-scaling-stroke; }
+  .qb-chart-real { fill: none; stroke: var(--color-accent); stroke-width: 2; vector-effect: non-scaling-stroke; }
+  .qb-chart-real-area { fill: color-mix(in oklab, var(--color-accent) 14%, transparent); }
+  .qb-chart-today { stroke: color-mix(in oklab, var(--color-accent) 55%, transparent); stroke-dasharray: 2 3; vector-effect: non-scaling-stroke; }
+  .qb-chart-dot { fill: var(--color-accent); }
+  .qb-progress-axis { position: relative; height: 14px; margin-top: 4px; font-size: 10px; color: var(--color-ink-4); }
+  .qb-progress-axis span { position: absolute; transform: translateX(-50%); white-space: nowrap; }
+  .qb-progress-axis span:first-child { transform: none; }
+  .qb-progress-axis span:last-child { transform: translateX(-100%); }
+  .qb-progress-axis .is-today { color: var(--color-accent); }
+
+  /* Requiere atención */
+  .qb-attention-row { display: flex; align-items: center; gap: 10px; padding: 8px 0; }
+  .qb-rail-card-head + .qb-attention-row { margin-top: 4px; }
+  .qb-attention-row + .qb-attention-row { border-top: 1px solid var(--color-line); }
+  .qb-attention-tile {
+    flex-shrink: 0; width: 28px; height: 28px; border-radius: 7px;
+    display: inline-flex; align-items: center; justify-content: center; font-size: 12px; font-weight: 600;
+  }
+  .qb-attention-tile--bad { background: color-mix(in oklab, var(--color-bad) 20%, transparent); color: var(--color-bad); }
+  .qb-attention-tile--warn { background: color-mix(in oklab, var(--color-warn) 20%, transparent); color: var(--color-warn); }
+  .qb-attention-tile--neutral { background: var(--color-bg-sunken); color: var(--color-ink-2); border: 1px solid var(--color-line); }
+  .qb-attention-tile--ok { background: color-mix(in oklab, var(--color-ok) 18%, transparent); color: var(--color-ok); }
+  .qb-attention-text { flex: 1; min-width: 0; }
+  .qb-attention-title { font-size: 13px; font-weight: 600; color: var(--color-ink); }
+  .qb-attention-body { font-size: 11.5px; color: var(--color-ink-3); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .qb-attention-more { padding: 6px 0 2px; border-top: 1px solid var(--color-line); font-size: 11.5px; color: var(--color-ink-3); }
+
+  /* Datos de la obra */
+  /* 140px: con menos, entre el logo/atribución de Google y los botones el
+     mapa quedaba sin aire para leer las calles alrededor del pin. */
+  .qb-obra-map { position: relative; height: 140px; background: var(--color-bg-sunken); border-bottom: 1px solid var(--color-line); }
+  .qb-obra-map-canvas { position: absolute; inset: 0; }
+  .qb-obra-map-empty {
+    position: absolute; inset: 0; display: flex; flex-direction: column; align-items: center; justify-content: center;
+    gap: 8px; font-size: 12px; color: var(--color-ink-3); text-align: center; padding: 0 16px;
+  }
+  .qb-obra-map-actions { position: absolute; top: 8px; right: 8px; display: flex; gap: 6px; z-index: 2; }
+  .qb-map-btn {
+    width: 28px; height: 28px; border-radius: 7px; display: inline-flex; align-items: center; justify-content: center;
+    border: 1px solid var(--color-line-2); background: color-mix(in oklab, var(--color-bg) 85%, transparent);
+    color: var(--color-ink); cursor: pointer; text-decoration: none;
+  }
+  .qb-map-btn:hover { border-color: var(--color-accent); color: var(--color-accent); }
+  .qb-obra-body { padding: 11px 14px 12px; }
+  .qb-obra-address { display: flex; align-items: center; gap: 8px; font-size: 13.5px; font-weight: 600; color: var(--color-ink); }
+  .qb-obra-address > span:first-child { flex: 1; min-width: 0; }
+  .qb-obra-edit { color: var(--color-ink-4); display: inline-flex; padding: 2px; }
+  .qb-obra-edit:hover { color: var(--color-accent); }
+  .qb-obra-missing { color: var(--color-ink-4); font-weight: 400; }
+  .qb-obra-client { margin-top: 2px; font-size: 12px; color: var(--color-ink-3); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .qb-obra-facts { margin: 10px 0 0; display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 10px; }
+  .qb-obra-facts dt {
+    font-family: var(--font-mono); font-size: 9.5px; letter-spacing: .6px; text-transform: uppercase; color: var(--color-ink-4);
+  }
+  .qb-obra-facts dd { margin: 3px 0 0; font-size: 12.5px; color: var(--color-ink); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .qb-obra-facts dd.qb-mono { font-size: 12px; }
 
   /* Texto sólo para lectores de pantalla (labels de inputs sin label visible). */
   .qb-sr-only {
@@ -782,17 +861,6 @@
   /* Filtro Todo / Notas / Actividad por atributo (qb--log-filter). */
   .qb-log[data-filter="notes"] [data-kind="activity"],
   .qb-log[data-filter="activity"] [data-kind="note"] { display: none !important; }
-
-  .qb-health-strip {
-    flex-shrink: 0; display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 8px;
-    padding: 12px; border-bottom: 1px solid var(--color-line);
-  }
-  .qb-health-cell {
-    padding: 8px 10px; border: 1px solid var(--color-line); border-radius: var(--radius);
-    background: var(--color-bg-raised);
-  }
-  .qb-health-label { font-size: 10.5px; color: var(--color-ink-3); }
-  .qb-health-value { font-size: 15px; font-weight: 600; margin-top: 2px; color: var(--color-ink); }
 
   /* ─── Stage Detail (drawer) redesign ─────────────────────── */
   .sd-hero { padding: 16px 18px; background: var(--color-bg); border-bottom: 1px solid var(--color-line); display: flex; flex-direction: column; gap: 12px; }

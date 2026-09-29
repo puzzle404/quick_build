@@ -1,5 +1,5 @@
 import { Controller } from "@hotwired/stimulus"
-import { googleMapsAvailable, loadGoogleMaps, distanceMeters } from "google_maps"
+import { googleMapsAvailable, loadGoogleMaps, distanceMeters, mapThemeOptions, followTheme } from "google_maps"
 
 // Dirección + ubicación de la obra, al estilo PedidosYa / Airbnb:
 //   1. Un solo campo "Dirección": mientras se escribe aparecen sugerencias de
@@ -39,6 +39,7 @@ export default class extends Controller {
     clearTimeout(this.suggestTimer)
     clearTimeout(this.searchingTimer)
     this.idleListener?.remove()
+    this.themeObserver?.disconnect()
     this.map = null
   }
 
@@ -218,6 +219,7 @@ export default class extends Controller {
 
     if (!this.map) {
       this.map = new maps.Map(this.mapTarget, {
+        ...mapThemeOptions(),
         center: point,
         zoom,
         disableDefaultUI: true,
@@ -226,6 +228,7 @@ export default class extends Controller {
         gestureHandling: "greedy"
       })
       this.idleListener = this.map.addListener("idle", () => this.syncFromMap())
+      this.themeObserver = followTheme(this.map)
     } else {
       this.map.setCenter(point)
       this.map.setZoom(zoom)

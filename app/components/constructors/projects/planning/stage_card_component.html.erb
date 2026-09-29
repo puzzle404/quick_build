@@ -1,6 +1,8 @@
-<div data-controller="qb--expandable"
+<%# id: ancla del "Ver" de "Etapas atrasadas" (panel de la obra);
+    scroll-margin-top para que no quede bajo la topbar sticky. %>
+<div id="<%= dom_id(stage.object, :card) %>" data-controller="qb--expandable"
      data-qb--expandable-open-value="<%= initial_open? ? 'true' : 'false' %>"
-     style="border:1px solid var(--color-line);border-radius:8px;background:var(--color-bg-raised);overflow:hidden;">
+     style="border:1px solid var(--color-line);border-radius:8px;background:var(--color-bg-raised);overflow:hidden;scroll-margin-top:64px;">
   <%# Header row — compacto: la descripción va en una línea (completa en el
       title) para que entren más etapas en pantalla. %>
   <div style="padding:10px 14px;display:grid;grid-template-columns:auto 1fr auto;gap:12px;align-items:center;<%= 'border-bottom:1px solid var(--color-line);' if sub_stages.any? %>">
@@ -91,7 +93,11 @@
         <span></span><span>Código</span><span>Sub-etapa</span><span>Período</span><span style="text-align:right;">Días</span><span style="text-align:right;">Avance</span><span style="text-align:right;">Adjuntos</span><span></span>
       </div>
       <% sub_stages.each do |sub| %>
-        <%= link_to constructors_project_stage_path(project, sub), style: 'display:grid;grid-template-columns:30px 48px minmax(0,1fr) 132px 44px 86px 60px 26px;gap:0;padding:8px 16px;border-bottom:1px solid var(--color-line);cursor:pointer;align-items:center;font-size:12px;text-decoration:none;color:inherit;' do %>
+        <%# Igual que el nombre de la etapa principal: el detalle abre en el
+            drawer global, no como página completa. %>
+        <%= link_to constructors_project_stage_path(project, sub),
+                    data: { turbo_frame: 'drawer', action: 'click->qb--drawer#open' },
+                    style: 'display:grid;grid-template-columns:30px 48px minmax(0,1fr) 132px 44px 86px 60px 26px;gap:0;padding:8px 16px;border-bottom:1px solid var(--color-line);cursor:pointer;align-items:center;font-size:12px;text-decoration:none;color:inherit;' do %>
           <div style="padding-left:8px;"><%= render Qb::StatusDotComponent.new(tone: sub.status_tone == :muted ? :muted : (sub.status == :done ? :ok : :info)) %></div>
           <span class="qb-mono" style="font-size:11px;color:var(--color-ink-3);"><%= sub.code %></span>
           <div style="color:var(--color-ink);font-weight:500;"><%= sub.name %></div>

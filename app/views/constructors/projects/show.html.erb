@@ -23,6 +23,12 @@
 
   <%= render 'constructors/projects/section_tabs', project: @project, current: :stages %>
 
+  <%# Workspace (izq) + panel de la obra (der). El panel arranca a la altura
+      del título "Etapas" (no debajo): así entra entero en la pantalla y se ve
+      sin scrollear ni hacer click. %>
+  <div style="display:grid;grid-template-columns:minmax(0,1fr) 380px;gap:0;align-items:start;">
+    <div style="border-right:1px solid var(--color-line);min-width:0;">
+
   <%# Page header — etapas + acciones de planificación %>
   <div style="padding:14px 20px 12px;border-bottom:1px solid var(--color-line);display:flex;align-items:flex-end;gap:16px;">
     <div style="flex:1;">
@@ -60,11 +66,6 @@
     <% end %>
   </div>
 
-  <%# Workspace (izq) + rail de seguimiento (der). Las etapas viven en una
-      columna acotada para que las cards no se estiren; el rail concentra el
-      estado del proyecto: avance vs plan, riesgos y contexto de obra. %>
-  <div style="display:grid;grid-template-columns:minmax(0,1fr) 400px;gap:0;align-items:start;">
-    <div style="border-right:1px solid var(--color-line);min-width:0;">
       <%# View switcher %>
       <div style="display:flex;align-items:center;padding:0 16px;border-bottom:1px solid var(--color-line);background:var(--color-bg-raised);gap:4px;height:40px;">
         <%# 2 vistas, igual que mobile (stages/index.html+mobile.erb). Si se
@@ -122,43 +123,19 @@
       </div>
     </div>
 
-    <%# Rail del proyecto. Dos tabs:
-          · Seguimiento — cómo viene la obra (salud, curva S, alertas,
-            vencimientos) y su bitácora compacta.
-          · Datos de la obra — la ficha cargada al crearla (ubicación, cliente,
-            fechas, presupuesto…).
-        Sin scroll propio: qb--sticky-fit lo deja pegado arriba sólo si entra
-        en la pantalla; si no, fluye con la página. Lo que ya vive en otra tab
-        (equipo, documentos, estado de cada etapa) no se repite acá. %>
-    <% notes = @project.notes.recent_first.includes(:author).to_a %>
-    <% risks = Constructors::Projects::Overview::RisksPanelComponent.new(project: @project, stages: @root_stages) %>
-    <aside class="qb-project-rail" aria-label="Seguimiento de la obra" data-controller="qb--sticky-fit">
-      <%= render Qb::TabbedPanelComponent.new(storage_key: "qb_project_rail_tab", flush: true) do |tp| %>
-        <% tp.with_tab(label: 'Seguimiento', key: :seguimiento) do %>
-          <%= render Constructors::Projects::Overview::HealthStripComponent.new(project: @project, stages: @root_stages) %>
-          <div class="qb-rail-block">
-            <div class="qb-rail-subhead">Curva S · real vs plan</div>
-            <%# Sin botón "PNG": la curva S es un SVG inline, no un canvas exportable. %>
-            <%= render Constructors::Projects::Overview::SCurveComponent.new(project: @project, width: 380, height: 190) %>
-          </div>
-          <div class="qb-rail-block">
-            <div class="qb-rail-subhead">Alertas <span class="qb-rail-count"><%= risks.items.size %></span></div>
-            <%= render risks %>
-          </div>
-          <div class="qb-rail-block">
-            <div class="qb-rail-subhead">Próximos vencimientos</div>
-            <%= render Constructors::Projects::Overview::UpcomingDeadlinesComponent.new(project: @project, stages: @root_stages) %>
-          </div>
-          <div class="qb-rail-block" style="padding-top:14px;">
-            <div class="qb-rail-subhead">Bitácora <span class="qb-rail-count"><%= notes.size %></span></div>
-            <%= render Constructors::Projects::Overview::LogbookComponent.new(project: @project, notes: notes, activity_entries: @activity_entries) %>
-          </div>
-        <% end %>
-
-        <% tp.with_tab(label: 'Datos de la obra', key: :datos) do %>
-          <%= render Constructors::Projects::Overview::ProjectFactsComponent.new(project: @project, weather_forecast: @weather_forecast) %>
-        <% end %>
-      <% end %>
+    <%# Panel de la obra — 3 tarjetas siempre a la vista, sin tabs (diseño:
+        artifact "Quick Build · Panel de la obra (ronda 2)", estilo tarjetas):
+          · Avance de obra — real vs plan con los MISMOS números del header.
+          · Requiere atención — lo que pide una acción, con su acción.
+          · Datos de la obra — mapa, dirección (se comparte), cliente, plazo y
+            presupuesto.
+        La bitácora tiene su propia tab (Bitácora) y equipo/documentos las
+        suyas: el panel no repite lo que vive en otra sección.
+        qb--sticky-fit lo deja pegado arriba sólo si entra en la pantalla. %>
+    <aside class="qb-project-rail" aria-label="Panel de la obra" data-controller="qb--sticky-fit">
+      <%= render Constructors::Projects::Overview::ProgressCardComponent.new(project: @project) %>
+      <%= render Constructors::Projects::Overview::AttentionCardComponent.new(project: @project, stages: @root_stages) %>
+      <%= render Constructors::Projects::Overview::ObraCardComponent.new(project: @project) %>
     </aside>
   </div>
 

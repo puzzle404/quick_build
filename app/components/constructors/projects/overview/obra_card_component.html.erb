@@ -1,0 +1,78 @@
+<section class="qb-rail-card qb-rail-card--flush" aria-label="Datos de la obra">
+  <div class="qb-obra-map">
+    <% if located? %>
+      <div class="qb-obra-map-canvas"
+           data-controller="qb--mini-map"
+           data-qb--mini-map-lat-value="<%= project.latitude %>"
+           data-qb--mini-map-lng-value="<%= project.longitude %>"
+           data-qb--mini-map-zoom-value="<%= MAP_ZOOM %>">
+        <div data-qb--mini-map-target="canvas" style="position:absolute;inset:0;"></div>
+        <svg class="qb-pin-map-pin" width="24" height="32" viewBox="0 0 30 40" aria-hidden="true">
+          <path d="M15 1C7.3 1 1 7.2 1 14.9 1 25.3 15 39 15 39s14-13.7 14-24.1C29 7.2 22.7 1 15 1z" />
+          <circle cx="15" cy="15" r="5" />
+        </svg>
+        <div data-qb--mini-map-target="fallback" hidden class="qb-obra-map-empty">Mapa no disponible (falta configurar Google Maps).</div>
+      </div>
+    <% else %>
+      <div class="qb-obra-map-empty">
+        <span>La obra todavía no está ubicada en el mapa.</span>
+        <% if can_edit? %><%= link_to "Ubicar en el mapa", edit_path, class: "qb-rail-action", data: drawer_data %><% end %>
+      </div>
+    <% end %>
+
+    <%# Compartir / abrir en Maps sólo sobre un mapa real: sin punto marcado,
+        el bloque es un aviso para ubicar la obra y los botones lo tapaban. %>
+    <% if located? %>
+      <div class="qb-obra-map-actions" data-controller="qb--share"
+           data-qb--share-title-value="<%= project.name %>" data-qb--share-text-value="<%= share_text %>">
+        <button type="button" class="qb-map-btn" aria-label="Compartir ubicación" title="Compartir ubicación" data-action="qb--share#share">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M4 12v7a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-7"/><path d="M16 6l-4-4-4 4"/><path d="M12 2v14"/></svg>
+        </button>
+        <%= link_to maps_url, class: "qb-map-btn", target: "_blank", rel: "noopener", "aria-label": "Abrir en Google Maps", title: "Abrir en Google Maps" do %>
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M14 3h7v7"/><path d="M10 14L21 3"/><path d="M21 14v5a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5"/></svg>
+        <% end %>
+      </div>
+    <% end %>
+  </div>
+
+  <div class="qb-obra-body">
+    <div class="qb-obra-address">
+      <% if address %>
+        <span><%= address %></span>
+      <% else %>
+        <span class="qb-obra-missing">Sin dirección cargada</span>
+        <% if can_edit? %><%= link_to "Cargar", edit_path, class: "qb-rail-link", data: drawer_data %><% end %>
+      <% end %>
+      <% if can_edit? && address %>
+        <%= link_to edit_path, class: "qb-obra-edit", data: drawer_data, "aria-label": "Editar datos de la obra", title: "Editar datos de la obra" do %>
+          <%= render Qb::IconComponent.new(name: :edit, size: 12) %>
+        <% end %>
+      <% end %>
+    </div>
+
+    <div class="qb-obra-client">
+      <% if client %>
+        <%= client %>
+      <% elsif can_edit? %>
+        <%= link_to "Cargar cliente", edit_path, class: "qb-rail-link", data: drawer_data %>
+      <% end %>
+    </div>
+
+    <dl class="qb-obra-facts">
+      <% facts.each do |f| %>
+        <div>
+          <dt><%= f[:label] %></dt>
+          <dd class="<%= 'qb-mono' if f[:mono] %>">
+            <% if f[:value] %>
+              <%= f[:value] %>
+            <% elsif can_edit? %>
+              <%= link_to "Cargar", edit_path, class: "qb-rail-link", data: drawer_data %>
+            <% else %>
+              <span class="qb-obra-missing">—</span>
+            <% end %>
+          </dd>
+        </div>
+      <% end %>
+    </dl>
+  </div>
+</section>
