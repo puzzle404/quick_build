@@ -1,5 +1,5 @@
 import { Controller } from "@hotwired/stimulus"
-import { googleMapsAvailable, loadGoogleMaps } from "google_maps"
+import { googleMapsAvailable, loadGoogleMaps, mapThemeOptions, followTheme } from "google_maps"
 
 // Mapa de solo lectura del rail del proyecto (Google Maps). Sin gestos: vive
 // en una columna que scrollea y no debe robarle la rueda ni el touch. El pin
@@ -39,6 +39,7 @@ export default class extends Controller {
       if (!this.element.isConnected) return
 
       this.map = new Map(this.canvasTarget, {
+        ...mapThemeOptions(),
         center: { lat: this.latValue, lng: this.lngValue },
         zoom: this.zoomValue,
         disableDefaultUI: true,
@@ -46,6 +47,7 @@ export default class extends Controller {
         keyboardShortcuts: false,
         clickableIcons: false
       })
+      this.themeObserver = followTheme(this.map)
     } catch (error) {
       console.warn(error)
       this.showFallback()
@@ -54,6 +56,7 @@ export default class extends Controller {
 
   disconnect() {
     this.resizeObserver?.disconnect()
+    this.themeObserver?.disconnect()
     this.map = null
   }
 

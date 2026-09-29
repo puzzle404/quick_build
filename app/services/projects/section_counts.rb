@@ -1,8 +1,8 @@
 # frozen_string_literal: true
 
 module Projects
-  # Los seis contadores de las pestañas de la obra (etapas, materiales, gastos,
-  # planos, equipo y documentos) en UNA query.
+  # Los contadores de las pestañas de la obra (etapas, materiales, gastos,
+  # planos, equipo, documentos y bitácora) en UNA query.
   #
   # `_section_tabs` se renderiza en TODAS las pantallas del proyecto, así que
   # cada `.count` suelto se pagaba seis veces por request en toda la sección.
@@ -21,7 +21,8 @@ module Projects
       expenses: ->(id) { Expense.where(project_id: id) },
       blueprints: ->(id) { Blueprint.where(project_id: id) },
       team: ->(id) { ProjectPerson.where(project_id: id) },
-      docs: ->(id) { Document.where(documentable_type: "Project", documentable_id: id) }
+      docs: ->(id) { Document.where(documentable_type: "Project", documentable_id: id) },
+      notes: ->(id) { Note.where(noteable_type: "Project", noteable_id: id) }
     }.freeze
 
     def initialize(project)

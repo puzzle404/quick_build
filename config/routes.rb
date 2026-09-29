@@ -61,7 +61,7 @@ Rails.application.routes.draw do
       resources :documents, only: [ :index, :create, :destroy ], module: :projects, controller: :documents
       resources :images, only: [ :index, :create, :destroy ], module: :projects, controller: :images
       resources :expenses, only: [ :index, :new, :create, :destroy ], module: false, controller: "/constructors/expenses"
-      resources :notes, only: [ :new, :create, :destroy ], module: false, controller: "/constructors/notes"
+      resources :notes, only: [ :index, :new, :create, :destroy ], module: false, controller: "/constructors/notes"
       resources :stages, module: :projects do
         collection do
           post :apply_template

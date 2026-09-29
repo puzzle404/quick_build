@@ -4,6 +4,18 @@ module Constructors
   class NotesController < Constructors::BaseController
     before_action :find_project!
     before_action :set_noteable, only: [ :new, :create ]
+
+    # Tab "Bitácora" de la obra: nota rápida + historial completo (notas y
+    # actividad). Antes vivía en el panel lateral de projects#show.
+    def index
+      authorize @project, :show?
+      @current_qb_section = :projects
+      @project = @project.decorate
+      @current_qb_project = @project
+      @current_qb_project_sub = :logbook
+      @notes = @project.notes.recent_first.includes(:author).to_a
+      @activity_entries = ::Projects::ActivitiesService.perform(@project.object)
+    end
     before_action :set_note, only: [ :destroy ]
 
     # Única vista del form de nota: desktop la carga dentro del frame "drawer"
@@ -94,7 +106,7 @@ module Constructors
       if @noteable.is_a?(ProjectStage) || @stage
         constructors_project_stage_path(@project, @stage || @noteable, tab: "notas")
       else
-        constructors_project_path(@project)
+        constructors_project_notes_path(@project)
       end
     end
   end

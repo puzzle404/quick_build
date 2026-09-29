@@ -23,11 +23,11 @@ RSpec.describe "Adding a note to a project", type: :system, js: true do
     # The same refresh is also what surfaces the flash notice (the drawer
     # response itself has no place to render it), so both halves of that fix
     # are asserted below.
+    # Las notas viven en la tab "Bitácora" de la obra; el form completo (con
+    # título) abre en el drawer desde "Nota con título".
     visit constructors_project_path(project)
-
-    # Las notas viven en la sección "Bitácora" del rail del proyecto; el form
-    # completo (con título) abre en el drawer desde "Nota con título".
-    within(".qb-project-rail") { click_on "Nota con título" }
+    within(".qb-tabs-row") { click_on "Bitácora" }
+    click_on "Nota con título"
 
     within("#drawer") do
       fill_in "Nota", with: "Coordinar con el arquitecto la semana próxima"
@@ -38,13 +38,11 @@ RSpec.describe "Adding a note to a project", type: :system, js: true do
     expect(page).to have_text("Nota agregada correctamente")
   end
 
-  it "owner can add a quick note from the rail" do
-    visit constructors_project_path(project)
+  it "owner can add a quick note from the Bitácora tab" do
+    visit constructors_project_notes_path(project)
 
-    within(".qb-project-rail") do
-      fill_in "note[body]", with: "Llegó el hormigón de la losa 3"
-      click_button "Guardar nota"
-    end
+    fill_in "note[body]", with: "Llegó el hormigón de la losa 3"
+    click_button "Guardar nota"
 
     expect(page).to have_css(".qb-toast", text: "Nota agregada correctamente", wait: 5)
     within("#project_notes_list") { expect(page).to have_text("Llegó el hormigón de la losa 3") }

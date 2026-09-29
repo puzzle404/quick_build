@@ -11,14 +11,21 @@ class Constructors::Projects::Overview::LogbookComponent < ViewComponent::Base
 
   Entry = Struct.new(:kind, :title, :body, :meta, :at, :note, keyword_init: true)
 
-  def initialize(project:, notes:, activity_entries:, visible: DEFAULT_VISIBLE)
+  # `clamp: false` muestra cada nota completa (tab Bitácora); en espacios
+  # chicos se resume a 3 líneas.
+  def initialize(project:, notes:, activity_entries:, visible: DEFAULT_VISIBLE, clamp: true)
     @visible = visible
+    @clamp = clamp
     @project = project
     @notes = notes
     @activity_entries = activity_entries || []
   end
 
   attr_reader :project, :visible
+
+  def clamp?
+    @clamp
+  end
 
   def entries
     @entries ||= (note_entries + activity_items).sort_by { |e| e.at || Time.at(0) }.reverse

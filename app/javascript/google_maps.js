@@ -47,3 +47,70 @@ export function distanceMeters(a, b) {
   const h = Math.sin(dLat / 2) ** 2 + Math.cos(rad(a.lat)) * Math.cos(rad(b.lat)) * Math.sin(dLng / 2) ** 2
   return 2 * 6371000 * Math.asin(Math.sqrt(h))
 }
+
+// ─── Estilo de los mapas según el tema de la app ───────────────────────────
+// JSON styling (sin Map ID en Google Cloud). Los colores son los tokens de QB
+// OS pasados a hex (Google no acepta oklch): Night = fondo --color-bg y líneas
+// --color-line; Graphite = el mismo mapa sobrio en claro. Sin negocios ni
+// íconos de transporte: sólo calles, agua, parques y nombres.
+const NIGHT_STYLES = [
+  { elementType: "geometry", stylers: [{ color: "#161b22" }] },
+  { elementType: "labels.text.fill", stylers: [{ color: "#8a94a3" }] },
+  { elementType: "labels.text.stroke", stylers: [{ color: "#161b22" }] },
+  { elementType: "labels.icon", stylers: [{ visibility: "off" }] },
+  { featureType: "administrative", elementType: "geometry", stylers: [{ color: "#2a313b" }] },
+  { featureType: "poi", stylers: [{ visibility: "off" }] },
+  { featureType: "poi.park", stylers: [{ visibility: "on" }] },
+  { featureType: "poi.park", elementType: "geometry", stylers: [{ color: "#18261e" }] },
+  { featureType: "poi.park", elementType: "labels.text.fill", stylers: [{ color: "#5f7a68" }] },
+  { featureType: "poi.park", elementType: "labels.icon", stylers: [{ visibility: "off" }] },
+  { featureType: "road", elementType: "geometry", stylers: [{ color: "#262d37" }] },
+  { featureType: "road", elementType: "geometry.stroke", stylers: [{ color: "#1b2129" }] },
+  { featureType: "road.arterial", elementType: "geometry", stylers: [{ color: "#2c343f" }] },
+  { featureType: "road.highway", elementType: "geometry", stylers: [{ color: "#353f4c" }] },
+  { featureType: "road.highway", elementType: "labels.text.fill", stylers: [{ color: "#a3adbb" }] },
+  { featureType: "road.local", elementType: "labels.text.fill", stylers: [{ color: "#6b7481" }] },
+  { featureType: "transit", stylers: [{ visibility: "off" }] },
+  { featureType: "water", elementType: "geometry", stylers: [{ color: "#0e1720" }] },
+  { featureType: "water", elementType: "labels.text.fill", stylers: [{ color: "#4b5a6b" }] }
+]
+
+const GRAPHITE_STYLES = [
+  { elementType: "geometry", stylers: [{ color: "#f4f4f1" }] },
+  { elementType: "labels.text.fill", stylers: [{ color: "#6b7280" }] },
+  { elementType: "labels.text.stroke", stylers: [{ color: "#f4f4f1" }] },
+  { elementType: "labels.icon", stylers: [{ visibility: "off" }] },
+  { featureType: "administrative", elementType: "geometry", stylers: [{ color: "#d9dadd" }] },
+  { featureType: "poi", stylers: [{ visibility: "off" }] },
+  { featureType: "poi.park", stylers: [{ visibility: "on" }] },
+  { featureType: "poi.park", elementType: "geometry", stylers: [{ color: "#e2eadf" }] },
+  { featureType: "poi.park", elementType: "labels.text.fill", stylers: [{ color: "#7d8f7f" }] },
+  { featureType: "poi.park", elementType: "labels.icon", stylers: [{ visibility: "off" }] },
+  { featureType: "road", elementType: "geometry", stylers: [{ color: "#ffffff" }] },
+  { featureType: "road", elementType: "geometry.stroke", stylers: [{ color: "#e4e5e8" }] },
+  { featureType: "road.highway", elementType: "geometry", stylers: [{ color: "#ebecef" }] },
+  { featureType: "road.local", elementType: "labels.text.fill", stylers: [{ color: "#9aa0a9" }] },
+  { featureType: "transit", stylers: [{ visibility: "off" }] },
+  { featureType: "water", elementType: "geometry", stylers: [{ color: "#d6e0e8" }] },
+  { featureType: "water", elementType: "labels.text.fill", stylers: [{ color: "#8795a3" }] }
+]
+
+function nightTheme() {
+  return document.documentElement.dataset.theme === "night"
+}
+
+// Opciones de estilo para `new Map(el, { ...mapThemeOptions(), … })`.
+// backgroundColor evita el destello blanco mientras cargan los tiles.
+export function mapThemeOptions() {
+  return nightTheme()
+    ? { styles: NIGHT_STYLES, backgroundColor: "#161b22" }
+    : { styles: GRAPHITE_STYLES, backgroundColor: "#f4f4f1" }
+}
+
+// Re-estiliza el mapa cuando el usuario cambia de tema (Tweaks). Devuelve el
+// observer: el controller lo desconecta en disconnect().
+export function followTheme(map) {
+  const observer = new MutationObserver(() => map.setOptions({ styles: mapThemeOptions().styles }))
+  observer.observe(document.documentElement, { attributes: true, attributeFilter: ["data-theme"] })
+  return observer
+}

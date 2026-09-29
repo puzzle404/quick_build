@@ -38,24 +38,18 @@ RSpec.describe 'QB OS · Project show + Overview', type: :system do
     expect(page).to have_button('Aplicar plantilla')
   end
 
-  # Rail: 2 tabs — Seguimiento (salud, curva, alertas, vencimientos,
-  # bitácora) y Datos de la obra (la ficha cargada al crearla). Sin JS
-  # (rack_test) los paneles salen todos visibles.
-  it 'renders the project rail: Seguimiento / Datos de la obra tabs' do
+  # Panel de la obra: 3 tarjetas siempre a la vista, sin tabs. La bitácora
+  # tiene su propia tab de sección.
+  it 'renders the project panel: avance, atención y datos de la obra' do
     visit constructors_project_path(project)
     within('.qb-project-rail') do
-      expect(page.all('.qb-tab').map { |t| t.text.squish }).to eq([ 'Seguimiento', 'Datos de la obra' ])
-      expect(page).to have_text('Real vs plan')
-      expect(page).to have_text('Curva S · real vs plan')
-      expect(page).to have_text('Alertas')
-      expect(page).to have_text('Próximos vencimientos')
-      expect(page).to have_button('Guardar nota')
-      expect(page).to have_text('Cargado al crear la obra')
-      expect(page).to have_text('Cliente')
+      expect(page).to have_no_css('.qb-tab')
+      expect(page).to have_text('Avance de obra')
+      expect(page).to have_text('Requiere atención')
+      expect(page).to have_text('Plazo')
       expect(page).to have_text('Presupuesto')
-      # Lo que ya vive en otra tab (equipo, documentos) no se repite en el rail.
-      expect(page).to have_no_text('Documentos recientes')
-      expect(page).to have_no_link('Ver equipo')
+      expect(page).to have_no_text('Bitácora')
     end
+    within('.qb-tabs-row') { expect(page).to have_link('Bitácora') }
   end
 end
