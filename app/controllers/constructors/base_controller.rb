@@ -53,7 +53,8 @@ class Constructors::BaseController < ApplicationController
 
     respond_to do |format|
       format.html do
-        if request.get?
+        # HEAD se rutea como GET (request.get? es false para HEAD): mismo trato.
+        if request.get? || request.head?
           redirect_to qb_denied_fallback_path, alert: message
         else
           redirect_back fallback_location: qb_denied_fallback_path, alert: message, status: :see_other
