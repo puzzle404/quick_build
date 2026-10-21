@@ -103,6 +103,13 @@
 </div>
 <% end %>
 
+<%# PDF para pedir cotización (sin precios) — en obra se manda por WhatsApp
+    al corralón. data-turbo=false: descarga directa. %>
+<div style="padding: 0 16px 12px;">
+  <%= render Qb::Mobile::ButtonComponent.new("Descargar PDF para cotizar", variant: :secondary, size: :md, full: true,
+        icon: :download, href: constructors_project_material_list_path(@project, ml, format: :pdf), data: { turbo: false }) %>
+</div>
+
 <%# Totals + actions — inline (not floating) so they don't collide with
     the bottom tab bar. %>
 <div style="padding: 0 16px 24px;">

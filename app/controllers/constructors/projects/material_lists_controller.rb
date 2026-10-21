@@ -49,6 +49,11 @@ class Constructors::Projects::MaterialListsController < Constructors::BaseContro
                   filename: "materiales-#{@material_list.name.to_s.parameterize.presence || @material_list.id}-#{Date.current.strftime('%Y%m%d')}.csv",
                   type: "text/csv; charset=utf-8"
       end
+      # PDF para pedir cotización: sin precios (ver Exports::MaterialListPdf).
+      format.pdf do
+        pdf = Exports::MaterialListPdf.new(@material_list)
+        send_data pdf.render, filename: pdf.filename, type: "application/pdf", disposition: "attachment"
+      end
     end
   end
 

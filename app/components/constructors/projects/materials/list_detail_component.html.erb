@@ -17,11 +17,16 @@
         </div>
         <h2 style="margin:0;font-size:16px;font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;"><%= "#{list.code} #{list.name}".strip %></h2>
       </div>
-      <%# data-turbo=false: descarga directa del CSV sin interceptar la navegación
-          (el drawer vive dentro del frame global "drawer"). %>
-      <%= render Qb::BtnComponent.new('Exportar', variant: :ghost, size: :sm, icon: :download,
-            href: constructors_project_material_list_path(project, list, format: :csv),
-            data: { turbo: false }, title: 'Descargar CSV de los ítems') %>
+      <%# Descargas directas (data-turbo=false: el drawer vive dentro del frame
+          global y Turbo las interceptaba). El PDF es para pedir cotización,
+          sin precios; el Excel (CSV) los trae. %>
+      <%= render Qb::MenuComponent.new(label: 'Descargar', icon: :download, variant: :ghost, size: :sm,
+            aria_label: 'Descargar la lista', items: [
+              { label: 'PDF para cotizar (sin precios)', icon: :doc,
+                href: constructors_project_material_list_path(project, list, format: :pdf), data: { turbo: false } },
+              { label: 'Excel (CSV, con precios)', icon: :grid,
+                href: constructors_project_material_list_path(project, list, format: :csv), data: { turbo: false } }
+            ]) %>
       <% if can_edit? %>
         <%= link_to edit_constructors_project_material_list_path(project, list),
                     data: { turbo_frame: 'drawer', action: 'click->qb--drawer#open' },

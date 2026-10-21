@@ -9,6 +9,9 @@ gem "pg", "~> 1.1"
 
 # csv deja de ser default gem en Ruby 3.4 y tres controllers hacen require "csv".
 gem "csv"
+# PDF de listas de materiales para pedir cotización (Exports::MaterialListPdf).
+gem "prawn", "~> 2.5"
+gem "prawn-table", "~> 0.2"
 # Use the Puma web server [https://github.com/puma/puma]
 gem "puma", ">= 5.0"
 # Use JavaScript with ESM import maps [https://github.com/rails/importmap-rails]
@@ -78,6 +81,8 @@ group :test do
   gem 'shoulda-matchers', require: false
   gem 'cuprite'
   gem 'webmock', require: false
+  # Lee el texto de los PDF generados (spec de Exports::MaterialListPdf).
+  gem 'pdf-reader', '~> 2.12'
 end
 
 
