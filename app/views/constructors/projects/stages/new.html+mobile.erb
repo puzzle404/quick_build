@@ -58,6 +58,18 @@
             value: @stage.end_date) %>
     <% end %>
 
+    <%# Responsable y presupuesto desde el alta (feedback 29/09), igual que
+        el form de edición mobile. %>
+    <%= render Qb::Mobile::FormGroupComponent.new(title: "Seguimiento") do %>
+      <%= render Qb::Mobile::FormRowComponent.new(
+            label: "Responsable", name: "project_stage[lead]",
+            value: @stage.lead, placeholder: "Ej: Juan Pérez") %>
+      <%= render Qb::Mobile::FormAmountRowComponent.new(
+            label: "Presupuesto de la etapa", name: "project_stage[budget_pesos]",
+            cents: @stage.budget_cents, placeholder: "1.500.000",
+            sub: "En pesos (ej: 1.500.000 o 1.500,50).") %>
+    <% end %>
+
     <div style="display:flex;gap:10px;padding-bottom:24px;">
       <%= link_to "Cancelar", constructors_project_stages_path(@project),
             class: "m-btn m-btn--secondary m-btn--md",

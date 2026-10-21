@@ -40,33 +40,35 @@
     </div>
   <% end %>
 
-  <% if tracking_fields? %>
-    <%# Avance, responsable y presupuesto: los tres los muestra el resto de la
-        app (card, drawer, Gantt, CSV, curva S) y hasta ahora no había forma de
-        editarlos salvo «Marcar completada», que fuerza 100. %>
-    <%= render Qb::FormGroupComponent.new(title: 'Seguimiento') do %>
-      <div style="display:grid;grid-template-columns:110px 1fr;gap:12px;">
+  <%# Seguimiento: responsable y presupuesto desde el alta; el avance (con su
+      barra) sólo al editar. Los tres los muestra el resto de la app (card,
+      drawer, Gantt, CSV, curva S). %>
+  <%= render Qb::FormGroupComponent.new(title: 'Seguimiento') do %>
+    <div style="display:grid;grid-template-columns:<%= progress_field? ? '110px 1fr' : '1fr' %>;gap:12px;">
+      <% if progress_field? %>
         <div class="qb-field" style="margin-bottom:0;">
           <%= form.label :progress, "Avance (%)", class: "qb-label" %>
           <%= form.number_field :progress, in: 0..100, step: 1, **field_opts(:progress) %>
         </div>
-        <div class="qb-field" style="margin-bottom:0;">
-          <%= form.label :lead, "Responsable", class: "qb-label" %>
-          <%= form.text_field :lead, placeholder: "Ej: Juan Pérez", **field_opts(:lead) %>
-        </div>
+      <% end %>
+      <div class="qb-field" style="margin-bottom:0;">
+        <%= form.label :lead, "Responsable", class: "qb-label" %>
+        <%= form.text_field :lead, placeholder: "Ej: Juan Pérez", **field_opts(:lead) %>
       </div>
+    </div>
 
+    <% if progress_field? %>
       <div style="margin:10px 0 12px;">
         <%= render Qb::BarComponent.new(value: progress_value, tone: progress_value >= 100 ? :ok : :accent, height: 6) %>
         <p style="margin:4px 0 0;font-size:11px;color:var(--color-ink-4);">Avance guardado: <%= progress_value %>%.</p>
       </div>
-
-      <div class="qb-field" style="margin-bottom:0;">
-        <%= form.label :budget_pesos, "Presupuesto de la etapa", class: "qb-label" %>
-        <%= render Qb::MoneyFieldComponent.new(form: form, method: :budget_pesos, value: budget_pesos_value) %>
-        <p style="margin:0;font-size:11px;color:var(--color-ink-4);">En pesos. Se compara contra lo gastado en la curva S y en el detalle.</p>
-      </div>
     <% end %>
+
+    <div class="qb-field" style="margin:<%= progress_field? ? '0' : '12px 0 0' %>;">
+      <%= form.label :budget_pesos, "Presupuesto de la etapa", class: "qb-label" %>
+      <%= render Qb::MoneyFieldComponent.new(form: form, method: :budget_pesos, value: budget_pesos_value) %>
+      <p style="margin:0;font-size:11px;color:var(--color-ink-4);">En pesos. Se compara contra lo gastado en la curva S y en el detalle.</p>
+    </div>
   <% end %>
 
   <% if predecessor_candidates.any? %>

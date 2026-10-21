@@ -74,4 +74,22 @@ RSpec.describe "Constructors::Projects::Stages drawer", type: :request do
     expect(response.body).to include('class="qb-page-loader"')
     expect(response.body).to include('<template data-qb--drawer-target="skeleton">')
   end
+
+  it "crea la etapa con responsable y presupuesto" do
+    post constructors_project_stages_path(project), params: {
+      project_stage: { name: "Replanteo", lead: "Miguel Lopez", budget_pesos: "1.500.000" }
+    }
+
+    stage = project.project_stages.find_by!(name: "Replanteo")
+    expect(stage.lead).to eq("Miguel Lopez")
+    expect(stage.budget_cents).to eq(150_000_000)
+  end
+
+  it "el alta mobile también pide responsable y presupuesto" do
+    cookies["qb_mobile_client"] = "1"
+    get new_constructors_project_stage_path(project)
+
+    expect(response.body).to include('name="project_stage[lead]"')
+    expect(response.body).to include('name="project_stage[budget_pesos]"')
+  end
 end
