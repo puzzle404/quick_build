@@ -9,7 +9,7 @@ RSpec.describe Constructors::Projects::StageSearchService do
 
       service = described_class.new(project: project, from_date: '2024-01-05', to_date: '2024-01-20')
 
-      expect(service.main_stages).to match_array([inside_stage])
+      expect(service.main_stages).to match_array([ inside_stage ])
       expect(service.main_stages).not_to include(outside_stage)
     end
   end
@@ -24,7 +24,7 @@ RSpec.describe Constructors::Projects::StageSearchService do
 
       service = described_class.new(project: project, from_date: '2024-02-01')
 
-      expect(service.sub_stages).to match_array([inside_sub_stage])
+      expect(service.sub_stages).to match_array([ inside_sub_stage ])
     end
   end
 end

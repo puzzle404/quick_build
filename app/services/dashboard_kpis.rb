@@ -16,9 +16,9 @@ class DashboardKpis
   def call
     {
       total_projects:          total_projects,
-      in_progress:             count_by_status('in_progress'),
-      planned:                 count_by_status('planned'),
-      completed:               count_by_status('completed'),
+      in_progress:             count_by_status("in_progress"),
+      planned:                 count_by_status("planned"),
+      completed:               count_by_status("completed"),
       at_risk:                 at_risk_projects.size,
       # En pesos: una obra en USD suma convertida (ProjectDecorator#budget).
       budget_total_cents:      sum_int(:budget),
@@ -28,7 +28,7 @@ class DashboardKpis
       budget_compared_spent_cents: compared_spent_cents,
       people_on_site:          people_on_site,
       stages_at_risk:          stages_at_risk,
-      has_alerts:              at_risk_projects.any?,
+      has_alerts:              at_risk_projects.any?
     }
   end
 
@@ -45,7 +45,7 @@ class DashboardKpis
   end
 
   def at_risk_projects
-    @at_risk_projects ||= projects.reject { |p| p.status.to_s == 'completed' }
+    @at_risk_projects ||= projects.reject { |p| p.status.to_s == "completed" }
                                   .select { |p| p.health != :ok }
   end
 
@@ -69,8 +69,8 @@ class DashboardKpis
     project_ids = projects.map { |p| p.respond_to?(:id) ? p.id : p.try(:object)&.id }.compact
     return 0 if project_ids.empty?
     ProjectStage.where(project_id: project_ids)
-                .where('end_date < ?', Date.current)
-                .where('COALESCE(progress, 0) < 100')
+                .where("end_date < ?", Date.current)
+                .where("COALESCE(progress, 0) < 100")
                 .count
   end
 end

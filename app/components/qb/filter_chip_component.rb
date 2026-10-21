@@ -7,7 +7,7 @@
 #
 # Options: [[value, label], ...]
 class Qb::FilterChipComponent < ViewComponent::Base
-  def initialize(label:, param:, value:, options:, base_path:, default: 'all', extra_params: {})
+  def initialize(label:, param:, value:, options:, base_path:, default: "all", extra_params: {})
     @label = label
     @param = param.to_sym
     @value = value.to_s
@@ -21,7 +21,7 @@ class Qb::FilterChipComponent < ViewComponent::Base
 
   def current_label
     pair = options.find { |v, _l| v.to_s == value }
-    pair ? pair[1] : '—'
+    pair ? pair[1] : "—"
   end
 
   def active?

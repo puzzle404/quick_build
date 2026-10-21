@@ -3,7 +3,7 @@
 # Dense table of active projects: code, name+client, status, progress vs plan
 # (with bar), S-curve sparkline, budget, team, stages, due date.
 class Constructors::Dashboard::ProjectsTableComponent < ViewComponent::Base
-  HEADERS = ['', 'Obra', 'Estado', 'Avance', 'Curva S', 'Presupuesto', 'Equipo', 'Etapas', 'Vence', ''].freeze
+  HEADERS = [ "", "Obra", "Estado", "Avance", "Curva S", "Presupuesto", "Equipo", "Etapas", "Vence", "" ].freeze
 
   def initialize(rows:)
     @rows = rows.map { |r| r.is_a?(ProjectDecorator) ? r : ProjectDecorator.new(r) }
@@ -17,8 +17,8 @@ class Constructors::Dashboard::ProjectsTableComponent < ViewComponent::Base
 
   def status_tone(p)
     case p.status.to_s
-    when 'in_progress' then :info
-    when 'completed'   then :ok
+    when "in_progress" then :info
+    when "completed"   then :ok
     else :muted
     end
   end
@@ -38,6 +38,6 @@ class Constructors::Dashboard::ProjectsTableComponent < ViewComponent::Base
   end
 
   def th_align(idx)
-    (3..8).cover?(idx) ? 'right' : 'left'
+    (3..8).cover?(idx) ? "right" : "left"
   end
 end

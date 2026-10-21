@@ -15,4 +15,3 @@ module Ui
     attr_reader :title, :description, :image_url, :href, :image_alt
   end
 end
-

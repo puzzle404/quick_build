@@ -26,4 +26,3 @@ module Ui
     end
   end
 end
-

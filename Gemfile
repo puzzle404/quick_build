@@ -78,19 +78,19 @@ group :test do
   # Use system testing [https://guides.rubyonrails.org/testing.html#system-testing]
   gem "capybara"
   gem "selenium-webdriver"
-  gem 'shoulda-matchers', require: false
-  gem 'cuprite'
-  gem 'webmock', require: false
+  gem "shoulda-matchers", require: false
+  gem "cuprite"
+  gem "webmock", require: false
   # Lee el texto de los PDF generados (spec de Exports::MaterialListPdf).
-  gem 'pdf-reader', '~> 2.12'
+  gem "pdf-reader", "~> 2.12"
 end
 
 
-gem 'acts_as_tenant'     # multi-tenancy row-based
-gem 'pg_search'          # búsquedas Full-Text
-gem 'rspec-rails', group: [:development, :test]
-gem 'factory_bot_rails', group: [:development, :test]
-gem 'faker'
+gem "acts_as_tenant"     # multi-tenancy row-based
+gem "pg_search"          # búsquedas Full-Text
+gem "rspec-rails", group: [ :development, :test ]
+gem "factory_bot_rails", group: [ :development, :test ]
+gem "faker"
 gem "mission_control-jobs"
 gem "cloudinary"
 gem "ruby-openai"        # OpenAI API client for AI blueprint analysis

@@ -9,7 +9,7 @@ class CreateBlueprints < ActiveRecord::Migration[8.0]
 
       t.timestamps
     end
-    
+
     add_index :blueprints, :measurements, using: :gin
   end
 end

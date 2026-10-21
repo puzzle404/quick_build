@@ -14,7 +14,7 @@ class Qb::Mobile::BarComponent < ViewComponent::Base
 
   def call
     fill = %(<div class="m-bar-fill" data-tone="#{@tone}" style="width:#{@value}%"></div>)
-    plan = @show_plan && @plan ? %(<div class="m-bar-plan" style="left:#{@plan}%"></div>) : ''
+    plan = @show_plan && @plan ? %(<div class="m-bar-plan" style="left:#{@plan}%"></div>) : ""
     %(<div class="m-bar" style="height:#{@height}px">#{fill}#{plan}</div>).html_safe
   end
 end

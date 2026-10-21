@@ -9,11 +9,11 @@ class DashboardsController < ApplicationController
     return new_user_session_path unless user
 
     case user.role
-    when 'constructor'
+    when "constructor"
       constructors_root_path
-    when 'buyer', 'seller'
+    when "buyer", "seller"
       products_path
-    when 'admin'
+    when "admin"
       constructors_root_path
     else
       new_user_session_path

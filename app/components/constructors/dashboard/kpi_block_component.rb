@@ -17,16 +17,16 @@ class Constructors::Dashboard::KpiBlockComponent < ViewComponent::Base
 
   def hint_color
     case tone
-    when :ok    then 'var(--color-ok)'
-    when :warn  then 'var(--color-warn)'
-    when :bad   then 'var(--color-bad)'
-    when :info  then 'var(--color-info)'
-    when :accent then 'var(--color-accent)'
-    else 'var(--color-ink-3)'
+    when :ok    then "var(--color-ok)"
+    when :warn  then "var(--color-warn)"
+    when :bad   then "var(--color-bad)"
+    when :info  then "var(--color-info)"
+    when :accent then "var(--color-accent)"
+    else "var(--color-ink-3)"
     end
   end
 
   def spark_tone
-    [:warn, :ok, :info].include?(tone) ? tone : :accent
+    [ :warn, :ok, :info ].include?(tone) ? tone : :accent
   end
 end

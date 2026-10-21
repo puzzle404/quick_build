@@ -34,23 +34,23 @@ module Ui
     def color_classes(tone)
       case tone
       when :primary
-        ["bg-indigo-100", "text-indigo-700", "border-indigo-200"]
+        [ "bg-indigo-100", "text-indigo-700", "border-indigo-200" ]
       when :secondary
-        ["bg-slate-100", "text-slate-700", "border-slate-200"]
+        [ "bg-slate-100", "text-slate-700", "border-slate-200" ]
       when :accent
-        ["bg-rose-100", "text-rose-700", "border-rose-200"]
+        [ "bg-rose-100", "text-rose-700", "border-rose-200" ]
       when :neutral
-        ["bg-slate-100", "text-slate-700", "border-slate-200"]
+        [ "bg-slate-100", "text-slate-700", "border-slate-200" ]
       when :info
-        ["bg-sky-100", "text-sky-700", "border-sky-200"]
+        [ "bg-sky-100", "text-sky-700", "border-sky-200" ]
       when :success
-        ["bg-emerald-100", "text-emerald-700", "border-emerald-200"]
+        [ "bg-emerald-100", "text-emerald-700", "border-emerald-200" ]
       when :warning
-        ["bg-yellow-100", "text-yellow-700", "border-yellow-200"]
+        [ "bg-yellow-100", "text-yellow-700", "border-yellow-200" ]
       when :error
-        ["bg-rose-100", "text-rose-700", "border-rose-200"]
+        [ "bg-rose-100", "text-rose-700", "border-rose-200" ]
       else
-        ["bg-slate-100", "text-slate-700", "border-slate-200"]
+        [ "bg-slate-100", "text-slate-700", "border-slate-200" ]
       end
     end
   end

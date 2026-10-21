@@ -1,5 +1,5 @@
 class OrdersController < ApplicationController
-  before_action :set_cart, only: [:new, :create]
+  before_action :set_cart, only: [ :new, :create ]
 
   def index
     @orders = current_user.orders.includes(line_items: :product)
@@ -15,13 +15,13 @@ class OrdersController < ApplicationController
   end
 
   def create
-    @order = current_user.orders.new(state: 'pending')
+    @order = current_user.orders.new(state: "pending")
     @cart.each do |product_id, quantity|
       @order.line_items.build(product_id: product_id, quantity: quantity)
     end
     if @order.save
       session[:cart] = {}
-      redirect_to @order, notice: 'Order was successfully created.'
+      redirect_to @order, notice: "Order was successfully created."
     else
       @products = Product.where(id: @cart.keys)
       render :new, status: :unprocessable_entity

@@ -11,7 +11,6 @@ class CreatePersonAttendances < ActiveRecord::Migration[8.0]
       t.timestamps
     end
 
-    add_index :person_attendances, [:project_person_id, :occurred_at]
+    add_index :person_attendances, [ :project_person_id, :occurred_at ]
   end
 end
-

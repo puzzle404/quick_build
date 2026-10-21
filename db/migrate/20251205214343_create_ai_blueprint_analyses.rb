@@ -10,7 +10,7 @@ class CreateAiBlueprintAnalyses < ActiveRecord::Migration[8.0]
 
       t.timestamps
     end
-    
+
     add_index :ai_blueprint_analyses, :status
   end
 end

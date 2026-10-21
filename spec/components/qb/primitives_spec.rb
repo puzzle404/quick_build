@@ -97,7 +97,7 @@ RSpec.describe 'Qb primitives', type: :component do
     end
 
     it 'renders polylines for data + plan' do
-      rendered = render_inline(described_class.new(data: [1, 2, 3], plan: [2, 2, 2]))
+      rendered = render_inline(described_class.new(data: [ 1, 2, 3 ], plan: [ 2, 2, 2 ]))
       expect(rendered.to_html.scan('polyline').size).to be >= 2
     end
   end
@@ -129,7 +129,7 @@ RSpec.describe 'Qb primitives', type: :component do
     let(:tabs) do
       [
         { value: :a, label: 'Resumen', icon: :home, href: '#a' },
-        { value: :b, label: 'Materiales', icon: :materials, count: 12, href: '#b' },
+        { value: :b, label: 'Materiales', icon: :materials, count: 12, href: '#b' }
       ]
     end
 

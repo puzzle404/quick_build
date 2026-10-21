@@ -7,6 +7,6 @@ class CreateProjectMemberships < ActiveRecord::Migration[8.0]
       t.timestamps
     end
 
-    add_index :project_memberships, [:user_id, :project_id], unique: true
+    add_index :project_memberships, [ :user_id, :project_id ], unique: true
   end
 end

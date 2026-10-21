@@ -13,9 +13,9 @@ class Qb::Mobile::PillComponent < ViewComponent::Base
 
   def call
     body = (@label.presence || content).to_s
-    attrs = [%(class="m-pill"), %(data-tone="#{@tone}")]
-    attrs << 'data-mono' if @mono
-    attrs << 'data-dense' if @dense
+    attrs = [ %(class="m-pill"), %(data-tone="#{@tone}") ]
+    attrs << "data-mono" if @mono
+    attrs << "data-dense" if @dense
     %(<span #{attrs.join(' ')}>#{body}</span>).html_safe
   end
 end

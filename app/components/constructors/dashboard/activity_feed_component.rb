@@ -10,17 +10,17 @@ class Constructors::Dashboard::ActivityFeedComponent < ViewComponent::Base
   attr_reader :entries
 
   def icon_for(entry)
-    return :upload   if entry[:icon].to_s.include?('upload')
-    return :check    if entry[:icon].to_s.include?('check')
-    return :alert    if entry[:icon].to_s.include?('alert')
-    return :sparkles if entry[:icon].to_s.include?('ai')
+    return :upload   if entry[:icon].to_s.include?("upload")
+    return :check    if entry[:icon].to_s.include?("check")
+    return :alert    if entry[:icon].to_s.include?("alert")
+    return :sparkles if entry[:icon].to_s.include?("ai")
     :clock
   end
 
   def relative_time(entry)
     return entry[:relative_time] if entry[:relative_time]
     ts = entry[:timestamp]
-    return '—' unless ts
+    return "—" unless ts
     seconds = (Time.current - ts).to_i
     case seconds
     when 0...60          then "Hace un momento"

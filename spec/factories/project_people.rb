@@ -8,4 +8,3 @@ FactoryBot.define do
     notes { "Disponible por las mañanas." }
   end
 end
-

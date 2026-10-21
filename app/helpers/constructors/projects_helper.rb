@@ -10,27 +10,27 @@ module Constructors::ProjectsHelper
   end
 
   STATUS_BADGE_CLASSES = {
-    'planned' => 'bg-sky-100 text-sky-700 border border-sky-200',
-    'in_progress' => 'bg-indigo-100 text-indigo-700 border border-indigo-200',
-    'completed' => 'bg-emerald-100 text-emerald-700 border border-emerald-200'
+    "planned" => "bg-sky-100 text-sky-700 border border-sky-200",
+    "in_progress" => "bg-indigo-100 text-indigo-700 border border-indigo-200",
+    "completed" => "bg-emerald-100 text-emerald-700 border border-emerald-200"
   }.freeze
 
   def project_status_badge(project)
     status_key = project.status
-    classes = STATUS_BADGE_CLASSES.fetch(status_key, 'bg-slate-100 text-slate-700 border border-slate-200')
+    classes = STATUS_BADGE_CLASSES.fetch(status_key, "bg-slate-100 text-slate-700 border border-slate-200")
 
     tag.span(Project::STATUS_LABELS.fetch(status_key.to_s, status_key.to_s.humanize), class: "inline-flex items-center rounded-full px-3 py-1 text-xs font-semibold #{classes}")
   end
 
   def formatted_project_date(date)
-    return 'Sin definir' unless date
+    return "Sin definir" unless date
 
     l(date, format: :long)
   end
 
   def project_stage_label(stage)
     period = project_stage_period(stage)
-    [stage.name, period.presence].compact.join(" · ")
+    [ stage.name, period.presence ].compact.join(" · ")
   end
 
   def project_stage_period(stage)

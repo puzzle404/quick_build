@@ -11,19 +11,19 @@ class Constructors::Dashboard::UpcomingStagesComponent < ViewComponent::Base
 
   def project_code(stage)
     p = stage.respond_to?(:project) ? stage.project : nil
-    return '—' unless p
+    return "—" unless p
     ProjectDecorator.new(p).code
   end
 
   def short_when(stage)
-    return '—' unless stage.start_date
+    return "—" unless stage.start_date
     days = (stage.start_date - Date.current).to_i
-    return 'Empieza hoy' if days <= 0
+    return "Empieza hoy" if days <= 0
     "Empieza en #{days}d"
   end
 
   def lead_name(stage)
-    stage.try(:lead).presence || 'Sin asignar'
+    stage.try(:lead).presence || "Sin asignar"
   end
 
   def stage_budget(stage)

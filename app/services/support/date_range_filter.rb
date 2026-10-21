@@ -23,7 +23,7 @@ module Support
 
       condition_sql, params = build_condition(from_value, to_value)
 
-      scope.where([condition_sql, params])
+      scope.where([ condition_sql, params ])
     end
 
     private
@@ -37,18 +37,18 @@ module Support
       if from_value.present? && to_value.present?
         sql = date_columns.map do |column|
           "(#{column} IS NOT NULL AND #{column} BETWEEN :from AND :to)"
-        end.join(' OR ')
-        ["(#{sql})", { from: from_value, to: to_value }]
+        end.join(" OR ")
+        [ "(#{sql})", { from: from_value, to: to_value } ]
       elsif from_value.present?
         sql = date_columns.map do |column|
           "(#{column} IS NOT NULL AND #{column} >= :from)"
-        end.join(' OR ')
-        ["(#{sql})", { from: from_value }]
+        end.join(" OR ")
+        [ "(#{sql})", { from: from_value } ]
       else
         sql = date_columns.map do |column|
           "(#{column} IS NOT NULL AND #{column} <= :to)"
-        end.join(' OR ')
-        ["(#{sql})", { to: to_value }]
+        end.join(" OR ")
+        [ "(#{sql})", { to: to_value } ]
       end
     end
 
@@ -60,7 +60,7 @@ module Support
         parsed_from, parsed_to = parsed_to, parsed_from
       end
 
-      [parsed_from, parsed_to]
+      [ parsed_from, parsed_to ]
     end
 
     def parse_date(value)
@@ -76,11 +76,11 @@ module Support
       case column
       when Arel::Attributes::Attribute
         relation_name = column.relation&.name
-        parts = [relation_name, column.name].compact
-        parts.map { |part| scope.connection.quote_column_name(part) }.join('.')
+        parts = [ relation_name, column.name ].compact
+        parts.map { |part| scope.connection.quote_column_name(part) }.join(".")
       when String
-        if column.include?('.')
-          column.split('.').map { |part| scope.connection.quote_column_name(part) }.join('.')
+        if column.include?(".")
+          column.split(".").map { |part| scope.connection.quote_column_name(part) }.join(".")
         else
           scope.connection.quote_column_name(column)
         end

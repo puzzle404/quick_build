@@ -14,8 +14,7 @@ class CreateProjectPeople < ActiveRecord::Migration[8.0]
       t.timestamps
     end
 
-    add_index :project_people, [:project_id, :status]
-    add_index :project_people, [:project_id, :full_name]
+    add_index :project_people, [ :project_id, :status ]
+    add_index :project_people, [ :project_id, :full_name ]
   end
 end
-

@@ -20,7 +20,7 @@ RSpec.describe DashboardKpis do
     p1 = create(:project, owner: user, status: :in_progress)
     p2 = create(:project, owner: user, status: :planned)
     p3 = create(:project, owner: user, status: :completed)
-    decorated = [p1, p2, p3].map { ProjectDecorator.new(_1) }
+    decorated = [ p1, p2, p3 ].map { ProjectDecorator.new(_1) }
     result = described_class.new(decorated).call
     expect(result[:total_projects]).to eq(3)
     expect(result[:in_progress]).to eq(1)
@@ -31,7 +31,7 @@ RSpec.describe DashboardKpis do
   it 'sums budget cents across projects' do
     p1 = create(:project, owner: user, budget_cents: 100_000_00)
     p2 = create(:project, owner: user, budget_cents: 250_000_00)
-    decorated = [p1, p2].map { ProjectDecorator.new(_1) }
+    decorated = [ p1, p2 ].map { ProjectDecorator.new(_1) }
     result = described_class.new(decorated).call
     expect(result[:budget_total_cents]).to eq(350_000_00)
   end
@@ -41,7 +41,7 @@ RSpec.describe DashboardKpis do
     create(:project_person, project: project, status: :active)
     create(:project_person, project: project, status: :active)
     create(:project_person, project: project, status: :inactive)
-    result = described_class.new([ProjectDecorator.new(project)]).call
+    result = described_class.new([ ProjectDecorator.new(project) ]).call
     expect(result[:people_on_site]).to eq(2)
   end
 
@@ -50,7 +50,7 @@ RSpec.describe DashboardKpis do
     create(:project_stage, project: in_progress, progress: 0)
     completed_bad = create(:project, owner: user, status: :completed, budget_cents: 100, start_date: 30.days.ago, end_date: Date.current)
     create(:project_stage, project: completed_bad, spent_cents: 1_000)
-    decorated = [in_progress, completed_bad].map { ProjectDecorator.new(_1) }
+    decorated = [ in_progress, completed_bad ].map { ProjectDecorator.new(_1) }
     result = described_class.new(decorated).call
     # Only the in-progress one with low actual progress vs plan should count.
     expect(result[:at_risk]).to be >= 1

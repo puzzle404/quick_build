@@ -8,7 +8,7 @@ class ProjectPerson < ApplicationRecord
   validates :full_name, presence: true
 
   pg_search_scope :search_text,
-                  against: [:full_name, :role_title, :document_id, :notes],
+                  against: [ :full_name, :role_title, :document_id, :notes ],
                   using: { tsearch: { prefix: true } }
 
   def current?
