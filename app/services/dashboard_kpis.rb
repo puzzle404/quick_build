@@ -23,6 +23,9 @@ class DashboardKpis
       # En pesos: una obra en USD suma convertida (ProjectDecorator#budget).
       budget_total_cents:      sum_int(:budget),
       budget_spent_cents:      sum_int(:spent),
+      # Para el % ejecutado: lo gastado sólo en obras con presupuesto
+      # comparable (sin presupuesto, o USD sin cotización, quedan afuera).
+      budget_compared_spent_cents: compared_spent_cents,
       people_on_site:          people_on_site,
       stages_at_risk:          stages_at_risk,
       has_alerts:              at_risk_projects.any?,
@@ -48,6 +51,10 @@ class DashboardKpis
 
   def sum_int(method)
     projects.sum { |p| p.public_send(method).to_i }
+  end
+
+  def compared_spent_cents
+    projects.select { |p| p.respond_to?(:budget_comparable?) && p.budget_comparable? }.sum { |p| p.spent.to_i }
   end
 
   # Active project_people across all projects in the scope.

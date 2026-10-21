@@ -106,6 +106,8 @@ RSpec.describe ProjectDecorator do
       expect(decorated.health).to eq(:bad)
       expect(decorated.budget_label).to eq("US$ 10k")
       expect(decorated.budget_ars_hint).to eq("≈ $ 10.0M al dólar oficial")
+      expect(decorated.budget_used_pct).to eq(120)
+      expect(decorated.budget_without_rate?).to be(false)
     end
 
     it "sin cotización apaga la comparación" do
@@ -117,6 +119,8 @@ RSpec.describe ProjectDecorator do
       expect(decorated.health).not_to eq(:bad)
       expect(decorated.budget_label).to eq("US$ 10k")
       expect(decorated.budget_ars_hint).to be_nil
+      expect(decorated.budget_used_pct).to be_nil
+      expect(decorated.budget_without_rate?).to be(true)
     end
   end
 end

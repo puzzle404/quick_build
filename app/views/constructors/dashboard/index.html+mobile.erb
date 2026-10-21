@@ -7,7 +7,8 @@
   completed   = m[:completed_projects].to_i
   at_risk     = @kpis[:stages_at_risk].to_i
   people_now  = @kpis[:people_on_site].to_i
-  budget_pct  = @kpis[:budget_total_cents].to_i.positive? ? (@kpis[:budget_spent_cents].to_f / @kpis[:budget_total_cents] * 100).round : 0
+  # % ejecutado sólo sobre obras con presupuesto comparable (DashboardKpis).
+  budget_pct  = @kpis[:budget_total_cents].to_i.positive? ? (@kpis[:budget_compared_spent_cents].to_f / @kpis[:budget_total_cents] * 100).round : 0
 %>
 
 <%# Greeting strip — avatar, salutation, alerts pill %>

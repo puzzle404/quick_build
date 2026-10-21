@@ -63,4 +63,17 @@ RSpec.describe DashboardKpis do
     result = described_class.new([ p1, p2 ].map { ProjectDecorator.new(_1) }).call
     expect(result[:budget_total_cents]).to eq(100_000_00 + 1_000_000_00)
   end
+
+  it 'el % ejecutado sólo compara obras con presupuesto comparable (USD sin cotización afuera)' do
+    allow(Money::UsdArsRate).to receive(:current).and_return(nil)
+    ars = create(:project, owner: user, budget_cents: 100_000_00)
+    create(:project_stage, project: ars, spent_cents: 50_000_00)
+    usd = create(:project, owner: user, budget_cents: 1_000_00, budget_currency: "USD")
+    create(:project_stage, project: usd, spent_cents: 900_000_00)
+
+    result = described_class.new([ ars, usd ].map { ProjectDecorator.new(_1.reload) }).call
+
+    expect(result[:budget_total_cents]).to eq(100_000_00)
+    expect(result[:budget_compared_spent_cents]).to eq(50_000_00)
+  end
 end

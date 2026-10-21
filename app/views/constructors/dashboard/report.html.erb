@@ -9,7 +9,10 @@
   emitted_at   = Exports::CsvBuilder.datetime(@generated_at)
   budget_cents = @kpis[:budget_total_cents].to_i
   spent_cents  = @spend.total_cents_all
-  exec_pct     = budget_cents.positive? ? ((spent_cents.to_f / budget_cents) * 100).round : 0
+  # La ejecución compara sólo obras con presupuesto comparable: una obra sin
+  # presupuesto (o en USD sin cotización) inflaba el % con su gasto.
+  compared_spent = @budget_compared_ids.sum { |id| @spend.total_cents(id) }
+  exec_pct     = budget_cents.positive? ? ((compared_spent.to_f / budget_cents) * 100).round : 0
   active_total = @kpis[:in_progress].to_i + @kpis[:planned].to_i
 %>
 
@@ -189,8 +192,9 @@
               <td><%= render Qb::PillComponent.new(p.status_label, tone: p.status_tone, compact: true) %></td>
               <td class="num" style="color:var(--color-ink);font-weight:600;"><%= p.progress %>%</td>
               <td class="num"><%= p.planned_progress %>%</td>
-              <td class="num"><%= qb_fmt_ars_full(p.budget / 100.0) %></td>
-              <td class="num" style="color:<%= p.budget.positive? && p_spent > p.budget ? 'var(--color-bad)' : 'var(--color-ink-2)' %>;"><%= qb_fmt_ars_full(p_spent / 100.0) %></td>
+              <%# En pesos; USD sin cotización va en su moneda (no "$ 0"). %>
+              <td class="num"><%= p.budget_comparable? ? qb_fmt_ars_full(p.budget / 100.0) : (p.budget_label(mode: :full) || '—') %></td>
+              <td class="num" style="color:<%= p.budget_comparable? && p_spent > p.budget ? 'var(--color-bad)' : 'var(--color-ink-2)' %>;"><%= qb_fmt_ars_full(p_spent / 100.0) %></td>
               <td class="num"><%= p.stages_done %>/<%= p.stages_count %></td>
               <td class="num"><%= p.start_date ? Exports::CsvBuilder.date(p.start_date) : '—' %></td>
               <td class="num"><%= p.end_date ? Exports::CsvBuilder.date(p.end_date) : '—' %></td>

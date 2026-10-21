@@ -83,11 +83,12 @@
     <div style="font-size:11px;font-family:var(--font-mono);color:var(--color-ink-3);text-transform:uppercase;letter-spacing:0.7px;font-weight:600;">Presupuesto</div>
     <div class="mono tnum" style="font-size:18px;font-weight:700;margin-top:3px;letter-spacing:-0.3px;"><%= qb_fmt_cents(p.spent) %></div>
     <div style="font-size:11px;color:var(--color-ink-3);margin-top:2px;">
-      <% budget_pct = p.budget.positive? ? (p.spent.to_f / p.budget * 100).round : 0 %>
-      <%= budget_pct %>% de <%= p.budget_label || '—' %>
+      <%# Sin presupuesto comparable (o USD sin cotización) no hay %: "—". %>
+      <% budget_pct = p.budget_used_pct %>
+      <%= "#{budget_pct}% " if budget_pct %>de <%= p.budget_label || '—' %><%= " · sin cotización" if p.budget_without_rate? %>
     </div>
     <div style="margin-top:8px;">
-      <%= render Qb::Mobile::BarComponent.new(value: budget_pct, tone: :accent, height: 4) %>
+      <%= render Qb::Mobile::BarComponent.new(value: budget_pct.to_i, tone: :accent, height: 4) %>
     </div>
   <% end %>
   <%= render Qb::Mobile::CardComponent.new(padding: 12) do %>

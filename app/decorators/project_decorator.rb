@@ -131,6 +131,24 @@ class ProjectDecorator < BaseDecorator
     object.budget_ars_cents.to_i
   end
 
+  # ¿Hay contra qué comparar lo gastado? Sin presupuesto, o en USD sin
+  # cotización, no: las pantallas muestran "—", nunca un 0% engañoso.
+  def budget_comparable?
+    budget.positive?
+  end
+
+  # Presupuesto cargado en USD pero sin cotización del día para convertirlo.
+  def budget_without_rate?
+    object.budget_in_usd? && budget_cents.to_i.positive? && !budget_comparable?
+  end
+
+  # % del presupuesto ya gastado; nil si no se puede comparar.
+  def budget_used_pct
+    return nil unless budget_comparable?
+
+    ((spent.to_f / budget) * 100).round
+  end
+
   # El presupuesto en la moneda en que se cargó: "US$ 50k" / "$ 2.5M".
   def budget_label(mode: :auto)
     return nil unless budget_cents.to_i.positive?

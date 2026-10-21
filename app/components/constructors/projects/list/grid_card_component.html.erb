@@ -21,7 +21,7 @@
   <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;padding-top:8px;border-top:1px solid var(--color-line);">
     <div>
       <div class="qb-mono" style="font-size:9.5px;color:var(--color-ink-4);text-transform:uppercase;letter-spacing:0.6px;">Presupuesto</div>
-      <div class="qb-mono qb-tnum" style="font-size:12px;font-weight:500;color:var(--color-ink);"><%= helpers.qb_fmt_cents(project.spent) %> <span style="color:var(--color-ink-4);font-weight:400;">/ <%= used_pct %>%</span></div>
+      <div class="qb-mono qb-tnum" style="font-size:12px;font-weight:500;color:var(--color-ink);"><%= helpers.qb_fmt_cents(project.spent) %> <span style="color:var(--color-ink-4);font-weight:400;">/ <%= used_pct ? "#{used_pct}%" : "—" %></span></div>
     </div>
     <div>
       <div class="qb-mono" style="font-size:9.5px;color:var(--color-ink-4);text-transform:uppercase;letter-spacing:0.6px;">Etapas</div>

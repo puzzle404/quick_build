@@ -23,9 +23,10 @@ class Constructors::Dashboard::ProjectsTableComponent < ViewComponent::Base
     end
   end
 
-  def used_pct(p)
-    return 0 if p.budget.to_i.zero?
-    ((p.spent.to_f / p.budget) * 100).round
+  # "—" sin presupuesto comparable (ver ProjectDecorator#budget_used_pct).
+  def used_pct_label(p)
+    pct = p.budget_used_pct
+    pct ? "#{pct}%" : "—"
   end
 
   def bar_tone(p)
