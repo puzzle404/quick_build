@@ -109,17 +109,6 @@ module Constructors
       @stage = @project.project_stages.find(params[:stage_id])
     end
 
-    # Opciones del selector "Etapa" del form de proyecto: raíces en orden de
-    # WBS con sus sub-etapas indentadas debajo. El modelo valida que la etapa
-    # sea de esta obra, así que un id ajeno tipeado a mano no pasa.
-    def stage_select_options
-      @project.project_stages.root.order(:position, :name).includes(:sub_stages).flat_map do |root|
-        [ [ root.name, root.id ] ] +
-          root.sub_stages.sort_by { |s| [ s.position.to_i, s.name.to_s ] }.map { |s| [ "\u00A0\u00A0↳ #{s.name}", s.id ] }
-      end
-    end
-    helper_method :stage_select_options
-
     def stage_id_filter?
       @stage_filter.present? && @stage_filter != "all" && @stage_filter != "none"
     end

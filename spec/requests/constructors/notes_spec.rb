@@ -169,4 +169,61 @@ RSpec.describe "Constructors::Notes", type: :request do
       expect(response).to have_http_status(:not_found).or have_http_status(:redirect)
     end
   end
+
+  describe "notas de la Bitácora vinculadas a una etapa" do
+    let!(:stage) { create(:project_stage, project: project, name: "Replanteo") }
+
+    before { sign_in(owner) }
+
+    it "la nota rápida se guarda en la etapa elegida y vuelve a la Bitácora" do
+      post constructors_project_notes_path(project),
+           params: { note: { body: "Se replanteó el eje A", stage_id: stage.id } },
+           headers: { "Accept" => "text/vnd.turbo-stream.html" }
+
+      expect(stage.notes.last.body).to eq("Se replanteó el eje A")
+      expect(response.body).to include('action="refresh"')
+    end
+
+    it "en mobile vuelve a la Bitácora, no a la etapa" do
+      cookies["qb_mobile_client"] = "1"
+      post constructors_project_notes_path(project), params: { note: { body: "x", stage_id: stage.id } }
+
+      expect(stage.notes.count).to eq(1)
+      expect(response).to redirect_to(constructors_project_notes_path(project))
+    end
+
+    it "la Bitácora lista las notas de etapa con el nombre de la etapa" do
+      create(:note, noteable: stage, body: "Nota de etapa")
+      get constructors_project_notes_path(project)
+
+      expect(response.body).to include("Nota de etapa", "Etapa Replanteo")
+      expect(response.body).to include('name="note[stage_id]"')
+    end
+
+    it "el form completo de nota (drawer) también deja elegir la etapa" do
+      get new_constructors_project_note_path(project), headers: { "Turbo-Frame" => "drawer" }
+      expect(response.body).to include('name="note[stage_id]"')
+    end
+
+    it "una nota de etapa se puede borrar desde la Bitácora" do
+      note = create(:note, noteable: stage)
+      delete constructors_project_note_path(project, note)
+
+      expect(Note.exists?(note.id)).to be(false)
+      expect(response).to redirect_to(constructors_project_notes_path(project))
+    end
+
+    it "no alcanza notas de etapas de otra obra" do
+      foreign = create(:note, noteable: create(:project_stage))
+      delete constructors_project_note_path(project, foreign)
+
+      expect(response).to have_http_status(:not_found)
+      expect(Note.exists?(foreign.id)).to be(true)
+    end
+
+    it "una etapa de otra obra no se puede elegir" do
+      post constructors_project_notes_path(project), params: { note: { body: "x", stage_id: create(:project_stage).id } }
+      expect(response).to have_http_status(:not_found)
+    end
+  end
 end

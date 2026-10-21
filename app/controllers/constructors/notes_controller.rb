@@ -13,7 +13,8 @@ module Constructors
       @project = @project.decorate
       @current_qb_project = @project
       @current_qb_project_sub = :logbook
-      @notes = @project.notes.recent_first.includes(:author).to_a
+      # Obra + etapas: una nota de etapa también es parte de la bitácora.
+      @notes = Note.for_project(@project.object).recent_first.includes(:author, :noteable).to_a
       @activity_entries = ::Projects::ActivitiesService.perform(@project.object)
     end
     before_action :set_note, only: [ :destroy ]
@@ -39,14 +40,15 @@ module Constructors
       authorize @note
 
       if @note.save
-        # Etapa: el form ya no fuerza _top, así que el redirect se sigue como
-        # request de frame y stages#show repuebla "drawer" con el detalle
+        # Ruta de etapa: el form ya no fuerza _top, así que el redirect se sigue
+        # como request de frame y stages#show repuebla "drawer" con el detalle
         # actualizado — mismo mecanismo que fotos/documentos/gastos de etapa.
-        # Proyecto: no hay un único "detalle" al que volver, así que refresh
-        # cierra el drawer y refresca la página actual (index, resumen…).
+        # Bitácora (aunque la nota sea de una etapa): no hay un único
+        # "detalle" al que volver, así que refresh cierra el drawer y refresca
+        # la página actual.
         respond_to do |format|
           format.turbo_stream do
-            if mobile_variant? || @noteable.is_a?(ProjectStage)
+            if mobile_variant? || @stage
               redirect_to redirect_path, notice: "Nota agregada correctamente."
             else
               flash[:notice] = "Nota agregada correctamente."
@@ -80,10 +82,15 @@ module Constructors
 
     private
 
+    # Ruta de etapa (/stages/:stage_id/notes): nota del detalle de la etapa.
+    # Ruta de la obra con note[stage_id]: nota de la Bitácora vinculada a una
+    # etapa — se guarda en la etapa pero se vuelve a la Bitácora (sin @stage).
     def set_noteable
       if params[:stage_id].present?
         @stage = @project.project_stages.find(params[:stage_id])
         @noteable = @stage
+      elsif (stage_id = params.dig(:note, :stage_id)).present?
+        @noteable = @project.project_stages.find(stage_id)
       else
         @noteable = @project
       end
@@ -94,7 +101,8 @@ module Constructors
         @stage = @project.project_stages.find(params[:stage_id])
         @note = @stage.notes.find(params[:id])
       else
-        @note = @project.notes.find(params[:id])
+        # Desde la Bitácora también se borran notas de etapa (siempre de esta obra).
+        @note = Note.for_project(@project).find(params[:id])
       end
     end
 
@@ -103,8 +111,8 @@ module Constructors
     end
 
     def redirect_path
-      if @noteable.is_a?(ProjectStage) || @stage
-        constructors_project_stage_path(@project, @stage || @noteable, tab: "notas")
+      if @stage
+        constructors_project_stage_path(@project, @stage, tab: "notas")
       else
         constructors_project_notes_path(@project)
       end

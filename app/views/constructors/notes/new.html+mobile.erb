@@ -17,6 +17,11 @@
   <%= render Qb::Mobile::FormGroupComponent.new do %>
     <%= render Qb::Mobile::FormRowComponent.new(label: "Título", name: "note[title]", value: @note.title, placeholder: "Ej: Inspección municipal", required: true) %>
     <%= render Qb::Mobile::FormRowComponent.new(label: "Contenido", name: "note[body]", value: @note.body, textarea: true, placeholder: "Detalles, contexto, próximas acciones…") %>
+    <%# Desde la obra se puede vincular a una etapa (queda en la Bitácora). %>
+    <% if @stage.nil? && (options = stage_select_options(@project)).any? %>
+      <%= render Qb::Mobile::FormRowComponent.new(label: "Etapa", name: "note[stage_id]", select: true,
+            value: params.dig(:note, :stage_id), options: [ [ "— Toda la obra —", "" ] ] + options) %>
+    <% end %>
   <% end %>
 
   <div style="display:flex;gap:10px;padding-bottom:24px;">

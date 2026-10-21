@@ -121,6 +121,16 @@ RSpec.describe Constructors::Projects::Overview::ObraCardComponent, type: :compo
 end
 
 RSpec.describe Constructors::Projects::Overview::LogbookComponent, type: :component do
+  it "la nota rápida deja vincularla a una etapa" do
+    project = create(:project)
+    create(:project_stage, project: project, name: "Replanteo")
+
+    vc_test_controller.define_singleton_method(:current_user) { project.owner }
+    render_inline(described_class.new(project: project, notes: [], activity_entries: []))
+
+    expect(page).to have_select("note[stage_id]", with_options: [ "Toda la obra", "Replanteo" ])
+  end
+
   it "une notas y actividad en una línea de tiempo, más reciente primero" do
     project = create(:project)
     create(:note, noteable: project, author: project.owner, title: "Hormigonado", body: "Losa 3", created_at: 1.hour.ago)

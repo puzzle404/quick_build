@@ -1,4 +1,14 @@
 module Constructors::ProjectsHelper
+  # Opciones de un selector "Etapa": raíces en orden de WBS con sus sub-etapas
+  # indentadas debajo. Lo usan gastos, notas de la Bitácora y fotos. Quien
+  # recibe el id lo busca en project.project_stages, así que un id ajeno no pasa.
+  def stage_select_options(project)
+    project.project_stages.root.order(:position, :name).includes(:sub_stages).flat_map do |root|
+      [ [ root.name, root.id ] ] +
+        root.sub_stages.sort_by { |s| [ s.position.to_i, s.name.to_s ] }.map { |s| [ "\u00A0\u00A0↳ #{s.name}", s.id ] }
+    end
+  end
+
   STATUS_BADGE_CLASSES = {
     'planned' => 'bg-sky-100 text-sky-700 border border-sky-200',
     'in_progress' => 'bg-indigo-100 text-indigo-700 border border-indigo-200',

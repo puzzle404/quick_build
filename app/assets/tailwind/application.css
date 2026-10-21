@@ -812,6 +812,8 @@
   }
   .qb-composer-input::placeholder { color: var(--color-ink-4); }
   .qb-composer-foot { display: flex; align-items: center; gap: 8px; padding: 6px 8px 8px 12px; }
+  /* Etapa de la nota rápida (Bitácora): select chico al lado de los links. */
+  .qb-composer-stage { width: auto; height: 26px; max-width: 200px; padding-top: 0; padding-bottom: 0; font-size: 11.5px; }
   .qb-composer-link {
     display: inline-flex; align-items: center; gap: 5px; font-size: 11.5px;
     color: var(--color-ink-3); text-decoration: none;

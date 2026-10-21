@@ -39,6 +39,11 @@ class Constructors::Projects::Overview::LogbookComponent < ViewComponent::Base
     helpers.policy(note).destroy?
   end
 
+  # Etapas para vincular la nota rápida (vacío = sin selector).
+  def stage_options
+    @stage_options ||= helpers.stage_select_options(project)
+  end
+
   def filters
     [ [ "all", "Todo" ], [ "notes", "Notas" ], [ "activity", "Actividad" ] ]
   end
@@ -52,8 +57,10 @@ class Constructors::Projects::Overview::LogbookComponent < ViewComponent::Base
   def note_entries
     @notes.map do |note|
       # Sin título no se inventa "Nota": el cuerpo pasa a ser el texto principal.
-      Entry.new(kind: "note", title: note.title.presence, body: note.body,
-                meta: "#{author_label(note.author)} · hace #{time_ago_in_words(note.created_at)}", at: note.created_at, note: note)
+      stage = note.noteable if note.noteable_type == "ProjectStage"
+      meta = [ (stage && "Etapa #{stage.name}"), author_label(note.author),
+               "hace #{time_ago_in_words(note.created_at)}" ].compact.join(" · ")
+      Entry.new(kind: "note", title: note.title.presence, body: note.body, meta: meta, at: note.created_at, note: note)
     end
   end
 
