@@ -9,8 +9,9 @@ class ProjectDecorator < BaseDecorator
     members.count
   end
 
+  # Fotos de la obra y de sus etapas (lo que muestra la galería).
   def attachments_count
-    object.images.count
+    Image.for_project(object).count
   end
 
   def elapsed_days

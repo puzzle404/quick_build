@@ -8,7 +8,7 @@ RSpec.describe Projects::SectionCounts do
   subject(:counts) { described_class.new(project) }
 
   it "arranca en cero para una obra vacía" do
-    expect(counts.to_h).to eq(stages: 0, materials: 0, expenses: 0, blueprints: 0, team: 0, docs: 0, notes: 0)
+    expect(counts.to_h).to eq(stages: 0, materials: 0, expenses: 0, blueprints: 0, team: 0, docs: 0, photos: 0, notes: 0)
   end
 
   it "cuenta lo mismo que los `.count` de cada asociación" do
@@ -22,6 +22,8 @@ RSpec.describe Projects::SectionCounts do
                             created_at: Time.current, updated_at: Time.current } ])
     create_list(:note, 2, noteable: project, author: project.owner)
     create(:note, noteable: root, author: project.owner) # nota de etapa: SÍ suma (la Bitácora la lista)
+    create(:image, imageable: project)
+    create(:image, imageable: root) # foto de etapa: SÍ suma (la galería de la obra la muestra)
 
     expect(counts.to_h).to eq(
       stages: project.project_stages.where(parent_id: nil).count,
@@ -30,6 +32,7 @@ RSpec.describe Projects::SectionCounts do
       blueprints: project.blueprints.count,
       team: project.project_people.count,
       docs: project.documents.count,
+      photos: project.images.count + root.images.count,
       notes: project.notes.count + root.notes.count
     )
   end

@@ -36,7 +36,9 @@ module Constructors
         def destroy
           authorize @stage, :update?
 
-          @image.purge
+          # Image es un modelo AR (purge es de los attachments): destroy borra
+          # la fila y el archivo. Antes esto explotaba con NoMethodError.
+          @image.destroy
           redirect_back fallback_location: constructors_project_stage_path(@project, @stage), notice: "Imagen eliminada."
         end
 
