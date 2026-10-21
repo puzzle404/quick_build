@@ -154,24 +154,28 @@
           del drawer (no _top): el controller redirige al show y el detalle se
           re-renderiza acá mismo con el ítem nuevo. drawer_dismissable: el
           detalle es una vista de consulta, así que esta fila no impide
-          cerrarlo con un clic afuera (qb--drawer#_guardsForm). %>
+          cerrarlo con un clic afuera (qb--drawer#_guardsForm).
+          qb--line-subtotal calcula cantidad × precio mientras se tipea. %>
       <% if can_edit? %>
       <%= form_with url: constructors_project_material_list_material_items_path(project, list),
                     scope: :material_item,
                     method: :post,
-                    data: { turbo_frame: 'drawer', drawer_dismissable: true },
+                    data: { turbo_frame: 'drawer', drawer_dismissable: true, controller: 'qb--line-subtotal' },
                     html: { style: 'display:grid;grid-template-columns:32px minmax(0,1fr) 80px 80px 120px 110px 90px 32px;column-gap:10px;padding:10px 16px;border-bottom:1px solid var(--color-line);align-items:center;background:color-mix(in oklab, var(--color-accent) 4%, var(--color-bg));' } do |f| %>
         <%= render Qb::IconComponent.new(name: :plus, size: 12, style: 'color:var(--color-accent)') %>
         <%= f.text_field :name, required: true, placeholder: 'Nombre del material', autofocus: items.empty?,
                          style: 'border:none;outline:none;background:transparent;color:var(--color-ink);font-size:12px;width:100%;padding:0;' %>
         <%= f.number_field :quantity, step: 'any', required: true, placeholder: '0',
+                            data: { 'qb--line-subtotal-target': 'quantity', action: 'input->qb--line-subtotal#recalc' },
                             style: 'border:none;outline:none;background:transparent;color:var(--color-ink);font-size:12px;text-align:right;font-family:var(--font-mono);width:100%;padding:0;' %>
         <%= f.select :unit, %w[u kg m³ m² m lt bolsa barra placa set rollo tacho],
                       { selected: 'u' },
                       style: 'border:none;outline:none;background:transparent;font-size:11px;color:var(--color-ink-3);width:100%;padding:0;' %>
         <%= render Qb::MoneyFieldComponent.new(form: f, method: :estimated_cost_pesos, compact: true, placeholder: '0',
-              'aria-label': 'Precio unitario estimado') %>
-        <span class="qb-mono qb-tnum" style="text-align:right;color:var(--color-ink-4);">—</span>
+              'aria-label': 'Precio unitario estimado',
+              data: { 'qb--line-subtotal-target': 'price', action: 'input->qb--line-subtotal#recalc' }) %>
+        <span class="qb-mono qb-tnum" style="text-align:right;color:var(--color-ink-2);"
+              data-qb--line-subtotal-target="output" aria-live="polite">—</span>
         <span style="font-size:10px;color:var(--color-ink-4);">—</span>
         <button type="submit" style="background:transparent;border:none;color:var(--color-ok);cursor:pointer;padding:2px;" title="Agregar">
           <%= render Qb::IconComponent.new(name: :check, size: 13) %>
