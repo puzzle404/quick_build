@@ -1,13 +1,15 @@
 <%# Dirección + ubicación de la obra (alta en drawer, alta en página y edición).
     Flujo tipo PedidosYa/Airbnb, con Google Maps (controller project-map):
       1. Un solo campo "Dirección de la obra" con sugerencias debajo.
-      2. Al elegir una, aparece el mapa con un pin fijo al centro: se mueve el
-         mapa para ajustar el punto exacto. Mover el mapa no toca la dirección.
+      2. El mapa está siempre a la vista, con un pin fijo al centro: elegir una
+         sugerencia lo centra ahí; sin dirección exacta se mueve el mapa hasta
+         la obra o se usa la ubicación actual. Mover el mapa no toca la
+         dirección. Mostrar el mapa NO ubica la obra: las coordenadas se
+         guardan recién cuando el usuario la marca.
     La dirección es el dato que se comparte; lat/lng georreferencian la obra.
     Locals: f (form builder), map_height (px, default 260). %>
 <% map_height = local_assigns.fetch(:map_height, 260) %>
-<% located = f.object.latitude.present? && f.object.longitude.present? %>
-<div data-controller="project-map">
+<div data-controller="project-map" data-project-map-fallback-center-value="<%= (qb_map_fallback_center || {}).to_json %>">
   <div class="qb-field" style="margin-bottom:6px;">
     <%= f.label :location, "Dirección de la obra", class: "qb-label" %>
     <div style="position:relative;">
@@ -23,7 +25,7 @@
     <span style="font-size:10.5px;color:var(--color-ink-4);">Elegí la dirección de la lista. Después podés sumarle piso, lote o una referencia: es el texto que se comparte.</span>
   </div>
 
-  <div data-project-map-target="mapWrap" <%= "hidden" unless located %> style="margin-top:10px;">
+  <div data-project-map-target="mapWrap" style="margin-top:10px;">
     <div class="qb-pin-map" style="height:<%= map_height.to_i %>px;">
       <div id="project-map" data-project-map-target="map" style="position:absolute;inset:0;"></div>
       <%# Pin fijo: se mueve el mapa debajo, como en las apps de delivery. %>
@@ -32,7 +34,7 @@
         <circle cx="15" cy="15" r="5" />
       </svg>
     </div>
-    <div style="font-size:11px;color:var(--color-ink-3);margin-top:6px;">Mové el mapa para dejar el pin justo sobre la obra.</div>
+    <div style="font-size:11px;color:var(--color-ink-3);margin-top:6px;">Mové el mapa para dejar el pin justo sobre la obra. ¿No sabés la dirección exacta? Buscá la zona y marcala acá.</div>
     <div data-project-map-target="hint" hidden style="font-size:11px;color:var(--color-warn);margin-top:4px;"></div>
   </div>
 
@@ -42,9 +44,9 @@
   </div>
 
   <div style="margin-top:8px;">
-    <button type="button" data-project-map-target="manualButton" data-action="project-map#manual"
-            style="background:none;border:none;padding:0;font-size:11.5px;color:var(--color-accent);cursor:pointer;">
-      ¿No encontrás la dirección? Marcá la obra en el mapa
+    <button type="button" data-project-map-target="locateButton" data-action="project-map#locate"
+            style="display:inline-flex;align-items:center;gap:5px;background:none;border:none;padding:0;font-size:11.5px;color:var(--color-accent);cursor:pointer;">
+      <%= render Qb::IconComponent.new(name: :target, size: 12) %> Usar mi ubicación actual
     </button>
   </div>
 

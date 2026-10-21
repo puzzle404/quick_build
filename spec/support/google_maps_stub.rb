@@ -4,7 +4,7 @@
 # necesitan una key real. Reemplaza `window.google.maps.importLibrary` antes de
 # que corra el JS de la página (loadGoogleMaps lo detecta y no carga el script)
 # y deja `window.__gmMoveMap(lat, lng)` para simular que el usuario arrastra el
-# mapa debajo del pin.
+# mapa debajo del pin (dispara `dragstart` + `idle`, como un arrastre real).
 module GoogleMapsStub
   STUB_JS = <<~JS
     (() => {
@@ -40,7 +40,7 @@ module GoogleMapsStub
         }
       }
       window.google = { maps: { importLibrary: async (name) => (name === "places" ? places : { Map: FakeMap }) } }
-      window.__gmMoveMap = (lat, lng) => { const m = state.maps[state.maps.length - 1]; m.center = { lat, lng }; m.fire("idle") }
+      window.__gmMoveMap = (lat, lng) => { const m = state.maps[state.maps.length - 1]; m.fire("dragstart"); m.center = { lat, lng }; m.fire("idle") }
     })()
   JS
 

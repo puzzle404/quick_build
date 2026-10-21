@@ -59,4 +59,26 @@ RSpec.describe QuickbuildHelper, type: :helper do
       expect(helper.qb_tone_class(:nonexistent)).to eq('text-ink-3')
     end
   end
+
+  describe "#qb_map_fallback_center" do
+    let(:user) { create(:user, :constructor) }
+
+    # current_user viene del controller (helper_method): en un helper spec
+    # no existe y el partial double verificado no lo deja stubear.
+    before do
+      u = user
+      helper.define_singleton_method(:current_user) { u }
+    end
+
+    it "es nil si el usuario no tiene obras ubicadas" do
+      create(:project, owner: user, latitude: nil, longitude: nil)
+      expect(helper.qb_map_fallback_center).to be_nil
+    end
+
+    it "devuelve el punto de la última obra ubicada" do
+      create(:project, owner: user, latitude: -34.6, longitude: -58.4, updated_at: 2.days.ago)
+      create(:project, owner: user, latitude: -32.89, longitude: -68.84, updated_at: 1.hour.ago)
+      expect(helper.qb_map_fallback_center).to eq(lat: -32.89, lng: -68.84)
+    end
+  end
 end

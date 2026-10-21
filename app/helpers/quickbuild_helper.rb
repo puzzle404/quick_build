@@ -35,6 +35,19 @@ module QuickbuildHelper
     Rails.application.credentials.dig(:google_maps, :api_key).presence || ENV["GOOGLE_MAPS_API_KEY"].presence
   end
 
+  # Centro inicial del mapa de una obra todavía sin ubicar: la última obra
+  # ubicada del usuario (casi siempre trabaja en la misma zona). nil = el
+  # controller project-map usa su centro por defecto.
+  #
+  # Dos `where.not` encadenados y no `where.not(latitude: nil, longitude: nil)`:
+  # con dos claves Rails arma NOT (a AND b) y deja pasar obras con una sola.
+  def qb_map_fallback_center
+    point = current_user&.accessible_projects
+                       &.where&.not(latitude: nil)&.where&.not(longitude: nil)
+                       &.reorder(updated_at: :desc)&.pick(:latitude, :longitude)
+    point && { lat: point[0], lng: point[1] }
+  end
+
   # Valor inicial de un Qb::MoneyFieldComponent: "1.500" / "1.500,50" (sin "$",
   # que lo pone el componente). Round-trip exacto con Money::ArsParser.
   def qb_money_input_value(cents)

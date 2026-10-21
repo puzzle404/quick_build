@@ -20,7 +20,7 @@ RSpec.describe "New project form", type: :system, js: true, google_maps: true do
     expect(page).to have_content("Crear una obra")
 
     expect(page).to have_field("Dirección de la obra")
-    expect(page).to have_button("¿No encontrás la dirección? Marcá la obra en el mapa")
+    expect(page).to have_button("Usar mi ubicación actual")
 
     # Todos los campos son alcanzables sin pasos intermedios.
     expect(page).to have_field("project[location]")

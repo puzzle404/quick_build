@@ -4,41 +4,61 @@ import { googleMapsAvailable, loadGoogleMaps, distanceMeters, mapThemeOptions, f
 // Dirección + ubicación de la obra, al estilo PedidosYa / Airbnb:
 //   1. Un solo campo "Dirección": mientras se escribe aparecen sugerencias de
 //      Google (Places API New) debajo del campo.
-//   2. Elegir una sugerencia completa la dirección y centra el mapa ahí, con un
-//      pin FIJO en el medio: se mueve el mapa (no el pin) para ajustar el punto
-//      exacto de la obra. Mover el mapa nunca cambia la dirección.
-//   3. Si el pin termina lejos de la dirección elegida se avisa; al compartir
+//   2. El mapa está siempre a la vista con un pin FIJO en el medio: se mueve el
+//      mapa (no el pin) para marcar el punto exacto de la obra. Elegir una
+//      sugerencia completa la dirección y centra el mapa ahí; sin dirección
+//      exacta se mueve el mapa hasta la obra o se usa la ubicación actual.
+//      Mover el mapa nunca cambia la dirección.
+//   3. Mostrar el mapa NO ubica la obra (`placed`): las coordenadas se escriben
+//      sólo si ya estaba ubicada, si se eligió una sugerencia, si se arrastró
+//      el mapa o con "Usar mi ubicación actual". Si no, toda obra nueva
+//      quedaba "ubicada" en el centro por defecto.
+//   4. Si el pin termina lejos de la dirección elegida se avisa; al compartir
 //      manda la dirección.
 // Sin GOOGLE_MAPS_API_KEY el campo funciona como texto libre y el mapa avisa
 // que falta configurarlo.
 const DEFAULT_CENTER = { lat: -34.6037, lng: -58.3816 } // CABA
 const LOCATED_ZOOM = 17
+const START_ZOOM = 12
 const SUGGEST_DEBOUNCE_MS = 250
 const FAR_FROM_ADDRESS_M = 150
 
 export default class extends Controller {
   static targets = [
     "input", "suggestions", "mapWrap", "map", "latitude", "longitude",
-    "hint", "unavailable", "manualButton"
+    "hint", "unavailable", "locateButton"
   ]
+  // Centro inicial de una obra sin ubicar (qb_map_fallback_center: la última
+  // obra ubicada del usuario). Vacío = DEFAULT_CENTER.
+  static values = { fallbackCenter: Object }
 
   connect() {
     this.suggestionsList = []
     this.activeIndex = -1
     this.anchor = null // punto de la dirección elegida
+    this.placed = false // ¿el usuario ya ubicó la obra? (ver punto 3 arriba)
 
     if (!googleMapsAvailable()) {
       this.unavailableTarget.hidden = false
-      if (this.hasManualButtonTarget) this.manualButtonTarget.hidden = true
+      this.mapWrapTarget.hidden = true
+      if (this.hasLocateButtonTarget) this.locateButtonTarget.hidden = true
       return
     }
-    if (this.savedLatLng) this.showMap(this.savedLatLng)
+    const saved = this.savedLatLng
+    this.placed = !!saved
+    this.showMap(saved || this.startCenter, { zoom: saved ? LOCATED_ZOOM : START_ZOOM })
+  }
+
+  get startCenter() {
+    const c = this.fallbackCenterValue
+    return Number.isFinite(c?.lat) && Number.isFinite(c?.lng) ? c : DEFAULT_CENTER
   }
 
   disconnect() {
     clearTimeout(this.suggestTimer)
     clearTimeout(this.searchingTimer)
     this.idleListener?.remove()
+    this.dragListener?.remove()
     this.themeObserver?.disconnect()
     this.map = null
   }
@@ -188,6 +208,7 @@ export default class extends Controller {
       if (place.location) {
         const point = { lat: place.location.lat(), lng: place.location.lng() }
         this.anchor = point
+        this.placed = true
         await this.showMap(point, { zoom: LOCATED_ZOOM })
       }
     } catch (error) {
@@ -195,12 +216,27 @@ export default class extends Controller {
     }
   }
 
-  // "¿No encontrás la dirección? Marcala en el mapa" (lotes, rutas, obradores).
-  async manual(event) {
+  // "Usar mi ubicación actual": para cargar la obra parado en el terreno
+  // (lotes, barrios sin numeración). Centra el mapa ahí y la da por ubicada.
+  locate(event) {
     event?.preventDefault()
-    this.anchor = null
-    this.hintTarget.hidden = true
-    await this.showMap(this.savedLatLng || DEFAULT_CENTER, { zoom: this.savedLatLng ? LOCATED_ZOOM : 12 })
+    if (!navigator.geolocation) return this.showNotice("Este navegador no permite obtener tu ubicación.")
+
+    navigator.geolocation.getCurrentPosition(
+      ({ coords }) => {
+        this.anchor = null
+        this.placed = true
+        this.hintTarget.hidden = true
+        this.showMap({ lat: coords.latitude, lng: coords.longitude }, { zoom: LOCATED_ZOOM })
+      },
+      () => this.showNotice("No pudimos obtener tu ubicación. Mové el mapa hasta la obra."),
+      { enableHighAccuracy: true, timeout: 10000 }
+    )
+  }
+
+  showNotice(text) {
+    this.hintTarget.textContent = text
+    this.hintTarget.hidden = false
   }
 
   // --- Mapa con pin fijo al centro ---
@@ -228,16 +264,20 @@ export default class extends Controller {
         gestureHandling: "greedy"
       })
       this.idleListener = this.map.addListener("idle", () => this.syncFromMap())
+      // Arrastrar el mapa es ubicar la obra (el zoom solo, no).
+      this.dragListener = this.map.addListener("dragstart", () => { this.placed = true })
       this.themeObserver = followTheme(this.map)
     } else {
       this.map.setCenter(point)
       this.map.setZoom(zoom)
     }
+    if (!this.placed) return
     this.writeCoordinates(point)
     this.updateHint(point)
   }
 
   syncFromMap() {
+    if (!this.placed) return
     const center = this.map?.getCenter()
     if (!center) return
     const point = { lat: center.lat(), lng: center.lng() }
