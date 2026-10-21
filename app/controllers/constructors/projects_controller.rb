@@ -201,7 +201,7 @@ class Constructors::ProjectsController < Constructors::BaseController
         decorated = ProjectDecorator.new(project)
         csv << [ decorated.code, project.name, project.client, project.location, decorated.status_label,
                  project.start_date, project.end_date, decorated.progress, decorated.planned_progress,
-                 (project.budget_cents.to_i / 100.0).round(2), (decorated.spent.to_i / 100.0).round(2) ]
+                 (decorated.budget / 100.0).round(2), (decorated.spent.to_i / 100.0).round(2) ]
       end
     end
   end

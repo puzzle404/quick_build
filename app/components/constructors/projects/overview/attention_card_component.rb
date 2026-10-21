@@ -62,7 +62,7 @@ class Constructors::Projects::Overview::AttentionCardComponent < ViewComponent::
   end
 
   def overcost
-    budget = @project.budget_cents.to_i
+    budget = @project.budget_ars_cents.to_i # en pesos (USD convertido), como lo gastado
     spent = @project.spent_to_date_cents.to_i
     return if budget <= 0 || spent <= budget
 

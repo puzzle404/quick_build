@@ -20,7 +20,8 @@ class DashboardKpis
       planned:                 count_by_status('planned'),
       completed:               count_by_status('completed'),
       at_risk:                 at_risk_projects.size,
-      budget_total_cents:      sum_int(:budget_cents),
+      # En pesos: una obra en USD suma convertida (ProjectDecorator#budget).
+      budget_total_cents:      sum_int(:budget),
       budget_spent_cents:      sum_int(:spent),
       people_on_site:          people_on_site,
       stages_at_risk:          stages_at_risk,

@@ -55,4 +55,12 @@ RSpec.describe DashboardKpis do
     # Only the in-progress one with low actual progress vs plan should count.
     expect(result[:at_risk]).to be >= 1
   end
+
+  it 'suma los presupuestos en pesos (USD convertido)' do
+    allow(Money::UsdArsRate).to receive(:current).and_return(BigDecimal("1000"))
+    p1 = create(:project, owner: user, budget_cents: 100_000_00)
+    p2 = create(:project, owner: user, budget_cents: 1_000_00, budget_currency: "USD")
+    result = described_class.new([ p1, p2 ].map { ProjectDecorator.new(_1) }).call
+    expect(result[:budget_total_cents]).to eq(100_000_00 + 1_000_000_00)
+  end
 end

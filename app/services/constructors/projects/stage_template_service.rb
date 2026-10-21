@@ -191,8 +191,10 @@ module Constructors
         stage.budget_cents = cents if cents.present?
       end
 
+      # Las etapas guardan pesos: una obra con presupuesto en USD se reparte
+      # convertida (Project#budget_ars_cents).
       def resolved_budget_cents(node)
-        total = project.budget_cents.to_i
+        total = project.budget_ars_cents.to_i
         return (total * node.budget_pct.to_f / 100.0).round if node.budget_pct.present? && total.positive?
 
         node.budget_cents

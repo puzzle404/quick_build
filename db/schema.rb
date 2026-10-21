@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.0].define(version: 2026_08_18_001112) do
+ActiveRecord::Schema[8.0].define(version: 2026_10_21_190000) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
 
@@ -321,6 +321,7 @@ ActiveRecord::Schema[8.0].define(version: 2026_08_18_001112) do
     t.jsonb "progress_curve"
     t.jsonb "progress_plan"
     t.text "description"
+    t.string "budget_currency", default: "ARS", null: false
     t.index ["owner_id"], name: "index_projects_on_owner_id"
     t.index ["start_date"], name: "index_projects_on_start_date"
     t.index ["status"], name: "index_projects_on_status"

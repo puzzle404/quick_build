@@ -35,6 +35,26 @@ class Project < ApplicationRecord
 
   validates :name, presence: true
 
+  # Moneda en que se cargó el presupuesto. Lo gastado siempre está en pesos,
+  # así que para comparar se usa #budget_ars_cents (feedback 29/09).
+  BUDGET_CURRENCIES = %w[ARS USD].freeze
+  validates :budget_currency, inclusion: { in: BUDGET_CURRENCIES }
+
+  def budget_in_usd?
+    budget_currency == "USD"
+  end
+
+  # Presupuesto en centavos de ARS, para compararlo contra lo gastado. USD se
+  # convierte al dólar oficial venta del día; sin cotización devuelve nil y
+  # las comparaciones (salud, % usado, sobrecosto) se apagan.
+  def budget_ars_cents
+    return budget_cents unless budget_in_usd?
+    return nil if budget_cents.nil?
+
+    rate = Money::UsdArsRate.current
+    rate && (budget_cents * rate).round
+  end
+
   pg_search_scope :search_text,
                   against: [ :name, :location ],
                   using: { tsearch: { prefix: true } }

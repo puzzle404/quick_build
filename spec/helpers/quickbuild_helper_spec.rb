@@ -81,4 +81,21 @@ RSpec.describe QuickbuildHelper, type: :helper do
       expect(helper.qb_map_fallback_center).to eq(lat: -32.89, lng: -68.84)
     end
   end
+
+  describe "monedas" do
+    it "qb_fmt_cents con USD usa US$" do
+      expect(helper.qb_fmt_cents(5_000_000, currency: "USD")).to eq("US$ 50k")
+      expect(helper.qb_fmt_cents(5_000_000, currency: "USD", mode: :full)).to eq("US$ 50.000")
+    end
+
+    it "en pesos no cambia" do
+      expect(helper.qb_fmt_cents(5_000_000)).to eq("$ 50k")
+    end
+
+    it "qb_currency_symbol" do
+      expect(helper.qb_currency_symbol("USD")).to eq("US$")
+      expect(helper.qb_currency_symbol("ARS")).to eq("$")
+      expect(helper.qb_currency_symbol(nil)).to eq("$")
+    end
+  end
 end

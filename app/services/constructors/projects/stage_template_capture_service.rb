@@ -110,7 +110,7 @@ module Constructors
       # presupuesto. Se recorta al techo de la columna para no romper en PG
       # cuando una etapa tiene más presupuesto que la obra entera.
       def budget_pct_for(stage)
-        total = project.budget_cents.to_i
+        total = project.budget_ars_cents.to_i # en pesos, como las etapas
         return nil unless total.positive?
         return nil unless stage.budget_cents.to_i.positive?
 

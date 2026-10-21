@@ -80,6 +80,14 @@ RSpec.describe Constructors::Projects::StageTemplateCaptureService do
       expect(other.project_stages.find_by(name: "Estructura").budget_cents).to eq(4_000_000)
     end
 
+    it "una obra en dólares reparte el presupuesto convertido a pesos" do
+      allow(Money::UsdArsRate).to receive(:current).and_return(BigDecimal("1000"))
+      usd = create(:project, owner: owner, start_date: Date.new(2027, 1, 10), budget_cents: 20_000, budget_currency: "USD")
+      Constructors::Projects::StageTemplateService.call(usd, template: template, apply_budgets: true)
+      # 20% de US$ 200 × 1000 = $ 40.000 (las etapas guardan pesos).
+      expect(usd.project_stages.find_by(name: "Estructura").budget_cents).to eq(4_000_000)
+    end
+
     it "es idempotente: no duplica ni pisa lo que ya existe" do
       existing = create(:project_stage, project: target, name: "Estructura",
                         start_date: Date.new(2027, 5, 5), end_date: Date.new(2027, 5, 9),
