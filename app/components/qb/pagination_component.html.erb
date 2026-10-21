@@ -1,0 +1,30 @@
+<div style="display:flex;align-items:center;gap:8px;padding:12px 16px;border-top:1px solid var(--color-line);background:var(--color-bg-raised);">
+  <span class="qb-mono" style="font-size:11px;color:var(--color-ink-3);">
+    Mostrando <%= pagy.from %>–<%= pagy.to %> de <%= pagy.count %> <%= label %>
+  </span>
+  <div style="flex:1;"></div>
+  <nav aria-label="Paginación" style="display:flex;align-items:center;gap:4px;">
+    <% if pagy.prev %>
+      <%= link_to '←', "?page=#{pagy.prev}", style: page_link_style(active: false), 'aria-label': 'Página anterior' %>
+    <% else %>
+      <span style="<%= disabled_style %>" aria-disabled="true">←</span>
+    <% end %>
+
+    <% pagy.series.each do |item| %>
+      <% case item %>
+      <% when Integer %>
+        <%= link_to item, "?page=#{item}", style: page_link_style(active: false) %>
+      <% when String %>
+        <span style="<%= page_link_style(active: true) %>" aria-current="page"><%= item %></span>
+      <% when :gap %>
+        <span style="font-family:var(--font-mono);color:var(--color-ink-4);padding:0 4px;">…</span>
+      <% end %>
+    <% end %>
+
+    <% if pagy.next %>
+      <%= link_to '→', "?page=#{pagy.next}", style: page_link_style(active: false), 'aria-label': 'Página siguiente' %>
+    <% else %>
+      <span style="<%= disabled_style %>" aria-disabled="true">→</span>
+    <% end %>
+  </nav>
+</div>

@@ -1,0 +1,12 @@
+<nav class="m-tabbar" aria-label="Tabs">
+  <% Qb::Mobile::TabBarComponent::TABS.each do |t| %>
+    <% active = (@active == t[:key]) %>
+    <%= link_to safe_path(t[:path_helper]),
+          class: 'm-tabbar-item',
+          aria: (active ? { current: 'page' } : {}),
+          data: { active: active.to_s } do %>
+      <%= render Qb::Mobile::IconComponent.new(name: t[:icon], size: 22, stroke: active ? 2.2 : 1.8) %>
+      <span><%= t[:label] %></span>
+    <% end %>
+  <% end %>
+</nav>

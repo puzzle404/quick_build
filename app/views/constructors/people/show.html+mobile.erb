@@ -1,0 +1,139 @@
+<% content_for :title, "#{@person.full_name} · Quick Build" %>
+<%
+  any_active = @assignments.any? { |a| a.status.to_s == 'active' }
+  source_labels = { 'manual' => 'Manual', 'qr' => 'QR', 'mobile' => 'Móvil' }
+  # Las horas son un decimal, no plata: no pasan por qb_fmt_cents. En es-AR van
+  # con coma y sin decimales de más (8, no 8.0; 7,5 y no 7.5).
+  hours_fmt = Constructors::Projects::People::HoursFormat
+%>
+
+<%= render Qb::Mobile::NavBarComponent.new(title: nil, back: true, back_href: constructors_people_path) do |c| %>
+  <% c.with_right do %>
+    <%= link_to edit_constructors_person_path(@person), aria: { label: 'Editar datos' }, style: 'color:var(--color-accent);padding:8px;display:inline-flex;' do %>
+      <%= render Qb::Mobile::IconComponent.new(name: 'edit', size: 20) %>
+    <% end %>
+  <% end %>
+<% end %>
+
+<%# Identidad %>
+<div style="padding: 4px 20px 14px;">
+  <div style="display:flex;align-items:center;gap:12px;">
+    <%= render Qb::Mobile::AvatarComponent.new(name: @person.full_name, size: 48) %>
+    <div style="flex:1;min-width:0;">
+      <h1 style="margin: 0 0 4px; font-size: 22px; font-weight: 700; letter-spacing: -0.4px; line-height: 1.15;"><%= @person.full_name %></h1>
+      <div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap;">
+        <%= render Qb::Mobile::PillComponent.new(any_active ? 'Activa' : 'Inactiva', tone: any_active ? :ok : :muted, dense: true) %>
+        <span style="font-size:13px;color:var(--color-ink-3);"><%= @person.role_title.presence || 'Sin rol especificado' %></span>
+      </div>
+    </div>
+  </div>
+</div>
+
+<%# KPIs consolidados %>
+<div style="padding: 0 16px 4px;">
+  <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;">
+    <%= render Qb::Mobile::KpiComponent.new(
+          label: 'Obras',
+          value: @stats[:projects_count],
+          hint: "#{@stats[:active_count]} #{@stats[:active_count] == 1 ? 'activa' : 'activas'}") %>
+    <%= render Qb::Mobile::KpiComponent.new(
+          label: 'Asistencia 30d',
+          value: @stats[:attendance_pct] ? "#{@stats[:attendance_pct]}%" : '—',
+          hint: "#{@stats[:attendance_days]} #{@stats[:attendance_days] == 1 ? 'día' : 'días'} este mes") %>
+    <%# Horas ya no es un guion permanente: se cargan sobre cada marca desde la
+        ficha de la obra. Sin horas cargadas sigue siendo guion (nunca "0 hs",
+        que se leería como «no trabajó»). %>
+    <%= render Qb::Mobile::KpiComponent.new(
+          label: 'Horas 30d',
+          value: hours_fmt.fmt_hours(@stats[:hours_30d]) || '—',
+          hint: @stats[:hours_30d] ? 'registradas en las marcas' : 'sin horas cargadas') %>
+    <%# mode: :full: "$ 5k" no alcanza para leer una tarifa de $ 4.500. %>
+    <%= render Qb::Mobile::KpiComponent.new(
+          label: 'Tarifa',
+          value: @stats[:hourly_rate_cents] ? qb_fmt_ars(@stats[:hourly_rate_cents] / 100.0, mode: :full) : '—',
+          hint: '$/hora') %>
+  </div>
+</div>
+
+<%# Datos %>
+<%= render Qb::Mobile::SectionComponent.new(title: "Datos") do %>
+  <%= render Qb::Mobile::CardComponent.new(bleed: true) do %>
+    <%= render Qb::Mobile::RowComponent.new(
+          icon: :doc,
+          title: "Documento",
+          value: @person.document_id.presence || "—",
+          value_mono: true,
+          chevron: false) %>
+    <% if @person.phone.present? %>
+      <%= link_to "tel:#{@person.phone}", class: 'm-row m-row--tap' do %>
+        <div class="m-row-icon"><%= render Qb::Mobile::IconComponent.new(name: 'user', size: 17) %></div>
+        <div class="m-row-main"><div class="m-row-title">Teléfono</div></div>
+        <span class="m-row-value m-row-value--mono"><%= @person.phone %></span>
+        <span class="m-row-chevron"><%= render Qb::Mobile::IconComponent.new(name: 'chev-right', size: 16, stroke: 2.2) %></span>
+      <% end %>
+    <% else %>
+      <%= render Qb::Mobile::RowComponent.new(icon: :user, title: "Teléfono", value: "—", chevron: false) %>
+    <% end %>
+  <% end %>
+<% end %>
+
+<%# Asignaciones por obra %>
+<%= render Qb::Mobile::SectionComponent.new(title: "Obras · #{@assignments.size}") do %>
+  <%= render Qb::Mobile::CardComponent.new(bleed: true) do %>
+    <% @assignments.each do |a| %>
+      <%= link_to constructors_project_person_path(a.project, a), class: 'm-row m-row--tap' do %>
+        <div class="m-row-main">
+          <div class="m-row-title"><%= a.project.name %></div>
+          <div class="m-row-subtitle">
+            <%= a.role_title.presence || 'Sin rol' %><% if a.start_date %> · desde <%= qb_fmt_date_short(a.start_date) %><% end %>
+          </div>
+        </div>
+        <%= render Qb::Mobile::PillComponent.new(a.status.to_s == 'active' ? 'Activa' : 'Inactiva', tone: a.status.to_s == 'active' ? :ok : :muted, dense: true) %>
+        <span class="m-row-chevron"><%= render Qb::Mobile::IconComponent.new(name: 'chev-right', size: 16, stroke: 2.2) %></span>
+      <% end %>
+    <% end %>
+  <% end %>
+<% end %>
+
+<%# Notas por obra %>
+<% noted = @assignments.select { |a| a.notes.present? } %>
+<% if noted.any? %>
+  <%= render Qb::Mobile::SectionComponent.new(title: "Notas") do %>
+    <% noted.each do |a| %>
+      <%= render Qb::Mobile::CardComponent.new(padding: 14) do %>
+        <div style="font-size:11px;font-family:var(--font-mono);color:var(--color-ink-3);text-transform:uppercase;letter-spacing:0.5px;margin-bottom:6px;"><%= a.project.name %></div>
+        <p style="margin:0;font-size:13.5px;color:var(--color-ink-2);line-height:1.5;white-space:pre-line;"><%= a.notes %></p>
+      <% end %>
+    <% end %>
+  <% end %>
+<% end %>
+
+<%# Asistencia reciente consolidada %>
+<%= render Qb::Mobile::SectionComponent.new(title: "Asistencia reciente") do %>
+  <% if @attendances.any? %>
+    <%= render Qb::Mobile::CardComponent.new(bleed: true) do %>
+      <% @attendances.each do |att| %>
+        <div class="m-row">
+          <div class="m-row-icon" style="background:color-mix(in oklab, var(--color-ok) 14%, transparent);color:var(--color-ok);">
+            <%= render Qb::Mobile::IconComponent.new(name: 'check', size: 17) %>
+          </div>
+          <div class="m-row-main">
+            <div class="m-row-title"><%= qb_fmt_date_short(att.occurred_at.to_date) %><% if att.hours.present? %> · <%= hours_fmt.fmt_hours_label(att.hours) %><% end %></div>
+            <div class="m-row-subtitle"><%= att.project_person.project.name %></div>
+          </div>
+          <span class="m-row-value"><%= source_labels[att.source] || att.source.to_s.humanize.presence || 'Manual' %></span>
+        </div>
+      <% end %>
+    <% end %>
+  <% else %>
+    <%= render Qb::Mobile::CardComponent.new do %>
+      <div style="text-align:center;padding:14px 8px;color:var(--color-ink-3);font-size:13.5px;">Sin asistencias registradas. Se marcan dentro de cada obra.</div>
+    <% end %>
+  <% end %>
+<% end %>
+
+<div style="padding: 4px 16px 24px;">
+  <%= link_to "Editar datos", edit_constructors_person_path(@person),
+        class: "m-btn m-btn--secondary m-btn--md",
+        style: "width:100%;text-decoration:none;" %>
+</div>

@@ -1,0 +1,37 @@
+<%# Form de la obra, único para crear y editar, en el drawer y en página
+    completa: mismas secciones (_project_fields) y mismos botones que el resto
+    de los forms del drawer (feedback 21/10: la edición tenía otro diseño).
+    Locals: project, in_drawer (bool), map_height (px, opcional). %>
+<% for_create = project.new_record? %>
+<% in_drawer = local_assigns.fetch(:in_drawer, false) %>
+<%= form_with model: [:constructors, project], html: { multipart: true } do |f| %>
+  <% if project.errors.any? %>
+    <div class="qb-form-error" role="alert">
+      <p style="font-weight:600;margin:0 0 4px;">No pudimos guardar la obra:</p>
+      <ul style="margin:0;padding-left:16px;">
+        <% project.errors.full_messages.each do |message| %>
+          <li><%= message %></li>
+        <% end %>
+      </ul>
+    </div>
+  <% end %>
+
+  <%= render "constructors/projects/project_fields", f: f, for_create: for_create,
+        map_height: local_assigns.fetch(:map_height, 220) %>
+
+  <% if for_create %>
+    <p style="margin:0 0 14px;font-size:11px;color:var(--color-ink-4);line-height:1.5;">
+      Después de crear la obra podés aplicar una plantilla de etapas (la base o una tuya) desde el header del proyecto.
+    </p>
+  <% end %>
+
+  <div style="display:flex;align-items:center;gap:8px;padding-top:14px;border-top:1px solid var(--color-line);">
+    <%= render Qb::BtnComponent.new(for_create ? 'Crear proyecto' : 'Actualizar obra', variant: :primary, icon: :check, type: 'submit') %>
+    <% if in_drawer %>
+      <%= render Qb::BtnComponent.new('Cancelar', variant: :secondary, data: { action: 'click->qb--drawer#back' }) %>
+    <% else %>
+      <%= render Qb::BtnComponent.new('Cancelar', variant: :secondary,
+            href: for_create ? constructors_projects_path : constructors_project_path(project)) %>
+    <% end %>
+  </div>
+<% end %>

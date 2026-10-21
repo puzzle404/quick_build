@@ -1,0 +1,32 @@
+<section class="qb-rail-card" aria-label="Avance de obra">
+  <div class="qb-rail-card-head">
+    <span class="qb-rail-card-title">Avance de obra</span>
+    <span class="qb-rail-delta qb-rail-delta--<%= delta_tone %>"><%= delta_label %></span>
+  </div>
+
+  <div class="qb-progress-figures">
+    <div><span class="qb-mono qb-progress-real"><%= real %>%</span><span class="qb-progress-caption">real</span></div>
+    <div><span class="qb-mono qb-progress-plan"><%= plan %>%</span><span class="qb-progress-caption">planificado a hoy</span></div>
+  </div>
+
+  <% if chart? %>
+    <svg class="qb-progress-chart" viewBox="0 0 <%= W %> <%= H %>" preserveAspectRatio="none" role="img"
+         aria-label="Avance real <%= real %>% contra <%= plan %>% planificado a hoy">
+      <line x1="0" y1="<%= BOTTOM %>" x2="<%= W %>" y2="<%= BOTTOM %>" class="qb-chart-base"></line>
+      <line x1="0" y1="<%= (TOP + BOTTOM) / 2 %>" x2="<%= W %>" y2="<%= (TOP + BOTTOM) / 2 %>" class="qb-chart-grid"></line>
+      <line x1="0" y1="<%= TOP %>" x2="<%= W %>" y2="<%= TOP %>" class="qb-chart-grid"></line>
+      <polyline points="<%= plan_points %>" class="qb-chart-plan"></polyline>
+      <polygon points="<%= real_area_points %>" class="qb-chart-real-area"></polygon>
+      <polyline points="<%= real_points %>" class="qb-chart-real"></polyline>
+      <line x1="<%= today_x %>" y1="2" x2="<%= today_x %>" y2="<%= BOTTOM %>" class="qb-chart-today"></line>
+      <circle cx="<%= today_x %>" cy="<%= today_y %>" r="3.5" class="qb-chart-dot"></circle>
+    </svg>
+    <div class="qb-progress-axis qb-mono" aria-hidden="true">
+      <% axis_labels.each do |l| %>
+        <span class="<%= 'is-today' if l[:today] %>" style="left:<%= l[:left] %>%;"><%= l[:text] %></span>
+      <% end %>
+    </div>
+  <% else %>
+    <p class="qb-rail-card-empty">Cargá las fechas de inicio y entrega de la obra para ver cómo viene contra el plan.</p>
+  <% end %>
+</section>

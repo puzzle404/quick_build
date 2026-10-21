@@ -1,0 +1,134 @@
+<% content_for :qb_crumbs, [{ label: 'Inicio' }, { label: 'Personas' }, { label: @person.full_name }, { label: 'Editar' }].to_json %>
+<% content_for :title, "Editar #{@person.full_name} · Quick Build" %>
+
+<% if turbo_frame_request? %>
+  <% content_for(:drawer) do %>
+    <%= render(Qb::DrawerComponent.new(
+          eyebrow: "Personas · global",
+          title: "Editar datos de #{@person.full_name}",
+          subtitle: "Los cambios se aplican a sus #{@assignments.size} #{@assignments.size == 1 ? 'asignación' : 'asignaciones'} en obra.",
+          size: :lg
+        )) do %>
+      <% if flash.now[:alert].present? %>
+        <div class="qb-form-error" style="margin-bottom:14px;"><%= flash.now[:alert] %></div>
+      <% end %>
+
+      <%# Sólo la identidad: es lo único que se propaga a todas las asignaciones.
+          Rol, vigencia, tarifa y notas son por obra y viven en el form de obra.
+          La tabla de "Asignaciones afectadas" de la página completa no se
+          repite acá — mismo criterio que la edición de obra (Task 15): el
+          drawer muestra sólo los campos editables, el contexto de sólo
+          lectura queda para el fallback de página completa. %>
+      <%= form_with model: @person, url: constructors_person_path(@person), method: :patch,
+                    scope: :project_person do |f| %>
+        <%= render Qb::FormGroupComponent.new(title: 'Identidad',
+              footnote: 'Nombre + teléfono son la clave que agrupa a la persona entre obras.') do %>
+          <div class="qb-field">
+            <%= f.label :full_name, 'Nombre y apellido', class: "qb-label" %>
+            <%= f.text_field :full_name, class: "qb-input", required: true %>
+          </div>
+
+          <div class="qb-field">
+            <%= f.label :phone, 'Teléfono', class: "qb-label" %>
+            <%= f.text_field :phone, class: "qb-input" %>
+          </div>
+
+          <div class="qb-field" style="margin-bottom:0;">
+            <%= f.label :document_id, 'Documento', class: "qb-label" %>
+            <%= f.text_field :document_id, class: "qb-input" %>
+          </div>
+        <% end %>
+
+        <div style="display:flex;align-items:center;gap:8px;margin-top:14px;">
+          <%= render Qb::BtnComponent.new('Guardar cambios', variant: :primary, size: :md, type: :submit) %>
+          <%= render Qb::BtnComponent.new('Cancelar', variant: :secondary, size: :md, data: { action: 'click->qb--drawer#back' }) %>
+        </div>
+      <% end %>
+    <% end %>
+  <% end %>
+<% else %>
+  <div>
+    <%# Header strip %>
+    <div style="padding:14px 20px;border-bottom:1px solid var(--color-line);display:flex;align-items:flex-end;gap:16px;">
+      <div style="flex:1;">
+        <div style="font-size:11px;font-family:var(--font-mono);color:var(--color-ink-3);text-transform:uppercase;letter-spacing:0.8px;">Personas · global</div>
+        <h1 style="margin:3px 0 0;font-size:20px;font-weight:600;letter-spacing:-0.3px;">Editar datos de <%= @person.full_name %></h1>
+        <div style="font-size:12px;color:var(--color-ink-3);margin-top:2px;">
+          Los cambios se aplican a sus <%= @assignments.size %> <%= @assignments.size == 1 ? 'asignación' : 'asignaciones' %> en obra.
+          <%= link_to '← Volver a la ficha', constructors_person_path(@person), style: 'color:var(--color-accent);text-decoration:none;margin-left:8px;' %>
+        </div>
+      </div>
+    </div>
+
+    <div style="padding:24px 20px;border-bottom:1px solid var(--color-line);">
+      <div style="max-width:560px;margin:0 auto;">
+        <% if flash.now[:alert].present? %>
+          <div class="qb-form-error" style="margin-bottom:14px;"><%= flash.now[:alert] %></div>
+        <% end %>
+
+        <%# Sólo la identidad: es lo único que se propaga a todas las asignaciones.
+            Rol, vigencia, tarifa y notas son por obra y viven en el form de obra. %>
+        <%= form_with model: @person, url: constructors_person_path(@person), method: :patch,
+                      scope: :project_person, data: { turbo_frame: "_top" } do |f| %>
+          <%= render Qb::FormGroupComponent.new(title: 'Identidad',
+                footnote: 'Nombre + teléfono son la clave que agrupa a la persona entre obras.') do %>
+            <div class="qb-field">
+              <%= f.label :full_name, 'Nombre y apellido', class: "qb-label" %>
+              <%= f.text_field :full_name, class: "qb-input", required: true %>
+            </div>
+
+            <div class="qb-field">
+              <%= f.label :phone, 'Teléfono', class: "qb-label" %>
+              <%= f.text_field :phone, class: "qb-input" %>
+            </div>
+
+            <div class="qb-field" style="margin-bottom:0;">
+              <%= f.label :document_id, 'Documento', class: "qb-label" %>
+              <%= f.text_field :document_id, class: "qb-input" %>
+            </div>
+          <% end %>
+
+          <div style="display:flex;align-items:center;gap:8px;padding-top:14px;border-top:1px solid var(--color-line);">
+            <div style="flex:1;"></div>
+            <%= render Qb::BtnComponent.new('Cancelar', variant: :secondary, size: :md, href: constructors_person_path(@person)) %>
+            <%= render Qb::BtnComponent.new('Guardar cambios', variant: :primary, size: :md, type: :submit) %>
+          </div>
+        <% end %>
+      </div>
+    </div>
+
+    <%# Contexto: qué asignaciones se van a actualizar %>
+    <%= render Qb::SectionHeadComponent.new(title: 'Asignaciones afectadas',
+          subtitle: 'Rol, vigencia, tarifa y notas se editan dentro de cada obra.') %>
+    <table class="qb-table">
+      <thead>
+        <tr style="background:var(--color-bg-raised);">
+          <th>Obra</th>
+          <th>Rol</th>
+          <th>Estado</th>
+          <th style="text-align:right;"></th>
+        </tr>
+      </thead>
+      <tbody>
+        <% @assignments.each do |a| %>
+          <% active = a.status.to_s == 'active' %>
+          <tr>
+            <td>
+              <span class="qb-mono" style="font-size:10px;color:var(--color-ink-3);"><%= a.project.decorate.code %></span>
+              <span style="display:block;"><%= a.project.name %></span>
+            </td>
+            <td style="color:var(--color-ink-2);"><%= a.role_title.presence || '—' %></td>
+            <td>
+              <%= render Qb::PillComponent.new(active ? 'Activa' : 'Inactiva', tone: active ? :ok : :muted, compact: true) %>
+            </td>
+            <td style="text-align:right;white-space:nowrap;">
+              <%= link_to 'Editar en obra', edit_constructors_project_person_path(a.project, a),
+                    style: 'color:var(--color-accent);text-decoration:none;font-size:12px;',
+                    data: { turbo_frame: 'drawer', action: 'click->qb--drawer#open' } %>
+            </td>
+          </tr>
+        <% end %>
+      </tbody>
+    </table>
+  </div>
+<% end %>

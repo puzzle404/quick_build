@@ -1,0 +1,41 @@
+<% content_for :title, "Nueva contraseña · Quick Build" %>
+
+<%= render Qb::Mobile::NavBarComponent.new(title: "Nueva contraseña", back: true, back_href: new_session_path) %>
+
+<div style="padding: 20px 24px 24px;">
+  <h1 style="margin: 0 0 8px; font-size: 28px; font-weight: 700; letter-spacing: -0.6px;">Elegí una contraseña nueva</h1>
+  <p style="margin: 0 0 28px; color: var(--color-ink-3); font-size: 14.5px; line-height: 1.45;">
+    Va a reemplazar a la anterior para <strong style="color: var(--color-ink);"><%= @user.email %></strong>.
+  </p>
+
+  <%= form_with url: password_path(params[:token]), method: :patch, data: { turbo_frame: "_top" } do |f| %>
+    <% if flash[:alert] %>
+      <div role="alert" style="margin-bottom:14px;padding:10px 12px;border-radius:10px;background:color-mix(in oklab, var(--color-bad) 12%, transparent);color:var(--color-bad);font-size:13px;">
+        <%= flash[:alert] %>
+      </div>
+    <% end %>
+
+    <%= render Qb::Mobile::FormGroupComponent.new do %>
+      <%= render Qb::Mobile::FormRowComponent.new(
+            label: "Nueva contraseña",
+            name: "password",
+            type: "password",
+            placeholder: "••••••••",
+            autocomplete: "new-password",
+            required: true) %>
+      <%= render Qb::Mobile::FormRowComponent.new(
+            label: "Repetir contraseña",
+            name: "password_confirmation",
+            type: "password",
+            placeholder: "••••••••",
+            autocomplete: "new-password",
+            required: true) %>
+    <% end %>
+
+    <%= render Qb::Mobile::ButtonComponent.new("Guardar contraseña", variant: :primary, size: :lg, full: true, type: 'submit') %>
+  <% end %>
+
+  <p style="margin: 20px 0 0; text-align: center; font-size: 13px; color: var(--color-ink-3);">
+    <%= link_to "Volver a iniciar sesión", new_session_path, style: "color: var(--color-accent); font-weight: 600; text-decoration: none;", data: { turbo_frame: "_top" } %>
+  </p>
+</div>

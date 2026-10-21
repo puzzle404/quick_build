@@ -1,0 +1,72 @@
+<div style="display:grid;grid-template-columns:248px minmax(0,1fr);border-bottom:1px solid var(--color-line);">
+
+  <%# ── Lista de planos ──────────────────────────────────────────────── %>
+  <div style="border-right:1px solid var(--color-line);display:flex;flex-direction:column;min-width:0;">
+    <div style="padding:9px 12px;border-bottom:1px solid var(--color-line);background:var(--color-bg-sunken);display:flex;align-items:center;gap:6px;">
+      <span style="font-size:10px;font-family:var(--font-mono);text-transform:uppercase;letter-spacing:0.6px;color:var(--color-ink-3);">Planos</span>
+      <span class="qb-mono qb-tnum" style="font-size:10px;color:var(--color-ink-4);"><%= blueprints.size %></span>
+    </div>
+
+    <div style="flex:1;overflow-y:auto;">
+      <% blueprints.each do |bp| %>
+        <% active = selected && bp.id == selected.id %>
+        <div style="display:flex;align-items:stretch;border-bottom:1px solid var(--color-line);background:<%= active ? 'var(--color-bg-sunken)' : 'transparent' %>;border-left:2px solid <%= active ? 'var(--color-accent)' : 'transparent' %>;">
+          <%= link_to constructors_project_blueprints_path(project, selected: bp.id),
+                      style: 'flex:1;min-width:0;padding:9px 10px;text-decoration:none;color:inherit;display:block;',
+                      title: bp.name do %>
+            <div style="display:flex;align-items:center;gap:6px;margin-bottom:3px;">
+              <span class="qb-mono" style="font-size:10px;color:var(--color-ink-4);">BP-<%= bp.id %></span>
+            </div>
+            <div style="font-size:12px;font-weight:500;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;"><%= bp.name %></div>
+            <div style="font-size:10px;color:var(--color-ink-4);margin-top:2px;font-family:var(--font-mono);display:flex;gap:6px;flex-wrap:wrap;">
+              <span><%= helpers.qb_fmt_date_short(bp.created_at) %></span>
+              <% if bp.scale_ratio.present? %>
+                <span style="color:var(--color-ink-3);">1:<%= number_with_precision(bp.scale_ratio, precision: 0) %></span>
+              <% end %>
+              <% if groups_count(bp).positive? %>
+                <span style="color:var(--color-ink-3);"><%= groups_count(bp) %> med.</span>
+              <% end %>
+            </div>
+          <% end %>
+
+          <% if can_manage_content? %>
+            <%= button_to constructors_project_blueprint_path(project, bp),
+                          method: :delete,
+                          form: { style: 'display:flex;align-items:stretch;' },
+                          data: { turbo_confirm: "¿Eliminar el plano \"#{bp.name}\"? Se borran también sus mediciones y análisis." },
+                          title: 'Eliminar plano',
+                          aria: { label: "Eliminar #{bp.name}" },
+                          style: 'display:flex;align-items:center;padding:0 9px;background:transparent;border:none;color:var(--color-ink-4);cursor:pointer;' do %>
+              <%= render Qb::IconComponent.new(name: :trash, size: 13) %>
+            <% end %>
+          <% end %>
+        </div>
+      <% end %>
+    </div>
+  </div>
+
+  <%# ── Visor + panel IA ─────────────────────────────────────────────── %>
+  <div style="min-width:0;">
+    <% if selected %>
+      <%= render Constructors::Projects::Blueprints::ViewerComponent.new(
+            project: project, blueprint: selected, construction_items: construction_items) do |viewer| %>
+        <%# El panel de Análisis IA que vivía acá está en pausa (feature
+            pausada, no eliminada — ver Ai::Services::BlueprintAnalyzer /
+            AnalyzeBlueprintJob, que siguen intactos). Sólo queda el aside si
+            hay observaciones del plano para mostrar. %>
+        <% if selected.description.present? %>
+          <% viewer.with_aside do %>
+            <div style="padding:10px 12px;background:var(--color-bg-sunken);">
+              <div style="font-size:10px;font-family:var(--font-mono);text-transform:uppercase;letter-spacing:0.6px;color:var(--color-ink-3);margin-bottom:4px;">Observaciones</div>
+              <div style="font-size:11.5px;color:var(--color-ink-2);line-height:1.45;"><%= selected.description %></div>
+            </div>
+          <% end %>
+        <% end %>
+      <% end %>
+    <% else %>
+      <div style="padding:60px 20px;text-align:center;color:var(--color-ink-4);font-size:13px;">
+        Seleccioná un plano de la lista.
+      </div>
+    <% end %>
+  </div>
+</div>

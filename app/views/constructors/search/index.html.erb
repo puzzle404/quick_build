@@ -1,0 +1,106 @@
+<% content_for :title, "Buscar · Quick Build" %>
+<% content_for :qb_crumbs, [{label: 'Inicio'}, {label: 'Buscar'}].to_json %>
+<%
+  projects  = @results[:projects]
+  people    = @results[:people]
+  stages    = @results[:stages]
+  documents = @results[:documents]
+  materials = @results[:material_lists]
+  actions   = @results[:actions]
+
+  any_results = [projects, stages, materials, documents, people].any?(&:any?)
+  show_section = ->(scope_key) { @scope == 'all' || @scope == scope_key }
+%>
+
+<div>
+  <%# Page header %>
+  <div style="padding:14px 20px;border-bottom:1px solid var(--color-line);">
+    <div style="font-size:11px;font-family:var(--font-mono);color:var(--color-ink-3);text-transform:uppercase;letter-spacing:0.8px;">Búsqueda · global</div>
+    <h1 style="margin:3px 0 0;font-size:20px;font-weight:600;letter-spacing:-0.3px;">Buscar</h1>
+    <div style="font-size:12px;color:var(--color-ink-3);margin-top:2px;">Proyectos, etapas, materiales, documentos y personas de todas tus obras.</div>
+  </div>
+
+  <%# Toolbar / search input %>
+  <div style="display:flex;align-items:center;padding:10px 16px;gap:8px;border-bottom:1px solid var(--color-line);background:var(--color-bg-raised);">
+    <%= form_with url: constructors_search_path, method: :get, local: true, html: { style: 'display:flex;align-items:center;gap:8px;flex:1;' } do %>
+      <div style="display:flex;align-items:center;gap:6px;padding:0 10px;height:32px;background:var(--color-bg);border:1px solid var(--color-line);border-radius:5px;width:360px;">
+        <%= render Qb::IconComponent.new(name: :search, size: 13, style: 'color:var(--color-ink-4)') %>
+        <input autofocus type="search" name="q" value="<%= @query %>" placeholder="Buscar proyectos, etapas, materiales…"
+               style="flex:1;border:none;outline:none;background:transparent;font-size:12px;color:var(--color-ink);">
+      </div>
+      <% if @query.present? %>
+        <%= link_to 'Limpiar', constructors_search_path, style: 'font-size:12px;color:var(--color-accent);text-decoration:none;font-weight:600;' %>
+      <% end %>
+    <% end %>
+  </div>
+
+  <%# Scope tabs %>
+  <div style="padding:0 16px;border-bottom:1px solid var(--color-line);">
+    <%= render Qb::TabsComponent.new(
+          tabs: [
+            { value: 'all',       label: 'Todo',       href: constructors_search_path(q: @query.presence) },
+            { value: 'projects',  label: 'Proyectos',  count: projects.size,  href: constructors_search_path(q: @query.presence, scope: 'projects') },
+            { value: 'stages',    label: 'Etapas',     count: stages.size,    href: constructors_search_path(q: @query.presence, scope: 'stages') },
+            { value: 'materials', label: 'Materiales', count: materials.size, href: constructors_search_path(q: @query.presence, scope: 'materials') },
+            { value: 'documents', label: 'Documentos', count: documents.size, href: constructors_search_path(q: @query.presence, scope: 'documents') },
+            { value: 'people',    label: 'Personas',   count: people.size,    href: constructors_search_path(q: @query.presence, scope: 'people') }
+          ],
+          current: @scope
+        ) %>
+  </div>
+
+  <%# Quick actions (sin query) %>
+  <% if @query.blank? && actions.any? %>
+    <div style="padding:16px 20px 0;">
+      <div style="font-size:11px;font-family:var(--font-mono);color:var(--color-ink-3);text-transform:uppercase;letter-spacing:0.8px;margin-bottom:8px;">Acciones rápidas</div>
+      <div style="border:1px solid var(--color-line);border-radius:var(--radius);overflow:hidden;background:var(--color-bg-raised);">
+        <% actions.each_with_index do |a, i| %>
+          <%= link_to a[:url], style: "display:flex;align-items:center;gap:10px;padding:10px 14px;text-decoration:none;color:var(--color-ink);#{'border-top:1px solid var(--color-line);' if i.positive?}" do %>
+            <%= render Qb::IconComponent.new(name: (a[:icon] || 'plus').to_sym, size: 15, style: 'color:var(--color-ink-3);flex-shrink:0;') %>
+            <span style="font-size:13px;font-weight:500;"><%= a[:label] %></span>
+            <span class="qb-mono" style="margin-left:auto;font-size:10px;color:var(--color-ink-4);text-transform:uppercase;letter-spacing:0.5px;"><%= a[:hint] %></span>
+          <% end %>
+        <% end %>
+      </div>
+    </div>
+  <% end %>
+
+  <%# Result groups %>
+  <%
+    groups = [
+      ['projects',  'Proyectos',  projects,  :projects],
+      ['stages',    'Etapas',     stages,    :stages],
+      ['materials', 'Materiales', materials, :materials],
+      ['documents', 'Documentos', documents, :docs],
+      ['people',    'Personas',   people,    :people]
+    ]
+  %>
+  <% groups.each do |scope_key, title, results, icon| %>
+    <% next unless show_section.call(scope_key) && results.any? %>
+    <div style="padding:16px 20px 0;">
+      <div style="font-size:11px;font-family:var(--font-mono);color:var(--color-ink-3);text-transform:uppercase;letter-spacing:0.8px;margin-bottom:8px;"><%= title %> · <%= results.size %></div>
+      <div style="border:1px solid var(--color-line);border-radius:var(--radius);overflow:hidden;background:var(--color-bg-raised);">
+        <% results.each_with_index do |r, i| %>
+          <%= link_to r[:url], style: "display:flex;align-items:center;gap:10px;padding:10px 14px;text-decoration:none;color:var(--color-ink);#{'border-top:1px solid var(--color-line);' if i.positive?}" do %>
+            <%= render Qb::IconComponent.new(name: icon, size: 15, style: 'color:var(--color-ink-3);flex-shrink:0;') %>
+            <span style="font-size:13px;font-weight:500;"><%= r[:label] %></span>
+            <span style="margin-left:auto;font-size:11px;color:var(--color-ink-4);"><%= r[:hint] %></span>
+          <% end %>
+        <% end %>
+      </div>
+    </div>
+  <% end %>
+
+  <%# Empty state %>
+  <% if @query.present? && !any_results %>
+    <div style="padding:60px;margin:16px;text-align:center;color:var(--color-ink-4);font-size:13px;border:1px dashed var(--color-line);border-radius:10px;">
+      <%= render Qb::IconComponent.new(name: :search, size: 28, style: 'margin-bottom:8px;opacity:0.5;') %>
+      <div>Sin resultados para «<strong style="color:var(--color-ink-2);"><%= @query %></strong>».</div>
+      <div style="font-size:11px;color:var(--color-ink-4);margin-top:6px;">
+        <%= link_to 'Limpiar búsqueda', constructors_search_path, style: 'color:var(--color-accent);text-decoration:none;' %>
+      </div>
+    </div>
+  <% end %>
+
+  <div style="height:24px;"></div>
+</div>

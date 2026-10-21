@@ -1,0 +1,35 @@
+<div data-qb--tweaks-target="panel"
+     class="hidden"
+     style="display:none;position:fixed;top:60px;right:16px;z-index:90;width:280px;background:var(--color-bg-raised);border:1px solid var(--color-line-2);border-radius:10px;box-shadow:0 20px 60px rgba(0,0,0,0.25);overflow:hidden;">
+  <div style="display:flex;align-items:center;justify-content:space-between;padding:12px 14px;border-bottom:1px solid var(--color-line);">
+    <div>
+      <div style="font-size:11px;font-family:var(--font-mono);color:var(--color-ink-3);text-transform:uppercase;letter-spacing:0.7px;">Ajustes rápidos</div>
+      <div style="font-size:13px;font-weight:600;margin-top:2px;">Apariencia</div>
+    </div>
+    <button type="button" data-action="click->qb--tweaks#close"
+            style="background:transparent;border:none;color:var(--color-ink-3);cursor:pointer;">
+      <%= render Qb::IconComponent.new(name: :x, size: 16) %>
+    </button>
+  </div>
+
+  <div style="padding:12px 14px;display:flex;flex-direction:column;gap:14px;">
+    <% { 'Tema' => [:theme, THEMES], 'Densidad' => [:density, DENSITY], 'Layout' => [:layout, LAYOUTS] }.each do |label, (key, options)| %>
+      <div>
+        <div style="font-size:10px;font-family:var(--font-mono);color:var(--color-ink-4);text-transform:uppercase;letter-spacing:0.7px;margin-bottom:6px;"><%= label %></div>
+        <div style="display:grid;grid-template-columns:repeat(<%= options.size %>, 1fr);gap:4px;">
+          <% options.each do |value, text| %>
+            <button type="button"
+                    data-qb-tweak-key="<%= key %>"
+                    data-qb-tweak-value="<%= value %>"
+                    data-action="click->qb--tweaks#set"
+                    data-qb--tweaks-key-param="<%= key %>"
+                    data-qb--tweaks-value-param="<%= value %>"
+                    style="padding:6px 8px;background:var(--color-bg);border:1px solid var(--color-line);border-radius:5px;color:var(--color-ink);font-size:12px;cursor:pointer;">
+              <%= text %>
+            </button>
+          <% end %>
+        </div>
+      </div>
+    <% end %>
+  </div>
+</div>

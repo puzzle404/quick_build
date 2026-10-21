@@ -1,0 +1,16 @@
+<div class="m-frow">
+  <label class="m-frow-label"><%= @label %></label>
+  <div class="m-frow-amount">
+    <span class="m-frow-amount-currency"><%= @currency %></span>
+    <input class="m-frow-amount-input"
+           type="text"
+           inputmode="decimal"
+           autocomplete="off"
+           data-controller="qb--money-input"
+           data-action="input->qb--money-input#format keydown->qb--money-input#keydown"
+           name="<%= @name %>"
+           value="<%= display_value %>"
+           placeholder="<%= @placeholder %>"/>
+  </div>
+  <% if @sub.present? %><div class="m-frow-helper"><%= @sub %></div><% end %>
+</div>

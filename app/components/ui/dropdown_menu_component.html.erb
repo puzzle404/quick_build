@@ -1,0 +1,14 @@
+<el-dropdown class="inline-block">
+  <button class="<%= [default_button_classes, button_class].compact.join(' ') %>" aria-label="<%= aria_label %>">
+    <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-gray-600" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16" />
+    </svg>
+  </button>
+
+  <el-menu anchor="<%= anchor %>" popover class="<%= [default_menu_classes, menu_class].compact.join(' ') %>">
+    <div class="py-1">
+      <%= content %>
+    </div>
+  </el-menu>
+</el-dropdown>
+

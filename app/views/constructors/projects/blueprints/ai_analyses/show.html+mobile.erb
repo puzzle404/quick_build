@@ -1,0 +1,118 @@
+<% content_for :title, "Análisis IA · #{@blueprint.name.presence || "Plano ##{@blueprint.id}"}" %>
+<%
+  pill_tone, pill_label = case @analysis.status
+                          when 'completed'  then [:ok, 'Completado']
+                          when 'processing' then [:info, 'Procesando']
+                          when 'queued'     then [:info, 'En cola']
+                          when 'failed'     then [:bad, 'Fallido']
+                          else [:muted, @analysis.status]
+                          end
+  elements = @analysis.completed? ? (@analysis.safe_measurements['elements'] || []) : []
+  general_notes = @analysis.completed? ? @analysis.safe_measurements['general_notes'] : nil
+%>
+
+<%= render Qb::Mobile::NavBarComponent.new(title: "Análisis ##{@analysis.id}", back: true, back_href: constructors_project_blueprint_ai_analyses_path(@project, @blueprint)) %>
+
+<div style="padding: 4px 20px 14px;">
+  <div style="display:flex;align-items:center;gap:10px;margin-bottom:10px;flex-wrap:wrap;">
+    <%= render Qb::Mobile::PillComponent.new(pill_label, tone: pill_tone, dense: true) %>
+    <% if @analysis.applied? %>
+      <%= render Qb::Mobile::PillComponent.new('Aplicado al plano', tone: :accent, dense: true) %>
+    <% end %>
+  </div>
+  <h1 style="margin: 0 0 6px; font-size: 24px; font-weight: 700; letter-spacing: -0.4px; line-height: 1.15;">Resultados del análisis</h1>
+  <p style="margin: 0; font-size: 13.5px; color: var(--color-ink-3); line-height: 1.45;">
+    <%= qb_fmt_date_short(@analysis.created_at) %> · hace <%= time_ago_in_words(@analysis.created_at) %>
+  </p>
+</div>
+
+<% if @analysis.completed? %>
+  <%# Resumen %>
+  <div style="padding: 0 16px 14px;">
+    <%= render Qb::Mobile::CardComponent.new(padding: 14) do %>
+      <div style="display:flex;align-items:center;gap:12px;">
+        <div class="mono tnum" style="font-size:36px;font-weight:700;letter-spacing:-1px;line-height:1;color:var(--color-ok);"><%= elements.size %></div>
+        <div style="flex:1;">
+          <div style="font-size:11px;font-family:var(--font-mono);color:var(--color-ink-3);text-transform:uppercase;letter-spacing:0.7px;font-weight:600;">Elementos detectados</div>
+          <div style="font-size:12px;color:var(--color-ink-2);margin-top:2px;">Para aplicar mediciones al plano usá la versión de escritorio.</div>
+        </div>
+      </div>
+    <% end %>
+  </div>
+
+  <%# Elementos sugeridos (solo lectura) %>
+  <% if elements.any? %>
+    <%= render Qb::Mobile::SectionComponent.new(title: "Mediciones sugeridas · #{elements.size}") do %>
+      <%= render Qb::Mobile::CardComponent.new(bleed: true) do %>
+        <% elements.each do |element| %>
+          <%
+            confidence = element['confidence'].to_i
+            conf_tone = confidence >= 80 ? :ok : (confidence >= 60 ? :warn : :bad)
+            type_label = case element['type']
+                         when 'line'    then 'Línea'
+                         when 'polygon' then 'Área'
+                         else 'Punto'
+                         end
+          %>
+          <div class="m-row">
+            <div class="m-row-main">
+              <div class="m-row-title"><%= element['construction_item'] %></div>
+              <div class="m-row-subtitle">
+                <%= type_label %>
+                <% if element['description'].present? %> · <%= element['description'] %><% end %>
+              </div>
+              <div style="display:flex;align-items:center;gap:6px;margin-top:5px;">
+                <%= render Qb::Mobile::PillComponent.new("#{confidence}% confianza", tone: conf_tone, dense: true) %>
+              </div>
+            </div>
+            <span class="m-row-value m-row-value--mono"><%= number_with_precision(element['estimated_value'], precision: 2) %> <%= element['unit'] %></span>
+          </div>
+        <% end %>
+      <% end %>
+    <% end %>
+  <% else %>
+    <div style="padding: 0 16px 16px;">
+      <%= render Qb::Mobile::CardComponent.new do %>
+        <div style="text-align:center;padding:14px 8px;color:var(--color-ink-3);font-size:13.5px;">La IA no detectó elementos en este plano.</div>
+      <% end %>
+    </div>
+  <% end %>
+
+  <%# Notas del análisis %>
+  <% if general_notes.present? %>
+    <div style="padding: 8px 16px 16px;">
+      <%= render Qb::Mobile::CardComponent.new(padding: 14) do %>
+        <div style="font-size:11px;font-family:var(--font-mono);color:var(--color-ink-3);text-transform:uppercase;letter-spacing:0.7px;font-weight:600;margin-bottom:6px;">Notas del análisis</div>
+        <p style="margin:0;font-size:13.5px;color:var(--color-ink);line-height:1.45;"><%= general_notes %></p>
+      <% end %>
+    </div>
+  <% end %>
+
+<% elsif @analysis.processing? || @analysis.status == 'queued' %>
+  <%# Estado en curso — refresca solo %>
+  <div style="padding: 0 16px 16px;">
+    <%= render Qb::Mobile::CardComponent.new(padding: 20) do %>
+      <div style="text-align:center;">
+        <svg class="animate-spin" style="height:28px;width:28px;color:var(--color-accent);margin:0 auto;display:block;" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+          <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+          <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+        </svg>
+        <div style="margin-top:12px;font-size:15px;font-weight:600;color:var(--color-ink);">Analizando plano…</div>
+        <p style="margin:6px 0 0;font-size:12.5px;color:var(--color-ink-3);">Esto puede tomar entre 10 y 30 segundos. La página se actualiza sola.</p>
+      </div>
+    <% end %>
+  </div>
+  <script>
+    setTimeout(() => window.location.reload(), 5000);
+  </script>
+
+<% elsif @analysis.failed? %>
+  <div style="padding: 0 16px 16px;">
+    <%= render Qb::Mobile::CardComponent.new(padding: 14) do %>
+      <div style="font-size:11px;font-family:var(--font-mono);color:var(--color-bad);text-transform:uppercase;letter-spacing:0.7px;font-weight:600;margin-bottom:6px;">Error en el análisis</div>
+      <p style="margin:0;font-size:13.5px;color:var(--color-ink);line-height:1.45;"><%= @analysis.error_message.presence || 'Error desconocido. Probá crear un nuevo análisis.' %></p>
+    <% end %>
+  </div>
+<% end %>
+
+<div style="height: 24px;"></div>

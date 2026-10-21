@@ -1,41 +1,11 @@
 <h1 class="mb-6 text-2xl font-bold">Productos</h1>
 
-<%= form_with url: products_path, method: :get, local: true, class: "mb-4 flex flex-col sm:flex-row" do |form| %>
-  <%= form.text_field :query, value: params[:query], placeholder: "Buscar productos", class: "mb-2 flex-grow rounded border px-3 py-2 sm:mb-0 sm:mr-2 border-gray-300 focus:border-indigo-500 focus:ring-indigo-500" %>
-  <%= render Ui::FormButtonComponent.new(form: form, label: 'Buscar') %>
-<% end %>
+<%= render "shared/search_bar" %>
 
-<div class="mb-4 overflow-x-auto">
-<table class="min-w-full divide-y divide-gray-200">
-  <thead class="bg-gray-50">
-    <tr>
-      <th class="px-4 py-2 text-left text-xs font-medium uppercase tracking-wider text-gray-500">Name</th>
-      <th class="px-4 py-2 text-left text-xs font-medium uppercase tracking-wider text-gray-500">Price</th>
-      <th class="px-4 py-2 text-left text-xs font-medium uppercase tracking-wider text-gray-500">Category</th>
-      <th class="px-4 py-2"></th>
-      <th class="px-4 py-2"></th>
-      <th class="px-4 py-2"></th>
-      <th class="px-4 py-2"></th>
-    </tr>
-  </thead>
-
-  <tbody class="divide-y divide-gray-200 bg-white">
-    <% @products.each do |product| %>
-      <tr>
-        <td class="px-4 py-2"><%= product.name %></td>
-        <td class="px-4 py-2"><%= number_to_currency(product.price_cents / 100.0) %></td>
-        <td class="px-4 py-2"><%= product.category.name if product.category %></td>
-        <td class="px-4 py-2"><%= link_to 'Show', product, class: 'text-indigo-600 hover:underline' %></td>
-        <td class="px-4 py-2"><%= link_to 'Edit', edit_product_path(product), class: 'text-indigo-600 hover:underline' %></td>
-        <td class="px-4 py-2"><%= link_to 'Destroy', product, data: { turbo_method: :delete, turbo_confirm: 'Are you sure?' }, class: 'text-red-600 hover:underline' %></td>
-        <td class="px-4 py-2"><%= render Ui::ButtonComponent.new(label: 'Add to Cart', path: add_item_cart_path(product_id: product.id), method: :post) %></td>
-      </tr>
-    <% end %>
-  </tbody>
-
-</table>
-</div>
+<%= render 'products/products', products: @products %>
 
 <p class="mb-4"><%= link_to 'View Cart', cart_path, class: 'text-indigo-600 hover:underline' %></p>
 
-<p><%= render Ui::ButtonComponent.new(label: 'New Product', path: new_product_path) %></p>
+<% if user_signed_in? && current_user.company == @company %>
+  <p><%= render Ui::ButtonComponent.new(label: 'New Product', path: new_company_product_path) %></p>
+<% end %>

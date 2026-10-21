@@ -1,0 +1,62 @@
+<% content_for :title, "Editar #{@person.full_name} · Quick Build" %>
+<% back = constructors_person_path(@person) %>
+
+<%= render Qb::Mobile::NavBarComponent.new(title: "Editar persona", back: true, back_href: back) %>
+
+<div style="padding: 4px 20px 12px;">
+  <h1 style="margin: 0; font-size: 22px; font-weight: 700; letter-spacing: -0.4px;">Editar datos</h1>
+  <p style="margin: 4px 0 0; font-size: 13.5px; color: var(--color-ink-3); line-height: 1.4;">
+    Se aplican a sus <%= @assignments.size %> <%= @assignments.size == 1 ? 'asignación' : 'asignaciones' %> en obra.
+  </p>
+</div>
+
+<%= form_with model: @person, url: constructors_person_path(@person), method: :patch,
+              scope: :project_person, local: true, html: { style: "padding: 0 16px;" } do |f| %>
+  <% if flash.now[:alert].present? %>
+    <div role="alert" style="margin-bottom:14px;padding:10px 12px;border-radius:10px;background:color-mix(in oklab, var(--color-bad) 12%, transparent);color:var(--color-bad);font-size:13px;">
+      <%= flash.now[:alert] %>
+    </div>
+  <% end %>
+
+  <%= render Qb::Mobile::FormGroupComponent.new(title: "Identidad") do %>
+    <%= render Qb::Mobile::FormRowComponent.new(
+          label: "Nombre y apellido", name: "project_person[full_name]",
+          value: @person.full_name,
+          placeholder: "Ej: Juana Pérez",
+          required: true) %>
+    <%= render Qb::Mobile::FormRowComponent.new(
+          label: "Teléfono", name: "project_person[phone]",
+          value: @person.phone,
+          placeholder: "+54 9 11 …",
+          type: "tel") %>
+    <%= render Qb::Mobile::FormRowComponent.new(
+          label: "Documento", name: "project_person[document_id]",
+          value: @person.document_id,
+          placeholder: "DNI / CUIL") %>
+  <% end %>
+
+  <div style="padding: 4px 0 8px;">
+    <p style="margin:0;font-size:12px;color:var(--color-ink-4);line-height:1.45;">
+      Rol, vigencia, tarifa y notas se editan dentro de cada obra.
+    </p>
+  </div>
+
+  <div style="padding: 12px 0 28px;">
+    <%= f.submit "Guardar cambios", class: "m-btn m-btn--lg m-btn--full" %>
+  </div>
+<% end %>
+
+<%= render Qb::Mobile::SectionComponent.new(title: "Obras · #{@assignments.size}") do %>
+  <%= render Qb::Mobile::CardComponent.new(bleed: true) do %>
+    <% @assignments.each do |a| %>
+      <%= link_to edit_constructors_project_person_path(a.project, a), class: 'm-row m-row--tap' do %>
+        <div class="m-row-main">
+          <div class="m-row-title"><%= a.project.name %></div>
+          <div class="m-row-subtitle"><%= a.role_title.presence || 'Sin rol' %></div>
+        </div>
+        <span class="m-row-value">Editar</span>
+        <span class="m-row-chevron"><%= render Qb::Mobile::IconComponent.new(name: 'chev-right', size: 16, stroke: 2.2) %></span>
+      <% end %>
+    <% end %>
+  <% end %>
+<% end %>

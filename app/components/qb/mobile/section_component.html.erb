@@ -1,0 +1,11 @@
+<div class="m-section">
+  <% if @title.present? || action? %>
+    <div class="m-section-head">
+      <% if @title.present? %><span class="m-section-title"><%= @title %></span><% end %>
+      <% if action? %><%= action %><% end %>
+    </div>
+  <% end %>
+  <div class="<%= @padded ? 'm-section-body' : 'm-section-body--bleed' %>">
+    <%= content %>
+  </div>
+</div>

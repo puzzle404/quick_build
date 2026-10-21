@@ -1,0 +1,107 @@
+<% content_for :title, "#{@blueprint.name} · Planos" %>
+<%
+  file_attached = @blueprint.file.attached?
+  file_url = file_attached ? url_for(@blueprint.file) : nil
+  groups = @blueprint.measurements.is_a?(Hash) ? (@blueprint.measurements['groups'] || @blueprint.measurements[:groups] || []) : []
+  type_labels = { 'line' => 'Línea', 'polygon' => 'Área', 'marker' => 'Marcador' }
+%>
+
+<%= render Qb::Mobile::NavBarComponent.new(title: nil, back: true, back_href: constructors_project_blueprints_path(@project)) %>
+
+<%# Identity %>
+<div style="padding: 4px 20px 14px;">
+  <div style="display:flex;align-items:center;gap:10px;margin-bottom:10px;flex-wrap:wrap;">
+    <% if @blueprint.scale_ratio.present? %>
+      <%= render Qb::Mobile::PillComponent.new("1:#{number_with_precision(@blueprint.scale_ratio, precision: 0)}", tone: :accent, dense: true, mono: true) %>
+    <% else %>
+      <%= render Qb::Mobile::PillComponent.new("Sin escala", tone: :muted, dense: true) %>
+    <% end %>
+    <% if groups.any? %>
+      <%= render Qb::Mobile::PillComponent.new(pluralize(groups.size, 'medición', 'mediciones'), tone: :ok, dense: true) %>
+    <% end %>
+  </div>
+  <h1 style="margin: 0 0 6px; font-size: 24px; font-weight: 700; letter-spacing: -0.4px; line-height: 1.15;"><%= @blueprint.name %></h1>
+  <% if @blueprint.description.present? %>
+    <p style="margin: 0; font-size: 13.5px; color: var(--color-ink-3); line-height: 1.45;"><%= @blueprint.description %></p>
+  <% end %>
+</div>
+
+<%# Preview %>
+<div style="padding: 0 16px 14px;">
+  <% if file_attached %>
+    <%= link_to file_url, target: "_blank", rel: "noopener", style: "display:block;text-decoration:none;" do %>
+      <div style="border-radius:14px;border:1px solid var(--color-line);background:var(--color-bg-sunken);overflow:hidden;">
+        <%= image_tag file_url, alt: @blueprint.name, style: "display:block;width:100%;height:auto;max-height:60vh;object-fit:contain;" %>
+      </div>
+    <% end %>
+    <p style="margin:8px 4px 0;font-size:12px;color:var(--color-ink-4);text-align:center;">Tocá el plano para verlo a pantalla completa. Para medir y definir escala, usá la versión de escritorio.</p>
+  <% else %>
+    <%= render Qb::Mobile::CardComponent.new do %>
+      <div style="text-align:center;padding:14px 8px;color:var(--color-ink-3);font-size:13.5px;">El plano no tiene archivo adjunto.</div>
+    <% end %>
+  <% end %>
+</div>
+
+<% if file_attached %>
+  <div style="padding: 0 16px 16px; display:flex; gap:8px;">
+    <%= link_to "Abrir", file_url, target: "_blank", rel: "noopener",
+          class: "m-btn m-btn--secondary m-btn--md", style: "flex:1;text-decoration:none;" %>
+    <%= link_to rails_blob_path(@blueprint.file, disposition: "attachment"),
+          class: "m-btn m-btn--md", style: "flex:1.4;text-decoration:none;" do %>
+      <%= render Qb::Mobile::IconComponent.new(name: 'download', size: 17, stroke: 2.2) %>
+      Descargar
+    <% end %>
+  </div>
+<% end %>
+
+<%# Mediciones (solo lectura) %>
+<% if groups.any? %>
+  <%= render Qb::Mobile::SectionComponent.new(title: "Mediciones · #{groups.size}") do %>
+    <%= render Qb::Mobile::CardComponent.new(bleed: true) do %>
+      <% groups.each do |g| %>
+        <%
+          g_name  = g['name'] || g[:name] || 'Sin nombre'
+          g_type  = (g['type'] || g[:type]).to_s
+          g_total = g['total_value'] || g[:total_value]
+          g_unit  = g['unit'] || g[:unit]
+        %>
+        <%= render Qb::Mobile::RowComponent.new(
+              icon: :blueprint,
+              title: g_name,
+              subtitle: type_labels[g_type] || g_type.presence,
+              value: g_total.present? ? "#{number_with_precision(g_total.to_f, precision: 2, strip_insignificant_zeros: true)} #{g_unit}".strip : nil,
+              value_mono: true,
+              chevron: false) %>
+      <% end %>
+    <% end %>
+  <% end %>
+<% end %>
+
+<%# Análisis con IA: en pausa (ver blueprints/ai_analyses_controller), la
+    sección de historial no se muestra mientras tanto. %>
+
+<%# Meta del archivo %>
+<%= render Qb::Mobile::SectionComponent.new(title: "Archivo") do %>
+  <%= render Qb::Mobile::CardComponent.new(bleed: true) do %>
+    <%= render Qb::Mobile::RowComponent.new(
+          icon: :image,
+          title: "Nombre",
+          value: @blueprint.file_name.presence || "—",
+          value_mono: true,
+          chevron: false) %>
+    <%= render Qb::Mobile::RowComponent.new(
+          icon: :doc,
+          title: "Tamaño",
+          value: @blueprint.file_byte_size ? number_to_human_size(@blueprint.file_byte_size) : "—",
+          value_mono: true,
+          chevron: false) %>
+    <%= render Qb::Mobile::RowComponent.new(
+          icon: :clock,
+          title: "Subido",
+          value: qb_fmt_date_short(@blueprint.uploaded_at),
+          value_mono: true,
+          chevron: false) %>
+  <% end %>
+<% end %>
+
+<div style="height: 24px;"></div>

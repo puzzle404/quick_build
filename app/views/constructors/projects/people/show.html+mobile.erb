@@ -1,0 +1,222 @@
+<% content_for :title, "#{@person.full_name} · #{@project.name}" %>
+<%
+  status_label = @person.status.to_s == 'active' ? 'Activo' : 'Inactivo'
+  status_tone  = @person.status.to_s == 'active' ? :ok : :muted
+  source_labels = { 'manual' => 'Manual', 'qr' => 'QR', 'mobile' => 'Móvil' }
+  hours_fmt = Constructors::Projects::People::HoursFormat
+  edit_href = edit_constructors_project_person_path(@project, @person)
+
+  # Totales sobre las marcas que se listan abajo (las mismas que suma el pie
+  # de la tabla en escritorio): ya están en memoria, así que no agrega queries.
+  # Un total sobre otra ventana no cerraría con lo que se ve.
+  marks_with_hours = @recent_attendances.count { |a| a.hours.present? }
+  total_hours = @recent_attendances.filter_map(&:hours).sum
+  rate_cents = @person.hourly_rate_cents
+  # Costo = tarifa × horas. Guion si falta cualquiera de los dos: media verdad
+  # con pinta de total es peor que un guion.
+  labor_cost_cents = rate_cents.present? && total_hours.positive? ? (total_hours.to_d * rate_cents.to_i).round : nil
+  hours_hint = if total_hours.positive? && marks_with_hours < @recent_attendances.size
+    "#{marks_with_hours} de #{@recent_attendances.size} marcas con horas"
+  elsif total_hours.positive?
+    "en las #{@recent_attendances.size} marcas listadas"
+  else
+    'sin horas cargadas'
+  end
+  cost_hint = if !total_hours.positive?
+    'cargá las horas de cada jornada'
+  elsif rate_cents.blank?
+    'falta la tarifa por hora'
+  else
+    "sobre #{hours_fmt.fmt_hours_label(total_hours)}"
+  end
+%>
+
+<%= render Qb::Mobile::NavBarComponent.new(title: nil, back: true, back_href: constructors_project_people_path(@project)) do |c| %>
+  <% c.with_right do %>
+    <% if policy(@person).update? %>
+      <%= link_to edit_constructors_project_person_path(@project, @person), aria: { label: 'Editar' }, style: 'color:var(--color-accent);padding:8px;display:inline-flex;' do %>
+        <%= render Qb::Mobile::IconComponent.new(name: 'edit', size: 20) %>
+      <% end %>
+    <% end %>
+  <% end %>
+<% end %>
+
+<%# Identity %>
+<div style="padding: 4px 20px 14px;">
+  <div style="display:flex;align-items:center;gap:12px;">
+    <%= render Qb::Mobile::AvatarComponent.new(name: @person.full_name, size: 48) %>
+    <div style="flex:1;min-width:0;">
+      <h1 style="margin: 0 0 4px; font-size: 22px; font-weight: 700; letter-spacing: -0.4px; line-height: 1.15;"><%= @person.full_name %></h1>
+      <div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap;">
+        <%= render Qb::Mobile::PillComponent.new(status_label, tone: status_tone, dense: true) %>
+        <span style="font-size:13px;color:var(--color-ink-3);"><%= @person.role_title.presence || 'Sin rol especificado' %></span>
+      </div>
+    </div>
+  </div>
+</div>
+
+<%# Dar presente — acción principal. Editor de obra en adelante
+    (PersonAttendancePolicy), igual que en escritorio. %>
+<% can_mark_attendance = policy(PersonAttendance.new(project_person: @person)).create? %>
+<% if can_mark_attendance %>
+  <div style="padding: 0 16px 16px;">
+    <%= button_to constructors_project_person_attendances_path(@project, @person),
+          method: :post,
+          class: "m-btn m-btn--lg m-btn--full",
+          form: { style: "margin:0;" } do %>
+      <%= render Qb::Mobile::IconComponent.new(name: 'check', size: 18, stroke: 2.2) %>
+      Dar presente
+    <% end %>
+  </div>
+<% end %>
+
+<%# KPIs — sólo métricas con dato real detrás (horas cargadas sobre las marcas
+    listadas y su costo), como el strip de escritorio. Sin ninguna marca no se
+    muestran: dos guiones no informan nada que el empty state no diga mejor. %>
+<% if @recent_attendances.any? %>
+  <div style="padding: 0 16px 4px;">
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;">
+      <%= render Qb::Mobile::KpiComponent.new(
+            label: "Horas · últimas #{@recent_attendances.size}",
+            value: total_hours.positive? ? hours_fmt.fmt_hours_label(total_hours) : '—',
+            hint: hours_hint) %>
+      <%= render Qb::Mobile::KpiComponent.new(
+            label: 'Costo MO',
+            value: labor_cost_cents ? qb_fmt_cents(labor_cost_cents) : '—',
+            hint: cost_hint) %>
+    </div>
+  </div>
+<% end %>
+
+<%# Datos %>
+<%= render Qb::Mobile::SectionComponent.new(title: "Datos") do %>
+  <%= render Qb::Mobile::CardComponent.new(bleed: true) do %>
+    <%= render Qb::Mobile::RowComponent.new(
+          icon: :doc,
+          title: "Documento",
+          value: @person.document_id.presence || "—",
+          value_mono: true,
+          chevron: false) %>
+    <% if @person.phone.present? %>
+      <%= link_to "tel:#{@person.phone}", class: 'm-row m-row--tap' do %>
+        <div class="m-row-icon"><%= render Qb::Mobile::IconComponent.new(name: 'user', size: 17) %></div>
+        <div class="m-row-main"><div class="m-row-title">Teléfono</div></div>
+        <span class="m-row-value m-row-value--mono"><%= @person.phone %></span>
+        <span class="m-row-chevron"><%= render Qb::Mobile::IconComponent.new(name: 'chev-right', size: 16, stroke: 2.2) %></span>
+      <% end %>
+    <% else %>
+      <%= render Qb::Mobile::RowComponent.new(icon: :user, title: "Teléfono", value: "—", chevron: false) %>
+    <% end %>
+    <%= render Qb::Mobile::RowComponent.new(
+          icon: :calendar,
+          title: "Vigencia",
+          value: @person.start_date ? "#{qb_fmt_date_short(@person.start_date)}#{@person.end_date.present? ? " · #{qb_fmt_date_short(@person.end_date)}" : ''}" : "—",
+          value_mono: true,
+          chevron: false) %>
+    <%# Sin tarifa el costo de mano de obra no se puede calcular: en vez de un
+        guion mudo, la fila lleva al form donde se carga. %>
+    <% if rate_cents.present? %>
+      <%# mode: :full y no la forma compacta: una tarifa de $ 4.500 mostrada
+          como "$ 5k" no sirve para chequear contra lo que se pactó. %>
+      <%= render Qb::Mobile::RowComponent.new(
+            icon: :money,
+            title: "Tarifa",
+            value: "#{qb_fmt_ars(rate_cents / 100.0, mode: :full)} /h",
+            value_mono: true,
+            chevron: false) %>
+    <% elsif policy(@person).update? %>
+      <%= render Qb::Mobile::RowComponent.new(
+            icon: :money,
+            title: "Tarifa",
+            subtitle: "Cargar tarifa por hora",
+            value: "—",
+            value_mono: true,
+            href: edit_href) %>
+    <% else %>
+      <%= render Qb::Mobile::RowComponent.new(icon: :money, title: "Tarifa", value: "—", value_mono: true, chevron: false) %>
+    <% end %>
+  <% end %>
+<% end %>
+
+<% if @person.notes.present? %>
+  <%= render Qb::Mobile::SectionComponent.new(title: "Notas") do %>
+    <%= render Qb::Mobile::CardComponent.new(padding: 14) do %>
+      <p style="margin:0;font-size:13.5px;color:var(--color-ink-2);line-height:1.5;white-space:pre-line;"><%= @person.notes %></p>
+    <% end %>
+  <% end %>
+<% end %>
+
+<%# Asistencias — «Dar presente» sigue siendo un click y la marca nace sin
+    horas; la jornada se completa acá, sobre la marca que ya existe. Quién
+    puede hacerlo lo decide PersonAttendancePolicy (editor de obra). %>
+<% can_edit_hours = policy(PersonAttendance.new(project_person: @person)).update? %>
+<%= render Qb::Mobile::SectionComponent.new(title: "Asistencias · últimas #{@recent_attendances.size}") do %>
+  <% if @recent_attendances.any? %>
+    <%= render Qb::Mobile::CardComponent.new(bleed: true) do %>
+      <% @recent_attendances.each do |att| %>
+        <div class="m-row">
+          <div class="m-row-icon" style="background:color-mix(in oklab, var(--color-ok) 14%, transparent);color:var(--color-ok);">
+            <%= render Qb::Mobile::IconComponent.new(name: 'check', size: 17) %>
+          </div>
+          <div class="m-row-main">
+            <div class="m-row-title"><%= qb_fmt_datetime_short(att.occurred_at) %></div>
+            <div class="m-row-subtitle">
+              <%= source_labels[att.source] || att.source.to_s.humanize.presence || 'Manual' %><% if att.coordinates? %> · <%= att.latitude %>, <%= att.longitude %><% end %>
+            </div>
+          </div>
+          <% if can_edit_hours %>
+            <%# turbo: false a propósito: el turbo_stream de #update devuelve la
+                fila <tr> de escritorio, que acá no tiene dónde entrar. Con
+                navegación normal el PATCH redirige a esta ficha y el flash
+                confirma que guardó — que en obra es justo lo que hace falta. %>
+            <%= form_with url: constructors_project_person_attendance_path(@project, @person, att),
+                  method: :patch, data: { turbo: false },
+                  html: { style: "display:flex;align-items:center;gap:6px;margin:0;" } do %>
+              <%= text_field_tag 'person_attendance[hours]', hours_fmt.fmt_hours(att.hours),
+                    id: "attendance_#{att.id}_hours",
+                    inputmode: 'decimal', autocomplete: 'off', placeholder: '—',
+                    'aria-label': "Horas trabajadas del #{qb_fmt_date_short(att.occurred_at.to_date)}",
+                    style: "width:60px;height:36px;padding:0 8px;text-align:right;font-family:var(--font-mono);font-size:14px;color:var(--color-ink);background:var(--color-bg-sunken);border:1px solid var(--color-line);border-radius:10px;" %>
+              <%= render Qb::Mobile::ButtonComponent.new(variant: :secondary, size: :sm, icon: 'check',
+                    type: 'submit', aria_label: 'Guardar horas') %>
+            <% end %>
+          <% else %>
+            <span class="m-row-value m-row-value--mono"><%= hours_fmt.fmt_hours_label(att.hours) || '—' %></span>
+          <% end %>
+        </div>
+      <% end %>
+    <% end %>
+    <% if can_edit_hours %>
+      <div style="padding:8px 4px 0;font-size:11.5px;color:var(--color-ink-4);line-height:1.4;">
+        Escribí las horas de cada jornada y guardá con el ✓. Se aceptan medias horas (7,5). Vacío las borra.
+      </div>
+    <% end %>
+  <% else %>
+    <%= render Qb::Mobile::CardComponent.new do %>
+      <div style="text-align:center;padding:14px 8px;color:var(--color-ink-3);font-size:13.5px;">
+        <% if can_mark_attendance %>Sin asistencias registradas. Marcá el primer presente arriba.<% else %>Sin asistencias registradas.<% end %>
+      </div>
+    <% end %>
+  <% end %>
+<% end %>
+
+<%# Acciones — inline para no chocar con la tab bar %>
+<% unless hotwire_native_app? %>
+  <div style="padding: 4px 16px 24px;">
+    <div style="display:flex;gap:8px;align-items:stretch;">
+      <% if policy(@person).destroy? %>
+        <%= button_to constructors_project_person_path(@project, @person), method: :delete,
+              form: { data: { turbo_confirm: "¿Seguro que querés eliminar esta persona?" }, style: "margin:0;" },
+              style: "width:44px;height:44px;border-radius:999px;background:var(--color-bg-raised);border:1px solid color-mix(in oklab, var(--color-bad) 30%, var(--color-line));color:var(--color-bad);display:inline-flex;align-items:center;justify-content:center;flex-shrink:0;",
+              aria: { label: "Eliminar persona" } do %>
+          <%= render Qb::Mobile::IconComponent.new(name: 'x', size: 18) %>
+        <% end %>
+      <% end %>
+      <% if policy(@person).update? %>
+        <%= link_to "Editar", edit_constructors_project_person_path(@project, @person),
+              class: "m-btn m-btn--secondary m-btn--md",
+              style: "flex:1;text-decoration:none;" %>
+      <% end %>
+    </div>
+  </div>
+<% end %>

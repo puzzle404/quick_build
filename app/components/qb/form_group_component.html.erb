@@ -1,0 +1,25 @@
+<% if collapsible? %>
+  <details <%= 'open' if open? %> class="qb-form-section">
+    <summary class="qb-form-section-head">
+      <span class="qb-form-section-title"><%= title %></span>
+      <span class="qb-form-section-sub"><%= subtitle.presence || 'mostrar / ocultar' %></span>
+    </summary>
+    <%= content %>
+    <% if footnote.present? %>
+      <p class="qb-form-section-foot"><%= footnote %></p>
+    <% end %>
+  </details>
+<% else %>
+  <div class="qb-form-section">
+    <div class="qb-form-section-head">
+      <span class="qb-form-section-title"><%= title %></span>
+      <% if subtitle.present? %>
+        <span class="qb-form-section-sub"><%= subtitle %></span>
+      <% end %>
+    </div>
+    <%= content %>
+    <% if footnote.present? %>
+      <p class="qb-form-section-foot"><%= footnote %></p>
+    <% end %>
+  </div>
+<% end %>

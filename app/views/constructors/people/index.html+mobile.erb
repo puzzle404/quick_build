@@ -1,0 +1,96 @@
+<% content_for :title, "Personas · Quick Build" %>
+<%
+  actives   = @grouped_page.select { |r| r[:status] == 'active' }
+  inactives = @grouped_page.reject { |r| r[:status] == 'active' }
+
+  row_subtitle = ->(row) do
+    obras = row[:projects].size == 1 ? "1 obra" : "#{row[:projects].size} obras"
+    [row[:role_title].presence || 'Sin rol', obras].join(' · ')
+  end
+%>
+
+<%= render Qb::Mobile::NavBarComponent.new(title: "Personas", back: true, back_href: edit_registration_path) %>
+
+<div style="padding: 4px 20px 12px;">
+  <h1 style="margin: 0; font-size: 24px; font-weight: 700; letter-spacing: -0.5px;">Personas</h1>
+  <div style="font-size: 13px; color: var(--color-ink-3); margin-top: 4px;">
+    <%= @kpis[:total] == 1 ? "1 persona en tus obras" : "#{@kpis[:total]} personas en tus obras" %> · <%= @kpis[:active] %> activas
+    <% if @kpis[:avg_attendance_pct] %> · <%= @kpis[:avg_attendance_pct] %>% asistencia<% end %>
+  </div>
+</div>
+
+<%# Search %>
+<%= form_with url: constructors_people_path, method: :get, local: true do %>
+  <div style="padding: 0 20px 8px;">
+    <div style="display:flex;align-items:center;gap:8px;background:var(--color-bg-sunken);border:1px solid var(--color-line);border-radius:12px;padding:0 12px;height:42px;">
+      <%= render Qb::Mobile::IconComponent.new(name: 'search', size: 17) %>
+      <input type="search" name="q" value="<%= @query %>" placeholder="Buscar por nombre" style="flex:1;border:none;outline:none;background:transparent;font-size:14px;color:var(--color-ink);"/>
+    </div>
+  </div>
+<% end %>
+
+<% if actives.any? %>
+  <%= render Qb::Mobile::SectionComponent.new(title: "Activas · #{actives.size}") do %>
+    <%= render Qb::Mobile::CardComponent.new(bleed: true) do %>
+      <% actives.each do |row| %>
+        <%= link_to constructors_person_path(row[:person_id]), class: "m-row", style: "text-decoration:none;color:inherit;" do %>
+          <%= render Qb::Mobile::AvatarComponent.new(name: row[:full_name], size: 32) %>
+          <div class="m-row-main" style="margin-left:12px;">
+            <div class="m-row-title"><%= row[:full_name] %></div>
+            <div class="m-row-subtitle"><%= row_subtitle.call(row) %></div>
+          </div>
+          <% if row[:attendance_pct] %>
+            <span class="m-row-value m-row-value--mono"><%= row[:attendance_pct] %>%</span>
+          <% end %>
+          <%= render Qb::Mobile::IconComponent.new(name: 'chevron-right', size: 16) %>
+        <% end %>
+      <% end %>
+    <% end %>
+  <% end %>
+<% end %>
+
+<% if inactives.any? %>
+  <%= render Qb::Mobile::SectionComponent.new(title: "En licencia · #{inactives.size}") do %>
+    <%= render Qb::Mobile::CardComponent.new(bleed: true) do %>
+      <% inactives.each do |row| %>
+        <%= link_to constructors_person_path(row[:person_id]), class: "m-row", style: "text-decoration:none;color:inherit;" do %>
+          <%= render Qb::Mobile::AvatarComponent.new(name: row[:full_name], size: 32) %>
+          <div class="m-row-main" style="margin-left:12px;">
+            <div class="m-row-title"><%= row[:full_name] %></div>
+            <div class="m-row-subtitle"><%= row_subtitle.call(row) %></div>
+          </div>
+          <%= render Qb::Mobile::PillComponent.new("Licencia", tone: :muted, dense: true) %>
+        <% end %>
+      <% end %>
+    <% end %>
+  <% end %>
+<% end %>
+
+<% if @grouped_page.empty? %>
+  <div style="padding: 0 16px;">
+    <%= render Qb::Mobile::CardComponent.new do %>
+      <div style="text-align:center;padding:14px 8px;color:var(--color-ink-3);font-size:13.5px;">
+        <% if @query.present? %>
+          Sin resultados para "<%= @query %>".
+          <div style="margin-top:6px;"><%= link_to 'Limpiar búsqueda', constructors_people_path, style: 'color:var(--color-accent);text-decoration:none;font-weight:600;' %></div>
+        <% else %>
+          Aún no sumaste personas a ninguna obra. Entrá a un proyecto y usá la pestaña Equipo para agregar gente.
+        <% end %>
+      </div>
+    <% end %>
+  </div>
+<% end %>
+
+<% if @pagy.pages > 1 %>
+  <div style="display:flex;justify-content:space-between;align-items:center;padding:12px 20px;font-size:13px;">
+    <% if @pagy.prev %>
+      <%= link_to '‹ Anterior', constructors_people_path(q: @query.presence, page: @pagy.prev), style: 'color:var(--color-accent);text-decoration:none;font-weight:600;' %>
+    <% else %><span></span><% end %>
+    <span style="font-family:var(--font-mono);font-size:11px;color:var(--color-ink-4);"><%= @pagy.page %> / <%= @pagy.pages %></span>
+    <% if @pagy.next %>
+      <%= link_to 'Siguiente ›', constructors_people_path(q: @query.presence, page: @pagy.next), style: 'color:var(--color-accent);text-decoration:none;font-weight:600;' %>
+    <% else %><span></span><% end %>
+  </div>
+<% end %>
+
+<div style="height: 24px;"></div>

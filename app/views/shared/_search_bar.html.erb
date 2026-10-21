@@ -1,0 +1,4 @@
+<%= form_with url: products_path, method: :get, data: { controller: 'search', turbo_frame: 'products' }, class: "mb-4 flex flex-col sm:flex-row" do |form| %>
+  <%= form.text_field :query, value: params[:query], placeholder: "Buscar productos", class: "mb-2 flex-grow rounded border px-3 py-2 sm:mb-0 sm:mr-2 border-gray-300 focus:border-indigo-500 focus:ring-indigo-500", data: { action: 'input->search#search' } %>
+  <%= render Ui::ButtonComponent.new(label: "Buscar", type: :submit) %>
+<% end %>

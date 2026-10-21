@@ -1,0 +1,89 @@
+<% decorated_project = @project.decorated? ? @project : @project.decorate %>
+<%# Análisis con IA: la creación de análisis nuevos está en pausa (ver
+    blueprints/ai_analyses_controller#create, que sigue intacto para cuando
+    se retome). Esta pantalla queda para consultar el historial existente;
+    "Nuevo análisis" se saca a propósito para que la pausa aplique también
+    entrando por URL directa, no sólo ocultando el botón que llevaba acá. %>
+<% can_run_ai = policy(@project).manage_content? %>
+<%= render 'constructors/projects/section_tabs', project: @project, current: :blueprints %>
+
+<%# Header strip %>
+<div style="padding:14px 20px;border-bottom:1px solid var(--color-line);display:flex;align-items:flex-end;gap:16px;">
+  <div style="flex:1;">
+    <div style="font-size:11px;font-family:var(--font-mono);color:var(--color-ink-3);text-transform:uppercase;letter-spacing:0.8px;"><%= decorated_project.code %> · Planos</div>
+    <h2 style="margin:3px 0 0;font-size:18px;font-weight:600;letter-spacing:-0.3px;">Análisis IA — <%= @blueprint.name.presence || "Plano ##{@blueprint.id}" %></h2>
+    <div style="font-size:12px;color:var(--color-ink-3);margin-top:2px;">
+      <%= @analyses.size %> análisis realizados
+      · <%= link_to '← Volver al plano', constructors_project_blueprints_path(@project, selected: @blueprint.id), style: 'color:var(--color-accent);text-decoration:none;font-size:12px;' %>
+    </div>
+  </div>
+</div>
+
+<%# Historial — filas full bleed separadas por 1px %>
+<% if @analyses.any? %>
+  <div>
+    <% @analyses.each do |analysis| %>
+      <%
+        pill_tone = case analysis.status
+        when 'completed' then :ok
+        when 'processing', 'queued' then :info
+        when 'failed' then :bad
+        else :muted
+        end
+        pill_label = case analysis.status
+        when 'completed' then 'Completado'
+        when 'processing' then 'Procesando...'
+        when 'queued' then 'En cola'
+        when 'failed' then 'Fallido'
+        else analysis.status
+        end
+      %>
+      <div style="padding:14px 20px;border-bottom:1px solid var(--color-line);display:flex;align-items:flex-start;gap:16px;">
+        <div style="flex:1;min-width:0;">
+          <div style="display:flex;align-items:center;gap:10px;flex-wrap:wrap;">
+            <%= render Qb::PillComponent.new(pill_label, tone: pill_tone) %>
+            <% if analysis.applied? %>
+              <%= render Qb::PillComponent.new('✓ Aplicado', tone: :accent) %>
+            <% end %>
+            <span style="font-size:11px;font-family:var(--font-mono);color:var(--color-ink-3);">
+              hace <%= time_ago_in_words(analysis.created_at) %>
+            </span>
+          </div>
+
+          <% if analysis.completed? %>
+            <p style="margin:6px 0 0;font-size:13px;color:var(--color-ink);">Análisis completado exitosamente</p>
+          <% elsif analysis.failed? %>
+            <p style="margin:6px 0 0;font-size:13px;color:var(--color-bad);"><%= analysis.error_message&.truncate(150) || "Error desconocido" %></p>
+          <% elsif analysis.processing? %>
+            <p style="margin:6px 0 0;font-size:13px;color:var(--color-info);">Analizando plano con IA...</p>
+          <% else %>
+            <p style="margin:6px 0 0;font-size:13px;color:var(--color-ink-2);">En espera de procesamiento</p>
+          <% end %>
+        </div>
+
+        <div style="display:flex;align-items:center;gap:8px;flex-shrink:0;">
+          <% if analysis.completed? %>
+            <%= render Qb::BtnComponent.new('Ver resultados', variant: :secondary, size: :sm,
+                                            href: constructors_project_blueprint_ai_analysis_path(@project.id, @blueprint.id, analysis.id)) %>
+          <% elsif analysis.processing? || analysis.status == 'queued' %>
+            <%= render Qb::BtnComponent.new('Ver estado', variant: :secondary, size: :sm,
+                                            href: constructors_project_blueprint_ai_analysis_path(@project.id, @blueprint.id, analysis.id)) %>
+          <% end %>
+
+          <% if can_run_ai %>
+            <%= render Qb::BtnComponent.new(variant: :danger, size: :sm, icon: :trash,
+                                            href: constructors_project_blueprint_ai_analysis_path(@project.id, @blueprint.id, analysis.id),
+                                            aria_label: 'Eliminar análisis',
+                                            data: { turbo_method: :delete, turbo_confirm: "¿Eliminar este análisis?" }) %>
+          <% end %>
+        </div>
+      </div>
+    <% end %>
+  </div>
+<% else %>
+  <div style="padding:60px;margin:16px;text-align:center;color:var(--color-ink-4);font-size:13px;border:1px dashed var(--color-line);border-radius:10px;">
+    <%= render Qb::IconComponent.new(name: :blueprint, size: 32, style: 'margin-bottom:8px;opacity:0.5;') %>
+    <div>No hay análisis todavía.</div>
+    <div style="font-size:11px;color:var(--color-ink-4);margin-top:6px;">El análisis con IA está pausado por el momento.</div>
+  </div>
+<% end %>

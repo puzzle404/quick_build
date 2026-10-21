@@ -1,0 +1,51 @@
+/* Quick Build · Mobile design tokens. Same Qb system as web (oklch). */
+:root {
+  --color-bg:          oklch(98.5% 0.004 90);
+  --color-bg-raised:   oklch(99.5% 0.003 90);
+  --color-bg-sunken:   oklch(96.5% 0.005 85);
+  --color-ink:         oklch(18% 0.012 270);
+  --color-ink-2:       oklch(35% 0.012 270);
+  --color-ink-3:       oklch(55% 0.010 270);
+  --color-ink-4:       oklch(72% 0.008 270);
+  --color-line:        oklch(91% 0.005 270);
+  --color-line-2:      oklch(86% 0.006 270);
+  --color-accent:      oklch(55% 0.22 255);
+  --color-accent-ink:  oklch(99% 0.003 255);
+  --color-accent-soft: oklch(94% 0.04 255);
+  --color-ok:          oklch(58% 0.14 155);
+  --color-warn:        oklch(72% 0.16 75);
+  --color-bad:         oklch(55% 0.18 25);
+  --color-info:        oklch(60% 0.13 220);
+  --font-ui: 'Geist', -apple-system, system-ui, sans-serif;
+  --font-mono: 'Geist Mono', ui-monospace, monospace;
+  --radius: 12px;
+  --radius-sm: 8px;
+  --radius-pill: 9999px;
+}
+[data-theme="night"] {
+  --color-bg:          oklch(18% 0.015 250);
+  --color-bg-raised:   oklch(22% 0.015 250);
+  --color-bg-sunken:   oklch(15% 0.015 250);
+  --color-ink:         oklch(96% 0.005 250);
+  --color-ink-2:       oklch(80% 0.010 250);
+  --color-ink-3:       oklch(62% 0.010 250);
+  --color-ink-4:       oklch(45% 0.010 250);
+  --color-line:        oklch(28% 0.015 250);
+  --color-line-2:      oklch(34% 0.018 250);
+  --color-accent:      oklch(78% 0.17 75);
+  --color-accent-ink:  oklch(18% 0.05 75);
+}
+/* Mobile screen surface (inside iOS frame, below status bar / above home indicator) */
+.m-screen {
+  background: var(--color-bg);
+  color: var(--color-ink);
+  font-family: var(--font-ui);
+  font-size: 15px;
+  height: 100%; display: flex; flex-direction: column;
+  -webkit-font-smoothing: antialiased;
+  position: relative;
+}
+.m-screen .mono { font-family: var(--font-mono); }
+.m-screen .tnum { font-variant-numeric: tabular-nums; }
+.m-screen *  { box-sizing: border-box; }
+.m-screen button { font-family: inherit; cursor: pointer; }

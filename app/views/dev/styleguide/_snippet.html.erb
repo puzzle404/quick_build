@@ -1,0 +1,22 @@
+<%# Bloque de código copiable del styleguide.
+
+    Se usa como layout de partial (render layout: 'dev/styleguide/snippet' do ... end)
+    y el contenido del bloque va escapado a mano con entidades HTML
+    (&amp;lt; en vez de menor-que), porque si se escriben los tags ERB tal cual
+    el motor los ejecuta en lugar de mostrarlos.
+
+    La indentación común se recorta acá, así el snippet se puede escribir
+    alineado con el resto de la vista sin que el <pre> lo muestre corrido. %>
+<%
+  src    = yield.to_s
+  body   = src.sub(/\A[\r\n]+/, "").rstrip
+  widths = body.lines.reject { |l| l.strip.empty? }.map { |l| l[/\A[ \t]*/].length }
+  indent = widths.min.to_i
+  code   = body.lines.map { |l| l.sub(/\A[ \t]{0,#{indent}}/, "") }.join
+%>
+<div style="position:relative;margin-top:10px;">
+  <button type="button"
+          onclick="var b=this,p=b.nextElementSibling;try{navigator.clipboard.writeText(p.innerText);b.textContent='Copiado'}catch(e){var r=document.createRange();r.selectNodeContents(p);var s=getSelection();s.removeAllRanges();s.addRange(r);b.textContent='Copialo con Ctrl+C'}setTimeout(function(){b.textContent='Copiar'},1400)"
+          style="position:absolute;top:8px;right:8px;height:22px;padding:0 8px;font-family:var(--font-mono);font-size:10px;letter-spacing:0.4px;color:var(--color-ink-3);background:var(--color-bg-raised);border:1px solid var(--color-line-2);border-radius:4px;cursor:pointer;">Copiar</button>
+  <pre style="margin:0;padding:12px 14px;overflow-x:auto;background:var(--color-bg-sunken);border:1px solid var(--color-line);border-radius:6px;"><code style="font-family:var(--font-mono);font-size:11.5px;line-height:1.6;color:var(--color-ink-2);white-space:pre;"><%= code.html_safe %></code></pre>
+</div>

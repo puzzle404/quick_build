@@ -1,0 +1,15 @@
+<%# Presupuesto de la obra: moneda (ARS/USD) + monto. En USD se compara contra
+    lo gastado al dólar oficial del día (Project#budget_ars_cents).
+    Locals: f (form builder). %>
+<div class="qb-field" data-controller="qb--currency-symbol">
+  <%= f.label :budget_pesos, "Presupuesto estimado", class: "qb-label" %>
+  <div style="display:grid;grid-template-columns:96px 1fr;gap:8px;">
+    <%= f.select :budget_currency, Project::BUDGET_CURRENCIES.map { |c| [ c, c ] }, {},
+          class: "qb-select", "aria-label": "Moneda del presupuesto",
+          data: { "qb--currency-symbol-target": "select", action: "qb--currency-symbol#sync" } %>
+    <%= render Qb::MoneyFieldComponent.new(form: f, method: :budget_pesos, placeholder: "1.500.000",
+          currency: qb_currency_symbol(f.object.budget_currency),
+          value: qb_money_input_value(f.object.budget_cents)) %>
+  </div>
+  <span style="font-size:10.5px;color:var(--color-ink-4);">En dólares se compara contra los gastos al dólar oficial del día.</span>
+</div>

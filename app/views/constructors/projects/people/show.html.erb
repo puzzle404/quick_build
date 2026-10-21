@@ -1,0 +1,150 @@
+<%# Ficha de persona por obra — shell QB OS: section_tabs + header strip + KPIs + secciones full-bleed.
+    Los cálculos de asistencia viven en ProfileMetricsComponent (antes eran 2 queries inline en el ERB). %>
+<%= render 'constructors/projects/section_tabs', project: @project, current: :team %>
+
+<%
+  active = @person.status.to_s == 'active'
+  # @recent_attendances viene ordenado desc, así que la marca de hoy sería la primera.
+  present_today = @recent_attendances.any? { |a| a.occurred_at.to_date == Date.current }
+  edit_href = edit_constructors_project_person_path(@project, @person)
+%>
+
+<%# Header strip %>
+<div style="padding:14px 20px;border-bottom:1px solid var(--color-line);display:flex;align-items:flex-end;gap:16px;">
+  <div style="flex:1;display:flex;align-items:center;gap:12px;min-width:0;">
+    <%= render Qb::AvatarComponent.new(name: @person.full_name, size: 36) %>
+    <div style="min-width:0;">
+      <div style="font-size:11px;font-family:var(--font-mono);color:var(--color-ink-3);text-transform:uppercase;letter-spacing:0.8px;"><%= @project.decorate.code %> · Equipo</div>
+      <h2 style="margin:3px 0 0;font-size:18px;font-weight:600;letter-spacing:-0.3px;"><%= @person.full_name %></h2>
+      <div style="display:flex;align-items:center;gap:8px;margin-top:4px;flex-wrap:wrap;font-size:12px;color:var(--color-ink-3);">
+        <%= render Qb::PillComponent.new(active ? 'Activa' : 'Licencia', tone: active ? :ok : :muted, compact: true) %>
+        <span><%= @person.role_title.presence || 'Sin rol especificado' %></span>
+        <% if @person.phone.present? %>
+          <%= link_to @person.phone, "tel:#{@person.phone}", class: 'qb-mono',
+                style: 'color:var(--color-accent);text-decoration:none;font-size:11px;' %>
+        <% end %>
+        <%= link_to '← Volver al equipo', constructors_project_people_path(@project),
+              style: 'color:var(--color-accent);text-decoration:none;font-size:12px;' %>
+      </div>
+    </div>
+  </div>
+  <div style="display:flex;gap:8px;align-items:center;">
+    <%# Guard de doble marca: la ficha permitía dar presente dos veces el mismo día.
+        Marcar asistencia es editor de obra en adelante (PersonAttendancePolicy). %>
+    <% can_mark_attendance = policy(PersonAttendance.new(project_person: @person)).create? %>
+    <% if present_today %>
+      <%= render Qb::PillComponent.new('Presente hoy', tone: :ok, compact: true) %>
+    <% elsif active && can_mark_attendance %>
+      <%= render Qb::BtnComponent.new('Dar presente', variant: :primary, size: :sm, icon: :check,
+            href: constructors_project_person_attendances_path(@project, @person),
+            data: { turbo_method: :post },
+            title: 'Registrar presente de hoy') %>
+    <% end %>
+    <%# Ficha global: consolida las asignaciones de esta persona en todas las obras. %>
+    <%= render Qb::BtnComponent.new('Ficha global', variant: :ghost, size: :sm, icon: :people,
+          href: constructors_person_path(@person)) %>
+    <% if policy(@person).update? %>
+      <%= render Qb::BtnComponent.new('Editar', variant: :secondary, size: :sm, href: edit_href,
+            data: { turbo_frame: 'drawer', action: 'click->qb--drawer#open' }) %>
+    <% end %>
+    <% if policy(@person).destroy? %>
+      <%= render Qb::BtnComponent.new('Eliminar', variant: :danger, size: :sm,
+            href: constructors_project_person_path(@project, @person),
+            data: { turbo_method: :delete, turbo_confirm: '¿Seguro que querés eliminar esta persona?' }) %>
+    <% end %>
+  </div>
+</div>
+
+<%# KPI strip — sólo métricas con dato real detrás. %>
+<%= render Constructors::Projects::People::ProfileMetricsComponent.new(person: @person, project: @project) %>
+
+<%# Contenido: Datos + Notas (izquierda) · Asistencia + Otras obras (derecha) %>
+<div style="display:grid;grid-template-columns:2fr 3fr;">
+  <div style="border-right:1px solid var(--color-line);">
+    <%= render Qb::SectionHeadComponent.new(title: 'Datos') do |c| %>
+      <% if policy(@person).update? %>
+        <% c.with_right do %>
+          <%= render Qb::BtnComponent.new('Editar', variant: :ghost, size: :xs, icon: :edit, href: edit_href,
+                data: { turbo_frame: 'drawer', action: 'click->qb--drawer#open' }) %>
+        <% end %>
+      <% end %>
+    <% end %>
+
+    <%# Los campos vacíos ofrecen el link para cargarlos en vez de mostrar cuatro guiones:
+        documento está cargado en el 12% de los registros y la tarifa en 0%. %>
+    <%= render Qb::DataGridComponent.new(items: [
+          { label: 'Documento', value: @person.document_id.presence, empty_href: edit_href, empty_label: 'Cargar documento' },
+          { label: 'Teléfono', value: @person.phone.presence, mono: true, empty_href: edit_href, empty_label: 'Cargar teléfono' },
+          { label: 'Rol / oficio', value: @person.role_title.presence, empty_href: edit_href, empty_label: 'Cargar rol' },
+          { label: 'Tarifa', value: @person.hourly_rate_cents.present? ? "#{qb_fmt_cents(@person.hourly_rate_cents)} /h" : nil,
+            mono: true, empty_href: edit_href, empty_label: 'Cargar tarifa' }
+        ]) %>
+
+    <%= render Qb::SectionHeadComponent.new(title: 'Notas') do |c| %>
+      <% if policy(@person).update? %>
+        <% c.with_right do %>
+          <%= render Qb::BtnComponent.new(@person.notes.present? ? 'Editar nota' : 'Agregar nota',
+                variant: :ghost, size: :xs, href: edit_href) %>
+        <% end %>
+      <% end %>
+    <% end %>
+    <div style="padding:14px 16px;font-size:13px;color:var(--color-ink-2);line-height:1.5;white-space:pre-line;">
+      <% if @person.notes.present? %>
+        <%= @person.notes %>
+      <% else %>
+        <span style="color:var(--color-ink-4);">Sin notas. Sirven para dejar asentado turnos, ART o acuerdos particulares.</span>
+      <% end %>
+    </div>
+  </div>
+
+  <div>
+    <%= render Qb::SectionHeadComponent.new(
+          title: 'Asistencia',
+          subtitle: @recent_attendances.any? ? "últimas #{@recent_attendances.size} marcas" : 'sin marcas registradas'
+        ) %>
+    <%# La acción «Dar presente» vive sólo en el header strip: duplicarla acá
+        daba dos botones con la misma etiqueta en la misma pantalla. %>
+
+    <% if @recent_attendances.any? %>
+      <%# La columna Ubicación salió: no hay un solo registro con coordenadas
+          (la captura de geo todavía no existe). Queda Día, que sí se deriva.
+          Horas es editable fila por fila (AttendanceRowComponent): dar
+          presente sigue siendo un click, la jornada se completa después. %>
+      <table class="qb-table">
+        <thead>
+          <tr style="background:var(--color-bg-raised);">
+            <th>Fecha</th>
+            <th>Día</th>
+            <th style="text-align:right;">Horas</th>
+            <th style="text-align:right;">Origen</th>
+            <th style="width:32px;"></th>
+          </tr>
+        </thead>
+        <tbody>
+          <% @recent_attendances.each do |att| %>
+            <%= render Constructors::Projects::People::AttendanceRowComponent.new(attendance: att, project: @project) %>
+          <% end %>
+        </tbody>
+        <tfoot>
+          <%= render Constructors::Projects::People::AttendanceTotalsComponent.new(
+                attendances: @recent_attendances, person: @person, project: @project) %>
+        </tfoot>
+      </table>
+      <% if can_mark_attendance %>
+        <div style="padding:8px 16px 14px;font-size:11px;color:var(--color-ink-4);">
+          Escribí las horas de cada jornada y guardá con el botón de la fila. Se aceptan medias horas (7,5).
+        </div>
+      <% end %>
+    <% else %>
+      <div style="padding:40px 20px;margin:16px;text-align:center;color:var(--color-ink-4);font-size:13px;border:1px dashed var(--color-line);border-radius:var(--radius);">
+        <div>Sin asistencias registradas.</div>
+        <% if can_mark_attendance %>
+          <div style="font-size:11px;color:var(--color-ink-4);margin-top:6px;">Marcá el primer presente con el botón «Dar presente».</div>
+        <% end %>
+      </div>
+    <% end %>
+
+    <%# Se renderiza sólo si la persona está en más de una obra. %>
+    <%= render Constructors::Projects::People::OtherProjectsComponent.new(person: @person, project: @project) %>
+  </div>
+</div>

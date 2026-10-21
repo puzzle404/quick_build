@@ -1,0 +1,22 @@
+<div style="max-height:260px;overflow:auto;">
+  <% if entries.empty? %>
+    <div style="padding:24px 16px;text-align:center;color:var(--color-ink-3);font-size:12px;">Sin actividad reciente.</div>
+  <% else %>
+    <% entries.each do |a| %>
+      <div style="display:flex;align-items:flex-start;gap:10px;padding:8px 16px;border-bottom:1px solid var(--color-line);">
+        <div style="flex-shrink:0;margin-top:3px;color:var(--color-ink-4);">
+          <%= render Qb::IconComponent.new(name: icon_for(a), size: 12) %>
+        </div>
+        <div style="flex:1;min-width:0;font-size:12px;color:var(--color-ink-2);">
+          <span style="color:var(--color-ink);font-weight:500;"><%= a[:title] || a[:label] || 'Actividad' %></span>
+          <% if a[:description].present? %>
+            <div style="color:var(--color-ink-3);margin-top:1px;"><%= a[:description] %></div>
+          <% end %>
+          <div style="font-size:11px;color:var(--color-ink-4);margin-top:1px;">
+            <%= relative_time(a) %>
+          </div>
+        </div>
+      </div>
+    <% end %>
+  <% end %>
+</div>

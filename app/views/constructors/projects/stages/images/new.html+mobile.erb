@@ -1,0 +1,27 @@
+<% content_for :title, "Agregar imágenes · #{@stage.name}" %>
+<% back = constructors_project_stage_path(@project, @stage) %>
+
+<%= render Qb::Mobile::NavBarComponent.new(title: "Imágenes", back: true, back_href: back) %>
+
+<div style="padding: 4px 20px 12px;">
+  <h1 style="margin: 0; font-size: 22px; font-weight: 700; letter-spacing: -0.4px;">Agregar imágenes</h1>
+  <p style="margin: 4px 0 0; font-size: 13.5px; color: var(--color-ink-3); line-height: 1.4;">
+    Documentá el avance de la etapa <%= @stage.name %> con fotos.
+  </p>
+</div>
+
+<%= form_with scope: :image, url: constructors_project_stage_images_path(@project, @stage), local: true, html: { multipart: true, style: "padding: 0 16px;" } do |f| %>
+  <%= render Qb::Mobile::FormGroupComponent.new(title: "Fotos", footnote: "Formatos recomendados: JPG o PNG (hasta 25 MB cada imagen).") do %>
+    <div class="m-frow">
+      <label class="m-frow-label">Seleccionar imágenes</label>
+      <%= f.file_field :files, multiple: true, accept: "image/*", class: "m-frow-input" %>
+    </div>
+  <% end %>
+
+  <div style="display:flex;gap:10px;padding-bottom:24px;">
+    <%= link_to "Cancelar", back,
+          class: "m-btn m-btn--secondary m-btn--md",
+          style: "flex:1;text-decoration:none;" %>
+    <%= f.submit "Subir imágenes", class: "m-btn m-btn--md", style: "flex:1.4;" %>
+  </div>
+<% end %>

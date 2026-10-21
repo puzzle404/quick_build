@@ -1,0 +1,205 @@
+<% unless file_attached? %>
+  <%# Sin archivo adjunto no hay nada que dibujar: no montamos el controller
+      (url_for de un attachment vacío revienta) pero sí el panel lateral. %>
+  <div style="display:grid;grid-template-columns:minmax(0,1fr) 288px;<%= VIEWPORT_HEIGHT %>">
+    <div style="display:flex;flex-direction:column;align-items:center;justify-content:center;gap:8px;background:var(--color-bg-sunken);color:var(--color-ink-4);font-size:13px;text-align:center;padding:24px;">
+      <%= render Qb::IconComponent.new(name: :image, size: 28, style: 'opacity:0.5;') %>
+      <div>Este plano no tiene archivo adjunto.</div>
+      <div style="font-size:11px;">Subilo de nuevo para poder medir sobre él.</div>
+    </div>
+    <div style="border-left:1px solid var(--color-line);background:var(--color-bg-raised);overflow-y:auto;">
+      <%= aside %>
+    </div>
+  </div>
+<% else %>
+  <div style="background:var(--color-bg-raised);"
+       data-controller="blueprint-viewer"
+       data-blueprint-viewer-image-url-value="<%= image_url %>"
+       data-blueprint-viewer-blueprint-id-value="<%= blueprint.id %>"
+       data-blueprint-viewer-project-id-value="<%= project.id %>"
+       data-blueprint-viewer-scale-ratio-value="<%= scale_ratio_value %>"
+       data-blueprint-viewer-measurements-value="<%= measurement_groups.to_json %>"
+       data-blueprint-viewer-construction-items-value="<%= construction_items.to_json %>">
+
+    <%# ── Toolbar ──────────────────────────────────────────────────────── %>
+    <div style="border-bottom:1px solid var(--color-line);background:var(--color-bg-sunken);padding:7px 12px;display:flex;align-items:center;gap:10px;flex-wrap:wrap;">
+      <div style="display:flex;align-items:center;gap:4px;flex-wrap:wrap;flex:1;min-width:0;" data-blueprint-viewer-target="toolbar">
+        <button type="button" data-action="click->blueprint-viewer#zoomIn" style="<%= TOOL_BTN %>" title="Acercar">
+          <%= render Qb::IconComponent.new(name: :search, size: 13) %>+
+        </button>
+        <button type="button" data-action="click->blueprint-viewer#zoomOut" style="<%= TOOL_BTN %>" title="Alejar">
+          <%= render Qb::IconComponent.new(name: :search, size: 13) %>−
+        </button>
+        <button type="button" data-action="click->blueprint-viewer#resetView" style="<%= TOOL_BTN %>" title="Resetear vista">
+          <%= render Qb::IconComponent.new(name: :target, size: 13) %>
+        </button>
+
+        <%# Zoom y reset son lectura. Escala y mediciones se PERSISTEN
+            (update_scale / update_measurements, editor de obra en adelante),
+            así que un lector no ve esas herramientas. %>
+        <% if can_measure? %>
+        <div style="<%= DIVIDER %>"></div>
+
+        <button type="button"
+                data-action="click->blueprint-viewer#toggleScaleTool"
+                data-blueprint-viewer-target="scaleButton"
+                class="bp-tool"
+                style="<%= TOOL_BTN %>"
+                title="Definir escala dibujando sobre el plano">
+          <%= render Qb::IconComponent.new(name: :edit, size: 13) %>
+          <span data-blueprint-viewer-target="scaleButtonText">Dibujar</span>
+        </button>
+        <button type="button"
+                data-action="click->blueprint-viewer#toggleManualScaleInput"
+                style="<%= TOOL_BTN %>"
+                title="Ingresar la escala a mano">
+          Manual
+        </button>
+
+        <div style="<%= DIVIDER %>"></div>
+
+        <button type="button"
+                data-action="click->blueprint-viewer#setTool"
+                data-tool="line"
+                data-blueprint-viewer-target="toolButton"
+                class="bp-tool"
+                style="<%= TOOL_BTN %>"
+                title="Medir línea">
+          <%= render Qb::IconComponent.new(name: :edit, size: 13) %>
+        </button>
+        <button type="button"
+                data-action="click->blueprint-viewer#setTool"
+                data-tool="polygon"
+                data-blueprint-viewer-target="toolButton"
+                class="bp-tool"
+                style="<%= TOOL_BTN %>"
+                title="Medir área">
+          <%= render Qb::IconComponent.new(name: :layers, size: 13) %>
+        </button>
+        <button type="button"
+                data-action="click->blueprint-viewer#setTool"
+                data-tool="marker"
+                data-blueprint-viewer-target="toolButton"
+                class="bp-tool"
+                style="<%= TOOL_BTN %>"
+                title="Marcador / conteo">
+          <%= render Qb::IconComponent.new(name: :pin, size: 13) %>
+        </button>
+        <% end %>
+      </div>
+
+      <div style="display:flex;align-items:center;gap:12px;font-size:11px;font-family:var(--font-mono);color:var(--color-ink-2);white-space:nowrap;">
+        <span data-blueprint-viewer-target="scaleIndicator"><%= scale_label %></span>
+        <span data-blueprint-viewer-target="zoomLevel">100%</span>
+      </div>
+    </div>
+
+    <%# ── Canvas + panel de mediciones ─────────────────────────────────── %>
+    <div style="display:grid;grid-template-columns:minmax(0,1fr) 288px;<%= VIEWPORT_HEIGHT %>">
+      <div style="position:relative;overflow:hidden;background:var(--color-bg-sunken);">
+        <div class="h-full w-full overflow-hidden cursor-grab active:cursor-grabbing"
+             data-blueprint-viewer-target="container">
+          <canvas data-blueprint-viewer-target="canvas" class="block" style="image-rendering:crisp-edges;"></canvas>
+        </div>
+      </div>
+
+      <div style="border-left:1px solid var(--color-line);background:var(--color-bg-raised);display:flex;flex-direction:column;min-height:0;">
+        <div style="padding:10px 12px;border-bottom:1px solid var(--color-line);background:var(--color-bg-sunken);">
+          <div style="font-size:10px;font-family:var(--font-mono);text-transform:uppercase;letter-spacing:0.6px;color:var(--color-ink-3);margin-bottom:4px;">Mediciones</div>
+          <div data-blueprint-viewer-target="saveStatus" style="font-size:11px;color:var(--color-ink-3);display:flex;align-items:center;gap:4px;">
+            <%= render Qb::IconComponent.new(name: :check, size: 12) %>
+            <span>Guardado automático</span>
+          </div>
+        </div>
+
+        <div style="flex:1;min-height:0;overflow-y:auto;padding:12px;display:flex;flex-direction:column;gap:8px;"
+             data-blueprint-viewer-target="measurementsList">
+          <div style="text-align:center;font-size:12px;color:var(--color-ink-4);padding:28px 0;">
+            Todavía no hay mediciones. Elegí una herramienta y dibujá sobre el plano.
+          </div>
+        </div>
+
+        <% if aside? %>
+          <div style="border-top:1px solid var(--color-line);max-height:52%;overflow-y:auto;flex-shrink:0;">
+            <%= aside %>
+          </div>
+        <% end %>
+      </div>
+    </div>
+
+    <%# ── Meta del archivo ─────────────────────────────────────────────── %>
+    <div style="border-top:1px solid var(--color-line);background:var(--color-bg-sunken);padding:8px 12px;display:flex;align-items:center;gap:16px;flex-wrap:wrap;font-size:11px;color:var(--color-ink-3);">
+      <span><span style="color:var(--color-ink-4);">Archivo</span> <span class="qb-mono" style="color:var(--color-ink-2);"><%= blueprint.file_name %></span></span>
+      <% if file_size %>
+        <span><span style="color:var(--color-ink-4);">Tamaño</span> <span class="qb-mono qb-tnum" style="color:var(--color-ink-2);"><%= file_size %></span></span>
+      <% end %>
+      <span><span style="color:var(--color-ink-4);">Subido</span> <span class="qb-mono" style="color:var(--color-ink-2);"><%= helpers.qb_fmt_date_short(blueprint.uploaded_at) %></span></span>
+      <div style="flex:1;"></div>
+      <%= link_to 'Descargar', rails_blob_path(blueprint.file, disposition: 'attachment'),
+                  style: 'color:var(--color-accent);text-decoration:none;' %>
+    </div>
+
+    <%# ── Modal: ¿qué vas a medir? ─────────────────────────────────────── %>
+    <div data-blueprint-viewer-target="materialModal" class="hidden" style="<%= MODAL_BACKDROP %>">
+      <div style="<%= MODAL_PANEL %>">
+        <h3 style="margin:0 0 14px;font-size:15px;font-weight:600;color:var(--color-ink);">¿Qué vas a medir?</h3>
+
+        <div style="max-height:240px;overflow-y:auto;border:1px solid var(--color-line);border-radius:var(--radius);">
+          <div data-blueprint-viewer-target="materialList"></div>
+        </div>
+
+        <div style="display:flex;flex-direction:column;gap:8px;margin-top:14px;">
+          <button type="button"
+                  data-action="click->blueprint-viewer#selectNoMaterial"
+                  style="width:100%;padding:8px 16px;border-radius:var(--radius);border:1px solid var(--color-line-2);background:var(--color-bg-raised);color:var(--color-ink);font-size:13px;cursor:pointer;">
+            Solo medir (sin material)
+          </button>
+          <button type="button"
+                  data-action="click->blueprint-viewer#closeMaterialModal"
+                  style="width:100%;padding:8px 16px;border-radius:var(--radius);border:none;background:transparent;color:var(--color-ink-3);font-size:13px;cursor:pointer;">
+            Cancelar
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <%# ── Modal: escala manual ─────────────────────────────────────────── %>
+    <div data-blueprint-viewer-target="manualScaleModal" class="hidden" style="<%= MODAL_BACKDROP %>">
+      <div style="<%= MODAL_PANEL %>">
+        <h3 style="margin:0 0 14px;font-size:15px;font-weight:600;color:var(--color-ink);">Definir escala manualmente</h3>
+
+        <div class="qb-field">
+          <label class="qb-label">Opción 1 · Píxeles por metro</label>
+          <div style="display:flex;gap:8px;align-items:center;">
+            <input type="number" data-blueprint-viewer-target="manualScalePixels" class="qb-input" placeholder="ej: 55.89" step="0.01" style="flex:1;">
+            <span style="font-size:12px;color:var(--color-ink-3);font-family:var(--font-mono);">px/m</span>
+          </div>
+        </div>
+
+        <div style="text-align:center;font-size:11px;color:var(--color-ink-4);margin:6px 0 10px;">o</div>
+
+        <div class="qb-field">
+          <label class="qb-label">Opción 2 · Escala del plano</label>
+          <div style="display:flex;gap:8px;align-items:center;">
+            <span style="font-size:13px;color:var(--color-ink);font-family:var(--font-mono);">1:</span>
+            <input type="number" data-blueprint-viewer-target="manualScaleRatio" class="qb-input" placeholder="ej: 100" step="1" style="flex:1;">
+          </div>
+          <p style="margin:4px 0 0;font-size:11px;color:var(--color-ink-4);">Si el plano dice "1:100", ingresá 100.</p>
+        </div>
+
+        <div style="display:flex;flex-direction:column;gap:8px;margin-top:14px;">
+          <button type="button"
+                  data-action="click->blueprint-viewer#applyManualScale"
+                  style="width:100%;padding:8px 16px;border-radius:var(--radius);border:1px solid var(--color-accent);background:var(--color-accent);color:var(--color-accent-ink);font-size:13px;font-weight:500;cursor:pointer;">
+            Aplicar escala
+          </button>
+          <button type="button"
+                  data-action="click->blueprint-viewer#closeManualScaleModal"
+                  style="width:100%;padding:8px 16px;border-radius:var(--radius);border:none;background:transparent;color:var(--color-ink-3);font-size:13px;cursor:pointer;">
+            Cancelar
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+<% end %>
