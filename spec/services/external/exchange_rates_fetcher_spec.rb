@@ -3,6 +3,8 @@
 require "rails_helper"
 
 RSpec.describe External::ExchangeRatesFetcher do
+  include ActiveSupport::Testing::TimeHelpers
+
   # Test env uses :null_store — swap in a real MemoryStore so caching tests work.
   let(:memory_cache) { ActiveSupport::Cache::MemoryStore.new }
 
@@ -54,17 +56,30 @@ RSpec.describe External::ExchangeRatesFetcher do
     expect(rates).to eq(stale: true, oficial: {}, blue: {})
   end
 
-  it "no cachea los fallos (reintenta en la siguiente llamada)" do
+  it "no cachea los fallos por una hora: reintenta pasada una pausa corta" do
     # primera llamada falla
     stub_request(:get, "https://dolarapi.com/v1/dolares").to_return(status: 500)
     expect(fetcher.call[:stale]).to eq(true)
 
-    # la API se recupera; la siguiente llamada DEBE reintentar y traer datos frescos
+    # la API se recupera; pasada la pausa la siguiente llamada reintenta y trae datos frescos
     stub_request(:get, "https://dolarapi.com/v1/dolares").to_return(
       status: 200,
       body: [ { "casa" => "oficial", "compra" => 1, "venta" => 2 } ].to_json,
       headers: { "Content-Type" => "application/json" }
     )
-    expect(fetcher.call[:stale]).to eq(false)
+    travel(described_class::RETRY_AFTER + 1.second) do
+      expect(fetcher.call[:stale]).to eq(false)
+    end
+  end
+
+  # La cotización ahora se pide en cada página del constructor (KPIs del
+  # topbar) si hay obras en USD: con la API caída no puede reintentar en cada
+  # request, cada uno esperando el timeout.
+  it "tras un fallo no vuelve a pegarle a la API durante la pausa" do
+    failing = stub_request(:get, "https://dolarapi.com/v1/dolares").to_return(status: 500)
+
+    3.times { expect(fetcher.call[:stale]).to eq(true) }
+
+    expect(failing).to have_been_requested.once
   end
 end
