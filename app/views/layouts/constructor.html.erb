@@ -11,6 +11,10 @@
     <meta name="mobile-web-app-capable" content="yes">
     <%= csrf_meta_tags %>
     <%= csp_meta_tag %>
+    <%# Un refresh de la misma página (turbo_stream.refresh, o el que dispara
+        qb--drawer tras guardar) conserva el scroll: antes volvía arriba y se
+        perdía la tarjeta en la que se estaba trabajando. %>
+    <meta name="turbo-refresh-scroll" content="preserve">
 
     <%= yield :head %>
 
