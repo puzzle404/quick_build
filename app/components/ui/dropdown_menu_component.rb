@@ -2,7 +2,7 @@
 
 module Ui
   class DropdownMenuComponent < ViewComponent::Base
-    def initialize(aria_label: 'Abrir menú', anchor: 'bottom end', button_class: nil, menu_class: nil)
+    def initialize(aria_label: "Abrir menú", anchor: "bottom end", button_class: nil, menu_class: nil)
       @aria_label = aria_label
       @anchor = anchor
       @button_class = button_class
@@ -22,4 +22,3 @@ module Ui
     end
   end
 end
-

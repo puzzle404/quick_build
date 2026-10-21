@@ -1,75 +1,37 @@
-<%= form_with model: [:constructors, project] do |f| %>
-  <section class="qb-card" style="margin-bottom:16px;">
-    <h3 style="font-size:11px;font-family:var(--font-mono);text-transform:uppercase;letter-spacing:0.7px;color:var(--color-ink-2);margin-bottom:4px;">Información general</h3>
-    <p style="font-size:12px;color:var(--color-ink-3);margin-bottom:14px;">Estos datos aparecen en los tableros y reportes compartidos con tu equipo.</p>
-    <div style="display:grid;grid-template-columns:1fr;gap:12px;">
-      <div class="qb-field" style="margin-bottom:0;">
-        <%= f.label :name, "Nombre", class: "qb-label" %>
-        <%= f.text_field :name, class: "qb-input" %>
-      </div>
-      <div class="qb-field" style="margin-bottom:0;">
-        <%= f.label :description, "Descripción", class: "qb-label" %>
-        <%= f.text_area :description, rows: 3, class: "qb-input", style: "resize:vertical;" %>
-      </div>
+<%# Form de la obra, único para crear y editar, en el drawer y en página
+    completa: mismas secciones (_project_fields) y mismos botones que el resto
+    de los forms del drawer (feedback 21/10: la edición tenía otro diseño).
+    Locals: project, in_drawer (bool), map_height (px, opcional). %>
+<% for_create = project.new_record? %>
+<% in_drawer = local_assigns.fetch(:in_drawer, false) %>
+<%= form_with model: [:constructors, project], html: { multipart: true } do |f| %>
+  <% if project.errors.any? %>
+    <div class="qb-form-error" role="alert">
+      <p style="font-weight:600;margin:0 0 4px;">No pudimos guardar la obra:</p>
+      <ul style="margin:0;padding-left:16px;">
+        <% project.errors.full_messages.each do |message| %>
+          <li><%= message %></li>
+        <% end %>
+      </ul>
     </div>
-  </section>
+  <% end %>
 
-  <section class="qb-card" style="margin-bottom:16px;">
-    <h3 style="font-size:11px;font-family:var(--font-mono);text-transform:uppercase;letter-spacing:0.7px;color:var(--color-ink-2);margin-bottom:4px;">Ubicación de la obra</h3>
-    <p style="font-size:12px;color:var(--color-ink-3);margin-bottom:12px;">El domicilio es el que se comparte; el mapa marca dónde queda la obra.</p>
-    <%= render "constructors/projects/location_fields", f: f, map_height: 320 %>
-  </section>
+  <%= render "constructors/projects/project_fields", f: f, for_create: for_create,
+        map_height: local_assigns.fetch(:map_height, 220) %>
 
-  <section class="qb-card" style="margin-bottom:16px;">
-    <h3 style="font-size:11px;font-family:var(--font-mono);text-transform:uppercase;letter-spacing:0.7px;color:var(--color-ink-2);margin-bottom:4px;">Planificación temporal</h3>
-    <p style="font-size:12px;color:var(--color-ink-3);margin-bottom:14px;">Estos valores alimentan la curva S y el tablero de hitos.</p>
-    <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;">
-      <div class="qb-field" style="margin-bottom:0;">
-        <%= f.label :start_date, "Fecha de inicio", class: "qb-label" %>
-        <%= f.date_field :start_date, class: "qb-input" %>
-      </div>
-      <div class="qb-field" style="margin-bottom:0;">
-        <%= f.label :end_date, "Fecha de entrega", class: "qb-label" %>
-        <%= f.date_field :end_date, class: "qb-input" %>
-      </div>
-      <div class="qb-field" style="margin-bottom:0;grid-column:span 2;">
-        <%= f.label :status, "Estado", class: "qb-label" %>
-        <%= f.select :status,
-                     Project.status_options,
-                     {},
-                     class: "qb-select" %>
-      </div>
-    </div>
-  </section>
-
-  <section class="qb-card" style="margin-bottom:16px;border-style:dashed;">
-    <h3 style="font-size:11px;font-family:var(--font-mono);text-transform:uppercase;letter-spacing:0.7px;color:var(--color-ink-2);margin-bottom:4px;">Documentación de soporte</h3>
-    <p style="font-size:12px;color:var(--color-ink-3);margin-bottom:14px;">
-      Adjunta planos, fotos o reportes relevantes. Puedes seleccionar múltiples archivos a la vez.
+  <% if for_create %>
+    <p style="margin:0 0 14px;font-size:11px;color:var(--color-ink-4);line-height:1.5;">
+      Después de crear la obra podés aplicar una plantilla de etapas (la base o una tuya) desde el header del proyecto.
     </p>
+  <% end %>
 
-    <div class="qb-field">
-      <p class="qb-label">Imágenes del proyecto</p>
-      <p style="font-size:11px;color:var(--color-ink-4);">Formatos recomendados: JPG o PNG (máx. 25 MB c/u)</p>
-      <%= render Qb::FileFieldComponent.new(form: f, method: :images,
-                                            trigger_label: "Elegir imágenes",
-                                            multiple: true, accept: "image/*", direct_upload: true) %>
-    </div>
-
-    <div class="qb-field" style="margin-bottom:0;">
-      <p class="qb-label">Documentos (PDF)</p>
-      <p style="font-size:11px;color:var(--color-ink-4);">Adjunta planos, contratos o reportes en PDF (máx. 25 MB c/u)</p>
-      <%= render Qb::FileFieldComponent.new(form: f, method: :document_files,
-                                            trigger_label: "Elegir documentos",
-                                            multiple: true, accept: ".pdf,application/pdf", direct_upload: true) %>
-    </div>
-  </section>
-
-  <div class="qb-form-actions">
-    <%= render Qb::BtnComponent.new(
-          project.persisted? ? "Actualizar obra" : "Crear obra",
-          variant: :primary,
-          type: 'submit'
-        ) %>
+  <div style="display:flex;align-items:center;gap:8px;padding-top:14px;border-top:1px solid var(--color-line);">
+    <%= render Qb::BtnComponent.new(for_create ? 'Crear proyecto' : 'Actualizar obra', variant: :primary, icon: :check, type: 'submit') %>
+    <% if in_drawer %>
+      <%= render Qb::BtnComponent.new('Cancelar', variant: :secondary, data: { action: 'click->qb--drawer#back' }) %>
+    <% else %>
+      <%= render Qb::BtnComponent.new('Cancelar', variant: :secondary,
+            href: for_create ? constructors_projects_path : constructors_project_path(project)) %>
+    <% end %>
   </div>
 <% end %>

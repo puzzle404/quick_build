@@ -13,4 +13,3 @@ RSpec.describe Constructors::Projects::Stages::StageFormComponent, type: :compon
     expect(page).to have_button("Guardar etapa")
   end
 end
-

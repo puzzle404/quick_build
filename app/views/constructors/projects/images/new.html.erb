@@ -1,0 +1,7 @@
+<%# Subir fotos de la obra (drawer). Sin frame, el controller manda a la galería. %>
+<% content_for(:drawer) do %>
+  <%= render "constructors/projects/upload_drawer",
+        scope: :image, url: constructors_project_images_path(@project),
+        eyebrow: "Fotos", title: "Subir fotos", trigger_label: "Elegir fotos", accept: "image/*",
+        hint: "JPG, PNG o WEBP (hasta 25 MB cada una). Podés elegir varias.", error: @upload_error %>
+<% end %>

@@ -12,7 +12,7 @@ class CreateMaterialLists < ActiveRecord::Migration[7.1]
       t.timestamps
     end
 
-    add_index :material_lists, [:project_id, :status]
+    add_index :material_lists, [ :project_id, :status ]
 
     create_table :material_items do |t|
       t.references :material_list, null: false, foreign_key: true

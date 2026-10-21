@@ -46,6 +46,8 @@ export default class extends Controller {
     this.onBeforeStreamRender = this.onBeforeStreamRender.bind(this)
     this.onBeforeRender = this.onBeforeRender.bind(this)
     this.onSubmitEnd = this.onSubmitEnd.bind(this)
+    this.onOwnSubmitEnd = this.onOwnSubmitEnd.bind(this)
+    this.onFrameRender = this.onFrameRender.bind(this)
   }
 
   connect() {
@@ -57,6 +59,10 @@ export default class extends Controller {
     if (this.globalValue) {
       document.addEventListener("turbo:before-stream-render", this.onBeforeStreamRender)
       document.addEventListener("turbo:before-render", this.onBeforeRender)
+      // En document y no en el frame: los links turbo_method que apuntan al
+      // drawer ("Marcar completada") los arma Turbo como un form en el <body>.
+      document.addEventListener("turbo:submit-start", this.onSubmitStart)
+      document.addEventListener("turbo:submit-end", this.onOwnSubmitEnd)
       this._setOpen(this._frameHasContent(), { animate: false })
       // Diferido: si este render conserva el shell permanente, Turbo recién
       // mete el frame viejo (con contenido) después de conectar este
@@ -80,6 +86,8 @@ export default class extends Controller {
     clearTimeout(this.skeletonTimer)
     document.removeEventListener("turbo:before-stream-render", this.onBeforeStreamRender)
     document.removeEventListener("turbo:before-render", this.onBeforeRender)
+    document.removeEventListener("turbo:submit-start", this.onSubmitStart)
+    document.removeEventListener("turbo:submit-end", this.onOwnSubmitEnd)
     this.element.removeEventListener("turbo:submit-end", this.onSubmitEnd)
   }
 
@@ -105,7 +113,7 @@ export default class extends Controller {
     this.frameObserver.observe(frame, { childList: true })
     frame.addEventListener("turbo:before-fetch-request", this.onFrameFetch)
     frame.addEventListener("turbo:before-fetch-response", this.onFrameResponse)
-    frame.addEventListener("turbo:submit-start", this.onSubmitStart)
+    frame.addEventListener("turbo:frame-render", this.onFrameRender)
   }
 
   _detachFrame() {
@@ -115,7 +123,7 @@ export default class extends Controller {
     if (!frame) return
     frame.removeEventListener("turbo:before-fetch-request", this.onFrameFetch)
     frame.removeEventListener("turbo:before-fetch-response", this.onFrameResponse)
-    frame.removeEventListener("turbo:submit-start", this.onSubmitStart)
+    frame.removeEventListener("turbo:frame-render", this.onFrameRender)
     this.frameElement = null
   }
 
@@ -165,7 +173,49 @@ export default class extends Controller {
   }
 
   onSubmitStart(event) {
-    if (event.target.closest("turbo-frame") === this.frameElement) this._ownSubmitAt = Date.now()
+    if (this._submitsToDrawer(event)) this._ownSubmitAt = Date.now()
+  }
+
+  // ¿Este envío carga su respuesta en el drawer? Forms adentro del frame
+  // (salvo los que apuntan a otro lado, ej. _top: navegan la página) y forms
+  // de afuera que apuntan al frame (links turbo_method con turbo_frame).
+  _submitsToDrawer(event) {
+    const frame = this.frameElement
+    const form = event.target
+    if (!frame || !(form instanceof HTMLFormElement)) return false
+    const submitter = event.detail?.formSubmission?.submitter
+    const target = submitter?.getAttribute?.("data-turbo-frame") || form.getAttribute("data-turbo-frame")
+    if (target) return target === frame.id
+    return form.closest("turbo-frame") === frame
+  }
+
+  // Un guardado del drawer que lo deja abierto (crear una lista y caer en su
+  // detalle, agregar un ítem, un gasto de etapa, "Marcar completada"…) cambia
+  // datos que muestra la página de atrás, y antes había que cerrar y recargar
+  // para verlos (feedback 21/10). Cuando el frame termina de renderizar esa
+  // respuesta (turbo:frame-render), se refresca la página conservando el
+  // drawer: es un "refresh ajeno" (_keepUntil), y turbo-refresh-scroll=preserve
+  // en el layout mantiene el scroll. Sólo para respuestas que el frame sigue
+  // como redirect: una respuesta turbo_stream ya resolvió la página (refresh
+  // que cierra el drawer, o streams puntuales como la tarjeta de etapa).
+  onOwnSubmitEnd(event) {
+    if (!event.detail?.success || !this._submitsToDrawer(event)) return
+    if (String(event.detail.formSubmission?.method || "").toLowerCase() === "get") return
+    if (String(event.detail.fetchResponse?.contentType || "").includes("turbo-stream")) return
+
+    this._refreshPendingAt = Date.now()
+  }
+
+  onFrameRender() {
+    const pending = this._refreshPendingAt && Date.now() - this._refreshPendingAt < OWN_SUBMIT_WINDOW_MS
+    this._refreshPendingAt = null
+    if (pending) this._refreshBehind()
+  }
+
+  _refreshBehind() {
+    if (!this._isOpen() || !this._frameHasContent() || !window.Turbo) return
+    this._keepUntil = Date.now() + OWN_SUBMIT_WINDOW_MS
+    window.Turbo.visit(window.location.href, { action: "replace" })
   }
 
   onBeforeStreamRender(event) {
@@ -274,7 +324,8 @@ export default class extends Controller {
     }
   }
 
-  // Cierre disparado por el botón × / backdrop / Escape: vacía el frame para
+  // Cierre disparado por el botón × (y por backdrop / Escape en vistas sin
+  // formulario): vacía el frame para
   // que la próxima apertura pida contenido fresco en vez de reusar el último
   // estado (ej: "Cancelar" no debe dejar la próxima apertura mostrando el
   // formulario a medio llenar de la vez anterior). Cierra el drawer entero
@@ -290,14 +341,35 @@ export default class extends Controller {
 
   backdrop(event) {
     if (this.hasPanelTarget && this.panelTarget.contains(event.target)) return
+    if (this._guardsForm()) return this._nudge()
     this.close()
   }
 
   keydown(event) {
-    if (event.key === "Escape" && this.dialogTarget.classList.contains("qb-drawer-open")) {
-      event.preventDefault()
-      this.close()
-    }
+    if (event.key !== "Escape" || !this._isOpen()) return
+    event.preventDefault()
+    if (this._guardsForm()) return this._nudge()
+    this.close()
+  }
+
+  // Un alta/edición abierta sólo se cierra con Guardar, Cancelar o la ×: un
+  // clic afuera o Escape tiraban todo lo cargado (feedback 29/09). Las vistas
+  // de consulta se siguen cerrando como siempre. `button_to` también es un
+  // <form> (acciones sueltas, no hay nada tipeado) y una vista de consulta
+  // con un form chico embebido —el alta inline de ítems de una lista— lo
+  // marca con data-drawer-dismissable.
+  _guardsForm() {
+    const scope = this.hasPanelTarget ? this.panelTarget : (this.hasDialogTarget ? this.dialogTarget : null)
+    return !!scope?.querySelector("form:not(.button_to):not([data-drawer-dismissable])")
+  }
+
+  // El clic llegó pero el panel no se cierra: un sacudón corto lo hace notar.
+  _nudge() {
+    if (!this.hasPanelTarget) return
+    const panel = this.panelTarget
+    panel.classList.remove("qb-drawer-nudge")
+    void panel.offsetWidth // reinicia la animación si se repite el clic
+    panel.classList.add("qb-drawer-nudge")
   }
 
   _frameHasContent() {

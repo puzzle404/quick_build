@@ -1,38 +1,59 @@
 # frozen_string_literal: true
 
 # Quick Build OS — formatters used across the redesign.
-# Currency lives in ARS, dates in es-AR. Keep these tiny and free of state.
+# Currency lives in ARS (project budgets can be USD: see
+# Project#budget_ars_cents), dates in es-AR. Keep these tiny and free of state.
 module QuickbuildHelper
-  # "$ 2.5M" / "$ 45k" / "$ 800" / "—"
-  def qb_fmt_ars(cents_or_amount, mode: :auto)
+  CURRENCY_SYMBOLS = { "ARS" => "$", "USD" => "US$" }.freeze
+
+  # "$" / "US$" (lo que no se reconoce cae en pesos).
+  def qb_currency_symbol(currency)
+    CURRENCY_SYMBOLS.fetch(currency.to_s, "$")
+  end
+
+  # "$ 2.5M" / "$ 45k" / "$ 800" / "—" (`symbol:` para otras monedas: "US$ 50k")
+  def qb_fmt_ars(cents_or_amount, mode: :auto, symbol: "$")
     return "—" if cents_or_amount.nil?
     n = cents_or_amount.to_f
     abs = n.abs
     case mode
     when :compact, :auto
-      return "$ #{(n / 1_000_000.0).round(1)}M" if abs >= 1_000_000
-      return "$ #{(n / 1_000.0).round}k"        if abs >= 1_000
-      "$ #{n.round}"
+      return "#{symbol} #{(n / 1_000_000.0).round(1)}M" if abs >= 1_000_000
+      return "#{symbol} #{(n / 1_000.0).round}k"        if abs >= 1_000
+      "#{symbol} #{n.round}"
     when :full
-      qb_fmt_ars_full(n)
+      qb_fmt_ars_full(n, symbol: symbol)
     end
   end
 
   # "$ 12.345.678" — Argentina formatting with thousands separator
-  def qb_fmt_ars_full(amount)
+  def qb_fmt_ars_full(amount, symbol: "$")
     return "—" if amount.nil?
-    "$ #{amount.round.to_s.reverse.scan(/\d{1,3}/).join('.').reverse}"
+    "#{symbol} #{amount.round.to_s.reverse.scan(/\d{1,3}/).join('.').reverse}"
   end
 
-  # Cents → ARS short form (handles material totals stored in cents)
-  def qb_fmt_cents(cents)
-    qb_fmt_ars((cents.to_i / 100.0).round)
+  # Cents → short form in the given currency (ARS by default)
+  def qb_fmt_cents(cents, currency: "ARS", mode: :auto)
+    qb_fmt_ars((cents.to_i / 100.0).round, mode: mode, symbol: qb_currency_symbol(currency))
   end
 
   # Key de navegador de Google Maps (Maps JavaScript API + Places API New).
   # Credentials primero, ENV como alternativa para dev/deploys simples.
   def qb_google_maps_api_key
     Rails.application.credentials.dig(:google_maps, :api_key).presence || ENV["GOOGLE_MAPS_API_KEY"].presence
+  end
+
+  # Centro inicial del mapa de una obra todavía sin ubicar: la última obra
+  # ubicada del usuario (casi siempre trabaja en la misma zona). nil = el
+  # controller project-map usa su centro por defecto.
+  #
+  # Dos `where.not` encadenados y no `where.not(latitude: nil, longitude: nil)`:
+  # con dos claves Rails arma NOT (a AND b) y deja pasar obras con una sola.
+  def qb_map_fallback_center
+    point = current_user&.accessible_projects
+                       &.where&.not(latitude: nil)&.where&.not(longitude: nil)
+                       &.reorder(updated_at: :desc)&.pick(:latitude, :longitude)
+    point && { lat: point[0], lng: point[1] }
   end
 
   # Valor inicial de un Qb::MoneyFieldComponent: "1.500" / "1.500,50" (sin "$",

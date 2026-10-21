@@ -1,7 +1,9 @@
 # frozen_string_literal: true
 
-# Bloque de campos dentro de un form QB OS: titulillo mono en versalitas +
-# hairline, los campos, y un footnote opcional con la regla del bloque.
+# Bloque de campos dentro de un form QB OS: título de sección + hairline, los
+# campos, y un footnote opcional con la regla del bloque. El título usa
+# .qb-form-section-title (sans, 13px, semibold): tiene que leerse por encima
+# de las etiquetas de los campos (.qb-label, mono en versalitas).
 #
 # Es el equivalente desktop de Qb::Mobile::FormGroupComponent. Con
 # `collapsible: true` se renderiza como <details> para grupos que casi nunca
@@ -24,15 +26,5 @@ class Qb::FormGroupComponent < ViewComponent::Base
 
   def open?
     @open
-  end
-
-  def title_style
-    "font-size:10px;font-family:var(--font-mono);text-transform:uppercase;" \
-      "letter-spacing:0.7px;color:var(--color-ink-3);"
-  end
-
-  def head_style
-    "display:flex;align-items:baseline;justify-content:space-between;gap:8px;" \
-      "padding-bottom:6px;margin-bottom:12px;border-bottom:1px solid var(--color-line);"
   end
 end

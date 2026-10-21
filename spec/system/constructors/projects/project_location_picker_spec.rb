@@ -19,7 +19,9 @@ RSpec.describe "Project location picker", type: :system, js: true, google_maps: 
 
   it "elegir una sugerencia completa la dirección y centra el mapa; moverlo no la cambia" do
     visit new_constructors_project_path
-    expect(page).to have_no_css("#project-map", visible: :visible) # el mapa aparece recién al elegir
+    # El mapa está desde el principio, pero mostrarlo no ubica la obra.
+    expect(page).to have_css("#project-map[data-fake-map='ready']", wait: 5)
+    expect(find("input[name='project[latitude]']", visible: false).value).to eq("")
 
     fill_in "project[location]", with: "Av Colon 1234"
     find(".qb-addr-option", text: "Avenida Colón 1234", wait: 5)
@@ -68,14 +70,39 @@ RSpec.describe "Project location picker", type: :system, js: true, google_maps: 
     expect(hidden_value("latitude")).to be_within(0.0001).of(-32.8895)
   end
 
-  it "sin dirección exacta se puede marcar la obra directamente en el mapa" do
+  it "sin dirección exacta se marca la obra moviendo el mapa" do
     visit new_constructors_project_path
-
-    click_button "¿No encontrás la dirección? Marcá la obra en el mapa"
     expect(page).to have_css("#project-map[data-fake-map='ready']", wait: 5)
+
     page.execute_script("window.__gmMoveMap(-33.0, -68.9)")
 
     expect(hidden_value("latitude")).to be_within(0.0001).of(-33.0)
     expect(page).to have_field("project[location]", with: "")
+  end
+
+  it "si nunca se toca el mapa, la obra se guarda sin coordenadas" do
+    visit new_constructors_project_path
+    expect(page).to have_css("#project-map[data-fake-map='ready']", wait: 5)
+
+    fill_in "project[name]", with: "Obra sin ubicar"
+    click_button "Crear proyecto"
+
+    expect(page).to have_content("Obra sin ubicar", wait: 5)
+    expect(constructor.owned_projects.find_by!(name: "Obra sin ubicar").latitude).to be_nil
+  end
+
+  it "«Usar mi ubicación actual» centra el mapa donde está el usuario y lo marca" do
+    visit new_constructors_project_path
+    expect(page).to have_css("#project-map[data-fake-map='ready']", wait: 5)
+    page.execute_script(<<~JS)
+      Object.defineProperty(navigator, "geolocation", { configurable: true, value: {
+        getCurrentPosition: (ok) => ok({ coords: { latitude: -32.95, longitude: -68.85 } })
+      } })
+    JS
+
+    click_button "Usar mi ubicación actual"
+
+    expect(page).to have_css("input[name='project[latitude]'][value^='-32.95']", visible: false, wait: 5)
+    expect(hidden_value("longitude")).to be_within(0.0001).of(-68.85)
   end
 end

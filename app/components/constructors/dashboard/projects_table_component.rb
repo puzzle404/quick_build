@@ -3,7 +3,7 @@
 # Dense table of active projects: code, name+client, status, progress vs plan
 # (with bar), S-curve sparkline, budget, team, stages, due date.
 class Constructors::Dashboard::ProjectsTableComponent < ViewComponent::Base
-  HEADERS = ['', 'Obra', 'Estado', 'Avance', 'Curva S', 'Presupuesto', 'Equipo', 'Etapas', 'Vence', ''].freeze
+  HEADERS = [ "", "Obra", "Estado", "Avance", "Curva S", "Presupuesto", "Equipo", "Etapas", "Vence", "" ].freeze
 
   def initialize(rows:)
     @rows = rows.map { |r| r.is_a?(ProjectDecorator) ? r : ProjectDecorator.new(r) }
@@ -17,15 +17,16 @@ class Constructors::Dashboard::ProjectsTableComponent < ViewComponent::Base
 
   def status_tone(p)
     case p.status.to_s
-    when 'in_progress' then :info
-    when 'completed'   then :ok
+    when "in_progress" then :info
+    when "completed"   then :ok
     else :muted
     end
   end
 
-  def used_pct(p)
-    return 0 if p.budget.to_i.zero?
-    ((p.spent.to_f / p.budget) * 100).round
+  # "—" sin presupuesto comparable (ver ProjectDecorator#budget_used_pct).
+  def used_pct_label(p)
+    pct = p.budget_used_pct
+    pct ? "#{pct}%" : "—"
   end
 
   def bar_tone(p)
@@ -37,6 +38,6 @@ class Constructors::Dashboard::ProjectsTableComponent < ViewComponent::Base
   end
 
   def th_align(idx)
-    (3..8).cover?(idx) ? 'right' : 'left'
+    (3..8).cover?(idx) ? "right" : "left"
   end
 end

@@ -16,7 +16,7 @@ class Qb::Mobile::IconComponent < ViewComponent::Base
     'chev-right': %(<path d="M9 5l7 7-7 7"/>),
     'chev-down':  %(<path d="M5 9l7 7 7-7"/>),
     'chev-left':  %(<path d="M15 19l-7-7 7-7"/>),
-    'arrow-right':%(<path d="M5 12h14M13 5l7 7-7 7"/>),
+    'arrow-right': %(<path d="M5 12h14M13 5l7 7-7 7"/>),
     'arrow-up':   %(<path d="M12 19V5M6 11l6-6 6 6"/>),
     'arrow-down': %(<path d="M12 5v14M6 13l6 6 6-6"/>),
     filter:       %(<path d="M4 6h16l-6 8v5l-4-1v-4z"/>),
@@ -41,7 +41,7 @@ class Qb::Mobile::IconComponent < ViewComponent::Base
     qr:           %(<rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/><path d="M14 14h3v3M14 19h3M19 14v3M19 19v2h2"/>),
     shield:       %(<path d="M12 3l8 3v6c0 5-4 8-8 9-4-1-8-4-8-9V6z"/>),
     clock:        %(<circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/>),
-    pin:          %(<path d="M12 3l4 4-2 2 3 3-5 1-1 5-3-3-4 2 2-4-3-3 5-1 2-2z"/>),
+    pin:          %(<path d="M12 3l4 4-2 2 3 3-5 1-1 5-3-3-4 2 2-4-3-3 5-1 2-2z"/>)
   }.freeze
   FALLBACK = %(<circle cx="12" cy="12" r="4"/>).freeze
 

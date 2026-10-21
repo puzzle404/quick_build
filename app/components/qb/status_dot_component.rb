@@ -3,11 +3,11 @@
 # Tiny coloured dot used in tables and status pills.
 class Qb::StatusDotComponent < ViewComponent::Base
   TONES = {
-    ok:    'var(--color-ok)',
-    warn:  'var(--color-warn)',
-    bad:   'var(--color-bad)',
-    info:  'var(--color-info)',
-    muted: 'var(--color-ink-4)',
+    ok:    "var(--color-ok)",
+    warn:  "var(--color-warn)",
+    bad:   "var(--color-bad)",
+    info:  "var(--color-info)",
+    muted: "var(--color-ink-4)"
   }.freeze
 
   def initialize(tone: :ok)

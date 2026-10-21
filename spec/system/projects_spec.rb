@@ -34,7 +34,7 @@ RSpec.describe "Project management", type: :system do
     visit new_constructors_project_path
 
     # El mapa (Google Maps) y la dirección viven en el mismo formulario; el
-    # mapa arranca oculto hasta elegir una dirección.
+    # mapa se monta con JS: sin JS sólo está el contenedor.
     expect(page).to have_css("#project-map", visible: :all)
     expect(page).to have_content("Crear una obra")
     # Fuera del alta: los planos se cargan desde Documentos y la plantilla de

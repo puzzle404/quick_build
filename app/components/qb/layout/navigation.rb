@@ -24,6 +24,7 @@ module Qb
         { key: :blueprints, label: "Planos",        icon: :blueprint },
         { key: :team,       label: "Equipo",        icon: :people },
         { key: :docs,       label: "Documentos",    icon: :docs },
+        { key: :photos,     label: "Fotos",         icon: :image },
         { key: :logbook,    label: "Bitácora",      icon: :doc }
       ].freeze
 
@@ -45,6 +46,7 @@ module Qb
         when :blueprints then helpers.constructors_project_blueprints_path(project)
         when :team       then helpers.constructors_project_people_path(project)
         when :docs       then helpers.constructors_project_documents_path(project)
+        when :photos     then helpers.constructors_project_images_path(project)
         when :logbook    then helpers.constructors_project_notes_path(project)
         end
       rescue NoMethodError

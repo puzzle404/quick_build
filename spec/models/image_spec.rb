@@ -66,4 +66,15 @@ RSpec.describe Image, type: :model do
       expect(img.reload).to be_valid
     end
   end
+
+  describe ".for_project" do
+    it "trae las fotos de la obra y de sus etapas, no las de otra obra" do
+      project = create(:project)
+      own = create(:image, imageable: project)
+      of_stage = create(:image, imageable: create(:project_stage, project: project))
+      create(:image, imageable: create(:project_stage))
+
+      expect(described_class.for_project(project)).to contain_exactly(own, of_stage)
+    end
+  end
 end

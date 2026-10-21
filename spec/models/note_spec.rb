@@ -33,4 +33,16 @@ RSpec.describe Note, type: :model do
       expect(stage.notes.recent_first).to eq([ n2, n1 ])
     end
   end
+
+  describe ".for_project" do
+    it "trae las notas de la obra y de sus etapas, no las de otra obra" do
+      project = create(:project)
+      stage = create(:project_stage, project: project)
+      own = create(:note, noteable: project)
+      of_stage = create(:note, noteable: stage)
+      create(:note, noteable: create(:project_stage))
+
+      expect(described_class.for_project(project)).to contain_exactly(own, of_stage)
+    end
+  end
 end

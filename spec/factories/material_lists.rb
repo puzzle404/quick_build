@@ -1,7 +1,7 @@
 FactoryBot.define do
   factory :material_list do
     association :project
-    association :author, factory: [:user, :constructor]
+    association :author, factory: [ :user, :constructor ]
     name { "Lista de materiales" }
     source_type { :manual }
     status { :draft }

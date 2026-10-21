@@ -12,4 +12,3 @@ RSpec.describe ProjectPerson, type: :model do
     end
   end
 end
-

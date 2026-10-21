@@ -98,6 +98,16 @@ RSpec.describe Constructors::Projects::Overview::ObraCardComponent, type: :compo
     expect(component.share_text).to eq("Obra: Torre Norte\nDomicilio: Av. Colón 1234, Mendoza\nMapa: https://www.google.com/maps/search/?api=1&query=-32.890000%2C-68.840000")
   end
 
+  it "muestra el presupuesto en dólares con su equivalente en pesos" do
+    allow(Money::UsdArsRate).to receive(:current).and_return(BigDecimal("1000"))
+    project = create(:project, owner: owner, budget_cents: 50_000_00, budget_currency: "USD")
+
+    render_inline(described_class.new(project: project))
+
+    expect(page).to have_text("US$ 50k")
+    expect(page).to have_text("≈ $ 50.0M al dólar oficial")
+  end
+
   it "sin ubicación ni datos: ofrece ubicar y cargar (edición en el drawer)" do
     project = create(:project, owner: owner, location: nil, latitude: nil, longitude: nil, client: nil, budget_cents: nil)
 
@@ -111,6 +121,16 @@ RSpec.describe Constructors::Projects::Overview::ObraCardComponent, type: :compo
 end
 
 RSpec.describe Constructors::Projects::Overview::LogbookComponent, type: :component do
+  it "la nota rápida deja vincularla a una etapa" do
+    project = create(:project)
+    create(:project_stage, project: project, name: "Replanteo")
+
+    vc_test_controller.define_singleton_method(:current_user) { project.owner }
+    render_inline(described_class.new(project: project, notes: [], activity_entries: []))
+
+    expect(page).to have_select("note[stage_id]", with_options: [ "Toda la obra", "Replanteo" ])
+  end
+
   it "une notas y actividad en una línea de tiempo, más reciente primero" do
     project = create(:project)
     create(:note, noteable: project, author: project.owner, title: "Hormigonado", body: "Losa 3", created_at: 1.hour.ago)

@@ -121,7 +121,7 @@ RSpec.describe Ui::SearchPanelComponent, type: :component do
         query_param: :main_q,
         query_value: "etapas",
         hidden_params: { extra: "1" },
-        preserve_params: [:view, :main_q, :sub_q, :from_date, :to_date]
+        preserve_params: [ :view, :main_q, :sub_q, :from_date, :to_date ]
       )
     )
 

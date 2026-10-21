@@ -20,6 +20,15 @@ RSpec.describe Qb::Layout::SidebarComponent, type: :component do
     expect(page).to have_text('Fernández Const.')
   end
 
+  it 'no ofrece Perfil ni Cerrar sesión: viven sólo en el menú del avatar del topbar' do
+    with_request_url '/constructors' do
+      render_inline(described_class.new(current: :dashboard, user: user))
+    end
+    expect(page).to have_no_button('Cerrar sesión', visible: :all)
+    expect(page).to have_no_link('Perfil', visible: :all)
+    expect(page).to have_no_css("form[action='/session']", visible: :all)
+  end
+
   it 'renders pinned projects when no project context is active' do
     pinned = [ double('p', id: 42, name: 'Torre Aurora · Edificio', health: :ok, progress: 64, project_short_name: 'Torre Aurora') ]
     with_request_url '/constructors' do

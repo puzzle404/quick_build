@@ -10,9 +10,9 @@ class Constructors::Projects::List::GridCardComponent < ViewComponent::Base
 
   attr_reader :project
 
+  # nil sin presupuesto comparable (ver ProjectDecorator#budget_used_pct).
   def used_pct
-    return 0 if project.budget.to_i.zero?
-    ((project.spent.to_f / project.budget) * 100).round
+    project.budget_used_pct
   end
 
   def bar_tone

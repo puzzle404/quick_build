@@ -2,8 +2,8 @@
 
 # Monogram avatar — deterministic colour per name via hash → hue.
 class Qb::AvatarComponent < ViewComponent::Base
-  def initialize(name: '??', size: 22, tone: nil)
-    @name = name.to_s.presence || '??'
+  def initialize(name: "??", size: 22, tone: nil)
+    @name = name.to_s.presence || "??"
     @size = size
     @tone = tone
   end
@@ -12,10 +12,10 @@ class Qb::AvatarComponent < ViewComponent::Base
     parts = @name.split.compact
     initials = if parts.size >= 2
                  parts.first(2).map { |s| s[0] }.join.upcase
-               else
+    else
                  (parts.first.to_s[0, 2]).upcase
-               end
-    initials = '?' * 2 if initials.blank?
+    end
+    initials = "?" * 2 if initials.blank?
     hue = @name.bytes.sum % 360
     bg = @tone || "oklch(80% 0.04 #{hue})"
     fg = "oklch(30% 0.06 #{hue})"

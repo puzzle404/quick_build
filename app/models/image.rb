@@ -9,6 +9,13 @@ class Image < ApplicationRecord
 
   scope :featured, -> { where(featured: true) }
 
+  # Fotos de la obra y de todas sus etapas: la galería de la obra muestra las dos.
+  scope :for_project, ->(project) {
+    project_id = project.respond_to?(:id) ? project.id : project
+    where(imageable_type: "Project", imageable_id: project_id)
+      .or(where(imageable_type: "ProjectStage", imageable_id: ProjectStage.where(project_id: project_id).select(:id)))
+  }
+
   validate :only_one_featured_per_imageable
   validate :acceptable_image_type
 

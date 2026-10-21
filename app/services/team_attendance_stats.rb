@@ -50,7 +50,7 @@ class TeamAttendanceStats
   end
 
   def working_days(from, to)
-    (from..to).count { |d| ![0, 6].include?(d.wday) } # Mon–Fri
+    (from..to).count { |d| ![ 0, 6 ].include?(d.wday) } # Mon–Fri
   end
 
   # Sum of `hours` across all attendance records in the window. nil when
@@ -77,7 +77,7 @@ class TeamAttendanceStats
              .joins(:project_person)
              .where.not(project_people: { hourly_rate_cents: nil })
              .where.not(hours: nil)
-             .pluck(:hours, 'project_people.hourly_rate_cents')
+             .pluck(:hours, "project_people.hourly_rate_cents")
     return nil if rows.empty?
     rows.sum { |h, rate| (h.to_f * rate.to_i).round }
   end

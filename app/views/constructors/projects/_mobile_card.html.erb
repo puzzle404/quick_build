@@ -28,7 +28,7 @@
     <%= render Qb::Mobile::BarComponent.new(value: pd.progress, plan: pd.planned_progress, show_plan: true, tone: bar_tone, height: 5) %>
     <div style="display:flex;justify-content:space-between;font-size:11.5px;color:var(--color-ink-3);margin-top:8px;">
       <span><span class="mono tnum"><%= pd.stages_done %>/<%= pd.stages_count %></span> etapas · <%= pd.people_count %> pers</span>
-      <span class="mono tnum"><%= qb_fmt_cents(pd.spent) %> / <%= qb_fmt_cents(pd.budget) %></span>
+      <span class="mono tnum"><%= qb_fmt_cents(pd.spent) %> / <%= pd.budget_label || '—' %></span>
     </div>
   <% end %>
 <% end %>

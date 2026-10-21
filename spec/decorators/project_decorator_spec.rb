@@ -93,4 +93,34 @@ RSpec.describe ProjectDecorator do
       expect(series.last).to eq(60)
     end
   end
+
+  describe "presupuesto en dólares" do
+    let(:project) { create(:project, budget_cents: 10_000_00, budget_currency: "USD") }
+
+    it "compara contra lo gastado en pesos convertidos" do
+      allow(Money::UsdArsRate).to receive(:current).and_return(BigDecimal("1000"))
+      create(:project_stage, project: project, spent_cents: 12_000_000_00) # $ 12M > US$ 10k × 1000 × 1.1
+      decorated = ProjectDecorator.new(project.reload)
+
+      expect(decorated.budget).to eq(10_000_000_00)
+      expect(decorated.health).to eq(:bad)
+      expect(decorated.budget_label).to eq("US$ 10k")
+      expect(decorated.budget_ars_hint).to eq("≈ $ 10.0M al dólar oficial")
+      expect(decorated.budget_used_pct).to eq(120)
+      expect(decorated.budget_without_rate?).to be(false)
+    end
+
+    it "sin cotización apaga la comparación" do
+      allow(Money::UsdArsRate).to receive(:current).and_return(nil)
+      create(:project_stage, project: project, spent_cents: 99_000_000_00)
+      decorated = ProjectDecorator.new(project.reload)
+
+      expect(decorated.budget).to eq(0)
+      expect(decorated.health).not_to eq(:bad)
+      expect(decorated.budget_label).to eq("US$ 10k")
+      expect(decorated.budget_ars_hint).to be_nil
+      expect(decorated.budget_used_pct).to be_nil
+      expect(decorated.budget_without_rate?).to be(true)
+    end
+  end
 end

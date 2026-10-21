@@ -3,13 +3,13 @@
 # Horizontal progress bar with optional plan marker.
 class Qb::BarComponent < ViewComponent::Base
   TONES = {
-    accent: 'var(--color-accent)',
-    ok:     'var(--color-ok)',
-    warn:   'var(--color-warn)',
-    bad:    'var(--color-bad)',
-    info:   'var(--color-info)',
-    ink:    'var(--color-ink-2)',
-    muted:  'var(--color-ink-4)',
+    accent: "var(--color-accent)",
+    ok:     "var(--color-ok)",
+    warn:   "var(--color-warn)",
+    bad:    "var(--color-bad)",
+    info:   "var(--color-info)",
+    ink:    "var(--color-ink-2)",
+    muted:  "var(--color-ink-4)"
   }.freeze
 
   def initialize(value: 0, plan: nil, tone: :accent, height: 6, show_plan: false)
@@ -35,6 +35,6 @@ class Qb::BarComponent < ViewComponent::Base
   # Returns an integer percent (0..100) so generated CSS reads "42%" not "42.0%".
   def clamp(v)
     return 0 if v.nil?
-    [[v.to_f, 0].max, 100].min.round
+    [ [ v.to_f, 0 ].max, 100 ].min.round
   end
 end

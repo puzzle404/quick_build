@@ -1,6 +1,6 @@
 class CartsController < ApplicationController
-  after_action :set_session_cart, only: [:add, :remove]
-  
+  after_action :set_session_cart, only: [ :add, :remove ]
+
   def show
     @products = Product.where(id: cart.keys)
   end
@@ -14,7 +14,7 @@ class CartsController < ApplicationController
     cart.delete(product_id)
     redirect_to cart_path
   end
-  
+
   private
 
   def product_id

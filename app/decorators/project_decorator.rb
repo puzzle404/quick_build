@@ -9,8 +9,9 @@ class ProjectDecorator < BaseDecorator
     members.count
   end
 
+  # Fotos de la obra y de sus etapas (lo que muestra la galería).
   def attachments_count
-    object.images.count
+    Image.for_project(object).count
   end
 
   def elapsed_days
@@ -123,8 +124,43 @@ class ProjectDecorator < BaseDecorator
     object.respond_to?(:material_lists) ? object.material_lists.sum { |ml| ml.material_items.count } : 0
   end
 
+  # Presupuesto en centavos de ARS (USD convertido al oficial del día): es el
+  # que se compara contra lo gastado, que está en pesos. 0 sin presupuesto o
+  # sin cotización — las comparaciones se apagan.
   def budget
-    budget_cents.to_i
+    object.budget_ars_cents.to_i
+  end
+
+  # ¿Hay contra qué comparar lo gastado? Sin presupuesto, o en USD sin
+  # cotización, no: las pantallas muestran "—", nunca un 0% engañoso.
+  def budget_comparable?
+    budget.positive?
+  end
+
+  # Presupuesto cargado en USD pero sin cotización del día para convertirlo.
+  def budget_without_rate?
+    object.budget_in_usd? && budget_cents.to_i.positive? && !budget_comparable?
+  end
+
+  # % del presupuesto ya gastado; nil si no se puede comparar.
+  def budget_used_pct
+    return nil unless budget_comparable?
+
+    ((spent.to_f / budget) * 100).round
+  end
+
+  # El presupuesto en la moneda en que se cargó: "US$ 50k" / "$ 2.5M".
+  def budget_label(mode: :auto)
+    return nil unless budget_cents.to_i.positive?
+
+    h.qb_fmt_cents(budget_cents, currency: budget_currency, mode: mode)
+  end
+
+  # "≈ $ 54.3M al dólar oficial" (sólo USD con cotización disponible).
+  def budget_ars_hint
+    return nil unless object.budget_in_usd? && budget.positive?
+
+    "≈ #{h.qb_fmt_cents(budget)} al dólar oficial"
   end
 
   def spent

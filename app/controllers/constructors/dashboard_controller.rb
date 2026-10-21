@@ -86,6 +86,7 @@ class Constructors::DashboardController < Constructors::BaseController
     # según el alcance elegido para la tabla.
     @kpis = DashboardKpis.new(all_projects).call
     @spend = Exports::SpendTotals.new(all_projects.map(&:id))
+    @budget_compared_ids = all_projects.select(&:budget_comparable?).map(&:id)
 
     # ProjectDecorator#health marca :warn a toda obra cuyo avance real esté
     # atrás del plan, y una obra SIN etapas cargadas siempre da avance 0. Sin
@@ -147,9 +148,10 @@ class Constructors::DashboardController < Constructors::BaseController
           Exports::CsvBuilder.integer(p.progress - p.planned_progress),
           Exports::CsvBuilder.integer(p.stages_count),
           Exports::CsvBuilder.integer(p.stages_done),
-          Exports::CsvBuilder.cents(p.budget),
+          # USD sin cotización: presupuesto y disponible vacíos (no "0").
+          (Exports::CsvBuilder.cents(p.budget) if p.budget_comparable?),
           Exports::CsvBuilder.cents(spent_cents),
-          Exports::CsvBuilder.cents(p.budget - spent_cents),
+          (Exports::CsvBuilder.cents(p.budget - spent_cents) if p.budget_comparable?),
           Exports::CsvBuilder.integer(people[p.id].to_i),
           Exports::CsvBuilder.integer(docs[p.id].to_i),
           Exports::CsvBuilder.date(p.start_date),

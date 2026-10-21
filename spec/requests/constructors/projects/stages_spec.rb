@@ -74,4 +74,55 @@ RSpec.describe "Constructors::Projects::Stages drawer", type: :request do
     expect(response.body).to include('class="qb-page-loader"')
     expect(response.body).to include('<template data-qb--drawer-target="skeleton">')
   end
+
+  it "crea la etapa con responsable y presupuesto" do
+    post constructors_project_stages_path(project), params: {
+      project_stage: { name: "Replanteo", lead: "Miguel Lopez", budget_pesos: "1.500.000" }
+    }
+
+    stage = project.project_stages.find_by!(name: "Replanteo")
+    expect(stage.lead).to eq("Miguel Lopez")
+    expect(stage.budget_cents).to eq(150_000_000)
+  end
+
+  it "el alta mobile también pide responsable y presupuesto" do
+    cookies["qb_mobile_client"] = "1"
+    get new_constructors_project_stage_path(project)
+
+    expect(response.body).to include('name="project_stage[lead]"')
+    expect(response.body).to include('name="project_stage[budget_pesos]"')
+  end
+
+  describe "PATCH update (drawer)" do
+    let!(:root) { create(:project_stage, project: project, name: "Estructura") }
+    let!(:sub) { create(:project_stage, project: project, parent: root, name: "Columnas") }
+    let(:turbo) { { "Accept" => "text/vnd.turbo-stream.html" } }
+
+    it "re-renderiza la tarjeta y el Gantt detrás del drawer con el responsable nuevo" do
+      patch constructors_project_stage_path(project, root),
+            params: { project_stage: { lead: "Miguel Lopez" } }, headers: turbo
+
+      expect(response.media_type).to eq("text/vnd.turbo-stream.html")
+      expect(response.body).to include(%(action="update" target="drawer"))
+      expect(response.body).to include(%(action="replace" target="card_project_stage_#{root.id}"))
+      expect(response.body).to include(%(action="update" target="planning_gantt"))
+      expect(response.body.scan("Miguel Lopez").size).to be >= 2 # drawer + tarjeta
+    end
+
+    it "editar una sub-etapa reemplaza la tarjeta de su etapa raíz" do
+      patch constructors_project_stage_path(project, sub),
+            params: { project_stage: { lead: "Ana" } }, headers: turbo
+
+      expect(response.body).to include(%(target="card_project_stage_#{root.id}"))
+    end
+
+    it "en mobile (sin drawer) vuelve a la etapa con el aviso" do
+      cookies["qb_mobile_client"] = "1"
+      patch constructors_project_stage_path(project, root),
+            params: { project_stage: { lead: "Miguel Lopez" } }, headers: turbo
+
+      expect(response).to redirect_to(constructors_project_stage_path(project, root))
+      expect(flash[:notice]).to eq("Etapa actualizada correctamente.")
+    end
+  end
 end

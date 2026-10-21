@@ -324,6 +324,28 @@
     letter-spacing: 0.6px;
     color: var(--color-ink-3);
   }
+  /* Sección de un formulario (Qb::FormGroupComponent y los títulos sueltos
+     de los forms de obra). Jerarquía: título del drawer (18px) > sección
+     (13px, sans, semibold, tinta) > etiqueta del campo (.qb-label: 11px,
+     mono, versalitas, gris). Antes la sección usaba el estilo de la
+     etiqueta, más chico, y "Identidad" se leía igual que "Nombre". */
+  .qb-form-section { margin-bottom: 22px; }
+  .qb-form-section-head {
+    display: flex; align-items: baseline; justify-content: space-between; gap: 8px;
+    padding-bottom: 6px; margin-bottom: 12px; border-bottom: 1px solid var(--color-line);
+  }
+  summary.qb-form-section-head { cursor: pointer; list-style: none; }
+  summary.qb-form-section-head::-webkit-details-marker { display: none; }
+  .qb-form-section-title {
+    margin: 0;
+    font-family: var(--font-ui);
+    font-size: 13px;
+    font-weight: 600;
+    letter-spacing: -0.1px;
+    color: var(--color-ink);
+  }
+  .qb-form-section-sub { font-size: 11px; color: var(--color-ink-4); }
+  .qb-form-section-foot { margin: 6px 0 0; font-size: 11px; color: var(--color-ink-4); }
   .qb-input, .qb-select, .qb-textarea {
     width: 100%;
     font-family: var(--font-ui);
@@ -522,6 +544,25 @@
   }
   .qb-file-field--compact .qb-file-field-trigger { height: 24px; padding: 0 8px; font-size: 11px; }
   .qb-file-field--compact .qb-file-field-name { font-size: 11px; }
+  /* Lista de lo elegido (no compacto): miniatura si es imagen, nombre y peso.
+     Se ve antes de subir, así el usuario confirma qué va a cargar. */
+  .qb-file-field-list {
+    flex-basis: 100%; list-style: none; margin: 4px 0 0; padding: 0;
+    display: flex; flex-direction: column; gap: 6px; max-height: 260px; overflow: auto;
+  }
+  .qb-file-field-list li {
+    display: flex; align-items: center; gap: 10px; padding: 6px 8px;
+    border: 1px solid var(--color-line); border-radius: var(--radius); background: var(--color-bg-raised);
+  }
+  .qb-file-field-thumb {
+    width: 36px; height: 36px; flex-shrink: 0; border-radius: 4px; object-fit: cover;
+    background: var(--color-bg-sunken); display: flex; align-items: center; justify-content: center;
+    font-family: var(--font-mono); font-size: 9px; color: var(--color-ink-3);
+  }
+  .qb-file-field-file { flex: 1; min-width: 0; font-size: 12px; color: var(--color-ink); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+  /* "Subir" bloqueado hasta elegir archivos (qb--file-field). */
+  [data-qb-file-submit]:disabled { opacity: .45; cursor: not-allowed; }
+  .qb-file-field-size { flex-shrink: 0; font-family: var(--font-mono); font-size: 11px; color: var(--color-ink-3); }
 
   .qb-form-error {
     border: 1px solid color-mix(in oklab, var(--color-bad) 40%, var(--color-line));
@@ -812,6 +853,8 @@
   }
   .qb-composer-input::placeholder { color: var(--color-ink-4); }
   .qb-composer-foot { display: flex; align-items: center; gap: 8px; padding: 6px 8px 8px 12px; }
+  /* Etapa de la nota rápida (Bitácora): select chico al lado de los links. */
+  .qb-composer-stage { width: auto; height: 26px; max-width: 200px; padding-top: 0; padding-bottom: 0; font-size: 11.5px; }
   .qb-composer-link {
     display: inline-flex; align-items: center; gap: 5px; font-size: 11.5px;
     color: var(--color-ink-3); text-decoration: none;
@@ -1392,6 +1435,16 @@
   }
   .qb-drawer-shell.qb-drawer-open .qb-drawer-panel { transform: translateX(0); }
 
+  /* Clic afuera / Escape con un formulario abierto: el drawer no se cierra
+     (qb--drawer#_guardsForm) y lo hace notar con un sacudón corto. `translate`
+     y no `transform`, que es el que usa el slide de apertura. */
+  @keyframes qb-drawer-nudge {
+    0%, 100% { translate: 0; }
+    30% { translate: -6px 0; }
+    60% { translate: 3px 0; }
+  }
+  .qb-drawer-nudge { animation: qb-drawer-nudge 260ms ease-out; }
+
   .qb-drawer-header {
     flex: 0 0 auto; padding: 16px 20px; border-bottom: 1px solid var(--color-line);
     display: flex; align-items: flex-start; gap: 12px;
@@ -1422,6 +1475,7 @@
   @media (prefers-reduced-motion: reduce) {
     .qb-drawer-shell, .qb-drawer-panel { transition-duration: .01ms !important; }
     .qb-drawer-panel { transform: none !important; }
+    .qb-drawer-nudge { animation: none; }
   }
 }
 

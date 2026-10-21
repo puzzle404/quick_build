@@ -81,6 +81,8 @@ class Constructors::ProjectsController < Constructors::BaseController
 
   def create
     @project = current_user.owned_projects.build(project_params)
+    # El select ya no ofrece "Finalizado", pero el parámetro se puede forzar.
+    @project.status = "planned" unless Project::CREATE_STATUSES.include?(@project.status)
     authorize @project
 
     if persist_project_with_documents(@project)
@@ -199,7 +201,7 @@ class Constructors::ProjectsController < Constructors::BaseController
         decorated = ProjectDecorator.new(project)
         csv << [ decorated.code, project.name, project.client, project.location, decorated.status_label,
                  project.start_date, project.end_date, decorated.progress, decorated.planned_progress,
-                 (project.budget_cents.to_i / 100.0).round(2), (decorated.spent.to_i / 100.0).round(2) ]
+                 (decorated.budget_comparable? ? (decorated.budget / 100.0).round(2) : nil), (decorated.spent.to_i / 100.0).round(2) ]
       end
     end
   end
@@ -207,10 +209,12 @@ class Constructors::ProjectsController < Constructors::BaseController
   def project_params
     permitted = params.require(:project)
                       .permit(:name, :client, :description, :location, :start_date, :end_date, :status,
-                              :budget_cents, :budget_pesos, :latitude, :longitude, document_files: [])
+                              :budget_cents, :budget_pesos, :budget_currency, :latitude, :longitude,
+                              document_files: [])
 
-    # Mobile form posts `budget_pesos` (ARS); convert to cents and drop the
-    # pesos key so it doesn't reach the model (which only has budget_cents).
+    # `budget_pesos` es el monto tipeado (es-AR) en la moneda de
+    # `budget_currency`, ARS o USD (el nombre quedó de cuando sólo había
+    # pesos); se pasa a centavos y la key no llega al modelo.
     # key? y no present?: con `present?` un string vacío se descartaba y dejaba
     # el valor viejo, así que el presupuesto de la obra no se podía BORRAR.
     if permitted.key?(:budget_pesos)

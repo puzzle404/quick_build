@@ -6,9 +6,9 @@ class ProductsController < ApplicationController
   def index
     @products = if params[:query].present?
                   @company.products.search_by_name(params[:query])
-                else
+    else
                   @company.products
-                end
+    end
   end
 
   def all_products
@@ -29,7 +29,7 @@ class ProductsController < ApplicationController
   def create
     @product = @company.products.new(product_params)
     if @product.save
-      redirect_to [@company, @product], notice: 'Product was successfully created.'
+      redirect_to [ @company, @product ], notice: "Product was successfully created."
     else
       render :new, status: :unprocessable_entity
     end
@@ -42,7 +42,7 @@ class ProductsController < ApplicationController
   # PATCH/PUT /companies/:company_id/products/:id
   def update
     if @product.update(product_params)
-      redirect_to [@company, @product], notice: 'Product was successfully updated.'
+      redirect_to [ @company, @product ], notice: "Product was successfully updated."
     else
       render :edit, status: :unprocessable_entity
     end
@@ -51,7 +51,7 @@ class ProductsController < ApplicationController
   # DELETE /companies/:company_id/products/:id
   def destroy
     @product.destroy
-    redirect_to company_products_path(@company), notice: 'Product was successfully destroyed.'
+    redirect_to company_products_path(@company), notice: "Product was successfully destroyed."
   end
 
   private

@@ -4,9 +4,9 @@ module Constructors
   module Projects
     module Stages
       # Form de etapa agrupado en bloques: Identidad / Cronograma / Seguimiento
-      # / Dependencias. Seguimiento (avance, responsable, presupuesto) sólo
-      # aparece al editar: al crear una etapa esos tres valores son 0/vacío y
-      # el alta se hace desde un drawer chico.
+      # / Dependencias. Seguimiento lleva responsable y presupuesto desde el
+      # alta (feedback 29/09); el avance aparece recién al editar, porque una
+      # etapa nueva arranca en 0.
       #
       # `in_drawer: true` hace que Cancelar cierre el drawer en vez de navegar
       # (la vista de edit lo pasa en la rama turbo_frame).
@@ -26,9 +26,10 @@ module Constructors
           @in_drawer
         end
 
-        # Sólo al editar: al crear, avance/responsable/presupuesto arrancan
-        # vacíos y sumarían ruido al drawer de alta.
-        def tracking_fields?
+        # El avance sólo al editar: una etapa nueva arranca en 0. Responsable y
+        # presupuesto se cargan desde el alta (feedback 29/09: el presupuesto
+        # sólo se podía poner después de crearla).
+        def progress_field?
           stage.persisted?
         end
 

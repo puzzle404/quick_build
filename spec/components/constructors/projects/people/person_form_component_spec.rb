@@ -13,4 +13,3 @@ RSpec.describe Constructors::Projects::People::PersonFormComponent, type: :compo
     expect(page).to have_button("Crear persona")
   end
 end
-

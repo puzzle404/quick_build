@@ -32,4 +32,19 @@ RSpec.describe "Planning stage drawer", type: :system, js: true do
     expect(page).to have_css(".qb-tab-count", text: "1", wait: 5)
     expect(stage.expenses.reload.last&.description).to eq("Jornal del lunes")
   end
+
+  it "al guardar la edición, la tarjeta de atrás muestra el responsable nuevo" do
+    owner   = create(:user, :constructor)
+    project = create(:project, owner: owner)
+    stage   = create(:project_stage, project: project, name: "Replanteo", lead: nil)
+
+    sign_in_user(owner)
+    visit constructors_project_path(project, drawer: edit_constructors_project_stage_path(project, stage))
+    expect(page).to have_css("#card_project_stage_#{stage.id}", text: "Sin asignar", wait: 5)
+
+    fill_in "project_stage[lead]", with: "Miguel Lopez", wait: 5
+    click_button "Actualizar etapa"
+
+    expect(page).to have_css("#card_project_stage_#{stage.id}", text: "Miguel Lopez", wait: 5)
+  end
 end

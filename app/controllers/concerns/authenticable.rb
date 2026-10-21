@@ -41,7 +41,7 @@ module Authenticable
 
   def request_authentication
     store_after_authentication_url
-    
+
     if hotwire_native_app?
       head :unauthorized and return
     end

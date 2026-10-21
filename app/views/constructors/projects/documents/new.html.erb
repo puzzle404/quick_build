@@ -1,0 +1,7 @@
+<%# Subir documentos de la obra (drawer). Sin frame, el controller manda a la pestaña. %>
+<% content_for(:drawer) do %>
+  <%= render "constructors/projects/upload_drawer",
+        scope: :document, url: constructors_project_documents_path(@project),
+        eyebrow: "Documentos", title: "Subir documentos", trigger_label: "Elegir PDFs", accept: ".pdf,application/pdf",
+        hint: "PDF (hasta 25 MB cada uno): planos, permisos, contratos, reportes.", direct_upload: true, error: @upload_error %>
+<% end %>

@@ -60,7 +60,7 @@
 
         <div class="qb-form-actions">
           <%= render Qb::BtnComponent.new("Cancelar", variant: :secondary, size: :sm, href: constructors_project_blueprints_path(@project)) %>
-          <%= render Qb::BtnComponent.new("Subir plano", variant: :primary, size: :sm, type: 'submit') %>
+          <%= render Qb::BtnComponent.new("Subir plano", variant: :primary, size: :sm, type: 'submit', data: { qb_file_submit: true }) %>
         </div>
       <% end %>
     </div>

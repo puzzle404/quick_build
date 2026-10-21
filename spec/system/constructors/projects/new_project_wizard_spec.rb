@@ -20,7 +20,7 @@ RSpec.describe "New project form", type: :system, js: true, google_maps: true do
     expect(page).to have_content("Crear una obra")
 
     expect(page).to have_field("Dirección de la obra")
-    expect(page).to have_button("¿No encontrás la dirección? Marcá la obra en el mapa")
+    expect(page).to have_button("Usar mi ubicación actual")
 
     # Todos los campos son alcanzables sin pasos intermedios.
     expect(page).to have_field("project[location]")
@@ -67,5 +67,15 @@ RSpec.describe "New project form", type: :system, js: true, google_maps: true do
 
     project = constructor.owned_projects.order(:created_at).last
     expect(project.budget_cents).to eq(150_000_050)
+  end
+
+  it "el prefijo del presupuesto sigue a la moneda elegida" do
+    sign_in_user(constructor)
+    stub_google_maps!
+    visit new_constructors_project_path
+
+    expect(page).to have_css(".qb-money-currency", text: "$")
+    select "USD", from: "project[budget_currency]"
+    expect(page).to have_css(".qb-money-currency", text: "US$")
   end
 end

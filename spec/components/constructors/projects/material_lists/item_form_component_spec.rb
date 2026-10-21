@@ -14,4 +14,3 @@ RSpec.describe Constructors::Projects::MaterialLists::ItemFormComponent, type: :
     expect(page).to have_button("Agregar material")
   end
 end
-

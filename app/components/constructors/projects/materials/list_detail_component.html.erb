@@ -5,10 +5,6 @@
               style="background:transparent;border:none;color:var(--color-ink-3);cursor:pointer;padding:4px;display:none;">
         <%= render Qb::IconComponent.new(name: :'chevron-left', size: 16) %>
       </button>
-      <button type="button" data-action="click->qb--drawer#close" aria-label="Cerrar"
-              style="background:transparent;border:none;color:var(--color-ink-3);cursor:pointer;padding:4px;">
-        <%= render Qb::IconComponent.new(name: :x, size: 16) %>
-      </button>
       <div style="flex:1;min-width:0;">
         <div style="display:flex;align-items:center;gap:8px;margin-bottom:2px;">
           <%= render Qb::PillComponent.new(tone: status_tone, compact: true) { status_label } %>
@@ -17,11 +13,16 @@
         </div>
         <h2 style="margin:0;font-size:16px;font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;"><%= "#{list.code} #{list.name}".strip %></h2>
       </div>
-      <%# data-turbo=false: descarga directa del CSV sin interceptar la navegación
-          (el drawer vive dentro del frame global "drawer"). %>
-      <%= render Qb::BtnComponent.new('Exportar', variant: :ghost, size: :sm, icon: :download,
-            href: constructors_project_material_list_path(project, list, format: :csv),
-            data: { turbo: false }, title: 'Descargar CSV de los ítems') %>
+      <%# Descargas directas (data-turbo=false: el drawer vive dentro del frame
+          global y Turbo las interceptaba). El PDF es para pedir cotización,
+          sin precios; el Excel (CSV) los trae. %>
+      <%= render Qb::MenuComponent.new(label: 'Descargar', icon: :download, variant: :ghost, size: :sm,
+            aria_label: 'Descargar la lista', items: [
+              { label: 'PDF para cotizar (sin precios)', icon: :doc,
+                href: constructors_project_material_list_path(project, list, format: :pdf), data: { turbo: false } },
+              { label: 'Excel (CSV, con precios)', icon: :grid,
+                href: constructors_project_material_list_path(project, list, format: :csv), data: { turbo: false } }
+            ]) %>
       <% if can_edit? %>
         <%= link_to edit_constructors_project_material_list_path(project, list),
                     data: { turbo_frame: 'drawer', action: 'click->qb--drawer#open' },
@@ -56,6 +57,10 @@
           Aprobar lista
         <% end %>
       <% end %>
+      <%# La × siempre arriba a la derecha, como en el resto de los drawers. %>
+      <button type="button" class="qb-drawer-close" data-action="click->qb--drawer#close" aria-label="Cerrar">
+        <%= render Qb::IconComponent.new(name: :x, size: 16) %>
+      </button>
     </div>
   <% end %>
 
@@ -152,24 +157,30 @@
           y material_items#create —que hace require(:material_item)— respondía
           400: el drawer "se cerraba" y el ítem no se guardaba. Apunta al frame
           del drawer (no _top): el controller redirige al show y el detalle se
-          re-renderiza acá mismo con el ítem nuevo. %>
+          re-renderiza acá mismo con el ítem nuevo. drawer_dismissable: el
+          detalle es una vista de consulta, así que esta fila no impide
+          cerrarlo con un clic afuera (qb--drawer#_guardsForm).
+          qb--line-subtotal calcula cantidad × precio mientras se tipea. %>
       <% if can_edit? %>
       <%= form_with url: constructors_project_material_list_material_items_path(project, list),
                     scope: :material_item,
                     method: :post,
-                    data: { turbo_frame: 'drawer' },
+                    data: { turbo_frame: 'drawer', drawer_dismissable: true, controller: 'qb--line-subtotal' },
                     html: { style: 'display:grid;grid-template-columns:32px minmax(0,1fr) 80px 80px 120px 110px 90px 32px;column-gap:10px;padding:10px 16px;border-bottom:1px solid var(--color-line);align-items:center;background:color-mix(in oklab, var(--color-accent) 4%, var(--color-bg));' } do |f| %>
         <%= render Qb::IconComponent.new(name: :plus, size: 12, style: 'color:var(--color-accent)') %>
         <%= f.text_field :name, required: true, placeholder: 'Nombre del material', autofocus: items.empty?,
                          style: 'border:none;outline:none;background:transparent;color:var(--color-ink);font-size:12px;width:100%;padding:0;' %>
         <%= f.number_field :quantity, step: 'any', required: true, placeholder: '0',
+                            data: { 'qb--line-subtotal-target': 'quantity', action: 'input->qb--line-subtotal#recalc' },
                             style: 'border:none;outline:none;background:transparent;color:var(--color-ink);font-size:12px;text-align:right;font-family:var(--font-mono);width:100%;padding:0;' %>
         <%= f.select :unit, %w[u kg m³ m² m lt bolsa barra placa set rollo tacho],
                       { selected: 'u' },
                       style: 'border:none;outline:none;background:transparent;font-size:11px;color:var(--color-ink-3);width:100%;padding:0;' %>
         <%= render Qb::MoneyFieldComponent.new(form: f, method: :estimated_cost_pesos, compact: true, placeholder: '0',
-              'aria-label': 'Precio unitario estimado') %>
-        <span class="qb-mono qb-tnum" style="text-align:right;color:var(--color-ink-4);">—</span>
+              'aria-label': 'Precio unitario estimado',
+              data: { 'qb--line-subtotal-target': 'price', action: 'input->qb--line-subtotal#recalc' }) %>
+        <span class="qb-mono qb-tnum" style="text-align:right;color:var(--color-ink-2);"
+              data-qb--line-subtotal-target="output" aria-live="polite">—</span>
         <span style="font-size:10px;color:var(--color-ink-4);">—</span>
         <button type="submit" style="background:transparent;border:none;color:var(--color-ok);cursor:pointer;padding:2px;" title="Agregar">
           <%= render Qb::IconComponent.new(name: :check, size: 13) %>

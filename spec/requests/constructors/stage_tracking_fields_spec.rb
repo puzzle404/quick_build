@@ -20,10 +20,12 @@ RSpec.describe 'Constructors::Projects::Stages tracking fields', type: :request 
     expect(response.body).to include('Seguimiento')
   end
 
-  it 'no muestra el bloque Seguimiento al crear (avance y gastado son 0)' do
-    get new_constructors_project_stage_path(project)
+  it 'al crear pide responsable y presupuesto, pero no el avance' do
+    get new_constructors_project_stage_path(project), headers: { 'Turbo-Frame' => 'drawer' }
 
     expect(response).to have_http_status(:ok)
+    expect(response.body).to include('project_stage[lead]')
+    expect(response.body).to include('project_stage[budget_pesos]')
     expect(response.body).not_to include('project_stage[progress]')
   end
 

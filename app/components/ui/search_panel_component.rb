@@ -80,7 +80,7 @@ module Ui
       when Array
         rules.map(&:to_s).zip(rules.map(&:to_s)).to_h
       when Hash
-        rules.to_h { |k, v| [k.to_s, (v || k).to_s] }
+        rules.to_h { |k, v| [ k.to_s, (v || k).to_s ] }
       else
         {}
       end

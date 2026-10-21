@@ -38,8 +38,8 @@
             <%= render Qb::SparkComponent.new(data: p.progress_curve_series, plan: p.progress_plan_series, w: 80, h: 22) %>
           </td>
           <td style="padding:10px 12px;text-align:right;">
-            <div class="qb-mono qb-tnum" style="font-weight:500;"><%= helpers.qb_fmt_ars(p.spent) %></div>
-            <div class="qb-mono" style="font-size:10px;color:var(--color-ink-4);">de <%= helpers.qb_fmt_ars(p.budget) %> · <%= used_pct(p) %>%</div>
+            <div class="qb-mono qb-tnum" style="font-weight:500;"><%= helpers.qb_fmt_cents(p.spent) %></div>
+            <div class="qb-mono" style="font-size:10px;color:var(--color-ink-4);">de <%= p.budget_label || '—' %> · <%= used_pct_label(p) %></div>
           </td>
           <td class="qb-tnum" style="padding:10px 12px;text-align:right;"><%= p.people_count %></td>
           <td class="qb-mono qb-tnum" style="padding:10px 12px;text-align:right;"><%= p.stages_done %>/<%= p.stages_count %></td>

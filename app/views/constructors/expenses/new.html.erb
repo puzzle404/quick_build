@@ -39,7 +39,7 @@
 
         <%# Desde la pestaña Gastos (sin etapa en la URL) se puede imputar igual
             a una etapa; desde el drawer de una etapa ya viene fijada. %>
-        <% if @stage.nil? && (stage_options = stage_select_options).any? %>
+        <% if @stage.nil? && (stage_options = stage_select_options(@project)).any? %>
           <div class="qb-field" style="margin-top:12px;">
             <%= form.label :project_stage_id, "Etapa (opcional)", class: "qb-label" %>
             <%= form.select :project_stage_id, [ [ "— Sin etapa (gasto general de la obra) —", "" ] ] + stage_options,

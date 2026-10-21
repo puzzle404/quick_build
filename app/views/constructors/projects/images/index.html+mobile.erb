@@ -1,19 +1,27 @@
 <% content_for :title, "Fotos · #{@project.name}" %>
 <% can_upload = policy(@project).manage_content? %>
+<%# Fotos de la obra y de sus etapas; al subir se elige la etapa (opcional) y
+    se filtra por etapa con los chips. Sin `capture` en el input: así el
+    teléfono ofrece cámara o galería (con capture va directo a la cámara). %>
+<% stage_options = stage_select_options(@project) %>
+<% stage_rows = @project.project_stages.order(:position, :name).pluck(:id, :name) %>
 
 <%= render Qb::Mobile::NavBarComponent.new(title: @project.name, back: true, back_href: constructors_project_path(@project)) %>
 
 <div style="padding: 4px 20px 12px;">
   <h1 style="margin: 0; font-size: 24px; font-weight: 700; letter-spacing: -0.5px;">Fotos</h1>
   <div style="font-size: 13px; color: var(--color-ink-3); margin-top: 4px;">
-    <%= pluralize(@images.size, 'foto cargada', plural: 'fotos cargadas') %>
+    <%= pluralize(@images.size, 'foto', plural: 'fotos') %> · de la obra y de sus etapas
   </div>
 </div>
 
 <%# Upload card — mismo patrón que documentos: input file inline + submit al create existente %>
 <% if can_upload %>
   <div style="padding: 0 16px 14px;">
-    <%= form_with url: constructors_project_images_path(@project), method: :post, local: true, multipart: true do |f| %>
+    <%# Primero los archivos, después la etapa (opcional); "Subir" queda
+        bloqueado hasta elegir algo (qb--file-field + data-qb-file-submit). %>
+    <%= form_with url: constructors_project_images_path(@project), method: :post, local: true, multipart: true,
+                  data: { controller: "qb--file-field" } do |f| %>
       <%= render Qb::Mobile::CardComponent.new do %>
         <div style="display:flex;align-items:center;gap:12px;">
           <div style="width:48px;height:48px;border-radius:12px;background:color-mix(in oklab, var(--color-accent) 14%, transparent);color:var(--color-accent);display:flex;align-items:center;justify-content:center;flex-shrink:0;">
@@ -22,13 +30,31 @@
           <div style="flex:1;min-width:0;">
             <div style="font-size:14.5px;font-weight:600;">Subir fotos</div>
             <div style="font-size:12px;color:var(--color-ink-3);">Sacá una foto o elegí de la galería. JPG, PNG, WEBP.</div>
-            <input type="file" name="image[files][]" multiple accept="image/*" style="margin-top:8px;font-size:13px;max-width:100%;"/>
+            <input type="file" name="image[files][]" multiple accept="image/*" style="margin-top:8px;font-size:13px;max-width:100%;"
+                   data-qb--file-field-target="input" data-action="change->qb--file-field#update"/>
+            <% if stage_options.any? %>
+              <%= select_tag "image[stage_id]", options_for_select([ [ "Etapa: toda la obra", "" ] ] + stage_options),
+                    class: "m-frow-select", "aria-label": "Etapa de las fotos (opcional)",
+                    style: "margin-top:8px;width:100%;font-size:13px;" %>
+            <% end %>
           </div>
         </div>
         <div style="margin-top:10px;">
-          <%= f.submit "Subir", class: "m-btn m-btn--sm m-btn--full" %>
+          <%= f.submit "Subir", class: "m-btn m-btn--sm m-btn--full", data: { qb_file_submit: true } %>
         </div>
       <% end %>
+    <% end %>
+  </div>
+<% end %>
+
+<%# Filtro por etapa (chips horizontales, mismo patrón que Gastos) %>
+<% if stage_rows.any? %>
+  <% base_path = constructors_project_images_path(@project) %>
+  <div style="display:flex;gap:8px;overflow-x:auto;padding:0 16px 12px;-webkit-overflow-scrolling:touch;">
+    <% ([ [ 'all', 'Todas' ], [ 'none', 'Obra' ] ] + stage_rows.map { |id, name| [ id.to_s, name ] }).each do |value, label| %>
+      <% active = @stage_filter == value %>
+      <%= link_to label, (value == 'all' ? base_path : "#{base_path}?#{{ stage: value }.to_query}"),
+            style: "flex-shrink:0;padding:6px 12px;border-radius:999px;font-size:12.5px;font-weight:600;text-decoration:none;white-space:nowrap;border:1px solid #{active ? 'var(--color-accent)' : 'var(--color-line)'};background:#{active ? 'var(--color-accent)' : 'var(--color-bg-sunken)'};color:#{active ? 'var(--color-accent-ink)' : 'var(--color-ink-2)'};" %>
     <% end %>
   </div>
 <% end %>
@@ -53,7 +79,9 @@
             <div style="font-size:11.5px;font-weight:500;color:var(--color-ink-2);overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">
               <%= image.title.presence || image.file_filename.to_s %>
             </div>
-            <div style="font-size:10.5px;color:var(--color-ink-4);margin-top:1px;"><%= qb_fmt_date_short(image.created_at) %></div>
+            <div style="font-size:10.5px;color:var(--color-ink-4);margin-top:1px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">
+              <%= qb_fmt_date_short(image.created_at) %> · <%= image.imageable_type == "ProjectStage" ? image.imageable.name : "Obra" %>
+            </div>
           </div>
         <% end %>
       <% end %>

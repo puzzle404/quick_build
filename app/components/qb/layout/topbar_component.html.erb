@@ -48,12 +48,32 @@
     </button>
 
     <% if user %>
-      <div style="display:flex;align-items:center;gap:8px;padding-left:8px;margin-left:4px;border-left:1px solid var(--color-line);">
-        <%= render Qb::AvatarComponent.new(name: user_short_name, size: 26) %>
-        <div style="line-height:1.1;">
-          <div style="font-size:12px;font-weight:500;"><%= user_short_name %></div>
-          <% if user_role %>
-            <div style="font-size:10px;color:var(--color-ink-3);"><%= user_role %></div>
+      <%# Menú de cuenta (feedback 29/09: cerrar sesión a la derecha, al tocar
+          el usuario). Mismo patrón qb--dropdown que la campana de alertas. %>
+      <div data-controller="qb--dropdown" style="position:relative;padding-left:8px;margin-left:4px;border-left:1px solid var(--color-line);">
+        <button type="button" aria-label="Menú de cuenta" aria-haspopup="menu"
+                data-action="click->qb--dropdown#toggle"
+                style="display:flex;align-items:center;gap:8px;padding:2px 4px;background:transparent;border:none;border-radius:5px;color:var(--color-ink);cursor:pointer;text-align:left;">
+          <%= render Qb::AvatarComponent.new(name: user_short_name, size: 26) %>
+          <span style="line-height:1.1;">
+            <span style="display:block;font-size:12px;font-weight:500;"><%= user_short_name %></span>
+            <% if user_role %>
+              <span style="display:block;font-size:10px;color:var(--color-ink-3);"><%= user_role %></span>
+            <% end %>
+          </span>
+          <%= render Qb::IconComponent.new(name: :'chevron-down', size: 12, style: 'color:var(--color-ink-3);') %>
+        </button>
+        <div data-qb--dropdown-target="menu" class="hidden" role="menu"
+             style="display:none;position:absolute;top:36px;right:0;z-index:41;min-width:200px;padding:4px;background:var(--color-bg);border:1px solid var(--color-line);border-radius:6px;box-shadow:0 8px 20px -4px rgba(0,0,0,0.25);">
+          <div style="padding:6px 10px 8px;margin-bottom:4px;border-bottom:1px solid var(--color-line);font-size:11px;color:var(--color-ink-3);overflow:hidden;text-overflow:ellipsis;white-space:nowrap;"><%= user.email %></div>
+          <%= link_to helpers.edit_registration_path, role: "menuitem", style: ACCOUNT_MENU_ROW_STYLE do %>
+            <%= render Qb::IconComponent.new(name: :settings, size: 13, style: 'color:var(--color-ink-3);flex-shrink:0;') %>
+            <span>Perfil</span>
+          <% end %>
+          <%= button_to helpers.session_path, method: :delete, role: "menuitem", form: { style: 'margin:0;' },
+                        style: ACCOUNT_MENU_ROW_STYLE do %>
+            <%= render Qb::IconComponent.new(name: :'arrow-right', size: 13, style: 'color:var(--color-ink-3);flex-shrink:0;') %>
+            <span>Cerrar sesión</span>
           <% end %>
         </div>
       </div>

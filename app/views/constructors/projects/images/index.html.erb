@@ -2,26 +2,36 @@
 <%# Subir y borrar fotos = ProjectPolicy#manage_content? (editor de obra en
     adelante), el mismo permiso que piden images#create/#destroy. %>
 <% can_upload = policy(@project).manage_content? %>
-<%= render 'constructors/projects/section_tabs', project: @project, current: :docs %>
+<%# Fotos de la obra y de sus etapas (Image.for_project); al subir se puede
+    vincular a una etapa y la galería se filtra por etapa. %>
+<% stage_rows = @project.project_stages.order(:position, :name).pluck(:id, :name) %>
+<%= render 'constructors/projects/section_tabs', project: @project, current: :photos %>
 
 <%# Header strip %>
 <div style="padding:14px 20px;border-bottom:1px solid var(--color-line);display:flex;align-items:flex-end;gap:16px;">
   <div style="flex:1;">
-    <div style="font-size:11px;font-family:var(--font-mono);color:var(--color-ink-3);text-transform:uppercase;letter-spacing:0.8px;"><%= decorated_project.code %> · Documentos</div>
+    <div style="font-size:11px;font-family:var(--font-mono);color:var(--color-ink-3);text-transform:uppercase;letter-spacing:0.8px;"><%= decorated_project.code %> · Fotos</div>
     <h2 style="margin:3px 0 0;font-size:18px;font-weight:600;letter-spacing:-0.3px;">Fotos de obra</h2>
     <div style="font-size:12px;color:var(--color-ink-3);margin-top:2px;">
-      <%= pluralize(@images.size, 'foto cargada', plural: 'fotos cargadas') %>
-      · <%= link_to '← Volver a Documentos', constructors_project_documents_path(@project), style: 'color:var(--color-accent);text-decoration:none;font-size:12px;' %>
+      <%= pluralize(@images.size, 'foto', plural: 'fotos') %> · de la obra y de sus etapas
     </div>
   </div>
   <% if can_upload %>
-    <%= form_with scope: :image, url: constructors_project_images_path(@project), html: { multipart: true, style: 'display:flex;align-items:center;gap:8px;' } do |f| %>
-      <%= render Qb::FileFieldComponent.new(form: f, method: :files, trigger_label: "Elegir fotos",
-                                            multiple: true, accept: 'image/*', compact: true) %>
-      <%= render Qb::BtnComponent.new('Subir', variant: :primary, size: :sm, icon: :upload, type: 'submit') %>
-    <% end %>
+    <%# Abre el drawer de subida (archivos → etapa → Subir). Con un filtro de
+        etapa activo, la propone ya elegida. %>
+    <%= render Qb::BtnComponent.new('Subir fotos', variant: :primary, size: :sm, icon: :upload,
+          href: new_constructors_project_image_path(@project, stage: (@stage_filter if @stage_filter.match?(/\A\d+\z/))),
+          data: { turbo_frame: 'drawer', action: 'click->qb--drawer#open' }) %>
   <% end %>
 </div>
+
+<% if stage_rows.any? %>
+  <div style="display:flex;align-items:center;gap:8px;padding:10px 20px;border-bottom:1px solid var(--color-line);background:var(--color-bg-raised);">
+    <%= render Qb::FilterChipComponent.new(label: 'Etapa', param: :stage, value: @stage_filter,
+          options: [ [ 'all', 'Todas' ], [ 'none', 'Sólo de la obra' ] ] + stage_rows.map { |id, name| [ id.to_s, name ] },
+          base_path: constructors_project_images_path(@project)) %>
+  </div>
+<% end %>
 
 <%# Grid de fotos — full bleed %>
 <% if @images.any? %>
@@ -40,7 +50,9 @@
         <div style="display:flex;align-items:center;justify-content:space-between;gap:8px;border-top:1px solid var(--color-line);background:var(--color-bg-raised);padding:6px 8px;">
           <div style="min-width:0;">
             <div style="font-size:11px;font-weight:500;color:var(--color-ink-2);overflow:hidden;text-overflow:ellipsis;white-space:nowrap;" title="<%= image_label %>"><%= image_label %></div>
-            <div style="font-size:10px;color:var(--color-ink-4);margin-top:1px;"><%= qb_fmt_date_short(image.created_at) %></div>
+            <div style="font-size:10px;color:var(--color-ink-4);margin-top:1px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">
+              <%= qb_fmt_date_short(image.created_at) %> · <%= image.imageable_type == "ProjectStage" ? image.imageable.name : "Obra" %>
+            </div>
           </div>
           <%# Acciones en íconos: el pie de cada card es angosto y "Abrir/Eliminar"
               en texto competía con el nombre del archivo. %>
@@ -65,9 +77,13 @@
 <% else %>
   <div style="padding:60px;margin:16px;text-align:center;color:var(--color-ink-4);font-size:13px;border:1px dashed var(--color-line);border-radius:10px;">
     <%= render Qb::IconComponent.new(name: :image, size: 32, style: 'margin-bottom:8px;opacity:0.5;') %>
-    <div>Aún no se cargaron fotos de esta obra.</div>
-    <% if can_upload %>
-      <div style="font-size:11px;color:var(--color-ink-4);margin-top:6px;">Subí fotografías y evidencias visuales desde «Elegir fotos», arriba a la derecha.</div>
+    <% if @stage_filter != 'all' %>
+      <div>No hay fotos con este filtro.</div>
+    <% else %>
+      <div>Aún no se cargaron fotos de esta obra.</div>
+    <% end %>
+    <% if can_upload && @stage_filter == 'all' %>
+      <div style="font-size:11px;color:var(--color-ink-4);margin-top:6px;">Subí fotografías y evidencias visuales desde «Subir fotos», arriba a la derecha.</div>
     <% end %>
   </div>
 <% end %>

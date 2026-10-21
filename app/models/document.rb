@@ -7,6 +7,14 @@ class Document < ApplicationRecord
 
   validates :file, presence: true
 
+  # Documentos de la obra y de todas sus etapas: la pestaña Documentos los
+  # muestra todos.
+  scope :for_project, ->(project) {
+    project_id = project.respond_to?(:id) ? project.id : project
+    where(documentable_type: "Project", documentable_id: project_id)
+      .or(where(documentable_type: "ProjectStage", documentable_id: ProjectStage.where(project_id: project_id).select(:id)))
+  }
+
   delegate :filename, :content_type, :byte_size, to: :file, prefix: true, allow_nil: true
 
   pg_search_scope :search_text,

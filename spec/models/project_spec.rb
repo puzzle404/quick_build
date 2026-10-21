@@ -163,4 +163,34 @@ RSpec.describe Project, type: :model do
       expect(ajena.role_for(owner)).to be_nil
     end
   end
+
+  describe ".status_options" do
+    it "rotula planned como «Inicio»" do
+      expect(described_class.status_options).to include([ "Inicio", "planned" ])
+    end
+
+    it "al crear no ofrece «Finalizado»" do
+      expect(described_class.status_options(for_create: true)).to eq([ [ "Inicio", "planned" ], [ "En progreso", "in_progress" ] ])
+    end
+  end
+
+  describe "#budget_ars_cents" do
+    it "en pesos es el mismo presupuesto" do
+      expect(build(:project, budget_cents: 500_00, budget_currency: "ARS").budget_ars_cents).to eq(500_00)
+    end
+
+    it "en dólares lo convierte al oficial del día" do
+      allow(Money::UsdArsRate).to receive(:current).and_return(BigDecimal("1085"))
+      expect(build(:project, budget_cents: 50_000_00, budget_currency: "USD").budget_ars_cents).to eq(54_250_000_00)
+    end
+
+    it "en dólares y sin cotización es nil (no se inventa un número)" do
+      allow(Money::UsdArsRate).to receive(:current).and_return(nil)
+      expect(build(:project, budget_cents: 50_000_00, budget_currency: "USD").budget_ars_cents).to be_nil
+    end
+  end
+
+  it "sólo acepta ARS o USD como moneda del presupuesto" do
+    expect(build(:project, budget_currency: "EUR")).not_to be_valid
+  end
 end

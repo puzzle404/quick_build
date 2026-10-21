@@ -13,6 +13,10 @@
                 data: { turbo_frame: "drawer", action: "click->qb--drawer#open" } do %>
             <%= render Qb::IconComponent.new(name: :edit, size: 12) %> Nota con título
           <% end %>
+          <% if stage_options.any? %>
+            <%= select_tag "note[stage_id]", options_for_select([ [ "Toda la obra", "" ] ] + stage_options),
+                  class: "qb-select qb-composer-stage", "aria-label": "Etapa de la nota" %>
+          <% end %>
           <span style="flex:1;"></span>
           <%= render Qb::BtnComponent.new('Guardar nota', variant: :primary, size: :xs, type: 'submit') %>
         </div>

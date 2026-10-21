@@ -49,6 +49,11 @@ class Constructors::Projects::MaterialListsController < Constructors::BaseContro
                   filename: "materiales-#{@material_list.name.to_s.parameterize.presence || @material_list.id}-#{Date.current.strftime('%Y%m%d')}.csv",
                   type: "text/csv; charset=utf-8"
       end
+      # PDF para pedir cotización: sin precios (ver Exports::MaterialListPdf).
+      format.pdf do
+        pdf = Exports::MaterialListPdf.new(@material_list)
+        send_data pdf.render, filename: pdf.filename, type: "application/pdf", disposition: "attachment"
+      end
     end
   end
 
@@ -64,23 +69,13 @@ class Constructors::Projects::MaterialListsController < Constructors::BaseContro
 
     if @material_list.save
       if @material_list.project_stage_id.present?
-        respond_to do |format|
-          format.turbo_stream do
-            @stage = @material_list.project_stage
-            render turbo_stream: turbo_stream.update("drawer",
-              partial: "constructors/projects/stages/detail_drawer",
-              locals: {
-                project: @project,
-                stage: @stage.decorate,
-                sub_stages: @stage.sub_stages.order(:position, :name),
-                active_tab: :materiales
-              })
-          end
-          format.html do
-            redirect_to constructors_project_stage_path(@project, @material_list.project_stage),
-                        notice: "Lista creada."
-          end
-        end
+        # Con etapa: el frame "drawer" sigue el redirect y stages#show lo
+        # repuebla con el detalle de la etapa en el tab Materiales (mismo
+        # mecanismo que notas/fotos de etapa). Antes era un turbo_stream que
+        # sólo tocaba el drawer: la página de atrás quedaba sin la lista
+        # nueva hasta recargar; con el redirect qb--drawer la refresca.
+        redirect_to constructors_project_stage_path(@project, @material_list.project_stage, tab: "materiales"),
+                    notice: "Lista creada."
       else
         # Sin etapa: el POST llega frame-scoped al frame "drawer" (ya no se
         # fuerza _top en el form); Turbo sigue este redirect como una request

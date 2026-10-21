@@ -3,27 +3,27 @@
 # Card representation of a material list in the grid view.
 class Constructors::Projects::Materials::ListCardComponent < ViewComponent::Base
   STATUS_LABELS = {
-    'draft'             => 'Borrador',
-    'ready_for_review'  => 'En revisión',
-    'approved'          => 'Aprobada',
+    "draft"             => "Borrador",
+    "ready_for_review"  => "En revisión",
+    "approved"          => "Aprobada"
   }.freeze
 
   STATUS_TONES = {
-    'draft'             => :muted,
-    'ready_for_review'  => :warn,
-    'approved'          => :ok,
+    "draft"             => :muted,
+    "ready_for_review"  => :warn,
+    "approved"          => :ok
   }.freeze
 
   SOURCE_LABELS = {
-    'manual'        => 'Manual',
-    'pdf_upload'    => 'PDF',
-    'excel_upload'  => 'Excel',
+    "manual"        => "Manual",
+    "pdf_upload"    => "PDF",
+    "excel_upload"  => "Excel"
   }.freeze
 
   SOURCE_ICONS = {
-    'manual'        => :edit,
-    'pdf_upload'    => :doc,
-    'excel_upload'  => :grid,
+    "manual"        => :edit,
+    "pdf_upload"    => :doc,
+    "excel_upload"  => :grid
   }.freeze
 
   def initialize(project:, list:)
@@ -47,7 +47,7 @@ class Constructors::Projects::Materials::ListCardComponent < ViewComponent::Base
   end
 
   def author_name
-    list.author&.email&.split('@')&.first&.titleize || 'Sistema'
+    list.author&.email&.split("@")&.first&.titleize || "Sistema"
   end
 
   def stage_name
@@ -55,10 +55,10 @@ class Constructors::Projects::Materials::ListCardComponent < ViewComponent::Base
   end
 
   def is_pdf?
-    list.source_type.to_s == 'pdf_upload'
+    list.source_type.to_s == "pdf_upload"
   end
 
   def private?
-    list.try(:material_list_publication)&.visibility&.to_s == 'private'
+    list.try(:material_list_publication)&.visibility&.to_s == "private"
   end
 end

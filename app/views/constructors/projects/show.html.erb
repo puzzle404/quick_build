@@ -114,7 +114,7 @@
           420px a 520px al sumar la columna Gastos/Ppto. %>
       <div data-qb--view-switcher-target="panel" data-view="gantt" style="display:none;overflow-x:auto;">
         <% if @root_stages.any? %>
-          <div style="min-width:960px;">
+          <div id="planning_gantt" style="min-width:960px;">
             <%= render Constructors::Projects::Planning::GanttComponent.new(project: @project, root_stages: @root_stages, expense_totals: @stage_expense_totals) %>
           </div>
         <% else %>

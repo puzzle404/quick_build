@@ -85,4 +85,79 @@ RSpec.describe "Constructors::Projects", type: :request do
       end
     end
   end
+
+  describe "alta de obra" do
+    let(:constructor) { create(:user, :constructor) }
+
+    before { sign_in(constructor) }
+
+    it "el select de estado inicial no ofrece Finalizado" do
+      get new_constructors_project_path
+      expect(response.body).to include(">Inicio</option>")
+      expect(response.body).not_to include(">Finalizado</option>")
+    end
+
+    it "una obra no puede nacer finalizada aunque se fuerce el parámetro" do
+      post constructors_projects_path, params: { project: { name: "Obra X", status: "completed" } }
+      expect(constructor.owned_projects.find_by!(name: "Obra X")).to be_planned
+    end
+
+    it "guarda el presupuesto en dólares" do
+      post constructors_projects_path, params: { project: { name: "Obra USD", budget_currency: "USD", budget_pesos: "50.000" } }
+
+      expect(constructor.owned_projects.find_by!(name: "Obra USD"))
+        .to have_attributes(budget_currency: "USD", budget_cents: 5_000_000)
+    end
+
+    it "el alta ofrece la moneda del presupuesto" do
+      get new_constructors_project_path
+      expect(response.body).to include('name="project[budget_currency]"', ">USD</option>")
+    end
+
+    it "el alta en el drawer separa los campos en secciones con título propio" do
+      get new_constructors_project_path, headers: { "Turbo-Frame" => "drawer" }
+      titles = Nokogiri::HTML(body_without_templates).css(".qb-form-section-title").map { _1.text.strip }
+
+      expect(titles).to eq([ "Datos de la obra", "Plazo y presupuesto", "Ubicación de la obra" ])
+    end
+
+    it "el alta mobile también ofrece la moneda" do
+      cookies["qb_mobile_client"] = "1"
+      get new_constructors_project_path
+      expect(response.body).to include('name="project[budget_currency]"')
+    end
+  end
+
+  describe "edición de obra" do
+    let(:constructor) { create(:user, :constructor) }
+    let(:project) { create(:project, owner: constructor, budget_cents: 1_500_000_00) }
+
+    before { sign_in(constructor) }
+
+    it "permite editar cliente, presupuesto y moneda" do
+      get edit_constructors_project_path(project), headers: { "Turbo-Frame" => "drawer" }
+
+      expect(response.body).to include('name="project[client]"', 'name="project[budget_pesos]"', 'name="project[budget_currency]"')
+    end
+
+    # Feedback 21/10: el form de edición tenía otro diseño (tarjetas, otro
+    # orden, adjuntos, sin Cancelar). Ahora es el mismo que el alta.
+    it "la edición usa las mismas secciones y botones que el alta" do
+      get edit_constructors_project_path(project), headers: { "Turbo-Frame" => "drawer" }
+      doc = Nokogiri::HTML(body_without_templates)
+      titles = doc.css(".qb-form-section-title").map { _1.text.strip }
+
+      expect(titles).to eq([ "Datos de la obra", "Plazo y presupuesto", "Ubicación de la obra" ])
+      expect(doc.css("section.qb-card")).to be_empty
+      expect(body_without_templates).not_to include('name="project[images][]"', 'name="project[document_files][]"')
+      expect(doc.css("button[data-action='click->qb--drawer#back']").map { _1.text.strip }).to include("Cancelar")
+      expect(doc.css("select[name='project[status]'] option").map(&:text)).to include("Finalizado")
+    end
+
+    it "el edit mobile también ofrece la moneda" do
+      cookies["qb_mobile_client"] = "1"
+      get edit_constructors_project_path(project)
+      expect(response.body).to include('name="project[budget_currency]"')
+    end
+  end
 end
