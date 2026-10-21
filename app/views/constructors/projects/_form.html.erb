@@ -7,6 +7,12 @@
         <%= f.label :name, "Nombre", class: "qb-label" %>
         <%= f.text_field :name, class: "qb-input" %>
       </div>
+      <%# Cliente y presupuesto sólo se cargaban en el alta: la tarjeta "Datos
+          de la obra" mandaba a editar datos que este form no tenía. %>
+      <div class="qb-field" style="margin-bottom:0;">
+        <%= f.label :client, "Cliente", class: "qb-label" %>
+        <%= f.text_field :client, placeholder: "Razón social", class: "qb-input" %>
+      </div>
       <div class="qb-field" style="margin-bottom:0;">
         <%= f.label :description, "Descripción", class: "qb-label" %>
         <%= f.text_area :description, rows: 3, class: "qb-input", style: "resize:vertical;" %>
@@ -38,6 +44,9 @@
                      Project.status_options,
                      {},
                      class: "qb-select" %>
+      </div>
+      <div style="grid-column:span 2;">
+        <%= render "constructors/projects/budget_fields", f: f %>
       </div>
     </div>
   </section>

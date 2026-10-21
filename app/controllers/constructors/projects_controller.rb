@@ -209,10 +209,12 @@ class Constructors::ProjectsController < Constructors::BaseController
   def project_params
     permitted = params.require(:project)
                       .permit(:name, :client, :description, :location, :start_date, :end_date, :status,
-                              :budget_cents, :budget_pesos, :latitude, :longitude, document_files: [])
+                              :budget_cents, :budget_pesos, :budget_currency, :latitude, :longitude,
+                              document_files: [])
 
-    # Mobile form posts `budget_pesos` (ARS); convert to cents and drop the
-    # pesos key so it doesn't reach the model (which only has budget_cents).
+    # `budget_pesos` es el monto tipeado (es-AR) en la moneda de
+    # `budget_currency`, ARS o USD (el nombre quedó de cuando sólo había
+    # pesos); se pasa a centavos y la key no llega al modelo.
     # key? y no present?: con `present?` un string vacío se descartaba y dejaba
     # el valor viejo, así que el presupuesto de la obra no se podía BORRAR.
     if permitted.key?(:budget_pesos)

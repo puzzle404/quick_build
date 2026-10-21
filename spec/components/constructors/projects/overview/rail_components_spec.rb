@@ -98,6 +98,16 @@ RSpec.describe Constructors::Projects::Overview::ObraCardComponent, type: :compo
     expect(component.share_text).to eq("Obra: Torre Norte\nDomicilio: Av. Colón 1234, Mendoza\nMapa: https://www.google.com/maps/search/?api=1&query=-32.890000%2C-68.840000")
   end
 
+  it "muestra el presupuesto en dólares con su equivalente en pesos" do
+    allow(Money::UsdArsRate).to receive(:current).and_return(BigDecimal("1000"))
+    project = create(:project, owner: owner, budget_cents: 50_000_00, budget_currency: "USD")
+
+    render_inline(described_class.new(project: project))
+
+    expect(page).to have_text("US$ 50k")
+    expect(page).to have_text("≈ $ 50.0M al dólar oficial")
+  end
+
   it "sin ubicación ni datos: ofrece ubicar y cargar (edición en el drawer)" do
     project = create(:project, owner: owner, location: nil, latitude: nil, longitude: nil, client: nil, budget_cents: nil)
 

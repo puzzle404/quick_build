@@ -65,8 +65,10 @@ class Constructors::Projects::Overview::ObraCardComponent < ViewComponent::Base
     [ project.start_date, project.end_date ].map { |d| d ? helpers.qb_fmt_date_short(d) : "?" }.join(" → ")
   end
 
+  # En la moneda en que se cargó; en USD, con el equivalente en pesos.
   def budget_label
-    project.budget_cents.to_i.positive? ? helpers.qb_fmt_cents(project.budget_cents) : nil
+    label = project.budget_label
+    label && [ label, project.budget_ars_hint ].compact.join(" · ")
   end
 
   def coord(value)

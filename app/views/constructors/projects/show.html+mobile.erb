@@ -84,7 +84,7 @@
     <div class="mono tnum" style="font-size:18px;font-weight:700;margin-top:3px;letter-spacing:-0.3px;"><%= qb_fmt_cents(p.spent) %></div>
     <div style="font-size:11px;color:var(--color-ink-3);margin-top:2px;">
       <% budget_pct = p.budget.positive? ? (p.spent.to_f / p.budget * 100).round : 0 %>
-      <%= budget_pct %>% de <%= qb_fmt_cents(p.budget) %>
+      <%= budget_pct %>% de <%= p.budget_label || '—' %>
     </div>
     <div style="margin-top:8px;">
       <%= render Qb::Mobile::BarComponent.new(value: budget_pct, tone: :accent, height: 4) %>

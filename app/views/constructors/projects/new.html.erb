@@ -24,11 +24,7 @@
             <%= f.date_field :end_date, class: "qb-input" %>
           </div>
         </div>
-        <div class="qb-field">
-          <%= f.label :budget_pesos, "Presupuesto estimado (ARS)", class: "qb-label" %>
-          <%= render Qb::MoneyFieldComponent.new(form: f, method: :budget_pesos, placeholder: '1.500.000',
-                value: qb_money_input_value(f.object.budget_cents)) %>
-        </div>
+        <%= render "constructors/projects/budget_fields", f: f %>
         <div class="qb-field">
           <%= f.label :status, "Estado inicial", class: "qb-label" %>
           <%= f.select :status, Project.status_options(for_create: true), { selected: 'planned' }, class: "qb-select" %>
@@ -95,11 +91,9 @@
               <%= f.date_field :end_date,
                                 style: 'width:100%;height:34px;padding:0 10px;border:1px solid var(--color-line);border-radius:5px;background:var(--color-bg);color:var(--color-ink);font-size:13px;outline:none;' %>
             </label>
-            <label style="display:flex;flex-direction:column;gap:4px;">
-              <span style="font-size:11px;color:var(--color-ink-3);font-family:var(--font-mono);text-transform:uppercase;letter-spacing:0.6px;">Presupuesto estimado (ARS)</span>
-              <%= render Qb::MoneyFieldComponent.new(form: f, method: :budget_pesos, placeholder: '1.500.000',
-                    value: qb_money_input_value(f.object.budget_cents)) %>
-            </label>
+            <div style="grid-column:1 / -1;">
+              <%= render "constructors/projects/budget_fields", f: f %>
+            </div>
             <label style="display:flex;flex-direction:column;gap:4px;">
               <span style="font-size:11px;color:var(--color-ink-3);font-family:var(--font-mono);text-transform:uppercase;letter-spacing:0.6px;">Estado inicial</span>
               <%= f.select :status, Project.status_options(for_create: true), { selected: 'planned' },

@@ -9,7 +9,8 @@
   </p>
 </div>
 
-<%= form_with model: [:constructors, @project], local: true, html: { multipart: true, style: "padding: 0 16px;" } do |f| %>
+<%= form_with model: [:constructors, @project], local: true, html: { multipart: true, style: "padding: 0 16px;" },
+               data: { controller: "qb--currency-symbol", action: "change->qb--currency-symbol#sync" } do |f| %>
   <% if @project.errors.any? %>
     <div role="alert" style="margin-bottom:14px;padding:10px 12px;border-radius:10px;background:color-mix(in oklab, var(--color-bad) 12%, transparent);color:var(--color-bad);font-size:13px;">
       <%= @project.errors.full_messages.to_sentence %>
@@ -31,11 +32,15 @@
   <%# Budget is stored in cents server-side but exposed in pesos here — much
       less error-prone than asking the user to type "150000000". %>
   <%= render Qb::Mobile::FormGroupComponent.new(title: "Presupuesto y estado") do %>
+    <%= render Qb::Mobile::FormRowComponent.new(
+          label: "Moneda", name: "project[budget_currency]", select: true,
+          value: @project.budget_currency, options: Project::BUDGET_CURRENCIES.map { |c| [ c, c ] }) %>
     <%= render Qb::Mobile::FormAmountRowComponent.new(
           label: "Presupuesto estimado",
           name: "project[budget_pesos]",
           value: @project.budget_cents.to_i.positive? ? (@project.budget_cents.to_i / 100) : nil,
-          sub: "Pesos argentinos. Lo redondeamos a entero al guardar.") %>
+          currency: qb_currency_symbol(@project.budget_currency),
+          sub: "En la moneda elegida. En dólares se compara al dólar oficial del día.") %>
     <%= render Qb::Mobile::FormRowComponent.new(
           label: "Estado inicial", name: "project[status]", select: true,
           value: @project.status || 'planned',

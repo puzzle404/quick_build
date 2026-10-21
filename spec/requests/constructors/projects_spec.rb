@@ -101,5 +101,42 @@ RSpec.describe "Constructors::Projects", type: :request do
       post constructors_projects_path, params: { project: { name: "Obra X", status: "completed" } }
       expect(constructor.owned_projects.find_by!(name: "Obra X")).to be_planned
     end
+
+    it "guarda el presupuesto en dólares" do
+      post constructors_projects_path, params: { project: { name: "Obra USD", budget_currency: "USD", budget_pesos: "50.000" } }
+
+      expect(constructor.owned_projects.find_by!(name: "Obra USD"))
+        .to have_attributes(budget_currency: "USD", budget_cents: 5_000_000)
+    end
+
+    it "el alta ofrece la moneda del presupuesto" do
+      get new_constructors_project_path
+      expect(response.body).to include('name="project[budget_currency]"', ">USD</option>")
+    end
+
+    it "el alta mobile también ofrece la moneda" do
+      cookies["qb_mobile_client"] = "1"
+      get new_constructors_project_path
+      expect(response.body).to include('name="project[budget_currency]"')
+    end
+  end
+
+  describe "edición de obra" do
+    let(:constructor) { create(:user, :constructor) }
+    let(:project) { create(:project, owner: constructor, budget_cents: 1_500_000_00) }
+
+    before { sign_in(constructor) }
+
+    it "permite editar cliente, presupuesto y moneda" do
+      get edit_constructors_project_path(project), headers: { "Turbo-Frame" => "drawer" }
+
+      expect(response.body).to include('name="project[client]"', 'name="project[budget_pesos]"', 'name="project[budget_currency]"')
+    end
+
+    it "el edit mobile también ofrece la moneda" do
+      cookies["qb_mobile_client"] = "1"
+      get edit_constructors_project_path(project)
+      expect(response.body).to include('name="project[budget_currency]"')
+    end
   end
 end
