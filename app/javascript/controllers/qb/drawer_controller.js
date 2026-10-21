@@ -26,11 +26,6 @@ const SKELETON_DELAY_MS = 200
 // etapa").
 const URL_PARAM = "drawer"
 const OWN_SUBMIT_WINDOW_MS = 5000
-// Guardado que deja el drawer abierto (ej: crear una lista → su detalle):
-// la página de atrás se refresca para mostrar el cambio. Se espera a que el
-// frame termine de renderizar la respuesta, como mucho REFRESH_WAIT_MS.
-const REFRESH_POLL_MS = 150
-const REFRESH_WAIT_MS = 5000
 
 export default class extends Controller {
   static targets = ["dialog", "panel", "frame", "backButton", "skeleton"]
@@ -52,6 +47,7 @@ export default class extends Controller {
     this.onBeforeRender = this.onBeforeRender.bind(this)
     this.onSubmitEnd = this.onSubmitEnd.bind(this)
     this.onOwnSubmitEnd = this.onOwnSubmitEnd.bind(this)
+    this.onFrameRender = this.onFrameRender.bind(this)
   }
 
   connect() {
@@ -63,6 +59,10 @@ export default class extends Controller {
     if (this.globalValue) {
       document.addEventListener("turbo:before-stream-render", this.onBeforeStreamRender)
       document.addEventListener("turbo:before-render", this.onBeforeRender)
+      // En document y no en el frame: los links turbo_method que apuntan al
+      // drawer ("Marcar completada") los arma Turbo como un form en el <body>.
+      document.addEventListener("turbo:submit-start", this.onSubmitStart)
+      document.addEventListener("turbo:submit-end", this.onOwnSubmitEnd)
       this._setOpen(this._frameHasContent(), { animate: false })
       // Diferido: si este render conserva el shell permanente, Turbo recién
       // mete el frame viejo (con contenido) después de conectar este
@@ -84,9 +84,10 @@ export default class extends Controller {
   disconnect() {
     this._detachFrame()
     clearTimeout(this.skeletonTimer)
-    clearTimeout(this._refreshTimer)
     document.removeEventListener("turbo:before-stream-render", this.onBeforeStreamRender)
     document.removeEventListener("turbo:before-render", this.onBeforeRender)
+    document.removeEventListener("turbo:submit-start", this.onSubmitStart)
+    document.removeEventListener("turbo:submit-end", this.onOwnSubmitEnd)
     this.element.removeEventListener("turbo:submit-end", this.onSubmitEnd)
   }
 
@@ -112,8 +113,7 @@ export default class extends Controller {
     this.frameObserver.observe(frame, { childList: true })
     frame.addEventListener("turbo:before-fetch-request", this.onFrameFetch)
     frame.addEventListener("turbo:before-fetch-response", this.onFrameResponse)
-    frame.addEventListener("turbo:submit-start", this.onSubmitStart)
-    frame.addEventListener("turbo:submit-end", this.onOwnSubmitEnd)
+    frame.addEventListener("turbo:frame-render", this.onFrameRender)
   }
 
   _detachFrame() {
@@ -123,8 +123,7 @@ export default class extends Controller {
     if (!frame) return
     frame.removeEventListener("turbo:before-fetch-request", this.onFrameFetch)
     frame.removeEventListener("turbo:before-fetch-response", this.onFrameResponse)
-    frame.removeEventListener("turbo:submit-start", this.onSubmitStart)
-    frame.removeEventListener("turbo:submit-end", this.onOwnSubmitEnd)
+    frame.removeEventListener("turbo:frame-render", this.onFrameRender)
     this.frameElement = null
   }
 
@@ -174,35 +173,43 @@ export default class extends Controller {
   }
 
   onSubmitStart(event) {
-    if (event.target.closest("turbo-frame") === this.frameElement) this._ownSubmitAt = Date.now()
+    if (this._submitsToDrawer(event)) this._ownSubmitAt = Date.now()
+  }
+
+  // ¿Este envío carga su respuesta en el drawer? Forms adentro del frame
+  // (salvo los que apuntan a otro lado, ej. _top: navegan la página) y forms
+  // de afuera que apuntan al frame (links turbo_method con turbo_frame).
+  _submitsToDrawer(event) {
+    const frame = this.frameElement
+    const form = event.target
+    if (!frame || !(form instanceof HTMLFormElement)) return false
+    const submitter = event.detail?.formSubmission?.submitter
+    const target = submitter?.getAttribute?.("data-turbo-frame") || form.getAttribute("data-turbo-frame")
+    if (target) return target === frame.id
+    return form.closest("turbo-frame") === frame
   }
 
   // Un guardado del drawer que lo deja abierto (crear una lista y caer en su
-  // detalle, agregar un ítem, un gasto de etapa…) cambia datos que muestra la
-  // página de atrás, y antes había que cerrar y recargar para verlos
-  // (feedback 21/10). Terminado el render del frame, si el drawer sigue
-  // abierto se refresca la página conservándolo: es un "refresh ajeno"
-  // (_keepUntil), y turbo-refresh-scroll=preserve en el layout mantiene el
-  // scroll. Sólo para respuestas que el frame sigue como redirect: una
-  // respuesta turbo_stream ya resolvió la página (refresh que cierra el
-  // drawer, o streams puntuales como la tarjeta de etapa) y refrescar de
-  // nuevo reabría el drawer que ese refresh cerraba.
+  // detalle, agregar un ítem, un gasto de etapa, "Marcar completada"…) cambia
+  // datos que muestra la página de atrás, y antes había que cerrar y recargar
+  // para verlos (feedback 21/10). Cuando el frame termina de renderizar esa
+  // respuesta (turbo:frame-render), se refresca la página conservando el
+  // drawer: es un "refresh ajeno" (_keepUntil), y turbo-refresh-scroll=preserve
+  // en el layout mantiene el scroll. Sólo para respuestas que el frame sigue
+  // como redirect: una respuesta turbo_stream ya resolvió la página (refresh
+  // que cierra el drawer, o streams puntuales como la tarjeta de etapa).
   onOwnSubmitEnd(event) {
-    if (!event.detail?.success) return
-    if (event.target.closest("turbo-frame") !== this.frameElement) return
+    if (!event.detail?.success || !this._submitsToDrawer(event)) return
     if (String(event.detail.formSubmission?.method || "").toLowerCase() === "get") return
     if (String(event.detail.fetchResponse?.contentType || "").includes("turbo-stream")) return
 
-    clearTimeout(this._refreshTimer)
-    const deadline = Date.now() + REFRESH_WAIT_MS
-    const attempt = () => {
-      if (this.frameElement?.hasAttribute("busy") && Date.now() < deadline) {
-        this._refreshTimer = setTimeout(attempt, REFRESH_POLL_MS)
-        return
-      }
-      this._refreshBehind()
-    }
-    this._refreshTimer = setTimeout(attempt, REFRESH_POLL_MS)
+    this._refreshPendingAt = Date.now()
+  }
+
+  onFrameRender() {
+    const pending = this._refreshPendingAt && Date.now() - this._refreshPendingAt < OWN_SUBMIT_WINDOW_MS
+    this._refreshPendingAt = null
+    if (pending) this._refreshBehind()
   }
 
   _refreshBehind() {
