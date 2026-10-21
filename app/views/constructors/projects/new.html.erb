@@ -2,38 +2,45 @@
   <% content_for(:drawer) do %>
     <%= render(Qb::DrawerComponent.new(eyebrow: "Nuevo proyecto", title: "Crear una obra", size: :lg)) do %>
       <%= form_with model: [:constructors, @project], html: { multipart: true } do |f| %>
-        <div class="qb-field">
-          <%= f.label :name, "Nombre del proyecto", class: "qb-label" %>
-          <%= f.text_field :name, required: true, placeholder: 'Ej. Torre Palermo · Edificio Aurora', class: "qb-input" %>
-        </div>
-        <div class="qb-field">
-          <%= f.label :client, "Cliente", class: "qb-label" %>
-          <%= f.text_field :client, placeholder: 'Razón social', class: "qb-input" %>
-        </div>
-        <div class="qb-field">
-          <%= f.label :description, "Descripción", class: "qb-label" %>
-          <%= f.text_area :description, rows: 3, placeholder: 'Alcance de la obra, particularidades, notas para el equipo…', class: "qb-textarea" %>
-        </div>
-        <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;">
-          <div class="qb-field" style="margin-bottom:0;">
-            <%= f.label :start_date, "Fecha de inicio", class: "qb-label" %>
-            <%= f.date_field :start_date, class: "qb-input" %>
+        <%# Secciones con título propio (Qb::FormGroupComponent): antes el único
+            título suelto, "Ubicación de la obra", tenía el estilo de las
+            etiquetas de los campos y no se distinguía de ellas. %>
+        <%= render Qb::FormGroupComponent.new(title: "Datos de la obra") do %>
+          <div class="qb-field">
+            <%= f.label :name, "Nombre del proyecto", class: "qb-label" %>
+            <%= f.text_field :name, required: true, placeholder: 'Ej. Torre Palermo · Edificio Aurora', class: "qb-input" %>
+          </div>
+          <div class="qb-field">
+            <%= f.label :client, "Cliente", class: "qb-label" %>
+            <%= f.text_field :client, placeholder: 'Razón social', class: "qb-input" %>
           </div>
           <div class="qb-field" style="margin-bottom:0;">
-            <%= f.label :end_date, "Fecha de entrega", class: "qb-label" %>
-            <%= f.date_field :end_date, class: "qb-input" %>
+            <%= f.label :description, "Descripción", class: "qb-label" %>
+            <%= f.text_area :description, rows: 3, placeholder: 'Alcance de la obra, particularidades, notas para el equipo…', class: "qb-textarea" %>
           </div>
-        </div>
-        <%= render "constructors/projects/budget_fields", f: f %>
-        <div class="qb-field">
-          <%= f.label :status, "Estado inicial", class: "qb-label" %>
-          <%= f.select :status, Project.status_options(for_create: true), { selected: 'planned' }, class: "qb-select" %>
-        </div>
+        <% end %>
 
-        <div style="margin-top:16px;padding-top:14px;border-top:1px solid var(--color-line);">
-          <div style="font-size:11px;color:var(--color-ink-3);font-family:var(--font-mono);text-transform:uppercase;letter-spacing:0.6px;margin-bottom:8px;">Ubicación de la obra</div>
+        <%= render Qb::FormGroupComponent.new(title: "Plazo y presupuesto") do %>
+          <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:14px;">
+            <div class="qb-field" style="margin-bottom:0;">
+              <%= f.label :start_date, "Fecha de inicio", class: "qb-label" %>
+              <%= f.date_field :start_date, class: "qb-input" %>
+            </div>
+            <div class="qb-field" style="margin-bottom:0;">
+              <%= f.label :end_date, "Fecha de entrega", class: "qb-label" %>
+              <%= f.date_field :end_date, class: "qb-input" %>
+            </div>
+          </div>
+          <%= render "constructors/projects/budget_fields", f: f %>
+          <div class="qb-field" style="margin-bottom:0;">
+            <%= f.label :status, "Estado inicial", class: "qb-label" %>
+            <%= f.select :status, Project.status_options(for_create: true), { selected: 'planned' }, class: "qb-select" %>
+          </div>
+        <% end %>
+
+        <%= render Qb::FormGroupComponent.new(title: "Ubicación de la obra") do %>
           <%= render "constructors/projects/location_fields", f: f, map_height: 220 %>
-        </div>
+        <% end %>
 
         <div style="display:flex;align-items:center;gap:8px;margin-top:16px;">
           <%= render Qb::BtnComponent.new('Crear proyecto', variant: :primary, icon: :check, type: 'submit') %>
@@ -103,7 +110,7 @@
 
           <%# Ubicación: domicilio escrito + punto en el mapa (ver el partial). %>
           <div style="margin-top:20px;padding-top:16px;border-top:1px solid var(--color-line);">
-            <div style="font-size:11px;color:var(--color-ink-3);font-family:var(--font-mono);text-transform:uppercase;letter-spacing:0.6px;margin-bottom:10px;">Ubicación de la obra</div>
+            <div class="qb-form-section-head"><span class="qb-form-section-title">Ubicación de la obra</span></div>
             <%= render "constructors/projects/location_fields", f: f, map_height: 260 %>
           </div>
         </div>

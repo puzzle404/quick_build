@@ -1,6 +1,8 @@
 <%= form_with model: [:constructors, project] do |f| %>
+  <%# Cada card es una sección: su título usa .qb-form-section-title (sans,
+      13px, semibold) para no confundirse con las etiquetas de los campos. %>
   <section class="qb-card" style="margin-bottom:16px;">
-    <h3 style="font-size:11px;font-family:var(--font-mono);text-transform:uppercase;letter-spacing:0.7px;color:var(--color-ink-2);margin-bottom:4px;">Información general</h3>
+    <h3 class="qb-form-section-title" style="margin-bottom:4px;">Información general</h3>
     <p style="font-size:12px;color:var(--color-ink-3);margin-bottom:14px;">Estos datos aparecen en los tableros y reportes compartidos con tu equipo.</p>
     <div style="display:grid;grid-template-columns:1fr;gap:12px;">
       <div class="qb-field" style="margin-bottom:0;">
@@ -21,13 +23,13 @@
   </section>
 
   <section class="qb-card" style="margin-bottom:16px;">
-    <h3 style="font-size:11px;font-family:var(--font-mono);text-transform:uppercase;letter-spacing:0.7px;color:var(--color-ink-2);margin-bottom:4px;">Ubicación de la obra</h3>
+    <h3 class="qb-form-section-title" style="margin-bottom:4px;">Ubicación de la obra</h3>
     <p style="font-size:12px;color:var(--color-ink-3);margin-bottom:12px;">El domicilio es el que se comparte; el mapa marca dónde queda la obra.</p>
     <%= render "constructors/projects/location_fields", f: f, map_height: 320 %>
   </section>
 
   <section class="qb-card" style="margin-bottom:16px;">
-    <h3 style="font-size:11px;font-family:var(--font-mono);text-transform:uppercase;letter-spacing:0.7px;color:var(--color-ink-2);margin-bottom:4px;">Planificación temporal</h3>
+    <h3 class="qb-form-section-title" style="margin-bottom:4px;">Plazo y presupuesto</h3>
     <p style="font-size:12px;color:var(--color-ink-3);margin-bottom:14px;">Estos valores alimentan la curva S y el tablero de hitos.</p>
     <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;">
       <div class="qb-field" style="margin-bottom:0;">
@@ -52,7 +54,7 @@
   </section>
 
   <section class="qb-card" style="margin-bottom:16px;border-style:dashed;">
-    <h3 style="font-size:11px;font-family:var(--font-mono);text-transform:uppercase;letter-spacing:0.7px;color:var(--color-ink-2);margin-bottom:4px;">Documentación de soporte</h3>
+    <h3 class="qb-form-section-title" style="margin-bottom:4px;">Documentación de soporte</h3>
     <p style="font-size:12px;color:var(--color-ink-3);margin-bottom:14px;">
       Adjunta planos, fotos o reportes relevantes. Puedes seleccionar múltiples archivos a la vez.
     </p>

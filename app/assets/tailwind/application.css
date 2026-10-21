@@ -324,6 +324,28 @@
     letter-spacing: 0.6px;
     color: var(--color-ink-3);
   }
+  /* Sección de un formulario (Qb::FormGroupComponent y los títulos sueltos
+     de los forms de obra). Jerarquía: título del drawer (18px) > sección
+     (13px, sans, semibold, tinta) > etiqueta del campo (.qb-label: 11px,
+     mono, versalitas, gris). Antes la sección usaba el estilo de la
+     etiqueta, más chico, y "Identidad" se leía igual que "Nombre". */
+  .qb-form-section { margin-bottom: 22px; }
+  .qb-form-section-head {
+    display: flex; align-items: baseline; justify-content: space-between; gap: 8px;
+    padding-bottom: 6px; margin-bottom: 12px; border-bottom: 1px solid var(--color-line);
+  }
+  summary.qb-form-section-head { cursor: pointer; list-style: none; }
+  summary.qb-form-section-head::-webkit-details-marker { display: none; }
+  .qb-form-section-title {
+    margin: 0;
+    font-family: var(--font-ui);
+    font-size: 13px;
+    font-weight: 600;
+    letter-spacing: -0.1px;
+    color: var(--color-ink);
+  }
+  .qb-form-section-sub { font-size: 11px; color: var(--color-ink-4); }
+  .qb-form-section-foot { margin: 6px 0 0; font-size: 11px; color: var(--color-ink-4); }
   .qb-input, .qb-select, .qb-textarea {
     width: 100%;
     font-family: var(--font-ui);

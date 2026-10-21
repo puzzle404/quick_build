@@ -114,6 +114,13 @@ RSpec.describe "Constructors::Projects", type: :request do
       expect(response.body).to include('name="project[budget_currency]"', ">USD</option>")
     end
 
+    it "el alta en el drawer separa los campos en secciones con título propio" do
+      get new_constructors_project_path, headers: { "Turbo-Frame" => "drawer" }
+      titles = Nokogiri::HTML(body_without_templates).css(".qb-form-section-title").map { _1.text.strip }
+
+      expect(titles).to eq([ "Datos de la obra", "Plazo y presupuesto", "Ubicación de la obra" ])
+    end
+
     it "el alta mobile también ofrece la moneda" do
       cookies["qb_mobile_client"] = "1"
       get new_constructors_project_path
@@ -131,6 +138,13 @@ RSpec.describe "Constructors::Projects", type: :request do
       get edit_constructors_project_path(project), headers: { "Turbo-Frame" => "drawer" }
 
       expect(response.body).to include('name="project[client]"', 'name="project[budget_pesos]"', 'name="project[budget_currency]"')
+    end
+
+    it "la edición usa títulos de sección, no el estilo de las etiquetas" do
+      get edit_constructors_project_path(project), headers: { "Turbo-Frame" => "drawer" }
+      titles = Nokogiri::HTML(body_without_templates).css(".qb-form-section-title").map { _1.text.strip }
+
+      expect(titles).to include("Información general", "Ubicación de la obra", "Plazo y presupuesto", "Documentación de soporte")
     end
 
     it "el edit mobile también ofrece la moneda" do
