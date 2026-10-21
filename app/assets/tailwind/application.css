@@ -1392,6 +1392,16 @@
   }
   .qb-drawer-shell.qb-drawer-open .qb-drawer-panel { transform: translateX(0); }
 
+  /* Clic afuera / Escape con un formulario abierto: el drawer no se cierra
+     (qb--drawer#_guardsForm) y lo hace notar con un sacudón corto. `translate`
+     y no `transform`, que es el que usa el slide de apertura. */
+  @keyframes qb-drawer-nudge {
+    0%, 100% { translate: 0; }
+    30% { translate: -6px 0; }
+    60% { translate: 3px 0; }
+  }
+  .qb-drawer-nudge { animation: qb-drawer-nudge 260ms ease-out; }
+
   .qb-drawer-header {
     flex: 0 0 auto; padding: 16px 20px; border-bottom: 1px solid var(--color-line);
     display: flex; align-items: flex-start; gap: 12px;
@@ -1422,6 +1432,7 @@
   @media (prefers-reduced-motion: reduce) {
     .qb-drawer-shell, .qb-drawer-panel { transition-duration: .01ms !important; }
     .qb-drawer-panel { transform: none !important; }
+    .qb-drawer-nudge { animation: none; }
   }
 }
 

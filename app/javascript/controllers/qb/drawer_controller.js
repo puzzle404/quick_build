@@ -274,7 +274,8 @@ export default class extends Controller {
     }
   }
 
-  // Cierre disparado por el botón × / backdrop / Escape: vacía el frame para
+  // Cierre disparado por el botón × (y por backdrop / Escape en vistas sin
+  // formulario): vacía el frame para
   // que la próxima apertura pida contenido fresco en vez de reusar el último
   // estado (ej: "Cancelar" no debe dejar la próxima apertura mostrando el
   // formulario a medio llenar de la vez anterior). Cierra el drawer entero
@@ -290,14 +291,35 @@ export default class extends Controller {
 
   backdrop(event) {
     if (this.hasPanelTarget && this.panelTarget.contains(event.target)) return
+    if (this._guardsForm()) return this._nudge()
     this.close()
   }
 
   keydown(event) {
-    if (event.key === "Escape" && this.dialogTarget.classList.contains("qb-drawer-open")) {
-      event.preventDefault()
-      this.close()
-    }
+    if (event.key !== "Escape" || !this._isOpen()) return
+    event.preventDefault()
+    if (this._guardsForm()) return this._nudge()
+    this.close()
+  }
+
+  // Un alta/edición abierta sólo se cierra con Guardar, Cancelar o la ×: un
+  // clic afuera o Escape tiraban todo lo cargado (feedback 29/09). Las vistas
+  // de consulta se siguen cerrando como siempre. `button_to` también es un
+  // <form> (acciones sueltas, no hay nada tipeado) y una vista de consulta
+  // con un form chico embebido —el alta inline de ítems de una lista— lo
+  // marca con data-drawer-dismissable.
+  _guardsForm() {
+    const scope = this.hasPanelTarget ? this.panelTarget : (this.hasDialogTarget ? this.dialogTarget : null)
+    return !!scope?.querySelector("form:not(.button_to):not([data-drawer-dismissable])")
+  }
+
+  // El clic llegó pero el panel no se cierra: un sacudón corto lo hace notar.
+  _nudge() {
+    if (!this.hasPanelTarget) return
+    const panel = this.panelTarget
+    panel.classList.remove("qb-drawer-nudge")
+    void panel.offsetWidth // reinicia la animación si se repite el clic
+    panel.classList.add("qb-drawer-nudge")
   }
 
   _frameHasContent() {
