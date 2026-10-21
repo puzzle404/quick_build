@@ -1,7 +1,7 @@
 <% if turbo_frame_request? %>
   <% content_for(:drawer) do %>
     <%= render(Qb::DrawerComponent.new(eyebrow: @project.decorate.code, title: "Editar obra", size: :lg)) do %>
-      <%= render "form", project: @project %>
+      <%= render "form", project: @project, in_drawer: true %>
     <% end %>
   <% end %>
 <% else %>
@@ -25,7 +25,7 @@
     <div style="border-right:1px solid var(--color-line);">
       <%= render Qb::SectionHeadComponent.new(title: 'Datos del proyecto', subtitle: 'Completá la información operativa para planificar y coordinar actividades.') %>
       <div style="padding:16px 20px;">
-        <%= render "form", project: @project %>
+        <%= render "form", project: @project, map_height: 320 %>
 
         <div style="margin-top:16px;border:1px dashed var(--color-line);border-radius:var(--radius);padding:12px 14px;">
           <p style="font-size:12px;font-weight:600;color:var(--color-ink-2);margin-bottom:4px;">Consejo:</p>

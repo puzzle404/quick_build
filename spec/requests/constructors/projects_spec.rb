@@ -140,11 +140,18 @@ RSpec.describe "Constructors::Projects", type: :request do
       expect(response.body).to include('name="project[client]"', 'name="project[budget_pesos]"', 'name="project[budget_currency]"')
     end
 
-    it "la edición usa títulos de sección, no el estilo de las etiquetas" do
+    # Feedback 21/10: el form de edición tenía otro diseño (tarjetas, otro
+    # orden, adjuntos, sin Cancelar). Ahora es el mismo que el alta.
+    it "la edición usa las mismas secciones y botones que el alta" do
       get edit_constructors_project_path(project), headers: { "Turbo-Frame" => "drawer" }
-      titles = Nokogiri::HTML(body_without_templates).css(".qb-form-section-title").map { _1.text.strip }
+      doc = Nokogiri::HTML(body_without_templates)
+      titles = doc.css(".qb-form-section-title").map { _1.text.strip }
 
-      expect(titles).to include("Información general", "Ubicación de la obra", "Plazo y presupuesto", "Documentación de soporte")
+      expect(titles).to eq([ "Datos de la obra", "Plazo y presupuesto", "Ubicación de la obra" ])
+      expect(doc.css("section.qb-card")).to be_empty
+      expect(body_without_templates).not_to include('name="project[images][]"', 'name="project[document_files][]"')
+      expect(doc.css("button[data-action='click->qb--drawer#back']").map { _1.text.strip }).to include("Cancelar")
+      expect(doc.css("select[name='project[status]'] option").map(&:text)).to include("Finalizado")
     end
 
     it "el edit mobile también ofrece la moneda" do
