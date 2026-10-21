@@ -3,39 +3,16 @@
        data-qb--sidebar-storage-key-value="qb_sidebar_collapsed"
        style="flex-shrink:0;height:100vh;position:sticky;top:0;display:flex;flex-direction:column;border-right:1px solid var(--color-line);background:var(--color-bg-raised);transition:width .2s ease;">
 
-  <%# Marca + switcher de cuenta unificados: antes eran dos bloques apilados
-      (marca estática "Quick Build" + switcher con el nombre de la empresa),
-      que mostraban el mismo texto dos veces cuando la cuenta no tiene
-      company_name propio (cae al mismo fallback "Quick Build" — ver
-      display_company). Ahora es un único botón: el ícono de marca queda
-      siempre visible (sin data-qb-sidebar-label) para que el rail colapsado
-      conserve la identidad; el nombre + plan + flecha se ocultan colapsado
-      pero el botón sigue abriendo el menú (Perfil / Cerrar sesión). %>
-  <div data-controller="qb--dropdown" style="position:relative;margin:8px;">
-    <button type="button"
-            data-action="click->qb--dropdown#toggle"
-            aria-label="Menú de cuenta"
-            style="width:100%;padding:8px 10px;text-align:left;background:var(--color-bg);border:1px solid var(--color-line);border-radius:6px;display:flex;align-items:center;gap:10px;cursor:pointer;color:var(--color-ink);">
-      <div style="width:26px;height:26px;border-radius:6px;background:var(--color-ink);color:var(--color-bg);display:flex;align-items:center;justify-content:center;font-family:var(--font-mono);font-weight:700;font-size:14px;letter-spacing:-0.5px;flex-shrink:0;">◱</div>
-      <div data-qb-sidebar-label style="flex:1;overflow:hidden;line-height:1.15;">
-        <div style="font-size:13px;font-weight:600;letter-spacing:-0.1px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;"><%= display_company %></div>
-        <div style="font-size:10px;color:var(--color-ink-3);font-family:var(--font-mono);letter-spacing:0.4px;">PLAN PRO</div>
-      </div>
-      <span data-qb-sidebar-label style="flex-shrink:0;display:flex;">
-        <%= render Qb::IconComponent.new(name: :'chevron-down', size: 12, style: 'color:var(--color-ink-3)') %>
-      </span>
-    </button>
-    <div data-qb--dropdown-target="menu"
-         class="hidden"
-         style="display:none;position:absolute;top:calc(100% + 4px);left:0;right:0;z-index:41;background:var(--color-bg);border:1px solid var(--color-line);border-radius:6px;box-shadow:0 8px 20px -4px rgba(0,0,0,0.25);padding:4px;">
-      <%= link_to helpers.edit_registration_path, style: account_menu_row_style do %>
-        <%= render Qb::IconComponent.new(name: :settings, size: 13, style: 'color:var(--color-ink-3);flex-shrink:0;') %>
-        <span>Perfil</span>
-      <% end %>
-      <%= button_to helpers.session_path, method: :delete, form: { style: 'margin:0;' }, style: account_menu_row_style do %>
-        <%= render Qb::IconComponent.new(name: :'arrow-right', size: 13, style: 'color:var(--color-ink-3);flex-shrink:0;') %>
-        <span>Cerrar sesión</span>
-      <% end %>
+  <%# Marca + cuenta: el ícono de marca queda siempre visible (sin
+      data-qb-sidebar-label) para que el rail colapsado conserve la identidad;
+      el nombre + plan se ocultan colapsado. Ya no abre un menú: Perfil y
+      Cerrar sesión viven sólo en el avatar del topbar, a la derecha
+      (feedback 29/09: "solo debe estar en un lugar"). %>
+  <div style="margin:8px;padding:8px 10px;background:var(--color-bg);border:1px solid var(--color-line);border-radius:6px;display:flex;align-items:center;gap:10px;color:var(--color-ink);">
+    <div style="width:26px;height:26px;border-radius:6px;background:var(--color-ink);color:var(--color-bg);display:flex;align-items:center;justify-content:center;font-family:var(--font-mono);font-weight:700;font-size:14px;letter-spacing:-0.5px;flex-shrink:0;">◱</div>
+    <div data-qb-sidebar-label style="flex:1;overflow:hidden;line-height:1.15;">
+      <div style="font-size:13px;font-weight:600;letter-spacing:-0.1px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;"><%= display_company %></div>
+      <div style="font-size:10px;color:var(--color-ink-3);font-family:var(--font-mono);letter-spacing:0.4px;">PLAN PRO</div>
     </div>
   </div>
 

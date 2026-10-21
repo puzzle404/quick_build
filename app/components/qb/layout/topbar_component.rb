@@ -4,6 +4,10 @@
 class Qb::Layout::TopbarComponent < ViewComponent::Base
   renders_one :right_extra
 
+  # Fila del menú de cuenta del avatar (Perfil / Cerrar sesión): el único
+  # lugar de la app de escritorio donde están (antes también en el sidebar).
+  ACCOUNT_MENU_ROW_STYLE = "width:100%;display:flex;align-items:center;gap:8px;padding:7px 10px;background:transparent;border:none;border-radius:4px;color:var(--color-ink);font-size:12px;font-weight:500;cursor:pointer;text-decoration:none;text-align:left;"
+
   def initialize(crumbs: [], user: nil, people_on_site: nil, has_alerts: true)
     @crumbs = Array(crumbs)
     @user = user
