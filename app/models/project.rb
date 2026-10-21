@@ -4,14 +4,19 @@ class Project < ApplicationRecord
 
   # Etiquetas es-AR de los estados. Fuente única: el decorator y los selects
   # de los forms (desktop y mobile) las leen de acá para no divergir.
+  # "Inicio" (antes "Planificado"): pedido del usuario, feedback 29/09.
   STATUS_LABELS = {
-    "planned" => "Planificado",
+    "planned" => "Inicio",
     "in_progress" => "En progreso",
     "completed" => "Finalizado"
   }.freeze
 
-  def self.status_options
-    statuses.keys.map { |s| [ STATUS_LABELS.fetch(s, s.humanize), s ] }
+  # Una obra no nace finalizada: el alta sólo ofrece estos.
+  CREATE_STATUSES = %w[planned in_progress].freeze
+
+  def self.status_options(for_create: false)
+    keys = for_create ? CREATE_STATUSES : statuses.keys
+    keys.map { |s| [ STATUS_LABELS.fetch(s, s.humanize), s ] }
   end
 
   belongs_to :owner, class_name: "User"

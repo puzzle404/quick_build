@@ -9,7 +9,7 @@ module Constructors::ProjectsHelper
     status_key = project.status
     classes = STATUS_BADGE_CLASSES.fetch(status_key, 'bg-slate-100 text-slate-700 border border-slate-200')
 
-    tag.span(project.status.humanize, class: "inline-flex items-center rounded-full px-3 py-1 text-xs font-semibold #{classes}")
+    tag.span(Project::STATUS_LABELS.fetch(status_key.to_s, status_key.to_s.humanize), class: "inline-flex items-center rounded-full px-3 py-1 text-xs font-semibold #{classes}")
   end
 
   def formatted_project_date(date)

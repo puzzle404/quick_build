@@ -163,4 +163,14 @@ RSpec.describe Project, type: :model do
       expect(ajena.role_for(owner)).to be_nil
     end
   end
+
+  describe ".status_options" do
+    it "rotula planned como «Inicio»" do
+      expect(described_class.status_options).to include([ "Inicio", "planned" ])
+    end
+
+    it "al crear no ofrece «Finalizado»" do
+      expect(described_class.status_options(for_create: true)).to eq([ [ "Inicio", "planned" ], [ "En progreso", "in_progress" ] ])
+    end
+  end
 end

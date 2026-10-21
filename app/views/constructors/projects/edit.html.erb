@@ -41,7 +41,7 @@
       <div style="display:grid;grid-template-columns:1fr 1fr;border-bottom:1px solid var(--color-line);">
         <%= render Qb::MetricCellComponent.new(
               label: "Estado",
-              value: @project_summary.status.humanize,
+              value: @project_summary.status_label,
               hint: "Define cómo se mostrará en tableros y reportes."
             ) %>
         <%= render Qb::MetricCellComponent.new(

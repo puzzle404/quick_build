@@ -85,4 +85,21 @@ RSpec.describe "Constructors::Projects", type: :request do
       end
     end
   end
+
+  describe "alta de obra" do
+    let(:constructor) { create(:user, :constructor) }
+
+    before { sign_in(constructor) }
+
+    it "el select de estado inicial no ofrece Finalizado" do
+      get new_constructors_project_path
+      expect(response.body).to include(">Inicio</option>")
+      expect(response.body).not_to include(">Finalizado</option>")
+    end
+
+    it "una obra no puede nacer finalizada aunque se fuerce el parámetro" do
+      post constructors_projects_path, params: { project: { name: "Obra X", status: "completed" } }
+      expect(constructor.owned_projects.find_by!(name: "Obra X")).to be_planned
+    end
+  end
 end

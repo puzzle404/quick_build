@@ -31,7 +31,7 @@
         </div>
         <div class="qb-field">
           <%= f.label :status, "Estado inicial", class: "qb-label" %>
-          <%= f.select :status, Project.status_options, { selected: 'planned' }, class: "qb-select" %>
+          <%= f.select :status, Project.status_options(for_create: true), { selected: 'planned' }, class: "qb-select" %>
         </div>
 
         <div style="margin-top:16px;padding-top:14px;border-top:1px solid var(--color-line);">
@@ -102,7 +102,7 @@
             </label>
             <label style="display:flex;flex-direction:column;gap:4px;">
               <span style="font-size:11px;color:var(--color-ink-3);font-family:var(--font-mono);text-transform:uppercase;letter-spacing:0.6px;">Estado inicial</span>
-              <%= f.select :status, Project.status_options, { selected: 'planned' },
+              <%= f.select :status, Project.status_options(for_create: true), { selected: 'planned' },
                             style: 'width:100%;height:34px;padding:0 10px;border:1px solid var(--color-line);border-radius:5px;background:var(--color-bg);color:var(--color-ink);font-size:13px;outline:none;' %>
             </label>
           </div>

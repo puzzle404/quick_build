@@ -93,7 +93,7 @@
     <div class="qb-report__grid">
       <%= render Qb::MetricCellComponent.new(label: 'Obras totales', value: @kpis[:total_projects]) %>
       <%= render Qb::MetricCellComponent.new(label: 'En progreso', value: @kpis[:in_progress], tone: :info) %>
-      <%= render Qb::MetricCellComponent.new(label: 'Planificadas', value: @kpis[:planned]) %>
+      <%= render Qb::MetricCellComponent.new(label: 'En inicio', value: @kpis[:planned]) %>
       <%= render Qb::MetricCellComponent.new(label: 'Finalizadas', value: @kpis[:completed], tone: :ok) %>
     </div>
   </div>

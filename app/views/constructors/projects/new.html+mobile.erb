@@ -39,7 +39,7 @@
     <%= render Qb::Mobile::FormRowComponent.new(
           label: "Estado inicial", name: "project[status]", select: true,
           value: @project.status || 'planned',
-          options: Project.status_options) %>
+          options: Project.status_options(for_create: true)) %>
   <% end %>
 
   <%# La plantilla de etapas se aplica desde la obra ya creada (pantalla de

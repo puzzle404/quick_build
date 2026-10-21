@@ -14,7 +14,7 @@ RSpec.describe 'QB OS · Projects list', type: :system do
     within('main') do
       expect(page).to have_text('Todos')
       expect(page).to have_text('En progreso')
-      expect(page).to have_text('Planificados')
+      expect(page).to have_text('En inicio')
       expect(page).to have_text('Finalizados')
     end
   end

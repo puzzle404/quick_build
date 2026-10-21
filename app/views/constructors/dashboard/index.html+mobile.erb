@@ -69,7 +69,7 @@
         label: "En curso", value: in_progress, icon: :stages, gradient: :amber,
         hint: total.positive? ? "#{(in_progress.to_f / total * 100).round}% del total" : "—") %>
   <%= render Qb::Mobile::KpiComponent.new(
-        label: "Planificadas", value: planned, icon: :calendar, gradient: :sky,
+        label: "En inicio", value: planned, icon: :calendar, gradient: :sky,
         hint: "próximas a iniciar") %>
   <%= render Qb::Mobile::KpiComponent.new(
         label: "Completadas", value: completed, icon: :check, gradient: :emerald,

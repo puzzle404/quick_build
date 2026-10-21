@@ -81,6 +81,8 @@ class Constructors::ProjectsController < Constructors::BaseController
 
   def create
     @project = current_user.owned_projects.build(project_params)
+    # El select ya no ofrece "Finalizado", pero el parámetro se puede forzar.
+    @project.status = "planned" unless Project::CREATE_STATUSES.include?(@project.status)
     authorize @project
 
     if persist_project_with_documents(@project)

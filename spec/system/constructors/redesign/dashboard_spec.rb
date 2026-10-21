@@ -14,7 +14,7 @@ RSpec.describe 'QB OS · Dashboard', type: :system do
     expect(page).to have_text(/Buen[oa]s\s+(días|tardes|noches)/i)
     expect(page).to have_text('Obras totales')
     expect(page).to have_text('En progreso')
-    expect(page).to have_text('Planificadas')
+    expect(page).to have_text('En inicio')
     expect(page).to have_text('Completadas')
   end
 
