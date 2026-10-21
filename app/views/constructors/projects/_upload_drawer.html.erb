@@ -1,0 +1,41 @@
+<%# Drawer de subida de fotos / documentos de la obra (feedback 21/10): se
+    eligen los archivos (se listan antes de subir) y después, opcionalmente,
+    la etapa. "Subir" queda bloqueado hasta elegir algo (data-qb-file-submit,
+    lo maneja qb--file-field). Antes era un form suelto en la barra con el
+    botón "Subir" a la vista antes de adjuntar nada.
+    Locals: scope (:image / :document), url, eyebrow, title, trigger_label,
+            accept, hint, direct_upload (default false), error (opcional). %>
+<% options = stage_select_options(@project) %>
+<% preselected = params[:stage].to_s.match?(/\A\d+\z/) ? params[:stage].to_i : nil %>
+<%= render(Qb::DrawerComponent.new(eyebrow: eyebrow, title: title, subtitle: @project.name, size: :lg)) do %>
+  <%= form_with scope: scope, url: url, html: { multipart: true } do |f| %>
+    <% if local_assigns[:error].present? %>
+      <div class="qb-form-error" role="alert"><%= error %></div>
+    <% end %>
+
+    <%= render Qb::FormGroupComponent.new(title: "Archivos") do %>
+      <div class="qb-field" style="margin-bottom:0;">
+        <%= render Qb::FileFieldComponent.new(form: f, method: :files, trigger_label: trigger_label,
+                                              multiple: true, accept: accept,
+                                              direct_upload: local_assigns.fetch(:direct_upload, false)) %>
+        <p style="margin:2px 0 0;font-size:11px;color:var(--color-ink-4);"><%= hint %></p>
+      </div>
+    <% end %>
+
+    <% if options.any? %>
+      <%= render Qb::FormGroupComponent.new(title: "Etapa", subtitle: "opcional") do %>
+        <div class="qb-field" style="margin-bottom:0;">
+          <%= label_tag "#{scope}_stage_id", "Vincular a una etapa", class: "qb-label" %>
+          <%= select_tag "#{scope}[stage_id]", options_for_select([ [ "— Toda la obra —", "" ] ] + options, preselected),
+                id: "#{scope}_stage_id", class: "qb-select" %>
+          <p style="margin:2px 0 0;font-size:11px;color:var(--color-ink-4);">Si elegís una etapa, también se ve en el detalle de esa etapa.</p>
+        </div>
+      <% end %>
+    <% end %>
+
+    <div style="display:flex;align-items:center;gap:8px;margin-top:4px;padding-top:14px;border-top:1px solid var(--color-line);">
+      <%= render Qb::BtnComponent.new('Subir', variant: :primary, icon: :upload, type: 'submit', data: { qb_file_submit: true }) %>
+      <%= render Qb::BtnComponent.new('Cancelar', variant: :secondary, data: { action: 'click->qb--drawer#back' }) %>
+    </div>
+  <% end %>
+<% end %>

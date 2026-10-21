@@ -21,8 +21,9 @@ module Constructors
 
       attr_reader :project, :query, :from_date, :to_date
 
+      # Obra + etapas: un documento subido a una etapa también es de la obra.
       def base_scope
-        project.documents.includes(file_attachment: :blob)
+        Document.for_project(project).includes(:documentable, file_attachment: :blob)
       end
 
       def apply_query(scope)

@@ -16,14 +16,19 @@ class Constructors::Projects::ImagesController < Constructors::BaseController
     @images = scope
   end
 
+  # Drawer de subida: archivos primero, etapa después (opcional). Sólo vive en
+  # el drawer; un GET directo vuelve a la galería.
+  def new
+    authorize @project, :manage_content?
+    redirect_to constructors_project_images_path(@project) unless turbo_frame_request?
+  end
+
   def create
     # Subir fotos de obra es contenido (editor+), no edición de la obra.
     authorize @project, :manage_content?
 
     files = Array.wrap(image_params[:files]).compact_blank
-    if files.empty?
-      redirect_to constructors_project_images_path(@project), alert: "Seleccioná al menos una imagen." and return
-    end
+    return upload_failed("Seleccioná al menos una imagen.") if files.empty?
 
     # Vincular a una etapa es opcional; se busca dentro de la obra.
     target = stage_id.present? ? @project.project_stages.find(stage_id) : @project
@@ -39,9 +44,17 @@ class Constructors::Projects::ImagesController < Constructors::BaseController
       end
     end
 
-    redirect_to constructors_project_images_path(@project), notice: created > 1 ? "#{created} imágenes cargadas." : "Imagen cargada."
+    notice = created > 1 ? "#{created} imágenes cargadas." : "Imagen cargada."
+    respond_to do |format|
+      # Drawer: refresh (cierra el drawer y la galería muestra las fotos).
+      format.turbo_stream do
+        flash[:notice] = notice
+        render turbo_stream: turbo_stream.refresh(request_id: nil)
+      end
+      format.html { redirect_to constructors_project_images_path(@project), notice: notice }
+    end
   rescue ActiveRecord::RecordInvalid => e
-    redirect_to constructors_project_images_path(@project), alert: "No pudimos cargar la imagen: #{e.record.errors.full_messages.to_sentence}."
+    upload_failed("No pudimos cargar la imagen: #{e.record.errors.full_messages.to_sentence}.")
   end
 
   def destroy
@@ -60,5 +73,16 @@ class Constructors::Projects::ImagesController < Constructors::BaseController
 
   def stage_id
     params.dig(:image, :stage_id)
+  end
+
+  # En el drawer se re-renderiza con el error (un redirect lo cerraba sin
+  # mostrar nada); mobile / página completa vuelve a la galería con el aviso.
+  def upload_failed(message)
+    if turbo_frame_request?
+      @upload_error = message
+      render :new, status: :unprocessable_entity
+    else
+      redirect_to constructors_project_images_path(@project), alert: message
+    end
   end
 end

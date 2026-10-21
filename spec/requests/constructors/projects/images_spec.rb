@@ -32,7 +32,7 @@ RSpec.describe "Fotos de la obra", type: :request do
     create(:image, imageable: stage, title: "estacas.png")
 
     get constructors_project_images_path(project)
-    expect(response.body).to include("fachada.png", "estacas.png", "Replanteo", 'name="image[stage_id]"')
+    expect(response.body).to include("fachada.png", "estacas.png", "Replanteo")
 
     get constructors_project_images_path(project, stage: stage.id)
     expect(response.body).to include("estacas.png")

@@ -13,7 +13,11 @@
 <%# Upload card — sólo editor de obra en adelante (ProjectPolicy#manage_content?). %>
 <% if can_upload %>
   <div style="padding: 0 16px 14px;">
-    <%= form_with url: constructors_project_documents_path(@project), method: :post, local: true, multipart: true do |f| %>
+    <%# Primero los archivos, después la etapa (opcional); "Subir" queda
+        bloqueado hasta elegir algo (qb--file-field + data-qb-file-submit). %>
+    <% stage_options = stage_select_options(@project) %>
+    <%= form_with url: constructors_project_documents_path(@project), method: :post, local: true, multipart: true,
+                  data: { controller: "qb--file-field" } do |f| %>
       <%= render Qb::Mobile::CardComponent.new do %>
         <div style="display:flex;align-items:center;gap:12px;">
           <div style="width:48px;height:48px;border-radius:12px;background:color-mix(in oklab, var(--color-accent) 14%, transparent);color:var(--color-accent);display:flex;align-items:center;justify-content:center;flex-shrink:0;">
@@ -22,11 +26,17 @@
           <div style="flex:1;min-width:0;">
             <div style="font-size:14.5px;font-weight:600;">Subir documento</div>
             <div style="font-size:12px;color:var(--color-ink-3);">PDF, imagen, Excel.</div>
-            <input type="file" name="document[files][]" multiple style="margin-top:8px;font-size:13px;"/>
+            <input type="file" name="document[files][]" multiple style="margin-top:8px;font-size:13px;"
+                   data-qb--file-field-target="input" data-action="change->qb--file-field#update"/>
+            <% if stage_options.any? %>
+              <%= select_tag "document[stage_id]", options_for_select([ [ "Etapa: toda la obra", "" ] ] + stage_options),
+                    class: "m-frow-select", "aria-label": "Etapa del documento (opcional)",
+                    style: "margin-top:8px;width:100%;font-size:13px;" %>
+            <% end %>
           </div>
         </div>
         <div style="margin-top:10px;">
-          <%= f.submit "Subir", class: "m-btn m-btn--sm m-btn--full" %>
+          <%= f.submit "Subir", class: "m-btn m-btn--sm m-btn--full", data: { qb_file_submit: true } %>
         </div>
       <% end %>
     <% end %>

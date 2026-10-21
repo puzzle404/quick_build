@@ -17,16 +17,11 @@
     </div>
   </div>
   <% if can_upload %>
-    <%= form_with scope: :image, url: constructors_project_images_path(@project), html: { multipart: true, style: 'display:flex;align-items:center;gap:8px;' } do |f| %>
-      <% if (options = stage_select_options(@project)).any? %>
-        <%= select_tag "image[stage_id]", options_for_select([ [ "Toda la obra", "" ] ] + options),
-              class: "qb-select", "aria-label": "Etapa de las fotos",
-              style: "height:28px;width:auto;max-width:200px;padding-top:0;padding-bottom:0;font-size:12px;" %>
-      <% end %>
-      <%= render Qb::FileFieldComponent.new(form: f, method: :files, trigger_label: "Elegir fotos",
-                                            multiple: true, accept: 'image/*', compact: true) %>
-      <%= render Qb::BtnComponent.new('Subir', variant: :primary, size: :sm, icon: :upload, type: 'submit') %>
-    <% end %>
+    <%# Abre el drawer de subida (archivos → etapa → Subir). Con un filtro de
+        etapa activo, la propone ya elegida. %>
+    <%= render Qb::BtnComponent.new('Subir fotos', variant: :primary, size: :sm, icon: :upload,
+          href: new_constructors_project_image_path(@project, stage: (@stage_filter if @stage_filter.match?(/\A\d+\z/))),
+          data: { turbo_frame: 'drawer', action: 'click->qb--drawer#open' }) %>
   <% end %>
 </div>
 
@@ -88,7 +83,7 @@
       <div>Aún no se cargaron fotos de esta obra.</div>
     <% end %>
     <% if can_upload && @stage_filter == 'all' %>
-      <div style="font-size:11px;color:var(--color-ink-4);margin-top:6px;">Subí fotografías y evidencias visuales desde «Elegir fotos», arriba a la derecha.</div>
+      <div style="font-size:11px;color:var(--color-ink-4);margin-top:6px;">Subí fotografías y evidencias visuales desde «Subir fotos», arriba a la derecha.</div>
     <% end %>
   </div>
 <% end %>

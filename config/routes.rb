@@ -58,8 +58,8 @@ Rails.application.routes.draw do
       resources :project_memberships, only: [ :create, :destroy ]
       # /planning redirige a /stages (la vista de planificación ahora vive en stages#index).
       resource :planning, only: [ :show ], module: :projects, controller: :planning
-      resources :documents, only: [ :index, :create, :destroy ], module: :projects, controller: :documents
-      resources :images, only: [ :index, :create, :destroy ], module: :projects, controller: :images
+      resources :documents, only: [ :index, :new, :create, :destroy ], module: :projects, controller: :documents
+      resources :images, only: [ :index, :new, :create, :destroy ], module: :projects, controller: :images
       resources :expenses, only: [ :index, :new, :create, :destroy ], module: false, controller: "/constructors/expenses"
       resources :notes, only: [ :index, :new, :create, :destroy ], module: false, controller: "/constructors/notes"
       resources :stages, module: :projects do

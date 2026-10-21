@@ -18,7 +18,10 @@
 <%# Upload card — mismo patrón que documentos: input file inline + submit al create existente %>
 <% if can_upload %>
   <div style="padding: 0 16px 14px;">
-    <%= form_with url: constructors_project_images_path(@project), method: :post, local: true, multipart: true do |f| %>
+    <%# Primero los archivos, después la etapa (opcional); "Subir" queda
+        bloqueado hasta elegir algo (qb--file-field + data-qb-file-submit). %>
+    <%= form_with url: constructors_project_images_path(@project), method: :post, local: true, multipart: true,
+                  data: { controller: "qb--file-field" } do |f| %>
       <%= render Qb::Mobile::CardComponent.new do %>
         <div style="display:flex;align-items:center;gap:12px;">
           <div style="width:48px;height:48px;border-radius:12px;background:color-mix(in oklab, var(--color-accent) 14%, transparent);color:var(--color-accent);display:flex;align-items:center;justify-content:center;flex-shrink:0;">
@@ -27,16 +30,17 @@
           <div style="flex:1;min-width:0;">
             <div style="font-size:14.5px;font-weight:600;">Subir fotos</div>
             <div style="font-size:12px;color:var(--color-ink-3);">Sacá una foto o elegí de la galería. JPG, PNG, WEBP.</div>
+            <input type="file" name="image[files][]" multiple accept="image/*" style="margin-top:8px;font-size:13px;max-width:100%;"
+                   data-qb--file-field-target="input" data-action="change->qb--file-field#update"/>
             <% if stage_options.any? %>
-              <%= select_tag "image[stage_id]", options_for_select([ [ "Toda la obra", "" ] ] + stage_options),
-                    class: "m-frow-select", "aria-label": "Etapa de las fotos",
+              <%= select_tag "image[stage_id]", options_for_select([ [ "Etapa: toda la obra", "" ] ] + stage_options),
+                    class: "m-frow-select", "aria-label": "Etapa de las fotos (opcional)",
                     style: "margin-top:8px;width:100%;font-size:13px;" %>
             <% end %>
-            <input type="file" name="image[files][]" multiple accept="image/*" style="margin-top:8px;font-size:13px;max-width:100%;"/>
           </div>
         </div>
         <div style="margin-top:10px;">
-          <%= f.submit "Subir", class: "m-btn m-btn--sm m-btn--full" %>
+          <%= f.submit "Subir", class: "m-btn m-btn--sm m-btn--full", data: { qb_file_submit: true } %>
         </div>
       <% end %>
     <% end %>

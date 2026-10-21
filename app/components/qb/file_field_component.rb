@@ -8,6 +8,11 @@
 # en el label abre el picker por comportamiento nativo del HTML) + un texto
 # que muestra el/los archivo(s) elegidos, actualizado por el controller
 # Stimulus qb--file-field en el evento "change".
+#
+# Fuera del modo compacto lista lo elegido (miniatura si es imagen, nombre y
+# peso) antes de subir. Un form de subida marca su botón con
+# data-qb-file-submit: qb--file-field lo deja deshabilitado hasta que haya
+# archivos (feedback 21/10: el "Subir" estaba a la vista antes de adjuntar).
 class Qb::FileFieldComponent < ViewComponent::Base
   def initialize(form:, method:, trigger_label: nil, multiple: false, accept: nil,
                  direct_upload: false, required: false, compact: false)

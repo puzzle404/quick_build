@@ -25,12 +25,10 @@
     <% end %>
     <div style="flex:1;"></div>
     <% if can_upload %>
-      <%= form_with scope: :document, url: constructors_project_documents_path(@project), html: { multipart: true, style: 'display:flex;align-items:center;gap:6px;' } do |f| %>
-        <%= render Qb::FileFieldComponent.new(form: f, method: :files, trigger_label: "Elegir PDFs",
-                                              multiple: true, accept: '.pdf,application/pdf',
-                                              direct_upload: true, compact: true) %>
-        <%= render Qb::BtnComponent.new('Subir', variant: :primary, size: :xs, icon: :upload, type: 'submit') %>
-      <% end %>
+      <%# Abre el drawer de subida (archivos → etapa → Subir). %>
+      <%= render Qb::BtnComponent.new('Subir documentos', variant: :primary, size: :sm, icon: :upload,
+            href: new_constructors_project_document_path(@project),
+            data: { turbo_frame: 'drawer', action: 'click->qb--drawer#open' }) %>
     <% end %>
   </div>
 
@@ -52,6 +50,10 @@
               <div style="display:flex;align-items:center;gap:10px;">
                 <span class="qb-mono" style="font-size:10px;width:36px;padding:3px 4px;background:var(--color-bg-sunken);border:1px solid var(--color-line);border-radius:3px;text-align:center;color:var(--color-ink-3);font-weight:500;"><%= doc_kind.call(doc) %></span>
                 <span style="font-weight:500;color:var(--color-ink);"><%= doc.try(:file_name) || (doc.respond_to?(:file) && doc.file.attached? && doc.file.filename.to_s) || 'Documento' %></span>
+                <%# Obra + etapas en la misma lista: la etapa, si es de una. %>
+                <% if doc.documentable_type == "ProjectStage" %>
+                  <span style="font-size:11px;color:var(--color-ink-3);">· <%= doc.documentable.name %></span>
+                <% end %>
               </div>
             </td>
             <td style="padding:0 12px;text-align:right;"><%= render Qb::PillComponent.new(tone: :muted, compact: true) { doc_kind.call(doc) } %></td>

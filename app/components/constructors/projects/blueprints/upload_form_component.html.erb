@@ -31,7 +31,7 @@
   </div>
 
   <div style="display:flex;align-items:center;gap:8px;margin-top:14px;">
-    <%= render Qb::BtnComponent.new('Subir plano', variant: :primary, icon: :upload, type: 'submit') %>
+    <%= render Qb::BtnComponent.new('Subir plano', variant: :primary, icon: :upload, type: 'submit', data: { qb_file_submit: true }) %>
     <%= render Qb::BtnComponent.new('Cancelar', variant: :secondary, data: { action: 'click->qb--drawer#back' }) %>
   </div>
 <% end %>

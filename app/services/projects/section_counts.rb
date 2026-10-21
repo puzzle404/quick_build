@@ -21,7 +21,7 @@ module Projects
       expenses: ->(id) { Expense.where(project_id: id) },
       blueprints: ->(id) { Blueprint.where(project_id: id) },
       team: ->(id) { ProjectPerson.where(project_id: id) },
-      docs: ->(id) { Document.where(documentable_type: "Project", documentable_id: id) },
+      docs: ->(id) { Document.for_project(id) },
       # Fotos y Bitácora: de la obra y de sus etapas (las listan las dos).
       photos: ->(id) { Image.for_project(id) },
       notes: ->(id) { Note.for_project(id) }
