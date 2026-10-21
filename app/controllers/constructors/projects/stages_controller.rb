@@ -79,14 +79,24 @@ module Constructors
         if @stage.update(stage_params)
           respond_to do |format|
             format.turbo_stream do
-              @stage.reload
-              render turbo_stream: turbo_stream.update("drawer",
-                partial: "constructors/projects/stages/detail_drawer",
-                locals: {
-                  project: @project.decorate,
-                  stage: @stage.decorate,
-                  sub_stages: @stage.sub_stages.order(:position, :name)
-                })
+              if mobile_variant?
+                # El layout mobile no tiene frame "drawer": el update("drawer")
+                # no pintaba nada y el usuario se quedaba en el form sin
+                # enterarse de que se guardó.
+                redirect_to constructors_project_stage_path(@project, @stage), notice: "Etapa actualizada correctamente."
+              else
+                @stage.reload
+                render turbo_stream: [
+                  turbo_stream.update("drawer",
+                    partial: "constructors/projects/stages/detail_drawer",
+                    locals: {
+                      project: @project.decorate,
+                      stage: @stage.decorate,
+                      sub_stages: @stage.sub_stages.order(:position, :name)
+                    }),
+                  *planning_streams
+                ]
+              end
             end
             format.html { redirect_to stages_page_path, notice: "Etapa actualizada correctamente." }
           end
@@ -267,6 +277,29 @@ module Constructors
         return STAGE_STATUS_LABELS[:doing] if progress.positive?
 
         STAGE_STATUS_LABELS[:pending]
+      end
+
+      # Lo que quedó detrás del drawer en projects#show —la tarjeta de la etapa
+      # raíz y el Gantt— se re-renderiza en el lugar: antes sólo se actualizaba
+      # el drawer y la tarjeta seguía diciendo "Sin asignar" hasta recargar
+      # (feedback 29/09). En otras pantallas esos ids no existen y Turbo
+      # ignora los streams.
+      def planning_streams
+        roots = @project.project_stages.where(parent_id: nil).order(:position).includes(:sub_stages).to_a
+        totals = ::Projects::SpendSummary.new(@project).by_stage
+        project = @project.decorate
+        streams = [
+          turbo_stream.update("planning_gantt",
+            Constructors::Projects::Planning::GanttComponent.new(project: project, root_stages: roots, expense_totals: totals))
+        ]
+
+        root = roots.find { |r| r.id == (@stage.parent_id || @stage.id) }
+        return streams unless root
+
+        sub_stages = root.sub_stages.sort_by { |s| [ s.position.to_i, s.name.to_s ] }
+        streams.unshift turbo_stream.replace(ActionView::RecordIdentifier.dom_id(root, :card),
+          Constructors::Projects::Planning::StageCardComponent.new(project: project, stage: root,
+                                                                    sub_stages: sub_stages, expense_totals: totals))
       end
 
       def set_stage
